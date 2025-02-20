@@ -19,6 +19,8 @@ package org.apache.shardingsphere.test.e2e.framework.param.array;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.distsql.statement.ral.RALStatement;
 import org.apache.shardingsphere.distsql.statement.rdl.RDLStatement;
@@ -90,7 +92,17 @@ public final class E2ETestParameterGenerator {
                                                                          final DatabaseType databaseType, final SQLCommandType sqlCommandType) {
         Collection<AssertionTestParameter> result = new LinkedList<>();
         for (SQLExecuteType each : SQLExecuteType.values()) {
+            // SPEX ADDED: BEGIN
+            if (null != testCaseContext.getTestCase().getSqlCaseTypes() && !testCaseContext.getTestCase().getSqlCaseTypes().contains(each.name())) {
+                continue;
+            }
+            // SPEX ADDED: END
             if (!sqlCommandType.isLiteralOnly() || SQLExecuteType.LITERAL == each) {
+                // SPEX ADDED: BEGIN
+                if (SQLExecuteType.LITERAL == each && testCaseContext.getTestCase().getSql().contains("SPHEREEX_PARAM")) {
+                    continue;
+                }
+                // SPEX ADDED: END
                 result.addAll(getAssertionTestParameter(testCaseContext, databaseType, each, sqlCommandType));
             }
         }
@@ -140,7 +152,9 @@ public final class E2ETestParameterGenerator {
     
     private boolean filterScenarios(final String scenario, final Collection<String> scenarios, final Class<? extends SQLStatement> sqlStatementClass) {
         if (sqlStatementClass == RALStatement.class) {
-            return "empty_rules".equals(scenario);
+            // SPEX CHANGED: BEGIN
+            return ("empty_rules".equals(scenario) || "sphereex_sql_federation_shuffle_join".equals(scenario)) && scenarios.contains(scenario);
+            // SPEX CHANGED: END
         }
         if (sqlStatementClass == RDLStatement.class || "distsql_rdl".equals(scenario)) {
             return sqlStatementClass == RDLStatement.class && "distsql_rdl".equals(scenario);
@@ -194,7 +208,8 @@ public final class E2ETestParameterGenerator {
     }
     
     private Collection<DatabaseType> getDatabaseTypes(final String databaseTypes) {
-        String candidates = Strings.isNullOrEmpty(databaseTypes) ? "H2,MySQL,Oracle,SQLServer,PostgreSQL,openGauss" : databaseTypes;
+        @SphereEx(Type.MODIFY)
+        String candidates = Strings.isNullOrEmpty(databaseTypes) ? "H2,MySQL,Oracle,SQLServer,PostgreSQL,openGauss,Aurora,DM,StarRocks" : databaseTypes;
         return Splitter.on(',').trimResults().splitToList(candidates).stream().map(each -> TypedSPILoader.getService(DatabaseType.class, each)).collect(Collectors.toList());
     }
 }

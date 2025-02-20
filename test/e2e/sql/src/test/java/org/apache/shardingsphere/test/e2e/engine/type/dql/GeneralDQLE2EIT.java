@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.engine.type.dql;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.test.e2e.cases.value.SQLValue;
 import org.apache.shardingsphere.test.e2e.engine.arg.E2ETestCaseArgumentsProvider;
 import org.apache.shardingsphere.test.e2e.engine.arg.E2ETestCaseSettings;
@@ -76,8 +77,18 @@ class GeneralDQLE2EIT extends BaseDQLE2EIT {
     }
     
     private boolean isNeedSkipExecuteQueryWithXmlExcepted(final AssertionTestParameter testParam) {
+        // SPEX ADDED: BEGIN
+        if (isDataIntegrityScenario(testParam)) {
+            return false;
+        }
+        // SPEX ADDED: END
         return "jdbc".equals(testParam.getAdapter()) && !"empty_storage_units".equalsIgnoreCase(testParam.getScenario())
                 || "proxy".equals(testParam.getAdapter()) && "empty_storage_units".equalsIgnoreCase(testParam.getScenario());
+    }
+    
+    @SphereEx
+    private boolean isDataIntegrityScenario(final AssertionTestParameter testParam) {
+        return testParam.getScenario().equalsIgnoreCase("sphereex_data_integrity") || testParam.getScenario().equalsIgnoreCase("sphereex_encrypt_data_integrity");
     }
     
     private void assertQueryForStatementWithXmlExpected(final E2ETestContext context) throws SQLException {
@@ -104,8 +115,8 @@ class GeneralDQLE2EIT extends BaseDQLE2EIT {
     
     private void assertExecuteQueryWithExpectedDataSource(final AssertionTestParameter testParam, final E2ETestContext context) throws SQLException {
         try (
-                Connection actualConnection = getEnvironmentEngine().getTargetDataSource().getConnection();
-                Connection expectedConnection = getExpectedDataSource().getConnection()) {
+                Connection expectedConnection = getExpectedDataSource().getConnection();
+                Connection actualConnection = getEnvironmentEngine().getTargetDataSource().getConnection()) {
             if (SQLExecuteType.LITERAL == context.getSqlExecuteType()) {
                 assertExecuteQueryForStatement(context, actualConnection, expectedConnection, testParam);
             } else {
@@ -117,10 +128,10 @@ class GeneralDQLE2EIT extends BaseDQLE2EIT {
     private void assertExecuteQueryForStatement(final E2ETestContext context, final Connection actualConnection, final Connection expectedConnection,
                                                 final AssertionTestParameter testParam) throws SQLException {
         try (
-                Statement actualStatement = actualConnection.createStatement();
-                ResultSet actualResultSet = actualStatement.executeQuery(context.getSQL());
                 Statement expectedStatement = expectedConnection.createStatement();
-                ResultSet expectedResultSet = expectedStatement.executeQuery(context.getSQL())) {
+                ResultSet expectedResultSet = expectedStatement.executeQuery(context.getSQL());
+                Statement actualStatement = actualConnection.createStatement();
+                ResultSet actualResultSet = actualStatement.executeQuery(context.getSQL())) {
             assertResultSet(actualResultSet, expectedResultSet, testParam);
         }
     }
@@ -128,15 +139,15 @@ class GeneralDQLE2EIT extends BaseDQLE2EIT {
     private void assertExecuteQueryForPreparedStatement(final E2ETestContext context, final Connection actualConnection, final Connection expectedConnection,
                                                         final AssertionTestParameter testParam) throws SQLException {
         try (
-                PreparedStatement actualPreparedStatement = actualConnection.prepareStatement(context.getSQL());
-                PreparedStatement expectedPreparedStatement = expectedConnection.prepareStatement(context.getSQL())) {
+                PreparedStatement expectedPreparedStatement = expectedConnection.prepareStatement(context.getSQL());
+                PreparedStatement actualPreparedStatement = actualConnection.prepareStatement(context.getSQL())) {
             for (SQLValue each : context.getAssertion().getSQLValues()) {
                 actualPreparedStatement.setObject(each.getIndex(), each.getValue());
                 expectedPreparedStatement.setObject(each.getIndex(), each.getValue());
             }
             try (
-                    ResultSet actualResultSet = actualPreparedStatement.executeQuery();
-                    ResultSet expectedResultSet = expectedPreparedStatement.executeQuery()) {
+                    ResultSet expectedResultSet = expectedPreparedStatement.executeQuery();
+                    ResultSet actualResultSet = actualPreparedStatement.executeQuery()) {
                 assertResultSet(actualResultSet, expectedResultSet, testParam);
             }
         }
@@ -176,6 +187,11 @@ class GeneralDQLE2EIT extends BaseDQLE2EIT {
     }
     
     private boolean isNeedSkipExecuteWithXmlExcepted(final AssertionTestParameter testParam) {
+        // SPEX ADDED: BEGIN
+        if (isDataIntegrityScenario(testParam)) {
+            return false;
+        }
+        // SPEX ADDED: END
         return "jdbc".equals(testParam.getAdapter());
     }
     
@@ -220,7 +236,7 @@ class GeneralDQLE2EIT extends BaseDQLE2EIT {
         try (
                 Statement actualStatement = actualConnection.createStatement();
                 Statement expectedStatement = expectedConnection.createStatement()) {
-            assertTrue(actualStatement.execute(context.getSQL()) && expectedStatement.execute(context.getSQL()), "Not a query statement.");
+            assertTrue(expectedStatement.execute(context.getSQL()) && actualStatement.execute(context.getSQL()), "Not a query statement.");
             try (
                     ResultSet actualResultSet = actualStatement.getResultSet();
                     ResultSet expectedResultSet = expectedStatement.getResultSet()) {
@@ -238,7 +254,7 @@ class GeneralDQLE2EIT extends BaseDQLE2EIT {
                 actualPreparedStatement.setObject(each.getIndex(), each.getValue());
                 expectedPreparedStatement.setObject(each.getIndex(), each.getValue());
             }
-            assertTrue(actualPreparedStatement.execute() && expectedPreparedStatement.execute(), "Not a query statement.");
+            assertTrue(expectedPreparedStatement.execute() && actualPreparedStatement.execute(), "Not a query statement.");
             try (
                     ResultSet actualResultSet = actualPreparedStatement.getResultSet();
                     ResultSet expectedResultSet = expectedPreparedStatement.getResultSet()) {

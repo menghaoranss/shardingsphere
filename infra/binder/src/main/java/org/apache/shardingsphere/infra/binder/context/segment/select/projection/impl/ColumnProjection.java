@@ -18,9 +18,11 @@
 package org.apache.shardingsphere.infra.binder.context.segment.select.projection.impl;
 
 import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.shardingsphere.infra.binder.context.segment.select.projection.Projection;
 import org.apache.shardingsphere.infra.binder.context.segment.select.projection.extractor.ProjectionIdentifierExtractEngine;
@@ -31,6 +33,8 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.Paren
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,6 +42,9 @@ import java.util.Optional;
  */
 @RequiredArgsConstructor
 @Getter
+// SPEX ADDED: BEGIN
+@Setter
+// SPEX ADDED: END
 @EqualsAndHashCode(exclude = "columnBoundInfo")
 @ToString
 public final class ColumnProjection implements Projection {
@@ -55,6 +62,15 @@ public final class ColumnProjection implements Projection {
     private final ParenthesesSegment rightParentheses;
     
     private final ColumnSegmentBoundInfo columnBoundInfo;
+    
+    @SphereEx
+    private List<ParenthesesSegment> parentheses = new LinkedList<>();
+    
+    @SphereEx
+    private final LinkedList<String> wrappedUDFNames = new LinkedList<>();
+    
+    @SphereEx
+    private boolean encryptColumnContainsInGroupByItem;
     
     public ColumnProjection(final String owner, final String name, final String alias, final DatabaseType databaseType) {
         this(null == owner ? null : new IdentifierValue(owner, QuoteCharacter.NONE), new IdentifierValue(name, QuoteCharacter.NONE),

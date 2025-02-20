@@ -1,0 +1,53 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset update-count="18">
+    <metadata data-nodes="encrypt.t_user_no_pk">
+        <column name="user_id" type="numeric" />
+        <column name="user_name_cipher" type="varchar" />
+        <column name="user_name_like" type="varchar" />
+        <column name="user_name_plain" type="varchar" />
+        <column name="password_cipher" type="varchar" />
+        <column name="email_cipher" type="varchar" />
+        <column name="user_telephone_cipher" type="varchar" />
+        <column name="user_telephone_like" type="varchar" />
+        <column name="user_telephone_plain" type="varchar" />
+        <column name="creation_date" type="datetime" />
+        <column name="digest_user_name" type="varchar" />
+        <column name="digest_password_email" type="varchar" />
+    </metadata>
+    <row data-node="encrypt.t_user_no_pk" values="1, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, ot2lm/N7o8MzxD6uMsJvIQ==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_1@1" />
+    <row data-node="encrypt.t_user_no_pk" values="2, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, fFoDFIYCE/j/306bqOLQjw==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_2@2" />
+    <row data-node="encrypt.t_user_no_pk" values="3, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="4, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="5, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="6, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="7, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, ot2lm/N7o8MzxD6uMsJvIQ==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_1@1" />
+    <row data-node="encrypt.t_user_no_pk" values="8, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, fFoDFIYCE/j/306bqOLQjw==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_2@2" />
+    <row data-node="encrypt.t_user_no_pk" values="9, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="10, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="11, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="12, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="13, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, ot2lm/N7o8MzxD6uMsJvIQ==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_1@1" />
+    <row data-node="encrypt.t_user_no_pk" values="14, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, fFoDFIYCE/j/306bqOLQjw==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_2@2" />
+    <row data-node="encrypt.t_user_no_pk" values="15, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="16, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="17, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+    <row data-node="encrypt.t_user_no_pk" values="18, Pu7zBCWQ379m/tXOXJE5Hw==, @@, zz, hHyutYvERQhbOiHsSOXC6A==, RxKzHggYgBC7VRrXZ80z5A==, DZEHT99l6UjthceKuCCKIw==, ,/., 123, 2012-01-01, digest_zz, digest_pw1d_3@3" />
+</dataset>
+<!-- SPEX ADDED: END -->

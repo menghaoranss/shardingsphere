@@ -1,0 +1,58 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset>
+    <metadata data-nodes="sphereex_encrypt_data_type.T_NUMBER_ORACLE">
+        <column name="id" type="int" />
+        <column name="A_NUMBER_CIPHER" type="varchar" />
+        <column name="A_NUMBER_P_CIPHER" type="varchar" />
+        <column name="A_NUMBER_PS_CIPHER" type="varchar" />
+        <column name="A_NUMBER_PS_LE_CIPHER" type="varchar" />
+        <column name="A_FLOAT_CIPHER" type="varchar" />
+        <column name="A_FLOAT_P_CIPHER" type="varchar" />
+        <column name="A_BINARY_FLOAT_CIPHER" type="varchar" />
+        <column name="A_BINARY_DOUBLE_CIPHER" type="varchar" />
+        <column name="A_NUMERIC_CIPHER" type="varchar" />
+        <column name="A_NUMERIC_P_CIPHER" type="varchar" />
+        <column name="A_NUMERIC_PS_CIPHER" type="varchar" />
+        <column name="A_DECIMAL_CIPHER" type="varchar" />
+        <column name="A_DECIMAL_P_CIPHER" type="varchar" />
+        <column name="A_DECIMAL_PS_CIPHER" type="varchar" />
+        <column name="A_DEC_CIPHER" type="varchar" />
+        <column name="A_DEC_P_CIPHER" type="varchar" />
+        <column name="A_DEC_PS_CIPHER" type="varchar" />
+        <column name="A_INTEGER_CIPHER" type="varchar" />
+        <column name="A_INT_CIPHER" type="varchar" />
+        <column name="A_SMALLINT_CIPHER" type="varchar" />
+        <column name="A_DOUBLE_PRECISION_CIPHER" type="varchar" />
+        <column name="A_REAL_CIPHER" type="varchar" />
+    </metadata>
+    <metadata data-nodes="sphereex_encrypt_data_type.T_SELECT_DATA_TYPE">
+        <column name="ID" type="int"/>
+        <column name="NAME_CLOB" type="clob"/>
+        <column name="PASSWORD_PLAIN" type="varchar"/>
+        <column name="PASSWORD_CIPHER" type="varchar"/>
+    </metadata>
+    <row data-node="sphereex_encrypt_data_type.T_SELECT_DATA_TYPE" values="1, clob_name1, 111111, Z3imm6j/TaQ="/>
+    <row data-node="sphereex_encrypt_data_type.T_SELECT_DATA_TYPE" values="2, clob_name2, 222222, IwCEZVlykvU="/>
+    <row data-node="sphereex_encrypt_data_type.T_SELECT_DATA_TYPE" values="3, clob_name3, 333333, j3STKQLskOY="/>
+    <row data-node="sphereex_encrypt_data_type.T_SELECT_DATA_TYPE" values="4, clob_name4, 444444, 2+iwzYfF7To="/>
+    <row data-node="sphereex_encrypt_data_type.T_SELECT_DATA_TYPE" values="5, clob_name5, 555555, NGFMkphk88o="/>
+    <row data-node="sphereex_encrypt_data_type.T_NUMBER_ORACLE" values="1, y/iwrYg2S5FXZsbFV379ow==, u1TKjGqmGNwHa2MP4PFSBA==, nU4h8UND9DR8s3q/qYVKcA==, 4/6bOSpaiItzJefVN+X3zg==, XpldJmUlzc+4ALXwiQzKMA==, P5n7Z6mMrMg1ZVudHAKsSg==, 52lUSE1PieHFMFy1aVHlvg==, /poEHOw3a2A1LG1nMixHog==, e2Ynqx9OfVZZFkpTcEvEkg==, 14BZzHlso5HlSpqLNAY2kg==, KrJeoK4IoEjOSJAinHDJkg==, sYkkKoRRHqRZugpPZJtfdA==, 7qOh/1V7YmtyWUQtMnBS6A==, /Fixz80c3ZbZ8zm6ye1mXA==, zjTdh1bMOMk07bVoRTVW5A==, Of0QrH5LxtPWxXVVs2foGQ==, U8g1UkMk4SZSDD7TFXr5Kg==, E0mWx5e2ghpd8W969yY8Fw==, q0oG0Tn/lz72oD5zxyDxxg==, E0mWx5e2ghpd8W969yY8Fw==, EpYLjFuHgpc5/Ogr+Kkqpw==, F+DffeiiPhDcwwXcjsLMlA=="/>    
+</dataset>
+<!-- SPEX ADDED: END -->

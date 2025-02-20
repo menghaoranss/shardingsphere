@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.yaml.schema.pojo;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.util.yaml.YamlConfiguration;
@@ -43,4 +44,10 @@ public final class YamlShardingSphereColumn implements YamlConfiguration {
     private boolean unsigned;
     
     private boolean nullable;
+    
+    @SphereEx
+    private String dataTypeContent;
+    
+    @SphereEx
+    private String characterSetName;
 }

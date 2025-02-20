@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.core.metadata.data.model;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,9 +34,10 @@ class TableMetaDataTest {
     
     private TableMetaData tableMetaData;
     
+    @SphereEx(Type.MODIFY)
     @BeforeEach
     void setUp() {
-        tableMetaData = new TableMetaData(null, Collections.singletonList(new ColumnMetaData("test", Types.INTEGER, true, false, true, true, false, false)),
+        tableMetaData = new TableMetaData(null, Collections.singletonList(new ColumnMetaData("test", Types.INTEGER, true, false, true, true, false, false, "")),
                 Collections.emptyList(), Collections.emptyList());
     }
     

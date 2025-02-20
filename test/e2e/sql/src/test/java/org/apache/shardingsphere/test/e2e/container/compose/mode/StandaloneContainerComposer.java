@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.test.e2e.container.compose.mode;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.storage.impl.HeterogeneousContainer;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.test.e2e.container.compose.ContainerComposer;
 import org.apache.shardingsphere.test.e2e.container.config.ProxyStandaloneContainerConfigurationFactory;
@@ -29,6 +31,7 @@ import org.apache.shardingsphere.test.e2e.env.container.atomic.enums.AdapterType
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.StorageContainer;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.StorageContainerFactory;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.config.impl.StorageContainerConfigurationFactory;
+import org.apache.shardingsphere.test.e2e.env.runtime.scenario.database.DatabaseEnvironmentManager;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -46,12 +49,24 @@ public final class StandaloneContainerComposer implements ContainerComposer {
     
     public StandaloneContainerComposer(final String scenario, final DatabaseType databaseType, final AdapterMode adapterMode, final AdapterType adapterType) {
         containers = new ITContainers(scenario);
-        storageContainer = containers.registerContainer(StorageContainerFactory.newInstance(databaseType, StorageContainerConfigurationFactory.newInstance(databaseType, scenario)));
-        adapterContainer = containers.registerContainer(AdapterContainerFactory.newInstance(adapterMode, adapterType, databaseType, scenario,
-                ProxyStandaloneContainerConfigurationFactory.newInstance(scenario, databaseType), storageContainer));
+        // SPEX CHANGED: BEGIN
+        storageContainer = containers.registerContainer(createStorageContainer(scenario, databaseType));
+        // SPEX CHANGED: END
+        adapterContainer = containers.registerContainer(AdapterContainerFactory.newInstance(adapterMode, adapterType,
+                databaseType, scenario, ProxyStandaloneContainerConfigurationFactory.newInstance(scenario, databaseType), storageContainer));
         if (adapterContainer instanceof DockerITContainer) {
             ((DockerITContainer) adapterContainer).dependsOn(storageContainer);
         }
+    }
+    
+    @SphereEx
+    private StorageContainer createStorageContainer(final String scenario, final DatabaseType databaseType) {
+        if (DatabaseEnvironmentManager.isHeterogeneousDatabase(scenario, databaseType)) {
+            HeterogeneousContainer result = new HeterogeneousContainer(scenario, databaseType);
+            result.getStorageContainers().forEach(containers::registerContainer);
+            return result;
+        }
+        return StorageContainerFactory.newInstance(databaseType, StorageContainerConfigurationFactory.newInstance(databaseType, scenario));
     }
     
     @Override

@@ -19,6 +19,7 @@ package org.apache.shardingsphere.infra.database.opengauss.metadata.data.loader;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.type.SchemaMetaDataLoader;
@@ -49,7 +50,13 @@ import java.util.stream.Collectors;
  */
 public final class OpenGaussMetaDataLoader implements DialectMetaDataLoader {
     
-    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, ordinal_position, data_type, udt_name, column_default, table_schema, is_nullable"
+    @SphereEx
+    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, ordinal_position, data_type, udt_name, column_default, table_schema, is_nullable,"
+            + " CASE"
+            + " WHEN data_type IN ('character varying', 'varchar', 'character', 'char') THEN"
+            + " udt_name || '(' || character_maximum_length || ')'"
+            + " ELSE udt_name"
+            + " END AS column_type"
             + " FROM information_schema.columns WHERE table_schema IN (%s)";
     
     private static final String TABLE_META_DATA_SQL_WITHOUT_TABLES = BASIC_TABLE_META_DATA_SQL + " ORDER BY ordinal_position";
@@ -180,7 +187,12 @@ public final class OpenGaussMetaDataLoader implements DialectMetaDataLoader {
         // TODO user defined collation which deterministic is false
         boolean caseSensitive = true;
         boolean isNullable = "YES".equals(resultSet.getString("is_nullable"));
-        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), isPrimaryKey, generated, caseSensitive, true, false, isNullable);
+        @SphereEx
+        String dataTypeContent = resultSet.getString("column_type");
+        // SPEX CHANGED: BEGIN
+        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), isPrimaryKey, generated, caseSensitive, true, false, isNullable,
+                dataTypeContent);
+        // SPEX CHANGED: END
     }
     
     private Collection<TableMetaData> createTableMetaDataList(final Multimap<String, IndexMetaData> tableIndexMetaDataMap, final Multimap<String, ColumnMetaData> tableColumnMetaDataMap) {

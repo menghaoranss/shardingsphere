@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.spi;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.expansibility.ExpansibilityProvider;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -32,4 +34,10 @@ public final class EncryptAlgorithmMetaData {
     private final boolean supportEquivalentFilter;
     
     private final boolean supportLike;
+    
+    @SphereEx
+    private final boolean supportOrder;
+    
+    @SphereEx
+    private final ExpansibilityProvider expansibility;
 }

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.sharding.metadata;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.SchemaMetaData;
@@ -63,6 +65,9 @@ class ShardingMetaDataReviseEngineTest {
         assertTrue(columns.next().isGenerated());
         assertFalse(columns.next().isGenerated());
         assertFalse(columns.next().isGenerated());
+        // SPEX ADDED: BEGIN
+        assertFalse(columns.next().isGenerated());
+        // SPEX ADDED: END
     }
     
     private ShardingRule mockShardingRule() {
@@ -73,10 +78,12 @@ class ShardingMetaDataReviseEngineTest {
         return result;
     }
     
+    @SphereEx(Type.MODIFY)
     private TableMetaData createTableMetaData() {
-        Collection<ColumnMetaData> columns = Arrays.asList(new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false),
-                new ColumnMetaData("pwd_cipher", Types.VARCHAR, false, false, true, true, false, false),
-                new ColumnMetaData("product_id", Types.INTEGER, false, false, true, true, false, false));
+        Collection<ColumnMetaData> columns = Arrays.asList(new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, ""),
+                new ColumnMetaData("pwd_cipher", Types.VARCHAR, false, false, true, true, false, false, ""),
+                new ColumnMetaData("pwd_plain", Types.VARCHAR, false, false, true, true, false, false, ""),
+                new ColumnMetaData("product_id", Types.INTEGER, false, false, true, true, false, false, ""));
         return new TableMetaData("t_order", columns, Collections.emptyList(), Collections.emptyList());
     }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.yaml.config.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.yaml.config.rule.YamlPlainColumnItemRuleConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.util.yaml.YamlConfiguration;
@@ -30,9 +32,18 @@ public final class YamlEncryptColumnRuleConfiguration implements YamlConfigurati
     
     private String name;
     
+    @SphereEx
+    private String dataType;
+    
     private YamlEncryptColumnItemRuleConfiguration cipher;
     
     private YamlEncryptColumnItemRuleConfiguration assistedQuery;
     
     private YamlEncryptColumnItemRuleConfiguration likeQuery;
+    
+    @SphereEx
+    private YamlEncryptColumnItemRuleConfiguration orderQuery;
+    
+    @SphereEx
+    private YamlPlainColumnItemRuleConfiguration plain;
 }

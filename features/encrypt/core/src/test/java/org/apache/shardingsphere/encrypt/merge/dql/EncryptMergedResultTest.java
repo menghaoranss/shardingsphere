@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.merge.dql;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.exception.data.DecryptFailedException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
@@ -30,6 +32,8 @@ import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.merge.result.MergedResult;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
+import org.apache.shardingsphere.infra.metadata.database.resource.unit.StorageUnit;
 import org.apache.shardingsphere.infra.metadata.database.rule.RuleMetaData;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
@@ -56,7 +60,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -81,7 +87,8 @@ class EncryptMergedResultTest {
     void assertGetValueWithoutColumnProjection() throws SQLException {
         when(selectStatementContext.findColumnProjection(1)).thenReturn(Optional.empty());
         when(mergedResult.getValue(1, String.class)).thenReturn("foo_value");
-        assertThat(new EncryptMergedResult(mock(), mock(), selectStatementContext, mergedResult).getValue(1, String.class), is("foo_value"));
+        ShardingSphereDatabase database = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
+        assertThat(new EncryptMergedResult(database, mock(), selectStatementContext, mergedResult).getValue(1, String.class), is("foo_value"));
     }
     
     @Test
@@ -113,10 +120,19 @@ class EncryptMergedResultTest {
                         new TableSegmentBoundInfo(new IdentifierValue("foo_db"), new IdentifierValue("foo_schema")), new IdentifierValue("foo_tbl"), new IdentifierValue("foo_col")));
         when(selectStatementContext.findColumnProjection(1)).thenReturn(Optional.of(columnProjection));
         when(selectStatementContext.getTablesContext().getSchemaName()).thenReturn(Optional.of("foo_schema"));
-        EncryptAlgorithm encryptAlgorithm = mock(EncryptAlgorithm.class);
-        when(encryptAlgorithm.decrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")))).thenReturn("foo_decrypted_value");
+        @SphereEx(Type.MODIFY)
+        EncryptAlgorithm encryptAlgorithm = mock(EncryptAlgorithm.class, RETURNS_DEEP_STUBS);
+        // SPEX CHANGED: BEGIN
+        when(encryptAlgorithm.decrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")), any())).thenReturn("foo_decrypted_value");
+        // SPEX CHANGED: END
         EncryptRule rule = mockRule(encryptAlgorithm);
-        ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db", mock(), mock(), new RuleMetaData(Collections.singleton(rule)), Collections.emptyList());
+        // SPEX ADDED: BEGIN
+        StorageUnit storageUnit = mock(StorageUnit.class, RETURNS_DEEP_STUBS);
+        ResourceMetaData resourceMetaData = mock(ResourceMetaData.class);
+        when(resourceMetaData.getStorageUnits()).thenReturn(Collections.singletonMap("foo_db", storageUnit));
+        // SPEX ADDED: END
+        @SphereEx(Type.MODIFY)
+        ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db", mock(), resourceMetaData, new RuleMetaData(Collections.singleton(rule)), Collections.emptyList());
         ShardingSphereMetaData metaData = new ShardingSphereMetaData(Collections.singleton(database), mock(), mock(), mock());
         when(mergedResult.getValue(1, Object.class)).thenReturn("foo_value");
         assertThat(new EncryptMergedResult(database, metaData, selectStatementContext, mergedResult).getValue(1, String.class), is("foo_decrypted_value"));
@@ -130,7 +146,9 @@ class EncryptMergedResultTest {
         when(selectStatementContext.findColumnProjection(1)).thenReturn(Optional.of(columnProjection));
         when(selectStatementContext.getTablesContext().getSchemaName()).thenReturn(Optional.of("foo_schema"));
         EncryptAlgorithm encryptAlgorithm = mock(EncryptAlgorithm.class);
-        when(encryptAlgorithm.decrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")))).thenThrow(new RuntimeException("Test failed"));
+        // SPEX CHANGED: BEGIN
+        when(encryptAlgorithm.decrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")), any())).thenThrow(new RuntimeException("Test failed"));
+        // SPEX CHANGED: END
         EncryptRule rule = mockRule(encryptAlgorithm);
         ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db", mock(), mock(), new RuleMetaData(Collections.singleton(rule)), Collections.emptyList());
         ShardingSphereMetaData metaData = new ShardingSphereMetaData(Collections.singleton(database), mock(), mock(), mock());
@@ -142,10 +160,20 @@ class EncryptMergedResultTest {
         EncryptRule result = mock(EncryptRule.class);
         EncryptTable encryptTable = mock(EncryptTable.class);
         when(encryptTable.isEncryptColumn("foo_col")).thenReturn(true);
-        EncryptColumn encryptColumn = new EncryptColumn("foo_col", new CipherColumnItem("foo_cipher_col", encryptAlgorithm));
+        // SPEX CHANGED: BEGIN
+        EncryptColumn encryptColumn = buildEncryptColumn(encryptAlgorithm);
+        // SPEX CHANGED: END
         when(encryptTable.getEncryptColumn("foo_col")).thenReturn(encryptColumn);
         when(result.findEncryptTable("foo_tbl")).thenReturn(Optional.of(encryptTable));
         when(result.getEncryptTable("foo_tbl")).thenReturn(encryptTable);
+        return result;
+    }
+    
+    @SphereEx
+    private EncryptColumn buildEncryptColumn(final EncryptAlgorithm encryptAlgorithm) {
+        CipherColumnItem cipherColumnItem = new CipherColumnItem("foo_cipher_col", encryptAlgorithm);
+        EncryptColumn result = new EncryptColumn("foo_col", cipherColumnItem);
+        cipherColumnItem.setEncryptColumn(result);
         return result;
     }
     

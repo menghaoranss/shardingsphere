@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere</artifactId>
-        <version>5.5.2</version>
+        <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
     <artifactId>shardingsphere-infra</artifactId>
     <packaging>pom</packaging>
@@ -48,5 +48,6 @@
         <module>expr</module>
         <module>util</module>
         <module>reachability-metadata</module>
+        <module>diff</module>
     </modules>
 </project>

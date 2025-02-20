@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.yaml.schema.swapper;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereColumn;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereConstraint;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereIndex;
@@ -67,10 +69,11 @@ public final class YamlTableSwapper implements YamlConfigurationSwapper<YamlShar
         return constrains.stream().collect(Collectors.toMap(key -> key.getName().toLowerCase(), constraintSwapper::swapToYamlConfiguration, (oldValue, currentValue) -> oldValue, LinkedHashMap::new));
     }
     
+    @SphereEx(Type.MODIFY)
     @Override
     public ShardingSphereTable swapToObject(final YamlShardingSphereTable yamlConfig) {
-        return new ShardingSphereTable(yamlConfig.getName(),
-                swapToColumns(yamlConfig.getColumns()), swapToIndexes(yamlConfig.getIndexes()), swapToConstraints(yamlConfig.getConstraints()), yamlConfig.getType());
+        return new ShardingSphereTable(yamlConfig.getName(), swapToColumns(yamlConfig.getColumns()), swapToIndexes(yamlConfig.getIndexes()),
+                swapToConstraints(yamlConfig.getConstraints()), yamlConfig.getType(), yamlConfig.getCharacterSetName());
     }
     
     private Collection<ShardingSphereColumn> swapToColumns(final Map<String, YamlShardingSphereColumn> columns) {

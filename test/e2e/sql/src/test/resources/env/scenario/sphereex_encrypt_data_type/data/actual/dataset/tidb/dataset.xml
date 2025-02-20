@@ -1,0 +1,48 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset>
+    <metadata data-nodes="sphereex_encrypt_data_type.t_user">
+        <column name="user_id" type="numeric" />
+        <column name="user_name" type="varchar" />
+        <column name="age_cipher" type="varchar" />
+        <column name="age_plain" type="numeric" />
+    </metadata>
+    <metadata data-nodes="sphereex_encrypt_data_type.t_number">
+        <column name="id" type="numeric" />
+        <column name="asmallint_cipher" type="varchar" />
+        <column name="aMEDIUMINT_cipher" type="varchar" />
+        <column name="aintunsigned_cipher" type="varchar" />
+        <column name="aint_cipher" type="varchar" />
+        <column name="ainteger_cipher" type="varchar" />
+        <column name="aintegerunsigned_cipher" type="varchar" />
+        <column name="abigint_cipher" type="varchar" />
+        <column name="abigintunsigned_cipher" type="varchar" />
+        <column name="adecimal_cipher" type="varchar" />
+        <column name="anumeric_cipher" type="varchar" />
+        <column name="afixed_cipher" type="varchar" />
+        <column name="afloat_cipher" type="varchar" />
+        <column name="afloatbig_cipher" type="varchar" />
+        <column name="afloutdouble_cipher" type="varchar" />
+        <column name="adouble_cipher" type="varchar" />
+        <column name="adoubleprecision_cipher" type="varchar" />
+        <column name="areal_cipher" type="varchar" />
+    </metadata>
+    <row data-node="sphereex_encrypt_data_type.t_number" values="1, y/iwrYg2S5FXZsbFV379ow==, 5LikPYYQIBtcAH8YUR8tFQ==, c4/k0o5HzlqEaGs9kbzr8g==, rW3xweJTnN+Z5L6fMYUPCA==, rW3xweJTnN+Z5L6fMYUPCA==, c4/k0o5HzlqEaGs9kbzr8g==, a3rcMbJAFSKOdEENqHpi2AG1SXA6dbgkXMKHFjacYQg=, uLqTsoqvCAWPq+IXvIILtuJ8XdySsr1Au1s/9r33BE0=, 5utO7MyCGBO/OCjjfFD7BQ==, nU4h8UND9DR8s3q/qYVKcA==, gyaVV+C/J+AZt02T/6elyg==, OSgQVTiku9+0f5bQrXJs4A==, 8Yj/09If8NvlNDaocfH+bw==, 99r77Q6iyjJ2UUVU61+BNA==, RYqIrj7gAxZlDO2mc91rlA==, nibeuIzKA9Pf1xGK2XtMqw==, 8Yj/09If8NvlNDaocfH+bw=="/>
+</dataset>
+<!-- SPEX ADDED: END -->

@@ -23,3 +23,10 @@ org.apache.shardingsphere.mask.algorithm.cover.MaskBeforeSpecialCharsAlgorithm
 org.apache.shardingsphere.mask.algorithm.cover.MaskFirstNLastMMaskAlgorithm
 org.apache.shardingsphere.mask.algorithm.cover.MaskFromXToYMaskAlgorithm
 org.apache.shardingsphere.mask.algorithm.replace.GenericTableRandomReplaceAlgorithm
+
+com.sphereex.dbplusengine.mask.algorithm.replace.SphereExTelephoneRandomReplaceAlgorithm
+com.sphereex.dbplusengine.mask.algorithm.replace.SphereExPersonalIdentityNumberRandomReplaceAlgorithm
+com.sphereex.dbplusengine.mask.algorithm.replace.SphereExMilitaryIdentityNumberRandomReplaceAlgorithm
+com.sphereex.dbplusengine.mask.algorithm.replace.SphereExLandlineNumberRandomAlgorithm
+com.sphereex.dbplusengine.mask.algorithm.replace.SphereExUnifiedCreditCodeRandomReplaceAlgorithm
+com.sphereex.dbplusengine.mask.algorithm.cover.SphereExChineseNameMaskAlgorithm

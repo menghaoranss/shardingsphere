@@ -17,7 +17,9 @@
 
 package org.apache.shardingsphere.infra.algorithm.cryptographic.core;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.algorithm.core.ShardingSphereAlgorithm;
+import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 
 /**
  * Cryptographic algorithm.
@@ -39,4 +41,12 @@ public interface CryptographicAlgorithm extends ShardingSphereAlgorithm {
      * @return plain value
      */
     Object decrypt(Object cipherValue);
+    
+    /**
+     * convert to encryptor configuration.
+     *
+     * @return converted configuration
+     */
+    @SphereEx
+    AlgorithmConfiguration toConfiguration();
 }

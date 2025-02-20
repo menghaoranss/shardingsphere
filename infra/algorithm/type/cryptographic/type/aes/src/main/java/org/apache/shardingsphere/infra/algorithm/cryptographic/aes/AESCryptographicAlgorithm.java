@@ -17,17 +17,24 @@
 
 package org.apache.shardingsphere.infra.algorithm.cryptographic.aes;
 
+import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.algorithm.core.cache.CipherInstanceManager;
 import lombok.SneakyThrows;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.shardingsphere.infra.algorithm.core.exception.AlgorithmInitializationException;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.cryptographic.core.CryptographicAlgorithm;
-import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.algorithm.cryptographic.core.CryptographicPropertiesProvider;
+import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
+import java.security.Security;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -36,23 +43,26 @@ import java.util.Properties;
  */
 public final class AESCryptographicAlgorithm implements CryptographicAlgorithm {
     
-    private static final String AES_KEY = "aes-key-value";
+    @SphereEx
+    private Properties props;
     
-    private static final String DIGEST_ALGORITHM_NAME = "digest-algorithm-name";
+    private CryptographicPropertiesProvider propsProvider;
     
-    private byte[] secretKey;
+    // SPEX ADDED: BEGIN
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+    // SPEX ADDED: END
     
     @Override
     public void init(final Properties props) {
-        secretKey = getSecretKey(props);
-    }
-    
-    private byte[] getSecretKey(final Properties props) {
-        String aesKey = props.getProperty(AES_KEY);
-        ShardingSpherePreconditions.checkNotEmpty(aesKey, () -> new AlgorithmInitializationException(this, "%s can not be null or empty", AES_KEY));
-        String digestAlgorithm = props.getProperty(DIGEST_ALGORITHM_NAME);
-        ShardingSpherePreconditions.checkNotEmpty(digestAlgorithm, () -> new AlgorithmInitializationException(this, "%s can not be null or empty", DIGEST_ALGORITHM_NAME));
-        return Arrays.copyOf(DigestUtils.getDigest(digestAlgorithm.toUpperCase()).digest(aesKey.getBytes(StandardCharsets.UTF_8)), 16);
+        // SPEX ADDED: BEGIN
+        this.props = props;
+        String compatibleMode = props.containsKey("db-compatible-mode") ? props.getProperty("db-compatible-mode") : "DEFAULT";
+        // SPEX ADDED: END
+        // SPEX CHANGED: BEGIN
+        propsProvider = TypedSPILoader.getService(CryptographicPropertiesProvider.class, compatibleMode, props);
+        // SPEX CHANGED: END
     }
     
     @SneakyThrows(GeneralSecurityException.class)
@@ -61,8 +71,20 @@ public final class AESCryptographicAlgorithm implements CryptographicAlgorithm {
         if (null == plainValue) {
             return null;
         }
-        byte[] result = getCipher(Cipher.ENCRYPT_MODE).doFinal(String.valueOf(plainValue).getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(result);
+        // SPEX CHANGED: BEGIN
+        byte[] result = CipherInstanceManager.getInstance().getEncryptCipher(toConfiguration(), Cipher.class, () -> createCipherInstance(true))
+                .doFinal(String.valueOf(plainValue).getBytes(StandardCharsets.UTF_8));
+        // SPEX CHANGED: END
+        return encode(result);
+    }
+    
+    private String encode(final byte[] value) {
+        // SPEX ADDED: BEGIN
+        if ("HEX".equals(propsProvider.getEncoder())) {
+            return Hex.encodeHexString(value, false);
+        }
+        // SPEX ADDED: END
+        return Base64.getEncoder().encodeToString(value);
     }
     
     @SneakyThrows(GeneralSecurityException.class)
@@ -71,13 +93,57 @@ public final class AESCryptographicAlgorithm implements CryptographicAlgorithm {
         if (null == cipherValue) {
             return null;
         }
-        byte[] result = getCipher(Cipher.DECRYPT_MODE).doFinal(Base64.getDecoder().decode(cipherValue.toString().trim()));
+        // SPEX CHANGED: BEGIN
+        byte[] result = CipherInstanceManager.getInstance().getDecryptCipher(toConfiguration(), Cipher.class, () -> createCipherInstance(false))
+                .doFinal(decode(cipherValue.toString().trim()));
+        // SPEX CHANGED: END
         return new String(result, StandardCharsets.UTF_8);
     }
     
+    // SPEX ADDED: BEGIN
+    @SneakyThrows(DecoderException.class)
+    // SPEX ADDED: END
+    private byte[] decode(final String value) {
+        // SPEX ADDED: BEGIN
+        if ("HEX".equals(propsProvider.getEncoder())) {
+            return Hex.decodeHex(value);
+        }
+        // SPEX ADDED: END
+        return Base64.getDecoder().decode(value);
+    }
+    
+    @SphereEx
+    @Override
+    public AlgorithmConfiguration toConfiguration() {
+        return new AlgorithmConfiguration(getType(), props);
+    }
+    
+    @SphereEx
+    @SneakyThrows(GeneralSecurityException.class)
+    private Cipher createCipherInstance(final boolean encryptMode) {
+        return encryptMode ? getCipher(Cipher.ENCRYPT_MODE) : getCipher(Cipher.DECRYPT_MODE);
+    }
+    
     private Cipher getCipher(final int decryptMode) throws GeneralSecurityException {
+        // SPEX ADDED: BEGIN
+        if (!Strings.isNullOrEmpty(propsProvider.getMode()) && !Strings.isNullOrEmpty(propsProvider.getPadding())) {
+            return getCipherWithModePadding(decryptMode);
+        }
+        // SPEX ADDED: END
         Cipher result = Cipher.getInstance(getType());
-        result.init(decryptMode, new SecretKeySpec(secretKey, getType()));
+        result.init(decryptMode, new SecretKeySpec(propsProvider.getSecretKey(), getType()));
+        return result;
+    }
+    
+    @SphereEx
+    private Cipher getCipherWithModePadding(final int decryptMode) throws GeneralSecurityException {
+        String modePadding = "AES/" + propsProvider.getMode() + "/" + propsProvider.getPadding();
+        Cipher result = Cipher.getInstance(modePadding);
+        if (0 == propsProvider.getIvParameter().length) {
+            result.init(decryptMode, new SecretKeySpec(propsProvider.getSecretKey(), getType()));
+        } else {
+            result.init(decryptMode, new SecretKeySpec(propsProvider.getSecretKey(), getType()), new IvParameterSpec(propsProvider.getIvParameter()));
+        }
         return result;
     }
     

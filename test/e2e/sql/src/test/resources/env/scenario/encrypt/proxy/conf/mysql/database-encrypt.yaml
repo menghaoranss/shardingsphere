@@ -40,13 +40,24 @@ rules:
         aes-key-value: 123456abc
         digest-algorithm-name: SHA-1
     like_encryptor:
-      type: IT.ENCRYPT.LIKE.FIXTURE
+      # SPEX CHANGED: BEGIN
+      type: SphereEx:CHAR_TRANSFORM_LIKE
       props:
-        mask: 4093
+        transform-indexes: 1,2,3,5,7,14
+      # SPEX CHANGED: END
+    # SPEX ADDED: BEGIN
+    char_digest_like_encryptor:
+      type: CHAR_DIGEST_LIKE
+        # SPEX ADDED: END
   tables:
     t_user:
       columns:
         user_name:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: user_name_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: user_name_cipher
             encryptorName: aes_encryptor
@@ -54,14 +65,29 @@ rules:
             name: user_name_like
             encryptorName: like_encryptor
         password:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: password_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: password_cipher
             encryptorName: aes_encryptor
         email:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: email_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: email_cipher
             encryptorName: aes_encryptor
         telephone:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: user_telephone_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: user_telephone_cipher
             encryptorName: aes_encryptor
@@ -71,16 +97,31 @@ rules:
     t_user_details:
       columns:
         number:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: number_cipher
             encryptorName: aes_encryptor
         number_new:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_new_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: number_new_cipher
             encryptorName: aes_encryptor
     t_merchant:
       columns:
         business_code:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: business_code_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: business_code_cipher
             encryptorName: aes_encryptor
@@ -88,9 +129,1066 @@ rules:
             name: business_code_like
             encryptorName: like_encryptor
         telephone:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: merchant_telephone_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: merchant_telephone_cipher
             encryptorName: aes_encryptor
           likeQuery:
             name: merchant_telephone_like
             encryptorName: like_encryptor
+    # SPEX ADDED: BEGIN
+    t_product_extend:
+      columns:
+        manual:
+          plain:
+            name: manual_plain
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: manual_cipher
+            encryptorName: aes_encryptor
+
+    hr_staff_base:
+      columns:
+        staff_name:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: staff_name_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: staff_name_like
+          name: staff_name
+          plain:
+            name: staff_name
+            queryWithPlain: ${query_with_plain}
+        card_type:
+          cipher:
+            dataType: CHAR(30)
+            encryptorName: aes_encryptor
+            name: card_type_cipher
+          dataType: CHAR(2)
+          likeQuery:
+            dataType: CHAR(2)
+            encryptorName: char_digest_like_encryptor
+            name: card_type_like
+          name: card_type
+          plain:
+            name: card_type
+            queryWithPlain: ${query_with_plain}
+        idCard:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: idCard_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: idCard_like
+          name: idCard
+          plain:
+            name: idCard
+            queryWithPlain: ${query_with_plain}
+        sex:
+          cipher:
+            dataType: CHAR(30)
+            encryptorName: aes_encryptor
+            name: sex_cipher
+          dataType: CHAR(1)
+          likeQuery:
+            dataType: CHAR(1)
+            encryptorName: char_digest_like_encryptor
+            name: sex_like
+          name: sex
+          plain:
+            name: sex
+            queryWithPlain: ${query_with_plain}
+        from_nation:
+          cipher:
+            dataType: CHAR(30)
+            encryptorName: aes_encryptor
+            name: from_nation_cipher
+          dataType: CHAR(4)
+          likeQuery:
+            dataType: CHAR(4)
+            encryptorName: char_digest_like_encryptor
+            name: from_nation_like
+          name: from_nation
+          plain:
+            name: from_nation
+            queryWithPlain: ${query_with_plain}
+        marriage:
+          cipher:
+            dataType: VARCHAR(72)
+            encryptorName: aes_encryptor
+            name: marriage_cipher
+          dataType: VARCHAR(36)
+          likeQuery:
+            dataType: VARCHAR(36)
+            encryptorName: char_digest_like_encryptor
+            name: marriage_like
+          name: marriage
+          plain:
+            name: marriage
+            queryWithPlain: ${query_with_plain}
+        family_address:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_address_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_address_like
+          name: family_address
+          plain:
+            name: family_address
+            queryWithPlain: ${query_with_plain}
+        family_province:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_province_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_province_like
+          name: family_province
+          plain:
+            name: family_province
+            queryWithPlain: ${query_with_plain}
+        family_city:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_city_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_city_like
+          name: family_city
+          plain:
+            name: family_city
+            queryWithPlain: ${query_with_plain}
+        family_area:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_area_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_area_like
+          name: family_area
+          plain:
+            name: family_area
+            queryWithPlain: ${query_with_plain}
+        tel_phone:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: tel_phone_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: tel_phone_like
+          name: tel_phone
+          plain:
+            name: tel_phone
+            queryWithPlain: ${query_with_plain}
+        live_place:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_place_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_place_like
+          name: live_place
+          plain:
+            name: live_place
+            queryWithPlain: ${query_with_plain}
+        live_province:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_province_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_province_like
+          name: live_province
+          plain:
+            name: live_province
+            queryWithPlain: ${query_with_plain}
+        live_city:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_city_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_city_like
+          name: live_city
+          plain:
+            name: live_city
+            queryWithPlain: ${query_with_plain}
+        live_area:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_area_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_area_like
+          name: live_area
+          plain:
+            name: live_area
+            queryWithPlain: ${query_with_plain}
+        mobile_phone:
+          cipher:
+            dataType: VARCHAR(120)
+            encryptorName: aes_encryptor
+            name: mobile_phone_cipher
+          dataType: VARCHAR(60)
+          likeQuery:
+            dataType: VARCHAR(60)
+            encryptorName: char_digest_like_encryptor
+            name: mobile_phone_like
+          name: mobile_phone
+          plain:
+            name: mobile_phone
+            queryWithPlain: ${query_with_plain}
+        Email:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: Email_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: Email_like
+          name: Email
+          plain:
+            name: Email
+            queryWithPlain: ${query_with_plain}
+        call_person:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: call_person_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: call_person_like
+          name: call_person
+          plain:
+            name: call_person
+            queryWithPlain: ${query_with_plain}
+        call_phone:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: call_phone_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: call_phone_like
+          name: call_phone
+          plain:
+            name: call_phone
+            queryWithPlain: ${query_with_plain}
+        bankAccount:
+          cipher:
+            dataType: VARCHAR(256)
+            encryptorName: aes_encryptor
+            name: bankAccount_cipher
+          dataType: VARCHAR(128)
+          likeQuery:
+            dataType: VARCHAR(128)
+            encryptorName: char_digest_like_encryptor
+            name: bankAccount_like
+          name: bankAccount
+          plain:
+            name: bankAccount
+            queryWithPlain: ${query_with_plain}
+      name: hr_staff_base
+    hr_staff_family:
+      columns:
+        member_name:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: member_name_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: member_name_like
+          name: member_name
+          plain:
+            name: member_name
+            queryWithPlain: ${query_with_plain}
+        member_sex:
+          cipher:
+            dataType: CHAR(30)
+            encryptorName: aes_encryptor
+            name: member_sex_cipher
+          dataType: CHAR(1)
+          likeQuery:
+            dataType: CHAR(1)
+            encryptorName: char_digest_like_encryptor
+            name: member_sex_like
+          name: member_sex
+          plain:
+            name: member_sex
+            queryWithPlain: ${query_with_plain}
+        member_phone:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: member_phone_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: member_phone_like
+          name: member_phone
+          plain:
+            name: member_phone
+            queryWithPlain: ${query_with_plain}
+        staff_name:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: staff_name_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: staff_name_like
+          name: staff_name
+          plain:
+            name: staff_name
+            queryWithPlain: ${query_with_plain}
+        hsf_field_card:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: hsf_field_card_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: hsf_field_card_like
+          name: hsf_field_card
+          plain:
+            name: hsf_field_card
+            queryWithPlain: ${query_with_plain}
+      name: hr_staff_family
+    hr_staff_edu:
+      columns:
+        staff_name:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: staff_name_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: staff_name_like
+          name: staff_name
+          plain:
+            name: staff_name
+            queryWithPlain: ${query_with_plain}
+      name: hr_staff_edu
+    hr_staff_probation:
+      columns:
+        staff_name:
+          cipher:
+            dataType: VARCHAR(400)
+            encryptorName: aes_encryptor
+            name: staff_name_cipher
+          dataType: VARCHAR(200)
+          likeQuery:
+            dataType: VARCHAR(200)
+            encryptorName: char_digest_like_encryptor
+            name: staff_name_like
+          name: staff_name
+          plain:
+            name: staff_name
+            queryWithPlain: ${query_with_plain}
+      name: hr_staff_probation
+    hr_staff_base_offer:
+      columns:
+        staff_name:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: staff_name_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: staff_name_like
+          name: staff_name
+          plain:
+            name: staff_name
+            queryWithPlain: ${query_with_plain}
+        idCard:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: idCard_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: idCard_like
+          name: idCard
+          plain:
+            name: idCard
+            queryWithPlain: ${query_with_plain}
+        from_nation:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: from_nation_cipher
+          dataType: CHAR(4)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: from_nation_like
+          name: from_nation
+          plain:
+            name: from_nation
+            queryWithPlain: ${query_with_plain}
+        marriage:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: marriage_cipher
+          dataType: VARCHAR(36)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: marriage_like
+          name: marriage
+          plain:
+            name: marriage
+            queryWithPlain: ${query_with_plain}
+        family_address:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: family_address_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: family_address_like
+          name: family_address
+          plain:
+            name: family_address
+            queryWithPlain: ${query_with_plain}
+        family_province:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: family_province_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: family_province_like
+          name: family_province
+          plain:
+            name: family_province
+            queryWithPlain: ${query_with_plain}
+        family_city:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: family_city_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: family_city_like
+          name: family_city
+          plain:
+            name: family_city
+            queryWithPlain: ${query_with_plain}
+        family_area:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: family_area_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: family_area_like
+          name: family_area
+          plain:
+            name: family_area
+            queryWithPlain: ${query_with_plain}
+        tel_phone:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: tel_phone_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: tel_phone_like
+          name: tel_phone
+          plain:
+            name: tel_phone
+            queryWithPlain: ${query_with_plain}
+        live_place:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: live_place_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: live_place_like
+          name: live_place
+          plain:
+            name: live_place
+            queryWithPlain: ${query_with_plain}
+        live_province:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: live_province_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: live_province_like
+          name: live_province
+          plain:
+            name: live_province
+            queryWithPlain: ${query_with_plain}
+        live_city:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: live_city_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: live_city_like
+          name: live_city
+          plain:
+            name: live_city
+            queryWithPlain: ${query_with_plain}
+        live_area:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: live_area_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: live_area_like
+          name: live_area
+          plain:
+            name: live_area
+            queryWithPlain: ${query_with_plain}
+        mobile_phone:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: mobile_phone_cipher
+          dataType: VARCHAR(60)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: mobile_phone_like
+          name: mobile_phone
+          plain:
+            name: mobile_phone
+            queryWithPlain: ${query_with_plain}
+        Email:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: Email_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: Email_like
+          name: Email
+          plain:
+            name: Email
+            queryWithPlain: ${query_with_plain}
+        call_person:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: call_person_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: call_person_like
+          name: call_person
+          plain:
+            name: call_person
+            queryWithPlain: ${query_with_plain}
+        call_phone:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: call_phone_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: call_phone_like
+          name: call_phone
+          plain:
+            name: call_phone
+            queryWithPlain: ${query_with_plain}
+        bankAccount:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: bankAccount_cipher
+          dataType: VARCHAR(128)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: bankAccount_like
+          name: bankAccount
+          plain:
+            name: bankAccount
+            queryWithPlain: ${query_with_plain}
+        id_address:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: id_address_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: id_address_like
+          name: id_address
+          plain:
+            name: id_address
+            queryWithPlain: ${query_with_plain}
+        hsb_ext_Email:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: hsb_ext_Email_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: hsb_ext_Email_like
+          name: hsb_ext_Email
+          plain:
+            name: hsb_ext_Email
+            queryWithPlain: ${query_with_plain}
+        idcard_is_long_term:
+          cipher:
+            dataType: TEXT
+            encryptorName: aes_encryptor
+            name: idcard_is_long_term_cipher
+          dataType: VARCHAR(5)
+          likeQuery:
+            dataType: TEXT
+            encryptorName: char_digest_like_encryptor
+            name: idcard_is_long_term_like
+          name: idcard_is_long_term
+          plain:
+            name: idcard_is_long_term
+            queryWithPlain: ${query_with_plain}
+      name: hr_staff_base_offer
+    hr_staff_base_seal:
+      columns:
+        staff_name:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: staff_name_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: staff_name_like
+          name: staff_name
+          plain:
+            name: staff_name
+            queryWithPlain: ${query_with_plain}
+        card_type:
+          cipher:
+            dataType: CHAR(30)
+            encryptorName: aes_encryptor
+            name: card_type_cipher
+          dataType: CHAR(2)
+          likeQuery:
+            dataType: CHAR(2)
+            encryptorName: char_digest_like_encryptor
+            name: card_type_like
+          name: card_type
+          plain:
+            name: card_type
+            queryWithPlain: ${query_with_plain}
+        idCard:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: idCard_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: idCard_like
+          name: idCard
+          plain:
+            name: idCard
+            queryWithPlain: ${query_with_plain}
+        sex:
+          cipher:
+            dataType: CHAR(30)
+            encryptorName: aes_encryptor
+            name: sex_cipher
+          dataType: CHAR(1)
+          likeQuery:
+            dataType: CHAR(1)
+            encryptorName: char_digest_like_encryptor
+            name: sex_like
+          name: sex
+          plain:
+            name: sex
+            queryWithPlain: ${query_with_plain}
+        from_nation:
+          cipher:
+            dataType: CHAR(30)
+            encryptorName: aes_encryptor
+            name: from_nation_cipher
+          dataType: CHAR(4)
+          likeQuery:
+            dataType: CHAR(4)
+            encryptorName: char_digest_like_encryptor
+            name: from_nation_like
+          name: from_nation
+          plain:
+            name: from_nation
+            queryWithPlain: ${query_with_plain}
+        marriage:
+          cipher:
+            dataType: VARCHAR(72)
+            encryptorName: aes_encryptor
+            name: marriage_cipher
+          dataType: VARCHAR(36)
+          likeQuery:
+            dataType: VARCHAR(36)
+            encryptorName: char_digest_like_encryptor
+            name: marriage_like
+          name: marriage
+          plain:
+            name: marriage
+            queryWithPlain: ${query_with_plain}
+        family_address:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_address_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_address_like
+          name: family_address
+          plain:
+            name: family_address
+            queryWithPlain: ${query_with_plain}
+        tel_phone:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: tel_phone_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: tel_phone_like
+          name: tel_phone
+          plain:
+            name: tel_phone
+            queryWithPlain: ${query_with_plain}
+        live_place:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_place_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_place_like
+          name: live_place
+          plain:
+            name: live_place
+            queryWithPlain: ${query_with_plain}
+        mobile_phone:
+          cipher:
+            dataType: VARCHAR(120)
+            encryptorName: aes_encryptor
+            name: mobile_phone_cipher
+          dataType: VARCHAR(60)
+          likeQuery:
+            dataType: VARCHAR(60)
+            encryptorName: char_digest_like_encryptor
+            name: mobile_phone_like
+          name: mobile_phone
+          plain:
+            name: mobile_phone
+            queryWithPlain: ${query_with_plain}
+        Email:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: Email_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: Email_like
+          name: Email
+          plain:
+            name: Email
+            queryWithPlain: ${query_with_plain}
+        call_person:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: call_person_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: call_person_like
+          name: call_person
+          plain:
+            name: call_person
+            queryWithPlain: ${query_with_plain}
+        call_phone:
+          cipher:
+            dataType: VARCHAR(60)
+            encryptorName: aes_encryptor
+            name: call_phone_cipher
+          dataType: VARCHAR(30)
+          likeQuery:
+            dataType: VARCHAR(30)
+            encryptorName: char_digest_like_encryptor
+            name: call_phone_like
+          name: call_phone
+          plain:
+            name: call_phone
+            queryWithPlain: ${query_with_plain}
+        join_file:
+          cipher:
+            dataType: VARCHAR(512)
+            encryptorName: aes_encryptor
+            name: join_file_cipher
+          dataType: VARCHAR(256)
+          likeQuery:
+            dataType: VARCHAR(256)
+            encryptorName: char_digest_like_encryptor
+            name: join_file_like
+          name: join_file
+          plain:
+            name: join_file
+            queryWithPlain: ${query_with_plain}
+        bankAccount:
+          cipher:
+            dataType: VARCHAR(256)
+            encryptorName: aes_encryptor
+            name: bankAccount_cipher
+          dataType: VARCHAR(128)
+          likeQuery:
+            dataType: VARCHAR(128)
+            encryptorName: char_digest_like_encryptor
+            name: bankAccount_like
+          name: bankAccount
+          plain:
+            name: bankAccount
+            queryWithPlain: ${query_with_plain}
+        id_address:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: id_address_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: id_address_like
+          name: id_address
+          plain:
+            name: id_address
+            queryWithPlain: ${query_with_plain}
+        call_relationship:
+          cipher:
+            dataType: VARCHAR(72)
+            encryptorName: aes_encryptor
+            name: call_relationship_cipher
+          dataType: VARCHAR(36)
+          likeQuery:
+            dataType: VARCHAR(36)
+            encryptorName: char_digest_like_encryptor
+            name: call_relationship_like
+          name: call_relationship
+          plain:
+            name: call_relationship
+            queryWithPlain: ${query_with_plain}
+        hsb_ext_Email:
+          cipher:
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+            name: hsb_ext_Email_cipher
+          dataType: VARCHAR(50)
+          likeQuery:
+            dataType: VARCHAR(50)
+            encryptorName: char_digest_like_encryptor
+            name: hsb_ext_Email_like
+          name: hsb_ext_Email
+          plain:
+            name: hsb_ext_Email
+            queryWithPlain: ${query_with_plain}
+        idcard_is_long_term:
+          cipher:
+            dataType: VARCHAR(30)
+            encryptorName: aes_encryptor
+            name: idcard_is_long_term_cipher
+          dataType: VARCHAR(5)
+          likeQuery:
+            dataType: VARCHAR(5)
+            encryptorName: char_digest_like_encryptor
+            name: idcard_is_long_term_like
+          name: idcard_is_long_term
+          plain:
+            name: idcard_is_long_term
+            queryWithPlain: ${query_with_plain}
+        family_province:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_province_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_province_like
+          name: family_province
+          plain:
+            name: family_province
+            queryWithPlain: ${query_with_plain}
+        family_city:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_city_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_city_like
+          name: family_city
+          plain:
+            name: family_city
+            queryWithPlain: ${query_with_plain}
+        family_area:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: family_area_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: family_area_like
+          name: family_area
+          plain:
+            name: family_area
+            queryWithPlain: ${query_with_plain}
+        live_province:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_province_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_province_like
+          name: live_province
+          plain:
+            name: live_province
+            queryWithPlain: ${query_with_plain}
+        live_city:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_city_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_city_like
+          name: live_city
+          plain:
+            name: live_city
+            queryWithPlain: ${query_with_plain}
+        live_area:
+          cipher:
+            dataType: VARCHAR(200)
+            encryptorName: aes_encryptor
+            name: live_area_cipher
+          dataType: VARCHAR(100)
+          likeQuery:
+            dataType: VARCHAR(100)
+            encryptorName: char_digest_like_encryptor
+            name: live_area_like
+          name: live_area
+          plain:
+            name: live_area
+            queryWithPlain: ${query_with_plain}
+      name: hr_staff_base_seal
+    # SPEX ADDED: END

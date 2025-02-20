@@ -18,6 +18,8 @@
 package org.apache.shardingsphere.test.it.rewrite.engine;
 
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.context.aware.CursorAware;
 import org.apache.shardingsphere.infra.binder.context.aware.ParameterAware;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
@@ -35,6 +37,7 @@ import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
+import org.apache.shardingsphere.infra.metadata.database.resource.unit.StorageUnit;
 import org.apache.shardingsphere.infra.metadata.database.rule.RuleMetaData;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.parser.sql.SQLStatementParserEngine;
@@ -48,7 +51,6 @@ import org.apache.shardingsphere.infra.route.engine.SQLRouteEngine;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.infra.rule.builder.database.DatabaseRulesBuilder;
 import org.apache.shardingsphere.infra.session.connection.ConnectionContext;
-import org.apache.shardingsphere.infra.session.connection.cursor.CursorConnectionContext;
 import org.apache.shardingsphere.infra.session.query.QueryContext;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.infra.yaml.config.pojo.YamlRootConfiguration;
@@ -79,7 +81,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -100,17 +101,31 @@ public abstract class SQLRewriterIT {
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(TestCaseArgumentsProvider.class)
     void assertRewrite(final SQLRewriteEngineTestParameters testParams) throws IOException, SQLException {
+        // SPEX ADDED: BEGIN
+        mockDatabaseType(testParams.getDatabaseType());
+        // SPEX ADDED: END
         Collection<SQLRewriteUnit> actual = createSQLRewriteUnits(testParams);
         assertThat(actual.size(), is(testParams.getOutputSQLs().size()));
         int count = 0;
         for (SQLRewriteUnit each : actual) {
-            assertThat(each.getSql().replace("\t", "    "), is(testParams.getOutputSQLs().get(count).replace("\t", "    ")));
+            // SPEX CHANGED: BEGIN
+            assertThat(handleSQL(each.getSql()), is(handleSQL(testParams.getOutputSQLs().get(count))));
+            // SPEX CHANGED: END
             assertThat(each.getParameters().size(), is(testParams.getOutputGroupedParameters().get(count).size()));
             for (int i = 0; i < each.getParameters().size(); i++) {
                 assertThat(String.valueOf(each.getParameters().get(i)), is(String.valueOf(testParams.getOutputGroupedParameters().get(count).get(i))));
             }
             count++;
         }
+    }
+    
+    @SphereEx
+    private String handleSQL(final String sql) {
+        return trim(sql.replace("\t", "    "), "\n");
+    }
+    
+    @SphereEx
+    protected void mockDatabaseType(final String databaseType) {
     }
     
     private Collection<SQLRewriteUnit> createSQLRewriteUnits(final SQLRewriteEngineTestParameters testParams) throws IOException, SQLException {
@@ -122,7 +137,10 @@ public abstract class SQLRewriterIT {
         mockDataSource(dataSources);
         DatabaseType databaseType = TypedSPILoader.getService(DatabaseType.class, testParams.getDatabaseType());
         ResourceMetaData resourceMetaData = mock(ResourceMetaData.class, RETURNS_DEEP_STUBS);
-        when(resourceMetaData.getStorageUnits()).thenReturn(databaseConfig.getStorageUnits());
+        // SPEX CHANGED: BEGIN
+        Map<String, StorageUnit> storageUnits = createStorageUnits(databaseConfig, databaseType);
+        when(resourceMetaData.getStorageUnits()).thenReturn(storageUnits);
+        // SPEX CHANGED: END
         String databaseName = null != rootConfig.getDatabaseName() ? rootConfig.getDatabaseName() : DefaultDatabase.LOGIC_NAME;
         String schemaName = new DatabaseTypeRegistry(databaseType).getDefaultSchemaName(databaseName);
         SQLStatementParserEngine sqlStatementParserEngine = new SQLStatementParserEngine(TypedSPILoader.getService(DatabaseType.class, testParams.getDatabaseType()),
@@ -142,9 +160,12 @@ public abstract class SQLRewriterIT {
         if (sqlStatementContext instanceof CursorAware) {
             ((CursorAware) sqlStatementContext).setCursorStatementContext(createCursorDefinition(databaseName, metaData, sqlStatementParserEngine));
         }
-        ConnectionContext connectionContext = mock(ConnectionContext.class);
-        when(connectionContext.getCursorContext()).thenReturn(new CursorConnectionContext());
-        when(connectionContext.getCurrentDatabaseName()).thenReturn(Optional.of(databaseName));
+        // SPEX CHANGED: BEGIN
+        ConnectionContext connectionContext = new ConnectionContext(() -> Collections.singleton("ds_1"));
+        // SPEX CHANGED: END
+        // SPEX ADDED: BEGIN
+        connectionContext.setCurrentDatabaseName(database.getName());
+        // SPEX ADDED: END
         QueryContext queryContext = new QueryContext(sqlStatementContext, sql, testParams.getInputParameters(), hintValueContext, connectionContext, metaData);
         ConfigurationProperties props = new ConfigurationProperties(rootConfig.getProps());
         RouteContext routeContext = new SQLRouteEngine(databaseRules, props).route(queryContext, globalRuleMetaData, database);
@@ -156,7 +177,8 @@ public abstract class SQLRewriterIT {
     }
     
     private Collection<ShardingSphereRule> createDatabaseRules(final DatabaseConfiguration databaseConfig, final String schemaName, final SQLStatement sqlStatement, final DatabaseType databaseType) {
-        Collection<ShardingSphereRule> result = DatabaseRulesBuilder.build(DefaultDatabase.LOGIC_NAME, databaseType, databaseConfig, mock(ComputeNodeInstanceContext.class),
+        @SphereEx(Type.MODIFY)
+        Collection<ShardingSphereRule> result = DatabaseRulesBuilder.build(DefaultDatabase.LOGIC_NAME, databaseType, databaseConfig, mock(ComputeNodeInstanceContext.class, RETURNS_DEEP_STUBS),
                 new ResourceMetaData(databaseConfig.getDataSources(), databaseConfig.getStorageUnits()));
         mockRules(result, schemaName, sqlStatement);
         result.add(sqlParserRule);
@@ -171,9 +193,37 @@ public abstract class SQLRewriterIT {
         return result;
     }
     
+    @SphereEx
+    private Map<String, StorageUnit> createStorageUnits(final DatabaseConfiguration databaseConfig, final DatabaseType databaseType) {
+        Map<String, StorageUnit> result = new LinkedHashMap<>(databaseConfig.getStorageUnits().size(), 1F);
+        for (Entry<String, StorageUnit> entry : databaseConfig.getStorageUnits().entrySet()) {
+            StorageUnit storageUnit = mock(StorageUnit.class, RETURNS_DEEP_STUBS);
+            when(storageUnit.getStorageType()).thenReturn(databaseType);
+            when(storageUnit.getConnectionProperties().getCatalog()).thenReturn(entry.getKey());
+            // SPEX ADDED: BEGIN
+            when(storageUnit.getConnectionProperties().isInSameDatabaseInstance(storageUnit.getConnectionProperties())).thenReturn(true);
+            // SPEX ADDED: END
+            result.put(entry.getKey(), storageUnit);
+        }
+        return result;
+    }
+    
     private CursorStatementContext createCursorDefinition(final String schemaName, final ShardingSphereMetaData metaData, final SQLStatementParserEngine sqlStatementParserEngine) {
         SQLStatement sqlStatement = sqlStatementParserEngine.parse("CURSOR t_account_cursor FOR SELECT * FROM t_account WHERE account_id = 100", false);
         return (CursorStatementContext) new SQLBindEngine(metaData, schemaName, new HintValueContext()).bind(sqlStatement, Collections.emptyList());
+    }
+    
+    @SphereEx
+    private static String trim(final String src, final String symbol) {
+        int symbolLen = symbol.length();
+        if (src.startsWith(symbol) && src.endsWith(symbol)) {
+            return src.substring(symbolLen, src.length() - symbolLen);
+        } else if (src.startsWith(symbol)) {
+            return src.substring(symbolLen);
+        } else if (src.endsWith(symbol)) {
+            return src.substring(0, src.length() - symbolLen);
+        }
+        return src;
     }
     
     protected abstract void mockDataSource(Map<String, DataSource> dataSources) throws SQLException;

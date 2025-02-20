@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.infra.database.core.metadata.data.loader.type;
 
 import com.cedarsoftware.util.CaseInsensitiveMap;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderConnection;
@@ -30,10 +31,13 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Schema meta data loader.
@@ -42,6 +46,8 @@ import java.util.Map;
 public final class SchemaMetaDataLoader {
     
     private static final String TABLE_TYPE = "TABLE";
+    
+    private static final String PARTITIONED_TABLE_TYPE = "PARTITIONED TABLE";
     
     private static final String VIEW_TYPE = "VIEW";
     
@@ -53,25 +59,34 @@ public final class SchemaMetaDataLoader {
     
     private static final String TABLE_SCHEME = "TABLE_SCHEM";
     
+    @SphereEx
+    private static final String SYNONYM_TYPE = "SYNONYM";
+    
+    @SphereEx
+    private static final String QUERY_INVALID_VIEW_SQL = "SELECT OBJECT_NAME as VIEW_NAME FROM ALL_OBJECTS where OWNER='%s' and STATUS='INVALID' and OBJECT_TYPE='VIEW'";
+    
     /**
      * Load schema table names.
      *
      * @param databaseName database name
      * @param databaseType database type
      * @param dataSource data source
+     * @param includedTables included tables
      * @param excludedTables excluded tables
      * @return loaded schema table names
      * @throws SQLException SQL exception
      */
     public static Map<String, Collection<String>> loadSchemaTableNames(final String databaseName, final DatabaseType databaseType, final DataSource dataSource,
-                                                                       final Collection<String> excludedTables) throws SQLException {
+                                                                       @SphereEx final Collection<String> includedTables, final Collection<String> excludedTables) throws SQLException {
         try (MetaDataLoaderConnection connection = new MetaDataLoaderConnection(databaseType, dataSource.getConnection())) {
             Collection<String> schemaNames = loadSchemaNames(connection, databaseType);
             DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
             Map<String, Collection<String>> result = new CaseInsensitiveMap<>(schemaNames.size(), 1F);
             for (String each : schemaNames) {
                 String schemaName = dialectDatabaseMetaData.getDefaultSchema().isPresent() ? each : databaseName;
-                result.put(schemaName, loadTableNames(connection, each, excludedTables));
+                // SPEX CHANGED: BEGIN
+                result.put(schemaName, loadValidTableNames(connection, each, includedTables, excludedTables, databaseType));
+                // SPEX CHANGED: END
             }
             return result;
         }
@@ -87,7 +102,9 @@ public final class SchemaMetaDataLoader {
      */
     public static Collection<String> loadSchemaNames(final Connection connection, final DatabaseType databaseType) throws SQLException {
         DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
-        if (!dialectDatabaseMetaData.getDefaultSchema().isPresent()) {
+        // SPEX CHANGED: BEGIN
+        if (!dialectDatabaseMetaData.getDefaultSchema().isPresent() || isHiveOrPrestoDatabase(databaseType)) {
+            // SPEX CHANGED: END
             return Collections.singletonList(connection.getSchema());
         }
         Collection<String> result = new LinkedList<>();
@@ -103,11 +120,57 @@ public final class SchemaMetaDataLoader {
         return result.isEmpty() ? Collections.singletonList(connection.getSchema()) : result;
     }
     
-    private static Collection<String> loadTableNames(final Connection connection, final String schemaName, final Collection<String> excludedTables) throws SQLException {
+    @SphereEx
+    private static boolean isHiveOrPrestoDatabase(final DatabaseType databaseType) {
+        return "Hive".equals(databaseType.getType()) || "Presto".equals(databaseType.getType());
+    }
+    
+    @SphereEx
+    private static Collection<String> loadValidTableNames(final Connection connection, final String schemaName, final Collection<String> includedTables,
+                                                          final Collection<String> excludedTables, final DatabaseType databaseType) throws SQLException {
+        Collection<String> result = loadTableNames(connection, schemaName, includedTables, excludedTables, databaseType);
+        if (isOracleDatabase(databaseType)) {
+            result = filterOracleInvalidView(connection, result);
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private static boolean isOracleDatabase(final DatabaseType databaseType) {
+        return "Oracle".equals(databaseType.getType());
+    }
+    
+    @SphereEx
+    private static Collection<String> filterOracleInvalidView(final Connection connection, final Collection<String> tableNames) throws SQLException {
+        Collection<String> invalidViews = new HashSet<>();
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(String.format(QUERY_INVALID_VIEW_SQL, connection.getSchema()))) {
+            while (resultSet.next()) {
+                String viewName = resultSet.getString("VIEW_NAME");
+                invalidViews.add(viewName);
+            }
+        }
+        return tableNames.stream().filter(tableName -> !invalidViews.contains(tableName)).collect(Collectors.toList());
+    }
+    
+    private static Collection<String> loadTableNames(final Connection connection, final String schemaName, @SphereEx final Collection<String> includedTables,
+                                                     final Collection<String> excludedTables, @SphereEx final DatabaseType databaseType) throws SQLException {
         Collection<String> result = new LinkedList<>();
-        try (ResultSet resultSet = connection.getMetaData().getTables(connection.getCatalog(), schemaName, null, new String[]{TABLE_TYPE, VIEW_TYPE, SYSTEM_TABLE_TYPE, SYSTEM_VIEW_TYPE})) {
+        // SPEX CHANGED: BEGIN
+        String[] tableTypes = isOracleDatabase(databaseType)
+                ? new String[]{TABLE_TYPE, PARTITIONED_TABLE_TYPE, VIEW_TYPE, SYSTEM_TABLE_TYPE, SYSTEM_VIEW_TYPE, SYNONYM_TYPE}
+                : new String[]{TABLE_TYPE, PARTITIONED_TABLE_TYPE, VIEW_TYPE, SYSTEM_TABLE_TYPE, SYSTEM_VIEW_TYPE};
+        try (
+                ResultSet resultSet = connection.getMetaData().getTables(connection.getCatalog(), schemaName, null, tableTypes)) {
+            // SPEX CHANGED: END
             while (resultSet.next()) {
                 String table = resultSet.getString(TABLE_NAME);
+                // SPEX ADDED: BEGIN
+                if (!includedTables.isEmpty() && !includedTables.contains(table)) {
+                    continue;
+                }
+                // SPEX ADDED: END
                 if (!isSystemTable(table) && !excludedTables.contains(table)) {
                     result.add(table);
                 }

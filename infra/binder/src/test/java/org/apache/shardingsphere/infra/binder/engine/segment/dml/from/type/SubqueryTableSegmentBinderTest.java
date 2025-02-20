@@ -20,6 +20,8 @@ package org.apache.shardingsphere.infra.binder.engine.segment.dml.from.type;
 import com.cedarsoftware.util.CaseInsensitiveMap.CaseInsensitiveString;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.engine.segment.dml.from.context.TableSegmentBinderContext;
 import org.apache.shardingsphere.infra.binder.engine.statement.SQLStatementBinderContext;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -73,9 +75,10 @@ class SubqueryTableSegmentBinderTest {
         subqueryTableSegment.setAlias(new AliasSegment(0, 0, new IdentifierValue("temp")));
         ShardingSphereMetaData metaData = createMetaData();
         Multimap<CaseInsensitiveString, TableSegmentBinderContext> tableBinderContexts = LinkedHashMultimap.create();
+        @SphereEx(Type.MODIFY)
         SubqueryTableSegment actual =
                 SubqueryTableSegmentBinder.bind(subqueryTableSegment, new SQLStatementBinderContext(metaData, "foo_db", new HintValueContext(), selectStatement), tableBinderContexts,
-                        LinkedHashMultimap.create());
+                        LinkedHashMultimap.create(), false);
         assertTrue(actual.getAlias().isPresent());
         assertTrue(tableBinderContexts.containsKey(new CaseInsensitiveString("temp")));
         List<ProjectionSegment> projectionSegments = new ArrayList<>(tableBinderContexts.get(new CaseInsensitiveString("temp")).iterator().next().getProjectionSegments());
@@ -108,9 +111,10 @@ class SubqueryTableSegmentBinderTest {
         subqueryTableSegment.setAlias(new AliasSegment(0, 0, new IdentifierValue("temp")));
         ShardingSphereMetaData metaData = createMetaData();
         Multimap<CaseInsensitiveString, TableSegmentBinderContext> tableBinderContexts = LinkedHashMultimap.create();
+        @SphereEx(Type.MODIFY)
         SubqueryTableSegment actual =
                 SubqueryTableSegmentBinder.bind(subqueryTableSegment, new SQLStatementBinderContext(metaData, "foo_db", new HintValueContext(), selectStatement), tableBinderContexts,
-                        LinkedHashMultimap.create());
+                        LinkedHashMultimap.create(), false);
         assertTrue(actual.getAlias().isPresent());
         assertTrue(tableBinderContexts.containsKey(new CaseInsensitiveString("temp")));
         List<ProjectionSegment> projectionSegments = new ArrayList<>(tableBinderContexts.get(new CaseInsensitiveString("temp")).iterator().next().getProjectionSegments());
@@ -132,9 +136,10 @@ class SubqueryTableSegmentBinderTest {
         SubqueryTableSegment subqueryTableSegment = new SubqueryTableSegment(0, 0, new SubquerySegment(0, 0, selectStatement, ""));
         ShardingSphereMetaData metaData = createMetaData();
         Multimap<CaseInsensitiveString, TableSegmentBinderContext> tableBinderContexts = LinkedHashMultimap.create();
+        @SphereEx(Type.MODIFY)
         SubqueryTableSegment actual =
                 SubqueryTableSegmentBinder.bind(subqueryTableSegment, new SQLStatementBinderContext(metaData, "foo_db", new HintValueContext(), selectStatement), tableBinderContexts,
-                        LinkedHashMultimap.create());
+                        LinkedHashMultimap.create(), false);
         assertFalse(actual.getAlias().isPresent());
         assertTrue(tableBinderContexts.containsKey(new CaseInsensitiveString("")));
     }

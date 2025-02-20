@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.yaml.schema.swapper;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereColumn;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereConstraint;
@@ -58,14 +60,16 @@ class YamlTableSwapperTest {
     @Test
     void assertSwapToObjectWithEmptySchema() {
         ShardingSphereTable actual = swapper.swapToObject(YamlEngine.unmarshal(ConfigurationFileUtils.readFile(EMPTY_YAML_FILE), YamlShardingSphereTable.class));
-        ShardingSphereTable expected = new ShardingSphereTable("", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE);
+        @SphereEx(Type.MODIFY)
+        ShardingSphereTable expected = new ShardingSphereTable("", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE, null);
         assertThat(actual, deepEqual(expected));
     }
     
+    @SphereEx(Type.MODIFY)
     private ShardingSphereTable createShardingSphereTable() {
         return new ShardingSphereTable("foo_tbl",
-                Collections.singleton(new ShardingSphereColumn("foo_col", 0, true, false, false, true, false, false)),
+                Collections.singleton(new ShardingSphereColumn("foo_col", 0, true, false, false, true, false, false, "integer", "utf8mb4")),
                 Collections.singleton(new ShardingSphereIndex("PRIMARY", Collections.emptyList(), false)),
-                Collections.singleton(new ShardingSphereConstraint("foo_constraint", "foo_tbl")), null);
+                Collections.singleton(new ShardingSphereConstraint("foo_constraint", "foo_tbl")), null, null);
     }
 }

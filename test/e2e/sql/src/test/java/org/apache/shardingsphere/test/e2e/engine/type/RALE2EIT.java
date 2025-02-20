@@ -18,6 +18,8 @@
 package org.apache.shardingsphere.test.e2e.engine.type;
 
 import com.google.common.base.Splitter;
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.test.e2e.framework.type.SQLCommandType;
 import org.apache.shardingsphere.test.e2e.cases.dataset.metadata.DataSetColumn;
 import org.apache.shardingsphere.test.e2e.cases.dataset.metadata.DataSetMetaData;
 import org.apache.shardingsphere.test.e2e.cases.dataset.row.DataSetRow;
@@ -28,7 +30,6 @@ import org.apache.shardingsphere.test.e2e.engine.arg.E2ETestCaseSettings;
 import org.apache.shardingsphere.test.e2e.engine.context.E2ETestContext;
 import org.apache.shardingsphere.test.e2e.framework.param.array.E2ETestParameterFactory;
 import org.apache.shardingsphere.test.e2e.framework.param.model.AssertionTestParameter;
-import org.apache.shardingsphere.test.e2e.framework.type.SQLCommandType;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -44,6 +45,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -52,6 +54,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @E2ETestCaseSettings(SQLCommandType.RAL)
 class RALE2EIT implements E2EEnvironmentAware {
+    
+    @SphereEx
+    private static final Pattern SQL_FEDERATION_SHUFFLE_JOIN_TEMP_TABLE_PATTERN = Pattern.compile("_[0-9a-zA-Z]{32}");
+    
+    @SphereEx
+    private static final String SPEX_VERTICAL_LINE = "{SPEX_VERTICAL_LINE}";
     
     private E2EEnvironmentEngine environmentEngine;
     
@@ -101,6 +109,9 @@ class RALE2EIT implements E2EEnvironmentAware {
             try (PreparedStatement preparedStatement = connection.prepareStatement(each)) {
                 preparedStatement.executeUpdate();
             }
+            // SPEX ADDED: BEGIN
+            Awaitility.await().pollDelay(1L, TimeUnit.SECONDS).until(() -> true);
+            // SPEX ADDED: END
         }
         Awaitility.await().pollDelay(1L, TimeUnit.SECONDS).until(() -> true);
     }
@@ -121,6 +132,9 @@ class RALE2EIT implements E2EEnvironmentAware {
             try (PreparedStatement preparedStatement = connection.prepareStatement(each)) {
                 preparedStatement.executeUpdate();
             }
+            // SPEX ADDED: BEGIN
+            Awaitility.await().pollDelay(1L, TimeUnit.SECONDS).until(() -> true);
+            // SPEX ADDED: END
         }
         Awaitility.await().pollDelay(1L, TimeUnit.SECONDS).until(() -> true);
     }
@@ -144,7 +158,9 @@ class RALE2EIT implements E2EEnvironmentAware {
     
     private void assertResultSet(final E2ETestContext context, final ResultSet resultSet) throws SQLException {
         assertMetaData(resultSet.getMetaData(), getExpectedColumns(context));
-        assertRows(resultSet, getIgnoreAssertColumns(context), context.getDataSet().getRows());
+        // SPEX CHANGED: BEGIN
+        assertRows(resultSet, getIgnoreAssertColumns(context), context.getDataSet().getRows(), context.getScenario());
+        // SPEX CHANGED: END
     }
     
     private Collection<DataSetColumn> getExpectedColumns(final E2ETestContext context) {
@@ -171,29 +187,42 @@ class RALE2EIT implements E2EEnvironmentAware {
         }
     }
     
-    private void assertRows(final ResultSet actual, final Collection<String> notAssertionColumns, final List<DataSetRow> expected) throws SQLException {
+    private void assertRows(final ResultSet actual, final Collection<String> notAssertionColumns, final List<DataSetRow> expected, @SphereEx final String scenario) throws SQLException {
         int rowCount = 0;
         ResultSetMetaData actualMetaData = actual.getMetaData();
         while (actual.next()) {
             assertTrue(rowCount < expected.size(), "Size of actual result set is different with size of expected data set rows.");
-            assertRow(actual, notAssertionColumns, actualMetaData, expected.get(rowCount));
+            // SPEX CHANGED: BEGIN
+            assertRow(actual, notAssertionColumns, actualMetaData, expected.get(rowCount), scenario);
+            // SPEX CHANGED: END
             rowCount++;
         }
         assertThat("Size of actual result set is different with size of expected data set rows.", rowCount, is(expected.size()));
     }
     
-    private void assertRow(final ResultSet actual, final Collection<String> notAssertionColumns, final ResultSetMetaData actualMetaData, final DataSetRow expected) throws SQLException {
+    private void assertRow(final ResultSet actual, final Collection<String> notAssertionColumns, final ResultSetMetaData actualMetaData, final DataSetRow expected,
+                           @SphereEx final String scenario) throws SQLException {
         int columnIndex = 1;
         for (String each : expected.splitValues("|")) {
             String columnLabel = actualMetaData.getColumnLabel(columnIndex);
             if (!notAssertionColumns.contains(columnLabel)) {
-                assertObjectValue(actual, columnIndex, columnLabel, each);
+                // SPEX CHANGED: BEGIN
+                assertObjectValue(actual, columnIndex, columnLabel, each, scenario);
+                // SPEX CHANGED: END
             }
             columnIndex++;
         }
     }
     
-    private void assertObjectValue(final ResultSet actual, final int columnIndex, final String columnLabel, final String expected) throws SQLException {
+    private void assertObjectValue(final ResultSet actual, final int columnIndex, final String columnLabel, final String expected, @SphereEx final String scenario) throws SQLException {
+        // SPEX ADDED: BEGIN
+        if ("sphereex_sql_federation_shuffle_join".equals(scenario)) {
+            String replacedExpected = SQL_FEDERATION_SHUFFLE_JOIN_TEMP_TABLE_PATTERN.matcher(expected).replaceAll("").replace(SPEX_VERTICAL_LINE, "|");
+            assertThat(SQL_FEDERATION_SHUFFLE_JOIN_TEMP_TABLE_PATTERN.matcher(String.valueOf(actual.getObject(columnIndex)).trim()).replaceAll(""), is(replacedExpected));
+            assertThat(SQL_FEDERATION_SHUFFLE_JOIN_TEMP_TABLE_PATTERN.matcher(String.valueOf(actual.getObject(columnLabel)).trim()).replaceAll(""), is(replacedExpected));
+            return;
+        }
+        // SPEX ADDED: END
         assertThat(String.valueOf(actual.getObject(columnIndex)).trim(), is(expected));
         assertThat(String.valueOf(actual.getObject(columnLabel)).trim(), is(expected));
     }

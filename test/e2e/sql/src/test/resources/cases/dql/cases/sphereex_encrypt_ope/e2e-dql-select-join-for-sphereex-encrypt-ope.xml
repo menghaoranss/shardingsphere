@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--SPEX ADDED: BEGIN-->
+<e2e-test-cases>
+    <!-- NOTE:
+        * PostgreSQL、openGauss、KingbaseES, DM, Oracle 不支持关联查询 ON 条件写在 WHERE 中；
+    -->
+
+    <!-- OPE 适配 SQL 场景参考：https://u01f1kqxrl.feishu.cn/wiki/VCinwK3y1iwG74kaitBc4ot0n1f -->
+    <!-- 测试字符串类型 JOIN >, < 和 BETWEEN AND 比较 -->
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 ON t1.user_name > ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 ON ? &lt; t1.user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 ON t1.user_name &lt; ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 ON ? > t1.user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 ON t1.user_name > t2.user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 ON t1.user_name &lt; t2.user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 WHERE t1.user_name > t2.user_name" db-types="MySQL,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 WHERE t1.user_name &lt; t2.user_name" db-types="MySQL,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user t1 INNER JOIN t_user t2 ON t1.user_name = t2.user_name AND t1.user_name BETWEEN ? AND ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String, tom:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型 JOIN >=, <= 和 BETWEEN AND 比较 -->
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 ON t1.quantity >= ? ORDER BY t1.item_id, t2.item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 ON ? &lt;= t1.quantity ORDER BY t1.item_id, t2.item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 ON t1.quantity &lt;= ? ORDER BY t1.item_id, t2.item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 ON ? >= t1.quantity ORDER BY t1.item_id, t2.item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 ON t1.quantity >= t2.quantity ORDER BY t1.item_id, t2.item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 ON t1.quantity &lt;= t2.quantity ORDER BY t1.item_id, t2.item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 WHERE t1.quantity >= t2.quantity ORDER BY t1.item_id, t2.item_id" db-types="MySQL,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 WHERE t1.quantity &lt;= t2.quantity ORDER BY t1.item_id, t2.item_id" db-types="MySQL,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item t1 INNER JOIN t_order_item t2 ON t1.quantity = t2.quantity AND t1.quantity BETWEEN ? AND ? ORDER BY t1.item_id, t2.item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int, 1000:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+</e2e-test-cases>
+<!--SPEX ADDED: END-->

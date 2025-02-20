@@ -41,6 +41,9 @@ public final class YamlEncryptTableRuleConfigurationSwapper implements YamlConfi
             result.getColumns().put(each.getName(), columnSwapper.swapToYamlConfiguration(each));
         }
         result.setName(data.getName());
+        // SPEX ADDED: BEGIN
+        result.setRenameTable(data.getRenameTable());
+        // SPEX ADDED: END
         return result;
     }
     
@@ -51,6 +54,10 @@ public final class YamlEncryptTableRuleConfigurationSwapper implements YamlConfi
             entry.getValue().setName(entry.getKey());
             columns.add(columnSwapper.swapToObject(entry.getValue()));
         }
-        return new EncryptTableRuleConfiguration(yamlConfig.getName(), columns);
+        // SPEX CHANGED: BEGIN
+        EncryptTableRuleConfiguration result = new EncryptTableRuleConfiguration(yamlConfig.getName(), columns);
+        result.setRenameTable(yamlConfig.getRenameTable());
+        return result;
+        // SPEX CHANGED: END
     }
 }

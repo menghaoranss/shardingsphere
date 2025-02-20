@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.sqlserver.metadata.data.loader;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
@@ -45,10 +47,20 @@ import java.util.stream.Collectors;
  */
 public final class SQLServerMetaDataLoader implements DialectMetaDataLoader {
     
+    @SphereEx(Type.MODIFY)
     private static final String TABLE_META_DATA_SQL_NO_ORDER = "SELECT obj.name AS TABLE_NAME, col.name AS COLUMN_NAME, t.name AS DATA_TYPE,"
             + " col.collation_name AS COLLATION_NAME, col.column_id, is_identity AS IS_IDENTITY, col.is_nullable AS IS_NULLABLE, %s"
             + " (SELECT TOP 1 ind.is_primary_key FROM sys.index_columns ic LEFT JOIN sys.indexes ind ON ic.object_id = ind.object_id"
-            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY"
+            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY,"
+            + " CASE"
+            + " WHEN t.name IN ('varchar', 'char', 'nvarchar', 'nchar') THEN"
+            + " t.name +"
+            + " CASE"
+            + " WHEN col.max_length = -1 THEN '(MAX)'"
+            + " ELSE '(' + CAST(col.max_length AS VARCHAR) + ')'"
+            + " END"
+            + " ELSE t.name"
+            + " END AS COLUMN_TYPE"
             + " FROM sys.objects obj INNER JOIN sys.columns col ON obj.object_id = col.object_id LEFT JOIN sys.types t ON t.user_type_id = col.user_type_id";
     
     private static final String ORDER_BY_COLUMN_ID = " ORDER BY col.column_id";
@@ -107,7 +119,12 @@ public final class SQLServerMetaDataLoader implements DialectMetaDataLoader {
         boolean caseSensitive = null != collationName && collationName.contains("_CS");
         boolean isVisible = !(versionContainsHiddenColumn(databaseMetaData) && "1".equals(resultSet.getString("IS_HIDDEN")));
         boolean isNullable = "1".equals(resultSet.getString("IS_NULLABLE"));
-        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), primaryKey, generated, caseSensitive, isVisible, false, isNullable);
+        @SphereEx
+        String dataTypeContent = resultSet.getString("COLUMN_TYPE");
+        // SPEX CHANGED: BEGIN
+        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), primaryKey, generated, caseSensitive, isVisible, false, isNullable,
+                dataTypeContent);
+        // SPEX CHANGED: END
     }
     
     private String getTableMetaDataSQL(final Collection<String> tables, final DatabaseMetaData databaseMetaData) throws SQLException {

@@ -42,6 +42,8 @@ public class E2ETestContext {
     
     private final DataSet dataSet;
     
+    private final String scenario;
+    
     public E2ETestContext(final AssertionTestParameter testParam) {
         sql = testParam.getTestCaseContext().getTestCase().getSql();
         sqlExecuteType = testParam.getSqlExecuteType();
@@ -49,6 +51,9 @@ public class E2ETestContext {
         dataSet = null == assertion || null == assertion.getExpectedDataFile()
                 ? null
                 : DataSetLoader.load(testParam.getTestCaseContext().getParentPath(), testParam.getScenario(), testParam.getDatabaseType(), testParam.getMode(), assertion.getExpectedDataFile());
+        // SPEX ADDED: BEGIN
+        scenario = testParam.getScenario();
+        // SPEX ADDED: END
     }
     
     /**

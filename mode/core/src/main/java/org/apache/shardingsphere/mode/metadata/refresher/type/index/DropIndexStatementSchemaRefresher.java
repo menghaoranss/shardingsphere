@@ -56,7 +56,8 @@ public final class DropIndexStatementSchemaRefresher implements MetaDataRefreshe
             ShardingSphereSchema schema = database.getSchema(actualSchemaName);
             ShardingSpherePreconditions.checkState(schema.containsTable(logicTableName.get()), () -> new TableNotFoundException(logicTableName.get()));
             ShardingSphereTable table = schema.getTable(logicTableName.get());
-            ShardingSphereTable newTable = new ShardingSphereTable(table.getName(), table.getAllColumns(), table.getAllIndexes(), table.getAllConstraints(), table.getType());
+            ShardingSphereTable newTable =
+                    new ShardingSphereTable(table.getName(), table.getAllColumns(), table.getAllIndexes(), table.getAllConstraints(), table.getType(), table.getCharacterSetName());
             newTable.removeIndex(each.getIndexName().getIdentifier().getValue());
             AlterSchemaMetaDataPOJO alterSchemaMetaDataPOJO = new AlterSchemaMetaDataPOJO(database.getName(), actualSchemaName);
             alterSchemaMetaDataPOJO.getAlteredTables().add(newTable);

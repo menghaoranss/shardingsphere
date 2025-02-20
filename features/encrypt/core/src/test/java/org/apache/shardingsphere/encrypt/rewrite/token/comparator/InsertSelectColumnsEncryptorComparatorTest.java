@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.comparator;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
@@ -33,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -53,8 +56,11 @@ class InsertSelectColumnsEncryptorComparatorTest {
         ColumnSegment insertColumn2 = getInsertColumnSegment(databaseValue, schemaValue, "table1", "card");
         ColumnProjection projection1 = getSelectProjection("pwd", databaseValue, schemaValue);
         ColumnProjection projection2 = getSelectProjection("card", databaseValue, schemaValue);
-        EncryptRule encryptRule = new EncryptRule(databaseName, createEncryptRuleConfiguration());
-        boolean result = InsertSelectColumnsEncryptorComparator.isSame(Arrays.asList(insertColumn1, insertColumn2), Arrays.asList(projection1, projection2), encryptRule);
+        // SPEX CHANGED: BEGIN
+        EncryptRule encryptRule = new EncryptRule(databaseName, createEncryptRuleConfiguration(), Collections.emptyMap(), Collections.emptyList());
+        boolean result = InsertSelectColumnsEncryptorComparator.isSame(Arrays.asList(insertColumn1, insertColumn2), Arrays.asList(projection1, projection2), encryptRule,
+                Collections.singletonMap(databaseName, encryptRule));
+        // SPEX CHANGED: END
         assertTrue(result);
     }
     
@@ -92,6 +98,45 @@ class InsertSelectColumnsEncryptorComparatorTest {
         result.put("standard_encryptor", standardEncryptConfig);
         result.put("assisted_encryptor", queryAssistedEncryptConfig);
         result.put("like_encryptor", queryLikeEncryptConfig);
+        return result;
+    }
+    
+    @SphereEx
+    @Test
+    void assertIsSameWithPlainQuery() {
+        String databaseName = "foo_db";
+        IdentifierValue databaseValue = new IdentifierValue(databaseName);
+        IdentifierValue schemaValue = new IdentifierValue("schema");
+        ColumnSegment insertColumn1 = getInsertColumnSegment(databaseValue, schemaValue, "table1", "pwd");
+        ColumnSegment insertColumn2 = getInsertColumnSegment(databaseValue, schemaValue, "table1", "card");
+        ColumnProjection projection1 = getSelectProjection("pwd", databaseValue, schemaValue);
+        ColumnProjection projection2 = getSelectProjection("card", databaseValue, schemaValue);
+        EncryptRule encryptRule = new EncryptRule(databaseName, createEncryptRuleConfigurationWithPlain(), Collections.emptyMap(), Collections.emptyList());
+        boolean result = InsertSelectColumnsEncryptorComparator.isSame(Arrays.asList(insertColumn1, insertColumn2), Arrays.asList(projection1, projection2), encryptRule,
+                Collections.singletonMap(databaseName, encryptRule));
+        assertTrue(result);
+    }
+    
+    @SphereEx
+    private EncryptRuleConfiguration createEncryptRuleConfigurationWithPlain() {
+        return new EncryptRuleConfiguration(Arrays.asList(getEncryptTableRuleConfigurationWithPlain("table1"), getEncryptTableRuleConfiguration("table2")),
+                getEncryptors(new AlgorithmConfiguration("CORE.FIXTURE", new Properties()),
+                        new AlgorithmConfiguration("CORE.QUERY_ASSISTED.FIXTURE", new Properties()), new AlgorithmConfiguration("CORE.QUERY_LIKE.FIXTURE", new Properties())));
+    }
+    
+    @SphereEx
+    private EncryptTableRuleConfiguration getEncryptTableRuleConfigurationWithPlain(final String tableName) {
+        EncryptColumnRuleConfiguration pwdColumnConfig = createEncryptColumnRuleConfiguration("pwd", "standard_encryptor");
+        pwdColumnConfig.setPlain(createPlainColumnRuleConfiguration("pwd_plain"));
+        EncryptColumnRuleConfiguration cardColumnConfig = new EncryptColumnRuleConfiguration("card", new EncryptColumnItemRuleConfiguration("card_cipher", "standard_encryptor"));
+        cardColumnConfig.setPlain(createPlainColumnRuleConfiguration("card_plain"));
+        return new EncryptTableRuleConfiguration(tableName, Arrays.asList(pwdColumnConfig, cardColumnConfig));
+    }
+    
+    @SphereEx
+    private PlainColumnItemRuleConfiguration createPlainColumnRuleConfiguration(final String plainColumnName) {
+        PlainColumnItemRuleConfiguration result = new PlainColumnItemRuleConfiguration(plainColumnName);
+        result.setQueryWithPlain(true);
         return result;
     }
 }

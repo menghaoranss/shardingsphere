@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.mysql.metadata.data.loader;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.GlobalDataSourceRegistry;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
@@ -27,6 +29,7 @@ import org.apache.shardingsphere.infra.database.core.metadata.data.model.SchemaM
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.TableMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.database.datatype.DataTypeRegistry;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -50,8 +53,10 @@ public final class MySQLMetaDataLoader implements DialectMetaDataLoader {
     
     private static final String ORDER_BY_ORDINAL_POSITION = " ORDER BY ORDINAL_POSITION";
     
+    @SphereEx(Type.MODIFY)
     private static final String TABLE_META_DATA_NO_ORDER =
-            "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA, COLLATION_NAME, ORDINAL_POSITION, COLUMN_TYPE, IS_NULLABLE FROM information_schema.columns WHERE TABLE_SCHEMA=?";
+            "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA, COLLATION_NAME, ORDINAL_POSITION, COLUMN_TYPE, IS_NULLABLE, CHARACTER_SET_NAME"
+                    + " FROM information_schema.columns WHERE TABLE_SCHEMA=?";
     
     private static final String TABLE_META_DATA_SQL = TABLE_META_DATA_NO_ORDER + ORDER_BY_ORDINAL_POSITION;
     
@@ -77,7 +82,10 @@ public final class MySQLMetaDataLoader implements DialectMetaDataLoader {
             Collection<IndexMetaData> indexMetaDataList = indexMetaDataMap.getOrDefault(entry.getKey(), Collections.emptyList());
             Collection<ConstraintMetaData> constraintMetaDataList = constraintMetaDataMap.getOrDefault(entry.getKey(), Collections.emptyList());
             tableMetaDataList.add(
-                    new TableMetaData(entry.getKey(), entry.getValue(), indexMetaDataList, constraintMetaDataList, viewNames.contains(entry.getKey()) ? TableType.VIEW : TableType.TABLE));
+                    // TODO load characterSetName here
+                    // SPEX CHANGED: BEGIN
+                    new TableMetaData(entry.getKey(), entry.getValue(), indexMetaDataList, constraintMetaDataList, viewNames.contains(entry.getKey()) ? TableType.VIEW : TableType.TABLE, null));
+            // SPEX CHANGED: END
         }
         return Collections.singletonList(new SchemaMetaData(material.getDefaultSchemaName(), tableMetaDataList));
     }
@@ -136,7 +144,9 @@ public final class MySQLMetaDataLoader implements DialectMetaDataLoader {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     String tableName = resultSet.getString("TABLE_NAME");
-                    ColumnMetaData columnMetaData = loadColumnMetaData(resultSet);
+                    // SPEX CHANGED: BEGIN
+                    ColumnMetaData columnMetaData = loadColumnMetaData(connection, resultSet);
+                    // SPEX CHANGED: END
                     if (!result.containsKey(tableName)) {
                         result.put(tableName, new LinkedList<>());
                     }
@@ -147,7 +157,7 @@ public final class MySQLMetaDataLoader implements DialectMetaDataLoader {
         return result;
     }
     
-    private ColumnMetaData loadColumnMetaData(final ResultSet resultSet) throws SQLException {
+    private ColumnMetaData loadColumnMetaData(final Connection connection, final ResultSet resultSet) throws SQLException {
         String columnName = resultSet.getString("COLUMN_NAME");
         String dataType = resultSet.getString("DATA_TYPE");
         boolean primaryKey = "PRI".equalsIgnoreCase(resultSet.getString("COLUMN_KEY"));
@@ -158,7 +168,15 @@ public final class MySQLMetaDataLoader implements DialectMetaDataLoader {
         boolean visible = !"INVISIBLE".equalsIgnoreCase(extra);
         boolean unsigned = resultSet.getString("COLUMN_TYPE").toUpperCase().contains("UNSIGNED");
         boolean nullable = "YES".equals(resultSet.getString("IS_NULLABLE"));
-        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), primaryKey, generated, caseSensitive, visible, unsigned, nullable);
+        @SphereEx
+        String dataTypeContent = resultSet.getString("COLUMN_TYPE");
+        @SphereEx
+        String characterSetName = resultSet.getString("CHARACTER_SET_NAME");
+        // SPEX CHANGED: BEGIN
+        String actualDatabaseType = DatabaseTypeFactory.get(connection.getMetaData().getURL()).getType();
+        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(actualDatabaseType, dataType).orElse(Types.OTHER), primaryKey, generated, caseSensitive, visible, unsigned, nullable,
+                dataTypeContent, characterSetName);
+        // SPEX CHANGED: END
     }
     
     private String getTableMetaDataSQL(final Collection<String> tables) {

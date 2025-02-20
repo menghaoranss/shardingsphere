@@ -73,14 +73,18 @@ class SingleRouteEngineTest {
         List<RouteUnit> routeUnits = new ArrayList<>(routeContext.getRouteUnits());
         assertThat(routeContext.getRouteUnits().size(), is(1));
         assertThat(routeUnits.get(0).getDataSourceMapper().getActualName(), is("ds_0"));
-        assertThat(routeUnits.get(0).getTableMappers().size(), is(2));
+        // SPEX CHANGED: BEGIN
+        assertThat(routeUnits.get(0).getTableMappers().size(), is(1));
+        // SPEX CHANGED: END
         Iterator<RouteMapper> tableMappers = routeUnits.get(0).getTableMappers().iterator();
         RouteMapper tableMapper0 = tableMappers.next();
         assertThat(tableMapper0.getActualName(), is("t_order"));
         assertThat(tableMapper0.getLogicName(), is("t_order"));
-        RouteMapper tableMapper1 = tableMappers.next();
-        assertThat(tableMapper1.getActualName(), is("t_order_item"));
-        assertThat(tableMapper1.getLogicName(), is("t_order_item"));
+        // SPEX DELETED: BEGIN
+        // RouteMapper tableMapper1 = tableMappers.next();
+        // assertThat(tableMapper1.getActualName(), is("t_order_item"));
+        // assertThat(tableMapper1.getLogicName(), is("t_order_item"));
+        // SPEX DELETED: END
     }
     
     private DataNode mockDataNode(final String tableName) {

@@ -17,27 +17,39 @@
 
 package org.apache.shardingsphere.encrypt.distsql.handler.fixture;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
 import lombok.Getter;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithmMetaData;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
 
+import java.util.Collections;
+import java.util.Map;
+
 import java.util.Properties;
 
 @Getter
 public final class DistSQLEncryptAlgorithmFixture implements EncryptAlgorithm {
     
-    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(true, true, false);
+    @SphereEx(Type.MODIFY)
+    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(true, true, false, false, (plainCharLength, charToByteRatio) -> plainCharLength);
     
     @Override
-    public String encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public String encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         return "encryptValue";
     }
     
     @Override
-    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         return "decryptValue";
+    }
+    
+    @Override
+    public Map<String, Object> getUdfDataModel() {
+        return Collections.emptyMap();
     }
     
     @Override

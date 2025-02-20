@@ -17,3 +17,10 @@
 
 org.apache.shardingsphere.encrypt.algorithm.standard.AESEncryptAlgorithm
 org.apache.shardingsphere.encrypt.algorithm.assisted.MD5AssistedEncryptAlgorithm
+
+com.sphereex.dbplusengine.encrypt.algorithm.standard.RC4EncryptAlgorithm
+com.sphereex.dbplusengine.encrypt.algorithm.assisted.SHAAssistedEncryptAlgorithm
+com.sphereex.dbplusengine.encrypt.algorithm.like.CharDigestLikeEncryptAlgorithm
+com.sphereex.dbplusengine.encrypt.algorithm.like.CharTransformLikeEncryptAlgorithm
+com.sphereex.dbplusengine.encrypt.algorithm.like.ComplexMaskLikeEncryptAlgorithm
+com.sphereex.dbplusengine.encrypt.algorithm.ope.FastOpeEncryptAlgorithm

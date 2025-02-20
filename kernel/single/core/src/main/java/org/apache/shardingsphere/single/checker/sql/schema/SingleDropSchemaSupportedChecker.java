@@ -17,10 +17,12 @@
 
 package org.apache.shardingsphere.single.checker.sql.schema;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.exception.kernel.metadata.SchemaNotFoundException;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.single.exception.DropNotEmptySchemaException;
@@ -39,7 +41,8 @@ public final class SingleDropSchemaSupportedChecker implements SupportedSQLCheck
     }
     
     @Override
-    public void check(final SingleRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final SQLStatementContext sqlStatementContext) {
+    public void check(final SingleRule rule, final @SphereEx ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final SQLStatementContext sqlStatementContext) {
         DropSchemaStatement dropSchemaStatement = (DropSchemaStatement) sqlStatementContext.getSqlStatement();
         boolean containsCascade = dropSchemaStatement.isContainsCascade();
         for (IdentifierValue each : dropSchemaStatement.getSchemaNames()) {

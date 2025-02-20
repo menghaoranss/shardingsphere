@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.metadata.nodepath;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.mode.node.path.rule.RuleNodePath;
@@ -36,7 +37,10 @@ public final class EncryptRuleNodePathProvider implements RuleNodePathProvider {
     
     public static final String ENCRYPTORS = "encryptors";
     
-    private static final RuleNodePath INSTANCE = new RuleNodePath(RULE_TYPE, Arrays.asList(TABLES, ENCRYPTORS), Collections.emptyList());
+    @SphereEx
+    public static final String ENCRYPT_MODE = "encrypt_mode";
+    
+    private static final RuleNodePath INSTANCE = new RuleNodePath(RULE_TYPE, Arrays.asList(TABLES, ENCRYPTORS), Collections.singletonList(ENCRYPT_MODE));
     
     @Override
     public RuleNodePath getRuleNodePath() {

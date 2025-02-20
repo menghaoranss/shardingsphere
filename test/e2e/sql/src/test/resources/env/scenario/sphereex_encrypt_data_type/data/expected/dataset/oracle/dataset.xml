@@ -1,0 +1,47 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset>
+    <metadata data-nodes="expected_dataset.T_NUMBER_ORACLE">
+        <column name="id" type="int" />
+        <column name="A_NUMBER" type="decimal" />
+        <column name="A_NUMBER_P" type="decimal" />
+        <column name="A_NUMBER_PS" type="decimal" />
+        <column name="A_NUMBER_PS_LE" type="decimal" />
+        <column name="A_FLOAT" type="decimal" />
+        <column name="A_FLOAT_P" type="decimal" />
+        <column name="A_BINARY_FLOAT" type="decimal" />
+        <column name="A_BINARY_DOUBLE" type="decimal" />
+        <column name="A_NUMERIC" type="decimal" />
+        <column name="A_NUMERIC_P" type="decimal" />
+        <column name="A_NUMERIC_PS" type="decimal" />
+        <column name="A_DECIMAL" type="decimal" />
+        <column name="A_DECIMAL_P" type="decimal" />
+        <column name="A_DECIMAL_PS" type="decimal" />
+        <column name="A_DEC" type="decimal" />
+        <column name="A_DEC_P" type="decimal" />
+        <column name="A_DEC_PS" type="decimal" />
+        <column name="A_INTEGER" type="decimal" />
+        <column name="A_INT" type="decimal" />
+        <column name="A_SMALLINT" type="decimal" />
+        <column name="A_DOUBLE_PRECISION" type="decimal" />
+        <column name="A_REAL" type="decimal" />
+    </metadata>
+    <row data-node="expected_dataset.T_NUMBER_ORACLE" values="1, 100, 2000.123, 1.1234565, 0.0012345, 2.123455, 3.12345, 4.12345678, 5.123456789, 1232323434, 1.56, 6.123455, 7.1234567, 8.12, 9.1234567, 10.12, 11.12, 12.1234565, 10.5, 8.3, 10.5, 11.12345, 12.1234567"/>
+</dataset>
+<!-- SPEX ADDED: END -->

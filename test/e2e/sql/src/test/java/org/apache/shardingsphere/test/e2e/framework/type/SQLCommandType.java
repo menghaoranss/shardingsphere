@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.framework.type;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.distsql.statement.ral.RALStatement;
@@ -92,7 +93,21 @@ public enum SQLCommandType {
     /**
      * Resource & Rule Query Language.
      */
-    RQL(RQLStatement.class, "e2e-rql", true, Collections.singletonList("proxy"));
+    RQL(RQLStatement.class, "e2e-rql", true, Collections.singletonList("proxy")),
+    
+    /**
+     * Procedural Language.
+     * TODO This requires both proxy & jdbc (AKA hybrid). But we have to set it separately if we want to test both Standalone & Cluster mode.
+     * https://github.com/apache/shardingsphere/issues/21958.
+     */
+    @SphereEx
+    PL_SQL(SQLStatement.class, "e2e-plsql", false, Arrays.asList("proxy", "jdbc")),
+    
+    /**
+     * All SQL command types.
+     */
+    @SphereEx
+    ALL(SQLStatement.class, "e2e-all", false, Arrays.asList("jdbc", "proxy"));
     
     private final Class<? extends SQLStatement> sqlStatementClass;
     

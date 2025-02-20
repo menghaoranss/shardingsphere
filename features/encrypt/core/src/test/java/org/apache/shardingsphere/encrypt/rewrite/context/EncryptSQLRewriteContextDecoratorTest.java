@@ -21,6 +21,7 @@ import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.rewrite.context.SQLRewriteContext;
 import org.apache.shardingsphere.infra.rewrite.context.SQLRewriteContextDecorator;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
@@ -55,6 +56,11 @@ class EncryptSQLRewriteContextDecoratorTest {
     void assertDecorateWithNotTableAvailable() {
         SQLRewriteContext sqlRewriteContext = mock(SQLRewriteContext.class);
         SQLStatementContext sqlStatementContext = mock(SQLStatementContext.class);
+        // SPEX ADDED: BEGIN
+        ShardingSphereMetaData metaData = mock(ShardingSphereMetaData.class);
+        when(metaData.getAllDatabases()).thenReturn(Collections.emptyList());
+        when(sqlRewriteContext.getMetaData()).thenReturn(metaData);
+        // SPEX ADDED: END
         when(sqlRewriteContext.getSqlStatementContext()).thenReturn(sqlStatementContext);
         decorator.decorate(rule, mock(ConfigurationProperties.class), sqlRewriteContext, mock(RouteContext.class));
         assertTrue(sqlRewriteContext.getSqlTokens().isEmpty());
@@ -66,6 +72,11 @@ class EncryptSQLRewriteContextDecoratorTest {
         SelectStatementContext sqlStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.getTablesContext().getTableNames()).thenReturn(Collections.singleton("foo_tbl"));
         when(sqlRewriteContext.getSqlStatementContext()).thenReturn(sqlStatementContext);
+        // SPEX ADDED: BEGIN
+        ShardingSphereMetaData metaData = mock(ShardingSphereMetaData.class);
+        when(metaData.getAllDatabases()).thenReturn(Collections.emptyList());
+        when(sqlRewriteContext.getMetaData()).thenReturn(metaData);
+        // SPEX ADDED: END
         decorator.decorate(rule, mock(ConfigurationProperties.class), sqlRewriteContext, mock(RouteContext.class));
         assertTrue(sqlRewriteContext.getSqlTokens().isEmpty());
     }

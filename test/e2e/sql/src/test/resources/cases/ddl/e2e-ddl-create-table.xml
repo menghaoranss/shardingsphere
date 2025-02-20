@@ -37,4 +37,41 @@
             <destroy-sql sql="DROP TABLE t_user_details" />
         </assertion>
     </test-case>
+    
+    <!-- SPEX ADDED: BEGIN -->
+    <test-case sql="CREATE TABLE t_product (product_id INT, product_name VARCHAR(200), category_id INT, price DECIMAL, status VARCHAR(20), creation_date DATE)" db-types="MySQL,TiDB" scenario-types="sphereex_encrypt_data_type">
+        <assertion expected-data-file="create_table_with_data_type.xml">
+            <initial-sql affected-table="t_product" />
+            <destroy-sql sql="DROP TABLE t_product" />
+        </assertion>
+    </test-case>
+    
+    <test-case sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT, number VARCHAR(45), description varchar(16079))" db-types="MySQL" scenario-types="encrypt" scenario-comments="MySQL utf8mb4 expansion rate calculation and all column maximum length test">
+        <assertion expected-data-file="create_table.xml">
+            <initial-sql affected-table="t_user_details" />
+            <destroy-sql sql="DROP TABLE t_user_details" />
+        </assertion>
+    </test-case>
+    
+    <test-case sql="CREATE TABLE t_user_details (user_id INT NOT NULL, description varchar(16382))" db-types="MySQL" scenario-types="encrypt" scenario-comments="MySQL utf8mb4 single column maximum length test">
+        <assertion expected-data-file="create_user_detail_table_part_columns.xml">
+            <initial-sql affected-table="t_user_details" />
+            <destroy-sql sql="DROP TABLE t_user_details" />
+        </assertion>
+    </test-case>
+    
+    <test-case sql="CREATE TABLE t_user_details (user_id INT NOT NULL, description varchar(65528)) DEFAULT CHARSET=latin1" db-types="MySQL" scenario-types="encrypt" scenario-comments="MySQL latin1 single column maximum length test">
+        <assertion expected-data-file="create_user_detail_table_part_columns.xml">
+            <initial-sql affected-table="t_user_details" />
+            <destroy-sql sql="DROP TABLE t_user_details" />
+        </assertion>
+    </test-case>
+    
+    <test-case sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT, number VARCHAR(45), description varchar(65413)) DEFAULT CHARSET=latin1" db-types="MySQL" scenario-types="encrypt" scenario-comments="MySQL latin1 expansion rate calculation and all column maximum length test">
+        <assertion expected-data-file="create_table.xml">
+            <initial-sql affected-table="t_user_details" />
+            <destroy-sql sql="DROP TABLE t_user_details" />
+        </assertion>
+    </test-case>
+    <!-- SPEX ADDED: END -->
 </e2e-test-cases>

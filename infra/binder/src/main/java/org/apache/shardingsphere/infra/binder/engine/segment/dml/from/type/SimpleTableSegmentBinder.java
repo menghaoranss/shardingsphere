@@ -19,6 +19,7 @@ package org.apache.shardingsphere.infra.binder.engine.segment.dml.from.type;
 
 import com.cedarsoftware.util.CaseInsensitiveMap.CaseInsensitiveString;
 import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.binder.engine.segment.dml.from.context.TableSegmentBinderContext;
@@ -87,7 +88,9 @@ public final class SimpleTableSegmentBinder {
         IdentifierValue schemaName = getSchemaName(segment, binderContext, databaseName);
         IdentifierValue tableName = segment.getTableName().getIdentifier();
         ShardingSphereSchema schema = binderContext.getMetaData().getDatabase(databaseName.getValue()).getSchema(schemaName.getValue());
-        checkTableExists(binderContext, schema, schemaName.getValue(), tableName.getValue());
+        // SPEX CHANGED: BEGIN
+        checkTableExists(binderContext, schema, schemaName.getValue(), tableName.getValue(), segment);
+        // SPEX CHANGED: END
         tableBinderContexts.put(new CaseInsensitiveString(segment.getAliasName().orElseGet(tableName::getValue)),
                 createSimpleTableBinderContext(segment, schema, databaseName, schemaName, binderContext));
         TableNameSegment tableNameSegment = new TableNameSegment(segment.getTableName().getStartIndex(), segment.getTableName().getStopIndex(), tableName);
@@ -131,7 +134,8 @@ public final class SimpleTableSegmentBinder {
         return new IdentifierValue(new DatabaseTypeRegistry(databaseType).getDefaultSchemaName(binderContext.getCurrentDatabaseName()));
     }
     
-    private static void checkTableExists(final SQLStatementBinderContext binderContext, final ShardingSphereSchema schema, final String schemaName, final String tableName) {
+    private static void checkTableExists(final SQLStatementBinderContext binderContext, final ShardingSphereSchema schema, final String schemaName, final String tableName,
+                                         @SphereEx final SimpleTableSegment segment) {
         // TODO refactor table exists check with spi @duanzhengqiang
         if (binderContext.getSqlStatement() instanceof CreateTableStatement && isCreateTable(((CreateTableStatement) binderContext.getSqlStatement()).getTable(), tableName)) {
             ShardingSpherePreconditions.checkState(binderContext.getHintValueContext().isSkipMetadataValidate()
@@ -169,6 +173,11 @@ public final class SimpleTableSegmentBinder {
         if (SystemSchemaManager.isSystemTable(schemaName, tableName)) {
             return;
         }
+        // SPEX ADDED: BEGIN
+        if (segment.getDbLink().isPresent()) {
+            return;
+        }
+        // SPEX ADDED: END
         if (binderContext.getExternalTableBinderContexts().containsKey(new CaseInsensitiveString(tableName))) {
             return;
         }
@@ -214,7 +223,12 @@ public final class SimpleTableSegmentBinder {
             return new SimpleTableSegmentBinderContext(
                     SubqueryTableBindUtils.createSubqueryProjections(tableSegmentBinderContext.getProjectionSegments(), tableName, binderContext.getSqlStatement().getDatabaseType()));
         }
-        return new SimpleTableSegmentBinderContext(Collections.emptyList());
+        // SPEX CHANGED: BEGIN
+        SimpleTableSegmentBinderContext result = new SimpleTableSegmentBinderContext(Collections.emptyList());
+        // TODO bind table with dblink
+        segment.getDbLink().ifPresent(optional -> result.setContainsDBLink(true));
+        return result;
+        // SPEX CHANGED: END
     }
     
     private static Collection<ProjectionSegment> createProjectionSegments(final CreateTableStatement sqlStatement, final IdentifierValue databaseName,

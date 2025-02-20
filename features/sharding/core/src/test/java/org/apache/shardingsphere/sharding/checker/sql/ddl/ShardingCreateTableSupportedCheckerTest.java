@@ -19,6 +19,7 @@ package org.apache.shardingsphere.sharding.checker.sql.ddl;
 
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.CreateTableStatementContext;
 import org.apache.shardingsphere.infra.exception.dialect.exception.syntax.table.TableExistsException;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
@@ -89,7 +90,9 @@ class ShardingCreateTableSupportedCheckerTest {
         ShardingSphereDatabase database = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
         ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
         when(schema.containsTable("t_order")).thenReturn(true);
-        new ShardingCreateTableSupportedChecker().check(rule, database, schema, sqlStatementContext);
+        // SPEX CHANGED: BEGIN
+        new ShardingCreateTableSupportedChecker().check(rule, mock(ShardingSphereMetaData.class), database, schema, sqlStatementContext);
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -111,6 +114,8 @@ class ShardingCreateTableSupportedCheckerTest {
     private void assertCheckIfNotExists(final CreateTableStatement sqlStatement) {
         CreateTableStatementContext sqlStatementContext = new CreateTableStatementContext(sqlStatement);
         ShardingSphereDatabase database = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
-        new ShardingCreateTableSupportedChecker().check(rule, database, mock(), sqlStatementContext);
+        // SPEX CHANGED: BEGIN
+        new ShardingCreateTableSupportedChecker().check(rule, mock(ShardingSphereMetaData.class), database, mock(), sqlStatementContext);
+        // SPEX CHANGED: END
     }
 }

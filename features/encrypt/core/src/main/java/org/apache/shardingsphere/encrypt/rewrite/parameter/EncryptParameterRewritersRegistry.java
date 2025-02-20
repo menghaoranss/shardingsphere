@@ -17,6 +17,11 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.parameter;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptInsertSelectParameterRewriter;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptInsertSelectScalarSubqueryParameterRewriter;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptMergeParameterRewriter;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptMultiTableInsertValueParameterRewriter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.encrypt.rewrite.condition.EncryptCondition;
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptAssignmentParameterRewriter;
@@ -25,11 +30,14 @@ import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptInser
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptInsertValueParameterRewriter;
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptPredicateParameterRewriter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
+import org.apache.shardingsphere.infra.hint.HintValueContext;
+import org.apache.shardingsphere.infra.rewrite.context.SQLRewriteContext;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewritersRegistry;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Parameter rewriter registry for encrypt.
@@ -39,17 +47,31 @@ public final class EncryptParameterRewritersRegistry implements ParameterRewrite
     
     private final EncryptRule rule;
     
-    private final String databaseName;
+    private final SQLRewriteContext sqlRewriteContext;
     
     private final Collection<EncryptCondition> encryptConditions;
     
+    @SphereEx
+    private final Map<String, EncryptRule> databaseEncryptRules;
+    
     @Override
     public Collection<ParameterRewriter> getParameterRewriters() {
+        String databaseName = sqlRewriteContext.getDatabase().getName();
+        @SphereEx
+        HintValueContext hintValueContext = sqlRewriteContext.getHintValueContext();
         return Arrays.asList(
-                new EncryptAssignmentParameterRewriter(rule, databaseName),
-                new EncryptPredicateParameterRewriter(rule, databaseName, encryptConditions),
-                new EncryptInsertPredicateParameterRewriter(rule, databaseName, encryptConditions),
+                // SPEX CHANGED: BEGIN
+                new EncryptAssignmentParameterRewriter(rule, databaseName, hintValueContext),
+                new EncryptPredicateParameterRewriter(rule, databaseName, encryptConditions, hintValueContext),
+                new EncryptInsertPredicateParameterRewriter(rule, databaseName, encryptConditions, hintValueContext),
+                // SPEX CHANGED: END
                 new EncryptInsertValueParameterRewriter(rule, databaseName),
-                new EncryptInsertOnDuplicateKeyUpdateValueParameterRewriter(rule, databaseName));
+                new EncryptInsertOnDuplicateKeyUpdateValueParameterRewriter(rule, databaseName),
+                // SPEX ADDED: BEGIN
+                new EncryptMultiTableInsertValueParameterRewriter(rule, databaseName),
+                new EncryptMergeParameterRewriter(rule, databaseEncryptRules, databaseName, sqlRewriteContext.getDatabase(), hintValueContext),
+                new EncryptInsertSelectParameterRewriter(rule, databaseName),
+                new EncryptInsertSelectScalarSubqueryParameterRewriter(rule, databaseEncryptRules));
+        // SPEX ADDED: END
     }
 }

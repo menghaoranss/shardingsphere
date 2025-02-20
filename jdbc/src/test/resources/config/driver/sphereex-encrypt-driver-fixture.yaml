@@ -1,0 +1,86 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# SPEX: ADDED
+databaseName: sphereex_encrypt_driver_fixture_db
+
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: org.h2.Driver
+    jdbcUrl: jdbc:h2:mem:foo_ds;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;MODE=MySQL
+    username: sa
+    password:
+
+rules:
+- !ENCRYPT
+  encryptors:
+    aes_encryptor:
+      type: AES
+      props:
+        aes-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+    ope_encryptor:
+      props:
+        alpha-key: '0.8935217796678353'
+        factor-e-key: '0.9186430364852792'
+        factor-k-key: '523211953918290'
+      type: SphereEx:FASTOPE
+  encryptMode:
+    type: FRONTEND
+    props:
+      use-original-sql-when-cipher-query-failed: true
+  tables:
+    t_user:
+      columns:
+        user_name:
+          plain:
+            name: user_name
+          cipher:
+            name: user_name_cipher
+            encryptorName: aes_encryptor
+          orderQuery:
+            name: user_name_order
+            encryptorName: ope_encryptor
+        password:
+          plain:
+            name: password
+          cipher:
+            name: password_cipher
+            encryptorName: aes_encryptor
+          orderQuery:
+            name: password_order
+            encryptorName: ope_encryptor
+    t_merchant:
+      columns:
+        business_code:
+          plain:
+            name: business_code
+          cipher:
+            name: business_code_cipher
+            encryptorName: aes_encryptor
+          orderQuery:
+            name: business_code_order
+            encryptorName: ope_encryptor
+        telephone:
+          cipher:
+            name: merchant_telephone_cipher
+            encryptorName: aes_encryptor
+
+props:
+  sql-show: true
+# SPEX: ADDED

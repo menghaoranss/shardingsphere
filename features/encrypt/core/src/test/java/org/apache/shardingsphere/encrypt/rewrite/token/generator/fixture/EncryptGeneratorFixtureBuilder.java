@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.fixture;
 
+import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
@@ -92,11 +93,19 @@ public final class EncryptGeneratorFixtureBuilder {
                 new EncryptColumnRuleConfiguration("pwd", new EncryptColumnItemRuleConfiguration("pwd_cipher", "standard_encryptor"));
         pwdColumnConfig.setAssistedQuery(new EncryptColumnItemRuleConfiguration("pwd_assist", "assisted_encryptor"));
         pwdColumnConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("pwd_like", "like_encryptor"));
+        // SPEX ADDED: BEGIN
+        PlainColumnItemRuleConfiguration plainConfig = new PlainColumnItemRuleConfiguration("pwd_plain");
+        plainConfig.setQueryWithPlain(true);
+        pwdColumnConfig.setPlain(plainConfig);
+        // SPEX ADDED: END
         EncryptColumnRuleConfiguration userNameColumnConfig = new EncryptColumnRuleConfiguration("user_name", new EncryptColumnItemRuleConfiguration("user_name_cipher", "standard_encryptor"));
         EncryptColumnRuleConfiguration userIdColumnConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_id_cipher", "standard_encryptor"));
         userIdColumnConfig.setAssistedQuery(new EncryptColumnItemRuleConfiguration("user_id_assist", "assisted_encryptor"));
+        // SPEX CHANGED: BEGIN
         return new EncryptRule("foo_db",
-                new EncryptRuleConfiguration(Collections.singleton(new EncryptTableRuleConfiguration("t_user", Arrays.asList(pwdColumnConfig, userNameColumnConfig, userIdColumnConfig))), encryptors));
+                new EncryptRuleConfiguration(Collections.singleton(new EncryptTableRuleConfiguration("t_user", Arrays.asList(pwdColumnConfig, userNameColumnConfig, userIdColumnConfig))), encryptors),
+                Collections.emptyMap(), Collections.emptyList());
+        // SPEX CHANGED: END
     }
     
     /**

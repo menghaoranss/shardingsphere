@@ -48,6 +48,12 @@ class BatchDMLE2EIT extends BaseDMLE2EIT {
         if (null == testParam.getTestCaseContext()) {
             return;
         }
+        // SPEX ADDED: BEGIN
+        // TODO insert select in difference databases not support batch operations for now.
+        if (Boolean.TRUE.equals(testParam.getTestCaseContext().getTestCase().getIgnoreBatchTest())) {
+            return;
+        }
+        // SPEX ADDED: END
         init(testParam);
         try {
             int[] actualUpdateCounts;

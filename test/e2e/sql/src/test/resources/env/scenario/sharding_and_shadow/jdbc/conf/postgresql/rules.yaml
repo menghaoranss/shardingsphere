@@ -320,3 +320,7 @@ rules:
         type: SQL_HINT
         props:
           foo: bar
+
+# SPEX ADDED: BEGIN
+
+# SPEX ADDED: END

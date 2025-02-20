@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.mode.manager.standalone.persist.service;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
@@ -224,7 +226,8 @@ class StandaloneMetaDataManagerPersistServiceTest {
     
     @Test
     void assertCreateTable() {
-        ShardingSphereTable table = new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE);
+        @SphereEx(Type.MODIFY)
+        ShardingSphereTable table = new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE, null);
         metaDataManagerPersistService.createTable("foo_db", "foo_schema", table, "foo_ds");
         verify(metaDataPersistService.getDatabaseMetaDataFacade().getTable()).persist("foo_db", "foo_schema", Collections.singleton(table));
     }

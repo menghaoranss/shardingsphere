@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.env.runtime.scenario.path;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 
@@ -62,6 +63,26 @@ public final class ScenarioDataPath {
      * @return data set file
      */
     public String getDataSetFile(final Type type) {
+        return getFile(type, DATASET_FILE);
+    }
+    
+    /**
+     * Get data set file.
+     *
+     * @param type data type
+     * @param databaseType database type
+     * @return data set file
+     */
+    @SphereEx
+    public String getDataSetFile(final Type type, final DatabaseType databaseType) {
+        String path = String.join("/", getBasicPath(type), "dataset", databaseType.getType().toLowerCase(), DATASET_FILE);
+        URL url = Thread.currentThread().getContextClassLoader().getResource(path);
+        if (null != url) {
+            return url.getFile();
+        }
+        if (databaseType.getTrunkDatabaseType().isPresent()) {
+            return getDataSetFile(type, databaseType.getTrunkDatabaseType().get());
+        }
         return getFile(type, DATASET_FILE);
     }
     

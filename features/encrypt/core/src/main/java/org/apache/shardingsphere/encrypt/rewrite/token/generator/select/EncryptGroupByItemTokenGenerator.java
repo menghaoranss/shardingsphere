@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.select;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -30,6 +31,8 @@ import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementCont
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.SubstitutableColumnNameToken;
@@ -51,6 +54,12 @@ import java.util.Optional;
 public final class EncryptGroupByItemTokenGenerator implements CollectionSQLTokenGenerator<SelectStatementContext> {
     
     private final EncryptRule rule;
+    
+    @SphereEx
+    private final ShardingSphereDatabase database;
+    
+    @SphereEx
+    private final ShardingSphereMetaData metaData;
     
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
@@ -90,11 +99,19 @@ public final class EncryptGroupByItemTokenGenerator implements CollectionSQLToke
         EncryptColumn encryptColumn = encryptTable.get().getEncryptColumn(columnName);
         int startIndex = columnSegment.getOwner().isPresent() ? columnSegment.getOwner().get().getStopIndex() + 2 : columnSegment.getStartIndex();
         int stopIndex = columnSegment.getStopIndex();
+        // SPEX ADDED: BEGIN
+        if (encryptColumn.getPlain().isPresent() && rule.isQueryWithPlain(columnSegment.getColumnBoundInfo().getOriginalTable().getValue(), columnName)) {
+            return Optional.of(new SubstitutableColumnNameToken(startIndex, stopIndex,
+                    createColumnProjections(encryptColumn.getPlain().get().getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType), databaseType, database, metaData));
+        }
+        // SPEX ADDED: END
+        // SPEX CHANGED: BEGIN
         return Optional.of(encryptColumn.getAssistedQuery()
-                .map(optional -> new SubstitutableColumnNameToken(
-                        startIndex, stopIndex, createColumnProjections(optional.getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType), databaseType))
+                .map(optional -> new SubstitutableColumnNameToken(startIndex, stopIndex, createColumnProjections(optional.getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType),
+                        databaseType, database, metaData))
                 .orElseGet(() -> new SubstitutableColumnNameToken(startIndex, stopIndex,
-                        createColumnProjections(encryptColumn.getCipher().getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType), databaseType)));
+                        createColumnProjections(encryptColumn.getCipher().getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType), databaseType, database, metaData)));
+        // SPEX CHANGED: END
     }
     
     private Collection<OrderByItem> getGroupByItems(final SelectStatementContext sqlStatementContext) {

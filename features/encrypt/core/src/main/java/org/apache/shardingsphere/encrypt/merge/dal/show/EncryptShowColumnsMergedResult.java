@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.merge.dal.show;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
@@ -38,6 +40,9 @@ import java.util.Optional;
 public final class EncryptShowColumnsMergedResult implements MergedResult {
     
     private static final int COLUMN_FIELD_INDEX = 1;
+    
+    @SphereEx
+    private static final int COLUMN_TYPE_INDEX = 2;
     
     private final String tableName;
     
@@ -74,8 +79,9 @@ public final class EncryptShowColumnsMergedResult implements MergedResult {
         return true;
     }
     
+    @SphereEx(Type.MODIFY)
     private boolean isDerivedColumn(final EncryptTable encryptTable, final String columnName) {
-        return encryptTable.isAssistedQueryColumn(columnName) || encryptTable.isLikeQueryColumn(columnName);
+        return encryptTable.isAssistedQueryColumn(columnName) || encryptTable.isLikeQueryColumn(columnName) || encryptTable.isPlainColumn(columnName) || encryptTable.isOrderQueryColumn(columnName);
     }
     
     @Override
@@ -89,6 +95,18 @@ public final class EncryptShowColumnsMergedResult implements MergedResult {
             Optional<String> logicColumn = encryptTable.get().isCipherColumn(columnName) ? Optional.of(encryptTable.get().getLogicColumnByCipherColumn(columnName)) : Optional.empty();
             return logicColumn.orElse(columnName);
         }
+        // SPEX ADDED: BEGIN
+        if (COLUMN_TYPE_INDEX == columnIndex) {
+            String columnType = mergedResult.getValue(COLUMN_TYPE_INDEX, type).toString();
+            Optional<EncryptTable> encryptTable = rule.findEncryptTable(tableName);
+            String columnName = mergedResult.getValue(COLUMN_FIELD_INDEX, type).toString();
+            if (!encryptTable.isPresent() || !encryptTable.get().isCipherColumn(columnName)) {
+                return columnType;
+            }
+            String logicColumn = encryptTable.get().getLogicColumnByCipherColumn(columnName);
+            return Optional.ofNullable(encryptTable.get().getEncryptColumn(logicColumn).getDataType()).orElse(columnType);
+        }
+        // SPEX ADDED: END
         return mergedResult.getValue(columnIndex, type);
     }
     

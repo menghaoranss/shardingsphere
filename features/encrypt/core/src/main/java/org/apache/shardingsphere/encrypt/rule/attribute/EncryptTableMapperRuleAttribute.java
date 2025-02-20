@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.encrypt.rule.attribute;
 
 import com.cedarsoftware.util.CaseInsensitiveSet;
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.rule.attribute.table.TableMapperRuleAttribute;
 
 import java.util.Collection;
@@ -30,13 +31,25 @@ public final class EncryptTableMapperRuleAttribute implements TableMapperRuleAtt
     
     private final Collection<String> logicalTableMapper;
     
-    public EncryptTableMapperRuleAttribute(final Collection<String> encryptTableNames) {
+    @SphereEx
+    private final Collection<String> actualTableNames;
+    
+    public EncryptTableMapperRuleAttribute(final Collection<String> encryptTableNames, @SphereEx final Collection<String> actualTableNames) {
         logicalTableMapper = new CaseInsensitiveSet<>(encryptTableNames);
+        // SPEX ADDED: BEGIN
+        this.actualTableNames = new CaseInsensitiveSet<>(actualTableNames);
+        // SPEX ADDED: END
     }
     
     @Override
     public Collection<String> getLogicTableNames() {
         return logicalTableMapper;
+    }
+    
+    @SphereEx
+    @Override
+    public Collection<String> getActualTableNames() {
+        return actualTableNames;
     }
     
     @Override

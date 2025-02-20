@@ -17,13 +17,13 @@
 
 package org.apache.shardingsphere.infra.session.query;
 
-import com.google.common.base.Joiner;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.exception.dialect.exception.syntax.database.NoDatabaseSelectedException;
 import org.apache.shardingsphere.infra.exception.dialect.exception.syntax.database.UnknownDatabaseException;
-import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
@@ -31,6 +31,7 @@ import org.apache.shardingsphere.infra.session.connection.ConnectionContext;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -90,9 +91,32 @@ public final class QueryContext {
      * @return used database
      */
     public ShardingSphereDatabase getUsedDatabase() {
-        ShardingSpherePreconditions.checkState(usedDatabaseNames.size() <= 1,
-                () -> new UnsupportedSQLOperationException(String.format("Can not support multiple logic databases [%s]", Joiner.on(", ").join(usedDatabaseNames))));
+        // SPEX DELETE: BEGIN
+        // ShardingSpherePreconditions.checkState(usedDatabaseNames.size() <= 1,
+        // () -> new UnsupportedSQLOperationException(String.format("Can not support multiple logic databases [%s]", Joiner.on(", ").join(usedDatabaseNames))));
+        // SPEX DELETE: END
         String databaseName = usedDatabaseNames.iterator().next();
+        ShardingSpherePreconditions.checkState(metaData.containsDatabase(databaseName), () -> new UnknownDatabaseException(databaseName));
+        return metaData.getDatabase(databaseName);
+    }
+    
+    /**
+     * Get used databases.
+     *
+     * @return used databases
+     */
+    @SphereEx
+    public Collection<ShardingSphereDatabase> getUsedDatabases() {
+        Collection<ShardingSphereDatabase> result = new LinkedList<>();
+        Collection<String> databaseNames = sqlStatementContext instanceof TableAvailable ? ((TableAvailable) sqlStatementContext).getTablesContext().getDatabaseNames() : Collections.emptyList();
+        databaseNames = databaseNames.isEmpty() ? connectionContext.getCurrentDatabaseName().map(Collections::singleton).orElseGet(Collections::emptySet) : databaseNames;
+        databaseNames.forEach(each -> result.add(getDatabase(each)));
+        return result;
+    }
+    
+    @SphereEx
+    private ShardingSphereDatabase getDatabase(final String databaseName) {
+        ShardingSpherePreconditions.checkNotNull(databaseName, NoDatabaseSelectedException::new);
         ShardingSpherePreconditions.checkState(metaData.containsDatabase(databaseName), () -> new UnknownDatabaseException(databaseName));
         return metaData.getDatabase(databaseName);
     }

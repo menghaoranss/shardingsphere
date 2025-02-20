@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.metadata.database.schema.model;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.metadata.database.schema.model.props.SchemaProperties;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.metadata.identifier.ShardingSphereIdentifier;
 
@@ -24,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -38,11 +41,18 @@ public final class ShardingSphereSchema {
     
     private final Map<ShardingSphereIdentifier, ShardingSphereView> views;
     
+    @SphereEx
+    @Getter
+    private final SchemaProperties props;
+    
     @SuppressWarnings("CollectionWithoutInitialCapacity")
     public ShardingSphereSchema(final String name) {
         this.name = name;
         tables = new ConcurrentHashMap<>();
         views = new ConcurrentHashMap<>();
+        // SPEX ADDED: BEGIN
+        props = new SchemaProperties(new Properties());
+        // SPEX ADDED: END
     }
     
     public ShardingSphereSchema(final String name, final Collection<ShardingSphereTable> tables, final Collection<ShardingSphereView> views) {
@@ -51,6 +61,15 @@ public final class ShardingSphereSchema {
         this.views = new ConcurrentHashMap<>(views.size(), 1F);
         tables.forEach(each -> this.tables.put(new ShardingSphereIdentifier(each.getName()), each));
         views.forEach(each -> this.views.put(new ShardingSphereIdentifier(each.getName()), each));
+        // SPEX ADDED: BEGIN
+        props = new SchemaProperties(new Properties());
+        // SPEX ADDED: END
+    }
+    
+    @SphereEx
+    public ShardingSphereSchema(final String name, final Collection<ShardingSphereTable> tables, final Collection<ShardingSphereView> views, final Properties props) {
+        this(name, tables, views);
+        this.props.getProps().putAll(props);
     }
     
     /**

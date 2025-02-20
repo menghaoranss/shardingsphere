@@ -24,6 +24,7 @@ import org.apache.shardingsphere.infra.database.core.metadata.data.model.IndexMe
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,6 +67,10 @@ public final class IndexMetaDataLoader {
                     result.get(indexName).getColumns().add(resultSet.getString("COLUMN_NAME"));
                 }
             }
+            // SPEX ADDED: BEGIN
+        } catch (final SQLFeatureNotSupportedException ignore) {
+            return result.values();
+            // SPEX ADDED: END
         } catch (final SQLException ex) {
             if (ORACLE_VIEW_NOT_APPROPRIATE_VENDOR_CODE != ex.getErrorCode()) {
                 throw ex;

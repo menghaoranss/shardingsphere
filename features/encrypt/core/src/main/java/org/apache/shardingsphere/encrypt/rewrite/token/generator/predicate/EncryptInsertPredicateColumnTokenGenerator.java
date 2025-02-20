@@ -17,16 +17,21 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.predicate;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.InsertStatementContext;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Insert predicate column token generator for encrypt.
@@ -38,6 +43,13 @@ public final class EncryptInsertPredicateColumnTokenGenerator implements Collect
     
     private final EncryptRule rule;
     
+    @SphereEx
+    private final Map<String, EncryptRule> databaseEncryptRules;
+    
+    private final ShardingSphereDatabase database;
+    
+    private final ShardingSphereMetaData metaData;
+    
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
         return sqlStatementContext instanceof InsertStatementContext && null != ((InsertStatementContext) sqlStatementContext).getInsertSelectContext()
@@ -46,7 +58,8 @@ public final class EncryptInsertPredicateColumnTokenGenerator implements Collect
     
     @Override
     public Collection<SQLToken> generateSQLTokens(final SQLStatementContext sqlStatementContext) {
-        EncryptPredicateColumnTokenGenerator generator = new EncryptPredicateColumnTokenGenerator(rule);
+        @SphereEx(Type.MODIFY)
+        EncryptPredicateColumnTokenGenerator generator = new EncryptPredicateColumnTokenGenerator(rule, databaseEncryptRules, database, metaData);
         return generator.generateSQLTokens(((InsertStatementContext) sqlStatementContext).getInsertSelectContext().getSelectStatementContext());
     }
 }

@@ -17,13 +17,20 @@
 
 package org.apache.shardingsphere.encrypt.rule.column.item;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
+import com.sphereex.dbplusengine.encrypt.context.EncryptColumnDataTypeContextBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Like query column item.
@@ -34,7 +41,22 @@ public final class LikeQueryColumnItem {
     @Getter
     private final String name;
     
+    // SPEX ADDED: BEGIN
+    @Getter
+    // SPEX ADDED: END
     private final EncryptAlgorithm encryptor;
+    
+    @Setter
+    @SphereEx
+    private String dataType;
+    
+    @Setter
+    @SphereEx
+    private EncryptColumn encryptColumn;
+    
+    @Setter
+    @SphereEx
+    private DatabaseType databaseType;
     
     /**
      * Get encrypt like query value.
@@ -50,7 +72,10 @@ public final class LikeQueryColumnItem {
         if (null == originalValue) {
             return null;
         }
-        return encryptor.encrypt(originalValue, new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName));
+        return encryptor.encrypt(originalValue, new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName),
+                // SPEX CHANGED: BEGIN
+                new EncryptContext(EncryptColumnDataTypeContextBuilder.build(encryptColumn), databaseType));
+        // SPEX CHANGED: END
     }
     
     /**
@@ -65,10 +90,25 @@ public final class LikeQueryColumnItem {
      */
     public List<Object> encrypt(final String databaseName, final String schemaName, final String tableName, final String logicColumnName, final List<Object> originalValues) {
         AlgorithmSQLContext algorithmSQLContext = new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName);
+        // SPEX ADDED: BEGIN
+        EncryptContext encryptContext = new EncryptContext(EncryptColumnDataTypeContextBuilder.build(encryptColumn), databaseType);
+        // SPEX ADDED: END
         List<Object> result = new LinkedList<>();
         for (Object each : originalValues) {
-            result.add(null == each ? null : encryptor.encrypt(each, algorithmSQLContext));
+            // SPEX CHANGED: BEGIN
+            result.add(null == each ? null : encryptor.encrypt(each, algorithmSQLContext, encryptContext));
+            // SPEX CHANGED: END
         }
         return result;
+    }
+    
+    /**
+     * Get data type.
+     *
+     * @return data type
+     */
+    @SphereEx
+    public Optional<String> getDataType() {
+        return Optional.ofNullable(dataType);
     }
 }

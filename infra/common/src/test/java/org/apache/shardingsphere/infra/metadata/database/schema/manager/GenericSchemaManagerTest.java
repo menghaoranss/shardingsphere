@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.metadata.database.schema.manager;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
@@ -66,8 +68,9 @@ class GenericSchemaManagerTest {
     
     @Test
     void assertGetToBeAddedTables() {
+        @SphereEx(Type.MODIFY)
         ShardingSphereSchema reloadSchema = new ShardingSphereSchema("foo_schema",
-                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE)), Collections.emptyList());
+                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE, "")), Collections.emptyList());
         Collection<ShardingSphereTable> actual = GenericSchemaManager.getToBeAddedTables(reloadSchema, new ShardingSphereSchema("foo_schema", Collections.emptyList(), Collections.emptyList()));
         assertThat(actual.size(), is(1));
         assertThat(actual.iterator().next().getName(), is("foo_tbl"));
@@ -77,7 +80,7 @@ class GenericSchemaManagerTest {
     void assertGetToBeDroppedTables() {
         ShardingSphereSchema reloadSchema = new ShardingSphereSchema("foo_schema", Collections.emptyList(), Collections.emptyList());
         ShardingSphereSchema currentSchema = new ShardingSphereSchema("foo_schema",
-                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE)), Collections.emptyList());
+                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE, "")), Collections.emptyList());
         Collection<ShardingSphereTable> actual = GenericSchemaManager.getToBeDroppedTables(reloadSchema, currentSchema);
         assertThat(actual.size(), is(1));
         assertThat(actual.iterator().next().getName(), is("foo_tbl"));

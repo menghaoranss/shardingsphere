@@ -17,13 +17,42 @@
   -->
 
 <rewrite-assertions yaml-rule="scenario/encrypt/config/query-with-cipher.yaml">
+    <!--  SPEX CHANGED: BEGIN  -->
     <rewrite-assertion id="create_table_for_cipher" db-types="MySQL">
         <input sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', password VARCHAR(255) NOT NULL DEFAULT '', PRIMARY KEY (`id`))" />
-        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', cipher_password VARCHAR(4000), assisted_query_password VARCHAR(4000), like_query_password VARCHAR(4000), PRIMARY KEY (`id`))" />
+        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', cipher_password VARCHAR(510) NOT NULL, assisted_query_password VARCHAR(255) NOT NULL, like_query_password VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL, plain_password VARCHAR(255) NOT NULL DEFAULT '', PRIMARY KEY (`id`))" />
     </rewrite-assertion>
 
     <rewrite-assertion id="create_table_with_index_for_cipher" db-types="MySQL">
         <input sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', password VARCHAR(255) NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`amount`))" />
-        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', cipher_password VARCHAR(4000), assisted_query_password VARCHAR(4000), like_query_password VARCHAR(4000), PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`cipher_amount`))" />
+        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', cipher_password VARCHAR(510) NOT NULL, assisted_query_password VARCHAR(255) NOT NULL, like_query_password VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL, plain_password VARCHAR(255) NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`cipher_amount`))" />
     </rewrite-assertion>
+    <!-- SPEX CHANGED: END -->
+
+    <!--  SPEX ADDED: BEGIN  -->
+    <rewrite-assertion id="create_table_with_charset_for_cipher" db-types="MySQL">
+        <input sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '', password VARCHAR(255) CHARACTER SET utf8mb3 NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`amount`)) DEFAULT CHARSET=utf8mb4" />
+        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '', cipher_password VARCHAR(510) NOT NULL, assisted_query_password VARCHAR(255) NOT NULL, like_query_password VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL, plain_password VARCHAR(255) CHARACTER SET utf8mb3 NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`cipher_amount`)) DEFAULT CHARSET=utf8mb4" />
+    </rewrite-assertion>
+
+    <rewrite-assertion id="create_table_with_utf8mb3_charset_for_cipher" db-types="MySQL">
+        <input sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) CHARACTER SET utf8mb3 NOT NULL DEFAULT '', password VARCHAR(255) CHARACTER SET utf8mb3 NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`amount`)) DEFAULT CHARSET=utf8mb3" />
+        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) CHARACTER SET utf8mb3 NOT NULL DEFAULT '', cipher_password VARCHAR(510) NOT NULL, assisted_query_password VARCHAR(255) NOT NULL, like_query_password VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL, plain_password VARCHAR(255) CHARACTER SET utf8mb3 NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`cipher_amount`)) DEFAULT CHARSET=utf8mb3" />
+    </rewrite-assertion>
+
+    <rewrite-assertion id="create_table_with_latin1_charset_for_cipher" db-types="MySQL">
+        <input sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) CHARACTER SET latin1 NOT NULL DEFAULT '', password VARCHAR(255) CHARACTER SET latin1 NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`amount`)) DEFAULT CHARSET=latin1" />
+        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) CHARACTER SET latin1 NOT NULL DEFAULT '', cipher_password VARCHAR(510) NOT NULL, assisted_query_password VARCHAR(255) NOT NULL, like_query_password VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL, plain_password VARCHAR(255) CHARACTER SET latin1 NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`cipher_amount`)) DEFAULT CHARSET=latin1" />
+    </rewrite-assertion>
+
+    <rewrite-assertion id="create_table_with_table_collate_charset_for_cipher" db-types="MySQL">
+        <input sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', password VARCHAR(255) NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`amount`)) DEFAULT COLLATE=utf8mb3_general_ci" />
+        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL DEFAULT '', cipher_password VARCHAR(510) NOT NULL, assisted_query_password VARCHAR(255) NOT NULL, like_query_password VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL, plain_password VARCHAR(255) NOT NULL DEFAULT '', PRIMARY KEY (`id`), KEY `t_account_bak_amount_idx` (`cipher_amount`)) DEFAULT COLLATE=utf8mb3_general_ci" />
+    </rewrite-assertion>
+
+    <rewrite-assertion id="create_table_with_column_length_unit_for_cipher" db-types="Oracle">
+        <input sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL, password VARCHAR(255 byte) NOT NULL, password_new VARCHAR(255 char))" />
+        <output sql="CREATE TABLE t_account_bak_for_create (id INT NOT NULL, name VARCHAR(100) NOT NULL, cipher_password VARCHAR(128 byte) NOT NULL, assisted_query_password VARCHAR(64 byte) NOT NULL, like_query_password VARCHAR(64 byte) NOT NULL, plain_password VARCHAR(255 byte) NOT NULL, password_new_cipher VARCHAR(510 char), password_new_assisted VARCHAR(255 char), password_new_like VARCHAR(255 char), password_new_plain VARCHAR(255 char))" />
+    </rewrite-assertion>
+    <!-- SPEX ADDED: END -->
 </rewrite-assertions>

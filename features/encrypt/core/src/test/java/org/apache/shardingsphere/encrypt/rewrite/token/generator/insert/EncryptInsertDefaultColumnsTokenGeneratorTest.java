@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.insert;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.fixture.EncryptGeneratorFixtureBuilder;
 import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +35,10 @@ class EncryptInsertDefaultColumnsTokenGeneratorTest {
     
     private EncryptInsertDefaultColumnsTokenGenerator generator;
     
+    @SphereEx(Type.MODIFY)
     @BeforeEach
     void setup() {
-        generator = new EncryptInsertDefaultColumnsTokenGenerator(EncryptGeneratorFixtureBuilder.createEncryptRule());
+        generator = new EncryptInsertDefaultColumnsTokenGenerator(EncryptGeneratorFixtureBuilder.createEncryptRule(), Collections.emptyMap());
     }
     
     @Test
@@ -44,17 +47,19 @@ class EncryptInsertDefaultColumnsTokenGeneratorTest {
     }
     
     @Test
+    @SphereEx(Type.MODIFY)
     void assertGenerateSQLTokenFromGenerateNewSQLToken() {
         generator.setPreviousSQLTokens(Collections.emptyList());
         assertThat(generator.generateSQLToken(EncryptGeneratorFixtureBuilder.createInsertStatementContext(Collections.emptyList())).toString(),
-                is("(`id`, `name`, `status`, `pwd_cipher`, `pwd_assist`, `pwd_like`)"));
+                is("(`id`, `name`, `status`, `pwd_cipher`, `pwd_assist`, `pwd_like`, `pwd_plain`)"));
     }
     
     @Test
+    @SphereEx(Type.MODIFY)
     void assertGenerateSQLTokenFromPreviousSQLTokens() {
         generator.setPreviousSQLTokens(EncryptGeneratorFixtureBuilder.getPreviousSQLTokens());
         assertThat(generator.generateSQLToken(EncryptGeneratorFixtureBuilder.createInsertStatementContext(Collections.emptyList())).toString(),
-                is("(`id`, `name`, `status`, `pwd_cipher`, `pwd_assist`, `pwd_like`)"));
+                is("(`id`, `name`, `status`, `pwd_cipher`, `pwd_assist`, `pwd_like`, `pwd_plain`)"));
     }
     
     @Test

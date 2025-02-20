@@ -1,0 +1,157 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset>
+    <metadata data-nodes="expected_dataset.T_USER">
+        <column name="USER_ID" type="numeric" />
+        <column name="USER_NAME" type="varchar" />
+        <column name="PASSWORD" type="varchar" />
+        <column name="EMAIL" type="varchar" />
+        <column name="TELEPHONE" type="varchar" />
+        <column name="CREATION_DATE" type="datetime" />
+    </metadata>
+    <metadata data-nodes="expected_dataset.T_ORDER_ITEM">
+        <column name="ITEM_ID" type="numeric" />
+        <column name="ORDER_ID" type="numeric" />
+        <column name="USER_ID" type="numeric" />
+        <column name="PRODUCT_ID" type="numeric" />
+        <column name="QUANTITY" type="numeric" />
+        <column name="CREATION_DATE" type="datetime" />
+    </metadata>
+    <metadata data-nodes="expected_dataset.T_PRODUCT_EXTEND">
+        <column name="EXTEND_ID" type="numeric" />
+        <column name="PRODUCT_ID" type="numeric" />
+        <column name="PRODUCT_DESC" type="varchar" />
+    </metadata>
+    <row data-node="expected_dataset.T_USER" values="10, zhangsan, 111111, zhangsan@gmail.com, 12345678900, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="11, lisi, 222222, lisi@gmail.com, 12345678901, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="12, wangwu, 333333, wangwu@gmail.com, 12345678902, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="13, zhaoliu, 444444, zhaoliu@gmail.com, 12345678903, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="14, zhuqi, 555555, zhuqi@gmail.com, 12345678904, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="15, liba, 666666, liba@gmail.com, 12345678905, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="16, wangjiu, 777777, wangjiu@gmail.com, 12345678906, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="17, zhuda, 888888, zhuda@gmail.com, 12345678907, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="18, suner, 999999, suner@gmail.com, 12345678908, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="19, zhousan, 123456, zhousan@gmail.com, 12345678909, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="20, tom, 234567, tom@gmail.com, 12345678910, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="21, kobe, 345678, kobe@gmail.com, 12345678911, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="22, jerry, 456789, jerry@gmail.com, 12345678912, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="23, james, 567890, james@gmail.com, 12345678913, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="24, wade, 012345, wade@gmail.com, 12345678914, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="25, rose, 000000, rose@gmail.com, 12345678915, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="26, bosh, 111222, bosh@gmail.com, 12345678916, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="27, jack, 222333, jack@gmail.com, 12345678917, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="28, jordan, 333444, jordan@gmail.com, 12345678918, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="29, julie, 444555, julie@gmail.com, 12345678919, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="30, 张三, 123456, zhangsan@gmail.com, 18012312345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="31, 张飞, 234567, zhangfei@gmail.com, 18012412345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="32, 张翼, 345678, zhangyi@gmail.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="33, 李四, 456789, lisi@gmail.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="34, 李靖, 123123, lijing@gmail.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="35, 王献之, 234234, wangxianzhi@qq.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="36, 王安石, 345345, jeff@gmail.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="37, 王羲之, 345345, wangxizhi@gmail.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="38, 王莽, 456456, wangmang@gmail.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_USER" values="39, 王勃, 567567, wangbo@gmail.com, 18012512345, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="100001, 1000, 10, 1, 10, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="100002, 1000, 10, 1, 9, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="100101, 1001, 10, 2, 8, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="100102, 1001, 10, 2, 7, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="200001, 2000, 20, 3, 6, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="200002, 2000, 20, 3, 5, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="200101, 2001, 20, 4, 4, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="200102, 2001, 20, 4, 3, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="110001, 1100, 11, 5, 2, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="110002, 1100, 11, 5, 1, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="110101, 1101, 11, 6, 1000, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="110102, 1101, 11, 6, 12, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="210001, 2100, 21, 7, 13, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="210002, 2100, 21, 7, 14, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="210101, 2101, 21, 8, 15, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="210102, 2101, 21, 8, 16, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="120001, 1200, 12, 9, 17, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="120002, 1200, 12, 9, 18, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="120101, 1201, 12, 10, 19, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="120102, 1201, 12, 10, 20, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="220001, 2200, 22, 11, 30, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="220002, 2200, 22, 11, 29, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="220101, 2201, 22, 12, 28, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="220102, 2201, 22, 12, 27, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="130001, 1300, 13, 13, 26, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="130002, 1300, 13, 13, 25, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="130101, 1301, 13, 14, 24, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="130102, 1301, 13, 14, 23, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="230001, 2300, 23, 15, 22, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="230002, 2300, 23, 15, 21, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="230101, 2301, 23, 16, 31, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="230102, 2301, 23, 16, 32, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="140001, 1400, 14, 17, 33, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="140002, 1400, 14, 17, 34, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="140101, 1401, 14, 18, 35, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="140102, 1401, 14, 18, 100, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="240001, 2400, 24, 19, 99, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="240002, 2400, 24, 19, 98, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="240101, 2401, 24, 20, 97, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="240102, 2401, 24, 20, 96, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="150001, 1500, 15, 1, 95, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="150002, 1500, 15, 1, 94, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="150101, 1501, 15, 2, 93, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="150102, 1501, 15, 2, 92, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="250001, 2500, 25, 3, 91, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="250002, 2500, 25, 3, 90, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="250101, 2501, 25, 4, 89, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="250102, 2501, 25, 4, 88, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="160001, 1600, 16, 5, 87, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="160002, 1600, 16, 5, 86, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="160101, 1601, 16, 6, 85, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="160102, 1601, 16, 6, 84, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="260001, 2600, 26, 7, 83, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="260002, 2600, 26, 7, 82, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="260101, 2601, 26, 8, 81, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="260102, 2601, 26, 8, 80, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="170001, 1700, 17, 9, 79, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="170002, 1700, 17, 9, 78, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="170101, 1701, 17, 10, 77, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="170102, 1701, 17, 10, 76, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="270001, 2700, 27, 11, 75, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="270002, 2700, 27, 11, 74, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="270101, 2701, 27, 12, 73, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="270102, 2701, 27, 12, 72, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="180001, 1800, 18, 13, 71, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="180002, 1800, 18, 13, 70, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="180101, 1801, 18, 14, 69, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="180102, 1801, 18, 14, 68, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="280001, 2800, 28, 15, 67, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="280002, 2800, 28, 15, 66, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="280101, 2801, 28, 16, 65, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="280102, 2801, 28, 16, 64, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="190001, 1900, 19, 17, 63, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="190002, 1900, 19, 17, 62, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="190101, 1901, 19, 18, 61, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="190102, 1901, 19, 18, 60, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="290001, 2900, 29, 19, 59, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="290002, 2900, 29, 19, 58, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="290101, 2901, 29, 20, 57, 2017-08-08" />
+    <row data-node="expected_dataset.T_ORDER_ITEM" values="290102, 2901, 29, 20, 56, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="1, 1, 1000001" />
+    <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="2, 1, 1000003" />
+    <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="3, 1, 1000005" />
+    <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="4, 1, 1000002" />
+    <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="5, 1, 1000011" />
+</dataset>
+<!-- SPEX ADDED: END -->

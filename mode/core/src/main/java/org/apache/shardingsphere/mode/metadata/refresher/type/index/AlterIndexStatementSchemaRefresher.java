@@ -57,7 +57,7 @@ public final class AlterIndexStatementSchemaRefresher implements MetaDataRefresh
         ShardingSpherePreconditions.checkState(logicTableName.isPresent(), () -> new IndexNotFoundException(indexName, schemaName));
         ShardingSpherePreconditions.checkState(schema.containsTable(logicTableName.get()), () -> new TableNotFoundException(logicTableName.get()));
         ShardingSphereTable table = schema.getTable(logicTableName.get());
-        ShardingSphereTable newTable = new ShardingSphereTable(table.getName(), table.getAllColumns(), table.getAllIndexes(), table.getAllConstraints(), table.getType());
+        ShardingSphereTable newTable = new ShardingSphereTable(table.getName(), table.getAllColumns(), table.getAllIndexes(), table.getAllConstraints(), table.getType(), table.getCharacterSetName());
         newTable.removeIndex(indexName);
         String renameIndexName = renameIndex.get().getIndexName().getIdentifier().getValue();
         newTable.putIndex(new ShardingSphereIndex(renameIndexName, new LinkedList<>(), false));

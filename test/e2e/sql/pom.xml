@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere-test-e2e</artifactId>
-        <version>5.5.2</version>
+        <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
     <artifactId>shardingsphere-test-e2e-sql</artifactId>
     <name>${project.artifactId}</name>
@@ -33,6 +33,14 @@
             <version>${project.version}</version>
             <type>test-jar</type>
         </dependency>
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-test-util</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- SPEX ADDED: END -->
         
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -50,10 +58,29 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+        </dependency>
+        <!-- SPEX ADDED: END -->
         
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>3.14.15</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons-csv.version}</version>
+        </dependency>
+        <!-- SPEX ADDED: END -->
     </dependencies>
 </project>

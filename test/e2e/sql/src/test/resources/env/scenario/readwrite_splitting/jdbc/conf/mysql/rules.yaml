@@ -81,3 +81,10 @@ rules:
         readDataSourceNames:
           - read_0
           - read_1
+
+props:
+  sql-show: true
+
+# SPEX ADDED: BEGIN
+
+# SPEX ADDED: END

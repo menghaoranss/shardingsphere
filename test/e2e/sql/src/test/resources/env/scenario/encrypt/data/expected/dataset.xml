@@ -48,6 +48,28 @@
         <column name="telephone" type="varchar" />
         <column name="creation_date" type="datetime" />
     </metadata>
+    <!-- SPEX ADDED: BEGIN -->
+    <metadata data-nodes="expected_dataset.t_product_extend">
+        <column name="extend_id" type="numeric"/>
+        <column name="parent_extend_id" type="numeric"/>
+        <column name="product_id" type="numeric"/>
+        <column name="manual" type="varchar"/>
+    </metadata>
+    <metadata data-nodes="expected_dataset.t_user_insert">
+        <column name="user_id" type="numeric" />
+        <column name="user_name" type="varchar" />
+        <column name="password" type="varchar" />
+        <column name="creation_date" type="datetime" />
+        <column name="update_date" type="timestamp" />
+    </metadata>
+    <metadata data-nodes="expected_dataset.t_user_select">
+        <column name="user_id" type="numeric" />
+        <column name="user_name" type="varchar" />
+        <column name="password" type="varchar" />
+        <column name="creation_date" type="datetime" />
+        <column name="update_date" type="timestamp" />
+    </metadata>
+    <!-- SPEX ADDED: END -->
     <row data-node="expected_dataset.t_order" values="1000, 10, init, null, test, 2017-08-08" />
     <row data-node="expected_dataset.t_order" values="1001, 10, init, 2, test, 2017-08-08" />
     <row data-node="expected_dataset.t_order" values="2000, 20, init, null, test, 2017-08-08" />
@@ -218,4 +240,12 @@
     <row data-node="expected_dataset.t_merchant" values="18, 1, intel, 01000018, 01100000018, 2017-08-08" />
     <row data-node="expected_dataset.t_merchant" values="19, 1, hp, 01000019, 01100000019, 2017-08-08" />
     <row data-node="expected_dataset.t_merchant" values="20, 1, tesla, 01000020, 01100000020, 2017-08-08" />
+    <!-- SPEX ADDED: BEGIN -->
+    <row data-node="expected_dataset.t_product_extend" values="1, null, 1, Bike Manual Book"/>
+    <row data-node="expected_dataset.t_product_extend" values="2, 1, 1, How to fix your bike"/>
+    <row data-node="expected_dataset.t_user_select" values="10, zhangsan, 111111, 2017-08-08, 2017-08-08 18:30:30.0" />
+    <row data-node="expected_dataset.t_user_select" values="11, lisi, 222222, 2017-08-08, 2017-08-08 18:30:30.0" />
+    <row data-node="expected_dataset.t_user_select" values="12, wangwu, 333333, 2017-08-08, 2017-08-08 18:30:30.0" />
+    <row data-node="expected_dataset.t_user_select" values="13, haoliu, 444444, 2017-08-08, 2017-08-08 18:30:30.0" />
+    <!-- SPEX ADDED: END -->
 </dataset>

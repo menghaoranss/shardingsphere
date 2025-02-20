@@ -17,7 +17,9 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.segment.generic;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.SQLSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
 
 /**
  * Parameter marker segment.
@@ -30,4 +32,12 @@ public interface ParameterMarkerSegment extends SQLSegment {
      * @return parameter index
      */
     int getParameterIndex();
+    
+    /**
+     * Get bound info.
+     *
+     * @return bound info
+     */
+    @SphereEx
+    ColumnSegmentBoundInfo getBoundInfo();
 }

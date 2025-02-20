@@ -25,7 +25,7 @@
     </parent>
     <groupId>org.apache.shardingsphere</groupId>
     <artifactId>shardingsphere</artifactId>
-    <version>5.5.2</version>
+    <version>5.5.2-PINGAN-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache ShardingSphere</name>
     <description>Build criterion and ecosystem above multi-model databases</description>
@@ -133,7 +133,11 @@
         <hadoop.version>3.3.6</hadoop.version>
         <presto.version>0.288.1</presto.version>
         <jaybird.version>5.0.6.java8</jaybird.version>
-        
+        <!-- SPEX ADDED: BEGIN -->
+        <ojdbc.version>19.16.0.0</ojdbc.version>
+        <oceanbase.version>2.4.12</oceanbase.version>
+        <!-- SPEX ADDED: END -->
+
         <hikari-cp.version>4.0.3</hikari-cp.version>
         
         <prometheus-simpleclient.version>0.11.0</prometheus-simpleclient.version>
@@ -340,6 +344,13 @@
                 <artifactId>bctls-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
+            <!-- SPEX ADDED: BEGIN -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <!-- SPEX ADDED: END -->
             
             <dependency>
                 <groupId>org.apache.curator</groupId>
@@ -496,6 +507,20 @@
                 <version>${jaybird.version}</version>
                 <scope>test</scope>
             </dependency>
+            <!-- SPEX ADDED: BEGIN -->
+            <dependency>
+                <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc8</artifactId>
+                <version>${ojdbc.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.oceanbase</groupId>
+                <artifactId>oceanbase-client</artifactId>
+                <version>${oceanbase.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- SPEX ADDED: END -->
             
             <dependency>
                 <groupId>com.zaxxer</groupId>
@@ -1006,7 +1031,7 @@
         <connection>scm:git:https://github.com/apache/shardingsphere.git</connection>
         <developerConnection>scm:git:https://github.com/apache/shardingsphere.git</developerConnection>
         <url>https://github.com/apache/shardingsphere.git</url>
-        <tag>5.5.2</tag>
+        <tag>5.5.2-PINGAN-SNAPSHOT</tag>
     </scm>
     
     <distributionManagement>

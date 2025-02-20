@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.test.e2e.framework.database;
 
+import com.sphereex.dbplusengine.test.e2e.framework.database.impl.DMDatabaseAssertionMetaData;
+import com.sphereex.dbplusengine.test.e2e.framework.database.impl.OracleDatabaseAssertionMetaData;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -41,6 +43,12 @@ public final class DatabaseAssertionMetaDataFactory {
             case "PostgreSQL":
             case "openGauss":
                 return Optional.of(new PostgreSQLDatabaseAssertionMetaData());
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return Optional.of(new OracleDatabaseAssertionMetaData());
+            case "DM":
+                return Optional.of(new DMDatabaseAssertionMetaData());
+            // SPEX ADDED: END
             default:
                 return Optional.empty();
         }

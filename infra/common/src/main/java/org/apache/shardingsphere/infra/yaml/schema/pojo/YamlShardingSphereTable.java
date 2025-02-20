@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.yaml.schema.pojo;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
@@ -40,4 +41,7 @@ public final class YamlShardingSphereTable implements YamlConfiguration {
     private Map<String, YamlShardingSphereConstraint> constraints;
     
     private TableType type;
+    
+    @SphereEx
+    private String characterSetName;
 }

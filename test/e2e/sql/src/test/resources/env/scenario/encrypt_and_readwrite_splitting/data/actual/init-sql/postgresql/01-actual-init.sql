@@ -26,7 +26,9 @@ GRANT ALL PRIVILEGES ON DATABASE encrypt_read_ds TO test_user;
 DROP TABLE IF EXISTS t_user;
 DROP TABLE IF EXISTS t_merchant;
 
-CREATE TABLE t_user (user_id INT NOT NULL, address_id INT NOT NULL, pwd_cipher VARCHAR(45) NULL, status VARCHAR(45) NULL, PRIMARY KEY (user_id));
+-- SPEX CHANGED: BEGIN
+CREATE TABLE t_user (user_id INT NOT NULL, address_id INT NOT NULL, pwd_plain VARCHAR(45) NULL, pwd_cipher VARCHAR(45) NULL, status VARCHAR(45) NULL, PRIMARY KEY (user_id));
+-- SPEX CHANGED: END
 CREATE TABLE t_merchant (merchant_id INT PRIMARY KEY, country_id SMALLINT NOT NULL, merchant_name VARCHAR(50) NOT NULL, business_code VARCHAR(50) NOT NULL, telephone CHAR(11) NOT NULL, creation_date DATE NOT NULL);
 CREATE INDEX user_index_t_user ON t_user (user_id);
 
@@ -35,6 +37,8 @@ CREATE INDEX user_index_t_user ON t_user (user_id);
 DROP TABLE IF EXISTS t_user;
 DROP TABLE IF EXISTS t_merchant;
 
-CREATE TABLE t_user (user_id INT NOT NULL, address_id INT NOT NULL, pwd_cipher VARCHAR(45) NULL, status VARCHAR(45) NULL, PRIMARY KEY (user_id));
+-- SPEX CHANGED: BEGIN
+CREATE TABLE t_user (user_id INT NOT NULL, address_id INT NOT NULL, pwd_plain VARCHAR(45) NULL, pwd_cipher VARCHAR(45) NULL, status VARCHAR(45) NULL, PRIMARY KEY (user_id));
+-- SPEX CHANGED: END
 CREATE TABLE t_merchant (merchant_id INT PRIMARY KEY, country_id SMALLINT NOT NULL, merchant_name VARCHAR(50) NOT NULL, business_code VARCHAR(50) NOT NULL, telephone CHAR(11) NOT NULL, creation_date DATE NOT NULL);
 CREATE INDEX user_index_t_user ON t_user (user_id);

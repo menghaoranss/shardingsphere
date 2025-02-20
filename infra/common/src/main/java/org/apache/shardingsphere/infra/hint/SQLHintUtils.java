@@ -19,6 +19,9 @@ package org.apache.shardingsphere.infra.hint;
 
 import com.cedarsoftware.util.CaseInsensitiveMap;
 import com.google.common.base.Splitter;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
+import com.sphereex.dbplusengine.infra.hint.NoneUniqueKeyScenario;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -92,7 +95,20 @@ public final class SQLHintUtils {
                 result.getShardingTableValues().put(Objects.toString(entry.getKey()).toUpperCase(), comparable);
             }
         }
+        // SPEX ADDED: BEGIN
+        extractSphereExHint(hintKeyValues, result);
+        // SPEX ADDED: END
         return result;
+    }
+    
+    @SphereEx
+    private static void extractSphereExHint(final Map<String, String> hintKeyValues, final HintValueContext result) {
+        if (containsHintKey(hintKeyValues, SQLHintPropertiesKey.NONE_UNIQUE_KEY_SCENARIO)) {
+            result.setNoneUniqueKeyScenario(NoneUniqueKeyScenario.valueOf(getHintValue(hintKeyValues, SQLHintPropertiesKey.NONE_UNIQUE_KEY_SCENARIO)));
+        }
+        if (containsHintKey(hintKeyValues, SQLHintPropertiesKey.ENCRYPT_COLUMN_ITEM_TYPE)) {
+            result.setEncryptColumnItemType(EncryptColumnItemType.valueOf(getHintValue(hintKeyValues, SQLHintPropertiesKey.ENCRYPT_COLUMN_ITEM_TYPE)));
+        }
     }
     
     private static int getHintKeyValueBeginIndex(final String sql) {

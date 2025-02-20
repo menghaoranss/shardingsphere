@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.select;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
@@ -25,6 +27,8 @@ import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContex
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.NullsOrderType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.sql.parser.statement.core.enums.OrderDirection;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
@@ -54,9 +58,10 @@ class EncryptGroupByItemTokenGeneratorTest {
     
     private EncryptGroupByItemTokenGenerator generator;
     
+    @SphereEx(Type.MODIFY)
     @BeforeEach
     void setup() {
-        generator = new EncryptGroupByItemTokenGenerator(mockEncryptRule());
+        generator = new EncryptGroupByItemTokenGenerator(mockEncryptRule(), mock(ShardingSphereDatabase.class), mock(ShardingSphereMetaData.class));
     }
     
     private EncryptRule mockEncryptRule() {

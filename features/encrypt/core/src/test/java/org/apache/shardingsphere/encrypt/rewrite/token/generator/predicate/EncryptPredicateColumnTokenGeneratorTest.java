@@ -17,25 +17,33 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.predicate;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.fixture.EncryptGeneratorFixtureBuilder;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.SubstitutableColumnNameToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 class EncryptPredicateColumnTokenGeneratorTest {
     
     private EncryptPredicateColumnTokenGenerator generator;
     
+    @SphereEx(Type.MODIFY)
     @BeforeEach
     void setup() {
-        generator = new EncryptPredicateColumnTokenGenerator(EncryptGeneratorFixtureBuilder.createEncryptRule());
+        generator = new EncryptPredicateColumnTokenGenerator(EncryptGeneratorFixtureBuilder.createEncryptRule(), Collections.emptyMap(), mock(ShardingSphereDatabase.class),
+                mock(ShardingSphereMetaData.class));
     }
     
     @Test
@@ -44,9 +52,10 @@ class EncryptPredicateColumnTokenGeneratorTest {
     }
     
     @Test
+    @SphereEx(Type.MODIFY)
     void assertGenerateSQLTokenFromGenerateNewSQLToken() {
         Collection<SQLToken> substitutableColumnNameTokens = generator.generateSQLTokens(EncryptGeneratorFixtureBuilder.createUpdateStatementContext());
         assertThat(substitutableColumnNameTokens.size(), is(1));
-        assertThat(((SubstitutableColumnNameToken) substitutableColumnNameTokens.iterator().next()).toString(null), is("pwd_assist"));
+        assertThat(((SubstitutableColumnNameToken) substitutableColumnNameTokens.iterator().next()).toString(null), is("pwd_plain"));
     }
 }

@@ -18,6 +18,8 @@
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.insert;
 
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.rewrite.token.comparator.InsertSelectColumnsEncryptorComparator;
@@ -39,10 +41,12 @@ import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.Use
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.InsertColumnsSegment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,11 +59,16 @@ public final class EncryptInsertDefaultColumnsTokenGenerator implements Optional
     
     private final EncryptRule rule;
     
+    @SphereEx
+    private final Map<String, EncryptRule> databaseEncryptRules;
+    
     private List<SQLToken> previousSQLTokens;
     
+    @SphereEx(Type.MODIFY)
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
-        return sqlStatementContext instanceof InsertStatementContext && !((InsertStatementContext) sqlStatementContext).containsInsertColumns();
+        return sqlStatementContext instanceof InsertStatementContext && !((InsertStatementContext) sqlStatementContext).containsInsertColumns()
+                && ((InsertStatementContext) sqlStatementContext).getMultiInsertStatementContexts().isEmpty();
     }
     
     @Override
@@ -95,12 +104,44 @@ public final class EncryptInsertDefaultColumnsTokenGenerator implements Optional
             Collection<ColumnSegment> derivedInsertColumns = insertStatementContext.getSqlStatement().getDerivedInsertColumns();
             Collection<Projection> projections = insertStatementContext.getInsertSelectContext().getSelectStatementContext().getProjectionsContext().getExpandProjections();
             ShardingSpherePreconditions.checkState(derivedInsertColumns.size() == projections.size(), () -> new UnsupportedSQLOperationException("Column count doesn't match value count."));
-            ShardingSpherePreconditions.checkState(InsertSelectColumnsEncryptorComparator.isSame(derivedInsertColumns, projections, rule),
+            // SPEX CHANGED: BEGIN
+            ShardingSpherePreconditions.checkState(InsertSelectColumnsEncryptorComparator.isSame(derivedInsertColumns, projections, rule, databaseEncryptRules),
                     () -> new UnsupportedSQLOperationException("Can not use different encryptor in insert select columns"));
+            // SPEX CHANGED: END
         }
+        // SPEX CHANGED: BEGIN
         QuoteCharacter quoteCharacter = new DatabaseTypeRegistry(insertStatementContext.getDatabaseType()).getDialectDatabaseMetaData().getQuoteCharacter();
-        return new UseDefaultInsertColumnsToken(
-                insertColumnsSegment.get().getStopIndex(), getColumnNames(insertStatementContext, rule.getEncryptTable(tableName), insertStatementContext.getColumnNames()), quoteCharacter);
+        UseDefaultInsertColumnsToken result = new UseDefaultInsertColumnsToken(insertColumnsSegment.get().getStopIndex(), new ArrayList<>(insertStatementContext.getColumnNames()), quoteCharacter);
+        generateColumnNames(insertStatementContext, rule.getEncryptTable(tableName), result);
+        return result;
+        // SPEX CHANGED: END
+    }
+    
+    @SphereEx
+    private void generateColumnNames(final InsertStatementContext sqlStatementContext, final EncryptTable encryptTable, final UseDefaultInsertColumnsToken token) {
+        List<String> columnNames = token.getColumns();
+        Iterator<String> descendingColumnNames = sqlStatementContext.getDescendingColumnNames();
+        while (descendingColumnNames.hasNext()) {
+            String columnName = descendingColumnNames.next();
+            if (!encryptTable.isEncryptColumn(columnName)) {
+                continue;
+            }
+            EncryptColumn encryptColumn = encryptTable.getEncryptColumn(columnName);
+            int columnIndex = columnNames.indexOf(columnName);
+            setCipherColumn(columnNames, encryptColumn, columnIndex);
+            if (encryptColumn.getAssistedQuery().isPresent()) {
+                token.addAddedValue(columnIndex, encryptColumn.getAssistedQuery().get().getName());
+            }
+            if (encryptColumn.getLikeQuery().isPresent()) {
+                token.addAddedValue(columnIndex, encryptColumn.getLikeQuery().get().getName());
+            }
+            if (encryptColumn.getOrderQuery().isPresent()) {
+                token.addAddedValue(columnIndex, encryptColumn.getOrderQuery().get().getName());
+            }
+            if (encryptColumn.getPlain().isPresent()) {
+                token.addAddedValue(columnIndex, encryptColumn.getPlain().get().getName());
+            }
+        }
     }
     
     private List<String> getColumnNames(final InsertStatementContext sqlStatementContext, final EncryptTable encryptTable, final List<String> currentColumnNames) {
@@ -120,7 +161,19 @@ public final class EncryptInsertDefaultColumnsTokenGenerator implements Optional
             }
             if (encryptColumn.getLikeQuery().isPresent()) {
                 addLikeQueryColumn(result, encryptColumn, columnIndex);
+                // SPEX ADDED: BEGIN
+                columnIndex++;
+                // SPEX ADDED: END
             }
+            // SPEX ADDED: BEGIN
+            if (encryptColumn.getOrderQuery().isPresent()) {
+                addOrderQueryColumn(result, encryptColumn, columnIndex);
+                columnIndex++;
+            }
+            if (encryptColumn.getPlain().isPresent()) {
+                addPlainColumn(result, encryptColumn, columnIndex);
+            }
+            // SPEX ADDED: END
         }
         return result;
     }
@@ -135,5 +188,15 @@ public final class EncryptInsertDefaultColumnsTokenGenerator implements Optional
     
     private void addLikeQueryColumn(final List<String> columnNames, final EncryptColumn encryptColumn, final int columnIndex) {
         encryptColumn.getLikeQuery().ifPresent(optional -> columnNames.add(columnIndex + 1, optional.getName()));
+    }
+    
+    @SphereEx
+    private void addOrderQueryColumn(final List<String> columnNames, final EncryptColumn encryptColumn, final int columnIndex) {
+        encryptColumn.getOrderQuery().ifPresent(optional -> columnNames.add(columnIndex + 1, optional.getName()));
+    }
+    
+    @SphereEx
+    private void addPlainColumn(final List<String> columnNames, final EncryptColumn encryptColumn, final int columnIndex) {
+        encryptColumn.getPlain().ifPresent(optional -> columnNames.add(columnIndex + 1, optional.getName()));
     }
 }

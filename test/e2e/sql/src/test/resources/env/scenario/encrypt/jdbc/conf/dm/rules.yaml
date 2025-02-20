@@ -1,0 +1,172 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# SPEX ADDED: BEGIN
+databaseName: encrypt
+
+dataSources:
+  encrypt:
+    url: jdbc:dm://dm.encrypt.host:5236?schema=encrypt
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    username: test_user
+    password: Test@123
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 2
+    minPoolSize: 2
+
+rules:
+- !SINGLE
+  tables:
+    - "*.*"
+- !ENCRYPT
+  encryptors:
+    aes_encryptor:
+      type: AES
+      props:
+        aes-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+    like_encryptor:
+      type: SphereEx:CHAR_TRANSFORM_LIKE
+      props:
+        transform-indexes: 1,2,3,5,7,14
+    char_digest_like_encryptor:
+      type: CHAR_DIGEST_LIKE
+  tables:
+    T_USER:
+      columns:
+        USER_NAME:
+          plain:
+            name: USER_NAME_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: USER_NAME_CIPHER
+            encryptorName: aes_encryptor
+          likeQuery:
+            name: USER_NAME_LIKE
+            encryptorName: like_encryptor
+        PASSWORD:
+          plain:
+            name: PASSWORD_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: PASSWORD_CIPHER
+            encryptorName: aes_encryptor
+        EMAIL:
+          plain:
+            name: EMAIL_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: EMAIL_CIPHER
+            encryptorName: aes_encryptor
+        TELEPHONE:
+          plain:
+            name: USER_TELEPHONE_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: USER_TELEPHONE_CIPHER
+            encryptorName: aes_encryptor
+          likeQuery:
+            name: USER_TELEPHONE_LIKE
+            encryptorName: like_encryptor
+    T_MERCHANT:
+      columns:
+        BUSINESS_CODE:
+          plain:
+            name: BUSINESS_CODE_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: BUSINESS_CODE_CIPHER
+            encryptorName: aes_encryptor
+          likeQuery:
+            name: BUSINESS_CODE_LIKE
+            encryptorName: like_encryptor
+        TELEPHONE:
+          plain:
+            name: MERCHANT_TELEPHONE_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: MERCHANT_TELEPHONE_CIPHER
+            encryptorName: aes_encryptor
+          likeQuery:
+            name: MERCHANT_TELEPHONE_LIKE
+            encryptorName: like_encryptor
+    T_MERCHANT_DETAIL:
+      columns:
+        BUSINESS_CODE:
+          plain:
+            name: BUSINESS_CODE_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: BUSINESS_CODE_CIPHER
+            encryptorName: aes_encryptor
+          likeQuery:
+            name: BUSINESS_CODE_LIKE
+            encryptorName: like_encryptor
+        TELEPHONE:
+          plain:
+            name: MERCHANT_TELEPHONE_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: MERCHANT_TELEPHONE_CIPHER
+            encryptorName: aes_encryptor
+          likeQuery:
+            name: MERCHANT_TELEPHONE_LIKE
+            encryptorName: like_encryptor
+    SYS_USR_SYS_R:
+      columns:
+        RL_NAME:
+          cipher:
+            name: RL_NAME_CIPHER
+            encryptorName: aes_encryptor
+          likeQuery:
+            name: RL_NAME_FOR_QRY
+            encryptorName: char_digest_like_encryptor
+        CERT_NO:
+          cipher:
+            name: CERT_NO_CIPHER
+            encryptorName: aes_encryptor
+        REF_MP:
+          cipher:
+            name: REF_MP_CIPHER
+            encryptorName: aes_encryptor
+    SYS_USR:
+      columns:
+        MP:
+          cipher:
+            name: MP_CIPHER
+            encryptorName: aes_encryptor
+        E_MAIL:
+          cipher:
+            name: E_MAIL_CIPHER
+            encryptorName: aes_encryptor
+    T_PRODUCT_EXTEND:
+      columns:
+        MANUAL:
+          plain:
+            name: MANUAL_PLAIN
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: MANUAL_CIPHER
+            encryptorName: aes_encryptor
+
+props:
+  sql-show: true
+
+
+# SPEX ADDED: END

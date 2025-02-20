@@ -17,7 +17,10 @@
 
 package org.apache.shardingsphere.infra.binder.context.statement.ddl;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.context.statement.CommonSQLStatementContext;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.ddl.CreateProcedureStatement;
 import org.apache.shardingsphere.sql.parser.statement.mysql.ddl.MySQLCreateProcedureStatement;
 import org.apache.shardingsphere.sql.parser.statement.postgresql.ddl.PostgreSQLCreateProcedureStatement;
@@ -41,7 +44,8 @@ class CreateProcedureStatementContextTest {
     }
     
     private void assertNewInstance(final CreateProcedureStatement createProcedureStatement) {
-        CreateProcedureStatementContext actual = new CreateProcedureStatementContext(createProcedureStatement);
+        @SphereEx(Type.MODIFY)
+        CreateProcedureStatementContext actual = new CreateProcedureStatementContext(createProcedureStatement, "foo_db", mock(ShardingSphereMetaData.class));
         assertThat(actual, instanceOf(CommonSQLStatementContext.class));
         assertThat(actual.getSqlStatement(), is(createProcedureStatement));
     }

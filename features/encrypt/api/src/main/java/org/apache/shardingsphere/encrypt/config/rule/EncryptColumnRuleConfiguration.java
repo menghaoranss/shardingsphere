@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.config.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -39,6 +41,15 @@ public final class EncryptColumnRuleConfiguration {
     
     private EncryptColumnItemRuleConfiguration likeQuery;
     
+    @SphereEx
+    private EncryptColumnItemRuleConfiguration orderQuery;
+    
+    @SphereEx
+    private PlainColumnItemRuleConfiguration plain;
+    
+    @SphereEx
+    private String dataType;
+    
     /**
      * Get assisted query.
      *
@@ -55,5 +66,35 @@ public final class EncryptColumnRuleConfiguration {
      */
     public Optional<EncryptColumnItemRuleConfiguration> getLikeQuery() {
         return Optional.ofNullable(likeQuery);
+    }
+    
+    /**
+     * Get order query.
+     *
+     * @return order query column item rule configuration
+     */
+    @SphereEx
+    public Optional<EncryptColumnItemRuleConfiguration> getOrderQuery() {
+        return Optional.ofNullable(orderQuery);
+    }
+    
+    /**
+     * Get plain.
+     *
+     * @return plain column item rule configuration
+     */
+    @SphereEx
+    public Optional<PlainColumnItemRuleConfiguration> getPlain() {
+        return Optional.ofNullable(plain);
+    }
+    
+    /**
+     * Get data type.
+     *
+     * @return data type
+     */
+    @SphereEx
+    public Optional<String> getDataType() {
+        return Optional.ofNullable(dataType);
     }
 }

@@ -179,3 +179,7 @@ sqlFederation:
 
 props:
   sql-show: true
+
+# SPEX ADDED: BEGIN
+
+# SPEX ADDED: END

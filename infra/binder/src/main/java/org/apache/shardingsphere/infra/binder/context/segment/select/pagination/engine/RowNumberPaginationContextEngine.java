@@ -19,6 +19,7 @@ package org.apache.shardingsphere.infra.binder.context.segment.select.pagination
 
 import com.cedarsoftware.util.CaseInsensitiveMap;
 import com.cedarsoftware.util.CaseInsensitiveSet;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.binder.context.segment.select.pagination.PaginationContext;
 import org.apache.shardingsphere.infra.binder.context.segment.select.projection.ProjectionsContext;
@@ -26,6 +27,7 @@ import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.NotExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.pagination.rownum.ExpressionRowNumberValueSegment;
@@ -35,6 +37,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.paginatio
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.AndPredicate;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ExpressionExtractor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -86,6 +89,28 @@ public final class RowNumberPaginationContextEngine {
                 if (isRowNumberColumn(expression, rowNumberAlias) && isCompareCondition(expression)) {
                     result.add((BinaryOperationExpression) expression);
                 }
+                // SPEX ADDED: BEGIN
+                if (expression instanceof NotExpression) {
+                    result.addAll(getRowNumberPredicatesFromNotExpression(rowNumberAlias, (NotExpression) expression));
+                }
+                // SPEX ADDED: END
+            }
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private List<BinaryOperationExpression> getRowNumberPredicatesFromNotExpression(final String rowNumberAlias, final NotExpression expression) {
+        List<BinaryOperationExpression> result = new ArrayList<>();
+        ExpressionSegment notExpression = expression.getExpression();
+        if (notExpression instanceof BinaryOperationExpression) {
+            ExpressionSegment left = ((BinaryOperationExpression) notExpression).getLeft();
+            if (isRowNumberColumn(left, rowNumberAlias) && isCompareCondition(left)) {
+                result.add((BinaryOperationExpression) left);
+            }
+            ExpressionSegment right = ((BinaryOperationExpression) notExpression).getRight();
+            if (isRowNumberColumn(right, rowNumberAlias) && isCompareCondition(right)) {
+                result.add((BinaryOperationExpression) right);
             }
         }
         return result;
@@ -116,7 +141,9 @@ public final class RowNumberPaginationContextEngine {
     private boolean isCompareCondition(final ExpressionSegment predicate) {
         if (predicate instanceof BinaryOperationExpression) {
             String operator = ((BinaryOperationExpression) predicate).getOperator();
-            return "<".equals(operator) || "<=".equals(operator) || ">".equals(operator) || ">=".equals(operator);
+            // SPEX CHANGED: BEGIN
+            return "<".equals(operator) || "<=".equals(operator) || ">".equals(operator) || ">=".equals(operator) || "=".equals(operator);
+            // SPEX CHANGED: END
         }
         return false;
     }
@@ -137,6 +164,9 @@ public final class RowNumberPaginationContextEngine {
                     rowCount = createRowNumberValueSegment(each.getRight(), false);
                     break;
                 case "<=":
+                    // SPEX ADDED: BEGIN
+                case "=":
+                    // SPEX ADDED: END
                     rowCount = createRowNumberValueSegment(each.getRight(), true);
                     break;
                 default:

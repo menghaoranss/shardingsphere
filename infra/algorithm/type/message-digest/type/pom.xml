@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere-infra-algorithm-message-digest</artifactId>
-        <version>5.5.2</version>
+        <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
     <artifactId>shardingsphere-infra-algorithm-message-digest-type</artifactId>
     <packaging>pom</packaging>
@@ -29,5 +29,9 @@
     
     <modules>
         <module>md5</module>
+        <!-- SPEX ADDED: BEGIN -->
+        <module>sha</module>
+        <module>sm3</module>
+        <!-- SPEX ADDED: END -->
     </modules>
 </project>

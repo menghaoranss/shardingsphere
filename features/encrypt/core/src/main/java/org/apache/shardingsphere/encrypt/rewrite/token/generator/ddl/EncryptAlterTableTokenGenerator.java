@@ -17,9 +17,15 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.ddl;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.infra.rewrite.aware.ConfigurationPropertiesAware;
+import com.sphereex.dbplusengine.encrypt.rewrite.util.EncryptDataTypeUtils;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.PlainColumnItem;
+import com.sphereex.dbplusengine.infra.rewrite.util.ColumnCharsetUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.shardingsphere.encrypt.constant.EncryptColumnDataType;
 import org.apache.shardingsphere.encrypt.exception.metadata.EncryptColumnAlterException;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptAlterTableToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptColumnToken;
@@ -31,8 +37,11 @@ import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.AlterTableStatementContext;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
+import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.aware.SchemaMetaDataAware;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.Substitutable;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.RemoveToken;
@@ -49,6 +58,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -56,9 +66,18 @@ import java.util.Optional;
  */
 @RequiredArgsConstructor
 @Setter
-public final class EncryptAlterTableTokenGenerator implements CollectionSQLTokenGenerator<AlterTableStatementContext> {
+public final class EncryptAlterTableTokenGenerator implements CollectionSQLTokenGenerator<AlterTableStatementContext>, @SphereEx SchemaMetaDataAware, @SphereEx ConfigurationPropertiesAware {
     
     private final EncryptRule rule;
+    
+    @SphereEx
+    private Map<String, ShardingSphereSchema> schemas;
+    
+    @SphereEx
+    private ShardingSphereSchema defaultSchema;
+    
+    @SphereEx
+    private ConfigurationProperties configurationProperties;
     
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
@@ -69,7 +88,8 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
     public Collection<SQLToken> generateSQLTokens(final AlterTableStatementContext sqlStatementContext) {
         String tableName = sqlStatementContext.getSqlStatement().getTable().getTableName().getIdentifier().getValue();
         EncryptTable encryptTable = rule.getEncryptTable(tableName);
-        Collection<SQLToken> result = new LinkedList<>(getAddColumnTokens(encryptTable, sqlStatementContext.getSqlStatement().getAddColumnDefinitions()));
+        @SphereEx(Type.MODIFY)
+        Collection<SQLToken> result = new LinkedList<>(getAddColumnTokens(encryptTable, sqlStatementContext.getSqlStatement().getAddColumnDefinitions(), sqlStatementContext));
         result.addAll(getModifyColumnTokens(encryptTable, sqlStatementContext.getSqlStatement().getModifyColumnDefinitions()));
         result.addAll(getChangeColumnTokens(encryptTable, sqlStatementContext.getSqlStatement().getChangeColumnDefinitions()));
         List<SQLToken> dropColumnTokens = getDropColumnTokens(encryptTable, sqlStatementContext.getSqlStatement().getDropColumnDefinitions());
@@ -84,20 +104,30 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
         return result;
     }
     
-    private Collection<SQLToken> getAddColumnTokens(final EncryptTable encryptTable, final Collection<AddColumnDefinitionSegment> segments) {
+    private Collection<SQLToken> getAddColumnTokens(final EncryptTable encryptTable, final Collection<AddColumnDefinitionSegment> segments,
+                                                    @SphereEx final AlterTableStatementContext sqlStatementContext) {
         Collection<SQLToken> result = new LinkedList<>();
         for (AddColumnDefinitionSegment each : segments) {
-            result.addAll(getAddColumnTokens(encryptTable, each));
+            // SPEX CHANGED: BEGIN
+            result.addAll(getAddColumnTokens(encryptTable, each, sqlStatementContext));
+            // SPEX CHANGED: END
         }
         return result;
     }
     
-    private Collection<SQLToken> getAddColumnTokens(final EncryptTable encryptTable, final AddColumnDefinitionSegment segment) {
+    private Collection<SQLToken> getAddColumnTokens(final EncryptTable encryptTable, final AddColumnDefinitionSegment segment, @SphereEx final AlterTableStatementContext sqlStatementContext) {
         Collection<SQLToken> result = new LinkedList<>();
+        @SphereEx
+        ShardingSphereSchema schema = sqlStatementContext.getTablesContext().getSchemaName().map(schemas::get).orElseGet(() -> defaultSchema);
         for (ColumnDefinitionSegment each : segment.getColumnDefinitions()) {
             String columnName = each.getColumnName().getIdentifier().getValue();
             if (encryptTable.isEncryptColumn(columnName)) {
-                result.addAll(getAddColumnTokens(encryptTable.getEncryptColumn(columnName), segment, each));
+                // SPEX ADDED: BEGIN
+                String columnCharset = ColumnCharsetUtils.getColumnCharsetName(sqlStatementContext, each, schema, configurationProperties);
+                // SPEX ADDED: END
+                // SPEX CHANGED: BEGIN
+                result.addAll(getAddColumnTokens(encryptTable.getEncryptColumn(columnName), segment, each, sqlStatementContext, columnCharset));
+                // SPEX CHANGED: END
             }
         }
         getAddColumnPositionToken(encryptTable, segment).ifPresent(result::add);
@@ -105,16 +135,45 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
     }
     
     private Collection<SQLToken> getAddColumnTokens(final EncryptColumn encryptColumn,
-                                                    final AddColumnDefinitionSegment addColumnDefinitionSegment, final ColumnDefinitionSegment columnDefinitionSegment) {
+                                                    final AddColumnDefinitionSegment addColumnDefinitionSegment, final ColumnDefinitionSegment columnDefinitionSegment,
+                                                    @SphereEx final AlterTableStatementContext sqlStatementContext, @SphereEx final String charsetName) {
         Collection<SQLToken> result = new LinkedList<>();
         result.add(new RemoveToken(columnDefinitionSegment.getStartIndex(), columnDefinitionSegment.getStopIndex()));
+        // SPEX CHANGED: BEGIN
         result.add(new EncryptColumnToken(columnDefinitionSegment.getStopIndex() + 1, columnDefinitionSegment.getStopIndex(),
-                encryptColumn.getCipher().getName(), EncryptColumnDataType.DEFAULT_DATA_TYPE));
+                encryptColumn.getCipher().getName(), EncryptDataTypeUtils.getDataType(encryptColumn.getCipher(), columnDefinitionSegment, charsetName, sqlStatementContext.getDatabaseType())));
         encryptColumn.getAssistedQuery().map(optional -> new EncryptColumnToken(addColumnDefinitionSegment.getStopIndex() + 1,
-                addColumnDefinitionSegment.getStopIndex(), ", ADD COLUMN " + optional.getName(), EncryptColumnDataType.DEFAULT_DATA_TYPE)).ifPresent(result::add);
+                addColumnDefinitionSegment.getStopIndex(), ", ADD COLUMN " + optional.getName(),
+                EncryptDataTypeUtils.getDataType(optional, columnDefinitionSegment, charsetName, sqlStatementContext.getDatabaseType()))).ifPresent(result::add);
         encryptColumn.getLikeQuery().map(optional -> new EncryptColumnToken(addColumnDefinitionSegment.getStopIndex() + 1,
-                addColumnDefinitionSegment.getStopIndex(), ", ADD COLUMN " + optional.getName(), EncryptColumnDataType.DEFAULT_DATA_TYPE)).ifPresent(result::add);
+                addColumnDefinitionSegment.getStopIndex(), ", ADD COLUMN " + optional.getName(),
+                EncryptDataTypeUtils.getDataType(optional, columnDefinitionSegment, charsetName, sqlStatementContext.getDatabaseType(), true))).ifPresent(result::add);
+        // SPEX CHANGED: END
+        // SPEX ADDED: BEGIN
+        encryptColumn.getOrderQuery().map(optional -> new EncryptColumnToken(addColumnDefinitionSegment.getStopIndex() + 1,
+                addColumnDefinitionSegment.getStopIndex(), ", ADD COLUMN " + optional.getName(),
+                EncryptDataTypeUtils.getDataType(optional, columnDefinitionSegment, charsetName, sqlStatementContext.getDatabaseType()))).ifPresent(result::add);
+        encryptColumn.getPlain().map(optional -> getPlainColumnToken(encryptColumn, addColumnDefinitionSegment, columnDefinitionSegment, optional)).ifPresent(result::add);
+        // SPEX ADDED: END
         return result;
+    }
+    
+    @SphereEx
+    private SQLToken getPlainColumnToken(final EncryptColumn encryptColumn, final AddColumnDefinitionSegment addColumnDefinitionSegment,
+                                         final ColumnDefinitionSegment columnDefinitionSegment, final PlainColumnItem plainColumnItem) {
+        return null == encryptColumn.getDataType()
+                ? new EncryptAlterTableToken(addColumnDefinitionSegment.getStopIndex() + 1, columnDefinitionSegment.getColumnName().getStopIndex(), plainColumnItem.getName(), ", ADD COLUMN")
+                : new EncryptColumnToken(addColumnDefinitionSegment.getStopIndex() + 1, addColumnDefinitionSegment.getStopIndex(), ", ADD COLUMN " + plainColumnItem.getName(),
+                        encryptColumn.getDataType());
+    }
+    
+    @SphereEx
+    private SQLToken getPlainColumnToken(final PlainColumnItem plainColumnItem, final EncryptColumn encryptColumn, final ChangeColumnDefinitionSegment segment) {
+        return null == encryptColumn.getDataType()
+                ? new EncryptAlterTableToken(segment.getStopIndex() + 1, segment.getColumnDefinition().getColumnName().getStopIndex(),
+                        encryptColumn.getPlain().map(PlainColumnItem::getName).orElse(""), ", CHANGE COLUMN " + plainColumnItem.getName())
+                : new EncryptColumnToken(segment.getStopIndex() + 1, segment.getStopIndex(),
+                        ", CHANGE COLUMN " + plainColumnItem.getName() + " " + encryptColumn.getPlain().map(PlainColumnItem::getName).orElse(""), encryptColumn.getDataType());
     }
     
     private Optional<SQLToken> getAddColumnPositionToken(final EncryptTable encryptTable, final AddColumnDefinitionSegment segment) {
@@ -136,7 +195,10 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
         Collection<SQLToken> result = new LinkedList<>();
         for (ModifyColumnDefinitionSegment each : segments) {
             String columnName = each.getColumnDefinition().getColumnName().getIdentifier().getValue();
-            ShardingSpherePreconditions.checkState(!encryptTable.isEncryptColumn(columnName), () -> new UnsupportedOperationException("Unsupported operation 'modify' for the cipher column"));
+            // SPEX CHANGED: BEGIN
+            ShardingSpherePreconditions.checkState(!encryptTable.isEncryptColumn(columnName) && !encryptTable.isPlainColumn(columnName),
+                    () -> new UnsupportedOperationException("Unsupported operation 'modify' for the cipher column and plain column"));
+            // SPEX CHANGED: END
             each.getColumnPosition().flatMap(optional -> getColumnPositionToken(encryptTable, optional)).ifPresent(result::add);
         }
         return result;
@@ -154,7 +216,10 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
         Collection<SQLToken> result = new LinkedList<>();
         for (ChangeColumnDefinitionSegment each : segments) {
             String columnName = each.getPreviousColumn().getIdentifier().getValue();
-            ShardingSpherePreconditions.checkState(!encryptTable.isEncryptColumn(columnName), () -> new UnsupportedOperationException("Unsupported operation 'change' for the cipher column"));
+            // SPEX CHANGED: BEGIN
+            ShardingSpherePreconditions.checkState(!encryptTable.isEncryptColumn(columnName) && !encryptTable.isPlainColumn(columnName),
+                    () -> new UnsupportedOperationException("Unsupported operation 'change' for the cipher column and plain column"));
+            // SPEX CHANGED: END
             result.addAll(getChangeColumnTokens(encryptTable, each));
             each.getColumnPosition().flatMap(optional -> getColumnPositionToken(encryptTable, optional)).ifPresent(result::add);
         }
@@ -189,6 +254,17 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
     private boolean checkPreviousAndAfterHasSameColumnNumber(final EncryptTable encryptTable, final String previousColumnName, final String columnName) {
         EncryptColumn previousEncryptColumn = encryptTable.getEncryptColumn(previousColumnName);
         EncryptColumn encryptColumn = encryptTable.getEncryptColumn(columnName);
+        // SPEX ADDED: BEGIN
+        if (previousEncryptColumn.getPlain().isPresent() && !encryptColumn.getPlain().isPresent()) {
+            return false;
+        }
+        if (!previousEncryptColumn.getPlain().isPresent() && encryptColumn.getPlain().isPresent()) {
+            return false;
+        }
+        if (previousEncryptColumn.getOrderQuery().isPresent() && !encryptColumn.getOrderQuery().isPresent()) {
+            return false;
+        }
+        // SPEX ADDED: END
         if (previousEncryptColumn.getAssistedQuery().isPresent() && !encryptColumn.getAssistedQuery().isPresent()) {
             return false;
         }
@@ -208,14 +284,22 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
     private Collection<SQLToken> getColumnTokens(final EncryptColumn previousEncryptColumn, final EncryptColumn encryptColumn, final ChangeColumnDefinitionSegment segment) {
         Collection<SQLToken> result = new LinkedList<>();
         result.add(new RemoveToken(segment.getColumnDefinition().getColumnName().getStartIndex(), segment.getColumnDefinition().getStopIndex()));
+        // SPEX CHANGED: BEGIN
         result.add(new EncryptColumnToken(segment.getColumnDefinition().getStopIndex() + 1, segment.getColumnDefinition().getStopIndex(),
-                encryptColumn.getCipher().getName(), EncryptColumnDataType.DEFAULT_DATA_TYPE));
+                encryptColumn.getCipher().getName(), EncryptDataTypeUtils.getDataType(encryptColumn.getCipher())));
         previousEncryptColumn.getAssistedQuery().map(optional -> new EncryptColumnToken(segment.getStopIndex() + 1, segment.getStopIndex(),
                 ", CHANGE COLUMN " + optional.getName() + " " + encryptColumn.getAssistedQuery().map(AssistedQueryColumnItem::getName).orElse(""),
-                EncryptColumnDataType.DEFAULT_DATA_TYPE)).ifPresent(result::add);
+                EncryptDataTypeUtils.getDataType(optional))).ifPresent(result::add);
         previousEncryptColumn.getLikeQuery().map(optional -> new EncryptColumnToken(segment.getStopIndex() + 1, segment.getStopIndex(),
                 ", CHANGE COLUMN " + optional.getName() + " " + encryptColumn.getLikeQuery().map(LikeQueryColumnItem::getName).orElse(""),
-                EncryptColumnDataType.DEFAULT_DATA_TYPE)).ifPresent(result::add);
+                EncryptDataTypeUtils.getDataType(optional))).ifPresent(result::add);
+        // SPEX CHANGED: END
+        // SPEX ADDED: BEGIN
+        previousEncryptColumn.getOrderQuery().map(optional -> new EncryptColumnToken(segment.getStopIndex() + 1, segment.getStopIndex(),
+                ", CHANGE COLUMN " + optional.getName() + " " + encryptColumn.getOrderQuery().map(OrderQueryColumnItem::getName).orElse(""),
+                EncryptDataTypeUtils.getDataType(optional))).ifPresent(result::add);
+        previousEncryptColumn.getPlain().map(optional -> getPlainColumnToken(optional, encryptColumn, segment)).ifPresent(result::add);
+        // SPEX ADDED: END
         return result;
     }
     
@@ -230,8 +314,10 @@ public final class EncryptAlterTableTokenGenerator implements CollectionSQLToken
     private Collection<SQLToken> getDropColumnTokens(final EncryptTable encryptTable, final DropColumnDefinitionSegment segment) {
         Collection<SQLToken> result = new LinkedList<>();
         for (ColumnSegment each : segment.getColumns()) {
-            ShardingSpherePreconditions.checkState(!encryptTable.isEncryptColumn(each.getQualifiedName()),
-                    () -> new UnsupportedOperationException("Unsupported operation 'drop' for the cipher column"));
+            // SPEX CHANGED: BEGIN
+            ShardingSpherePreconditions.checkState(!encryptTable.isEncryptColumn(each.getIdentifier().getValue()) && !encryptTable.isPlainColumn(each.getIdentifier().getValue()),
+                    () -> new UnsupportedOperationException("Unsupported operation 'drop' for the cipher column and plain column"));
+            // SPEX CHANGED: END
         }
         return result;
     }

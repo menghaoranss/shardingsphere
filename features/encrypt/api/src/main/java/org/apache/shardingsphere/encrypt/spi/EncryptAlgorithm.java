@@ -17,9 +17,13 @@
 
 package org.apache.shardingsphere.encrypt.spi;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
 import org.apache.shardingsphere.infra.algorithm.core.ShardingSphereAlgorithm;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
+
+import java.util.Map;
 
 /**
  * Encrypt algorithm.
@@ -31,18 +35,20 @@ public interface EncryptAlgorithm extends ShardingSphereAlgorithm {
      *
      * @param plainValue plain value
      * @param algorithmSQLContext algorithm SQL context
+     * @param encryptContext encrypt context
      * @return cipher value
      */
-    Object encrypt(Object plainValue, AlgorithmSQLContext algorithmSQLContext);
+    Object encrypt(Object plainValue, AlgorithmSQLContext algorithmSQLContext, @SphereEx EncryptContext encryptContext);
     
     /**
      * Decrypt.
      *
      * @param cipherValue cipher value
      * @param algorithmSQLContext algorithm SQL context
+     * @param encryptContext encrypt context
      * @return plain value
      */
-    Object decrypt(Object cipherValue, AlgorithmSQLContext algorithmSQLContext);
+    Object decrypt(Object cipherValue, AlgorithmSQLContext algorithmSQLContext, @SphereEx EncryptContext encryptContext);
     
     /**
      * Get encrypt algorithm meta data.
@@ -57,4 +63,12 @@ public interface EncryptAlgorithm extends ShardingSphereAlgorithm {
      * @return converted configuration
      */
     AlgorithmConfiguration toConfiguration();
+    
+    /**
+     * Get UDF data model.
+     *
+     * @return UDF data model
+     */
+    @SphereEx
+    Map<String, Object> getUdfDataModel();
 }

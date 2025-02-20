@@ -17,10 +17,13 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql.with;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.fixture.EncryptGeneratorFixtureBuilder;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -47,16 +50,18 @@ class EncryptWithClauseSupportedCheckerTest {
         assertFalse(new EncryptWithClauseSupportedChecker().isCheck(mock(SQLStatementContext.class)));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithoutEncryptTable() {
         assertDoesNotThrow(() -> new EncryptWithClauseSupportedChecker()
-                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), null, null, mockSelectStatementContext("t_order")));
+                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), mock(ShardingSphereMetaData.class), null, null, mockSelectStatementContext("t_order")));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithEncryptTable() {
         assertThrows(UnsupportedEncryptSQLException.class, () -> new EncryptWithClauseSupportedChecker()
-                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), null, null, mockSelectStatementContext("t_user")));
+                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), mock(ShardingSphereMetaData.class), null, null, mockSelectStatementContext("t_user")));
     }
     
     private SQLStatementContext mockSelectStatementContext(final String tableName) {

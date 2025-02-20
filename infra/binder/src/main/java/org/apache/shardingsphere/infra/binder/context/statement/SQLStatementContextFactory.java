@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.binder.context.statement;
 
+import com.sphereex.dbplusengine.infra.binder.context.statement.dml.MergeStatementContext;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.binder.context.statement.dal.AnalyzeTableStatementContext;
@@ -164,7 +165,12 @@ public final class SQLStatementContextFactory {
         if (sqlStatement instanceof LoadXMLStatement) {
             return new LoadXMLStatementContext((LoadXMLStatement) sqlStatement);
         }
-        if (sqlStatement instanceof CallStatement || sqlStatement instanceof DoStatement || sqlStatement instanceof MergeStatement) {
+        // SPEX CHANGED: BEGIN
+        if (sqlStatement instanceof MergeStatement) {
+            return new MergeStatementContext((MergeStatement) sqlStatement, params, metaData, currentDatabaseName);
+        }
+        if (sqlStatement instanceof CallStatement || sqlStatement instanceof DoStatement) {
+            // SPEX CHANGED: END
             return new UnknownSQLStatementContext(sqlStatement);
         }
         throw new UnsupportedSQLOperationException(String.format("Unsupported SQL statement `%s`", sqlStatement.getClass().getSimpleName()));
@@ -202,7 +208,9 @@ public final class SQLStatementContextFactory {
             return new CreateFunctionStatementContext((CreateFunctionStatement) sqlStatement);
         }
         if (sqlStatement instanceof CreateProcedureStatement) {
-            return new CreateProcedureStatementContext((CreateProcedureStatement) sqlStatement);
+            // SPEX CHANGED: BEGIN
+            return new CreateProcedureStatementContext((CreateProcedureStatement) sqlStatement, currentDatabaseName, metaData);
+            // SPEX CHANGED: END
         }
         if (sqlStatement instanceof CreateViewStatement) {
             return new CreateViewStatementContext(metaData, params, (CreateViewStatement) sqlStatement, currentDatabaseName);

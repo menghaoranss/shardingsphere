@@ -21,6 +21,9 @@ dataSources:
 
 databaseName: encrypt
 
+props:
+  schema-rewrite-enabled: true
+
 rules:
 - !ENCRYPT
   tables:
@@ -53,7 +56,11 @@ rules:
     t_account_bak:
       columns:
         certificate_number:
-          cipher: 
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_certificate_number
+          # SPEX ADDED: END
+          cipher:
             name: cipher_certificate_number
             encryptorName: rewrite_normal_fixture
           assistedQuery: 
@@ -63,7 +70,11 @@ rules:
             name: like_query_certificate_number
             encryptorName: rewrite_like_query_fixture
         password:
-          cipher: 
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_password
+          # SPEX ADDED: END
+          cipher:
             name: cipher_password
             encryptorName: rewrite_normal_fixture
           assistedQuery: 
@@ -72,13 +83,35 @@ rules:
           likeQuery: 
             name: like_query_password
             encryptorName: rewrite_like_query_fixture
+        password_new:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: password_new_plain
+          # SPEX ADDED: END
+          cipher:
+            name: password_new_cipher
+            encryptorName: rewrite_normal_fixture
+          assistedQuery:
+            name: password_new_assisted
+            encryptorName: rewrite_assisted_query_fixture
+          likeQuery:
+            name: password_new_like
+            encryptorName: rewrite_like_query_fixture
         amount:
-          cipher: 
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_amount
+          # SPEX ADDED: END
+          cipher:
             name: cipher_amount
             encryptorName: rewrite_normal_fixture
     t_account_bak_for_create:
       columns:
         certificate_number:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_certificate_number
+          # SPEX ADDED: END
           cipher:
             name: cipher_certificate_number
             encryptorName: rewrite_normal_fixture
@@ -89,6 +122,10 @@ rules:
             name: like_query_certificate_number
             encryptorName: rewrite_like_query_fixture
         password:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_password
+          # SPEX ADDED: END
           cipher:
             name: cipher_password
             encryptorName: rewrite_normal_fixture
@@ -98,14 +135,37 @@ rules:
           likeQuery:
             name: like_query_password
             encryptorName: rewrite_like_query_fixture
+        password_new:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: password_new_plain
+          # SPEX ADDED: END
+          cipher:
+            name: password_new_cipher
+            encryptorName: rewrite_normal_fixture
+          assistedQuery:
+            name: password_new_assisted
+            encryptorName: rewrite_assisted_query_fixture
+          likeQuery:
+            name: password_new_like
+            encryptorName: rewrite_like_query_fixture
         amount:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_amount
+          # SPEX ADDED: END
           cipher:
             name: cipher_amount
             encryptorName: rewrite_normal_fixture
     t_account_detail:
       columns:
         certificate_number:
-          cipher: 
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_certificate_number
+            queryWithPlain: true
+          # SPEX ADDED: END
+          cipher:
             name: cipher_certificate_number
             encryptorName: rewrite_normal_fixture
           assistedQuery: 
@@ -115,7 +175,12 @@ rules:
             name: like_query_certificate_number
             encryptorName: rewrite_like_query_fixture
         password:
-          cipher: 
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_password
+            queryWithPlain: true
+          # SPEX ADDED: END
+          cipher:
             name: cipher_password
             encryptorName: rewrite_normal_fixture
           assistedQuery: 
@@ -125,7 +190,12 @@ rules:
             name: like_query_password
             encryptorName: rewrite_like_query_fixture
         amount:
-          cipher: 
+          # SPEX ADDED: BEGIN
+          plain:
+            name: plain_amount
+            queryWithPlain: true
+          # SPEX ADDED: END
+          cipher:
             name: cipher_amount
             encryptorName: rewrite_normal_fixture
     t_user:
@@ -152,6 +222,128 @@ rules:
           likeQuery:
             name: user_telephone_like
             encryptorName: rewrite_it_like_encryptor_fixture
+    # SPEX ADDED: BEGIN
+    t_encrypt_config:
+      columns:
+        certificate_number:
+          dataType: integer(10) unsigned
+          plain:
+            name: plain_certificate_number
+            queryWithPlain: true
+          cipher:
+            name: cipher_certificate_number
+            encryptorName: rewrite_normal_fixture
+            dataType: varchar(100) not null default ''
+          assistedQuery:
+            name: assisted_query_certificate_number
+            encryptorName: rewrite_assisted_query_fixture
+            dataType: varchar(200) not null
+        certificate_number_new:
+          dataType: integer(10) unsigned
+          plain:
+            name: plain_certificate_number_new
+            queryWithPlain: true
+          cipher:
+            name: cipher_certificate_number_new
+            encryptorName: rewrite_normal_fixture
+            dataType: varchar(100) not null default ''
+          assistedQuery:
+            name: assisted_query_certificate_number_new
+            dataType: varchar(200) not null default ''
+            encryptorName: rewrite_assisted_query_fixture
+        password:
+          plain:
+            name: plain_password
+            queryWithPlain: true
+          cipher:
+            name: cipher_password
+            encryptorName: rewrite_normal_fixture
+          assistedQuery:
+            name: assisted_query_password
+            encryptorName: rewrite_assisted_query_fixture
+        amount:
+          plain:
+            name: plain_amount
+            queryWithPlain: true
+          cipher:
+            name: cipher_amount
+            encryptorName: rewrite_normal_fixture
+    t_encrypt_config_for_create:
+      columns:
+        certificate_number:
+          dataType: integer(10) unsigned
+          plain:
+            name: plain_certificate_number
+            queryWithPlain: true
+          cipher:
+            name: cipher_certificate_number
+            encryptorName: rewrite_normal_fixture
+            dataType: varchar(100) not null default ''
+          assistedQuery:
+            name: assisted_query_certificate_number
+            encryptorName: rewrite_assisted_query_fixture
+            dataType: varchar(200) not null
+        certificate_number_new:
+          dataType: integer(10) unsigned
+          plain:
+            name: plain_certificate_number_new
+            queryWithPlain: true
+          cipher:
+            name: cipher_certificate_number_new
+            encryptorName: rewrite_normal_fixture
+            dataType: varchar(100) not null default ''
+          assistedQuery:
+            name: assisted_query_certificate_number_new
+            dataType: varchar(200) not null default ''
+            encryptorName: rewrite_assisted_query_fixture
+        password:
+          plain:
+            name: plain_password
+            queryWithPlain: true
+          cipher:
+            name: cipher_password
+            encryptorName: rewrite_normal_fixture
+          assistedQuery:
+            name: assisted_query_password
+            encryptorName: rewrite_assisted_query_fixture
+        amount:
+          plain:
+            name: plain_amount
+            queryWithPlain: true
+          cipher:
+            name: cipher_amount
+            encryptorName: rewrite_normal_fixture
+    t_account_item:
+      columns:
+        certificate_number:
+          cipher:
+            name: cipher_certificate_number
+            encryptorName: rewrite_normal_fixture
+          assistedQuery:
+            name: assisted_query_certificate_number
+            encryptorName: rewrite_assisted_query_fixture
+          likeQuery:
+            name: like_query_certificate_number
+            encryptorName: rewrite_like_query_fixture
+        password:
+          cipher:
+            name: cipher_password
+            encryptorName: rewrite_normal_fixture
+          assistedQuery:
+            name: assisted_query_password
+            encryptorName: rewrite_assisted_query_fixture
+          likeQuery:
+            name: like_query_password
+            encryptorName: rewrite_like_query_fixture
+        amount:
+          cipher:
+            name: cipher_amount
+            encryptorName: rewrite_normal_fixture
+        amount_new:
+          cipher:
+            name: amount_new_cipher
+            encryptorName: rewrite_normal_fixture
+    # SPEX ADDED: END
   encryptors:
     rewrite_normal_fixture:
       type: REWRITE.NORMAL.FIXTURE

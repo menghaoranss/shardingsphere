@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.test.it.spi;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,6 +30,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -45,7 +48,8 @@ class SPIMatchedCheckIT {
     
     private static final String SERVICES_PATH = "META-INF/services/";
     
-    private static final Collection<String> SPI_PACKAGE_PREFIXES = Collections.singleton("org.apache.shardingsphere.");
+    @SphereEx(Type.MODIFY)
+    private static final Collection<String> SPI_PACKAGE_PREFIXES = Arrays.asList("org.apache.shardingsphere.", "com.sphereex.dbplusengine.");
     
     @Test
     void assertSPIConfigMatched() throws IOException, URISyntaxException, ReflectiveOperationException {

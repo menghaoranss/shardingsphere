@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere-infra-algorithm</artifactId>
-        <version>5.5.2</version>
+        <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
     <artifactId>shardingsphere-infra-algorithm-core</artifactId>
     <name>${project.artifactId}</name>
@@ -31,6 +31,15 @@
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>shardingsphere-mode-node</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sphere-ex</groupId>
+            <artifactId>dbplusengine-infra-diff</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
         </dependency>
         
         <dependency>

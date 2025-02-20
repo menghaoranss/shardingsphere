@@ -17,10 +17,12 @@
 
 package org.apache.shardingsphere.sharding.checker.sql.ddl;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.AlterTableStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.sharding.exception.syntax.UnsupportedShardingOperationException;
@@ -42,7 +44,8 @@ public final class ShardingAlterTableSupportedChecker implements SupportedSQLChe
     }
     
     @Override
-    public void check(final ShardingRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final AlterTableStatementContext sqlStatementContext) {
+    public void check(final ShardingRule rule, final @SphereEx ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final AlterTableStatementContext sqlStatementContext) {
         Collection<String> tableNames = sqlStatementContext.getTablesContext().getSimpleTables().stream()
                 .map(each -> each.getTableName().getIdentifier().getValue()).collect(Collectors.toList());
         Optional<SimpleTableSegment> renameTable = sqlStatementContext.getSqlStatement().getRenameTable();

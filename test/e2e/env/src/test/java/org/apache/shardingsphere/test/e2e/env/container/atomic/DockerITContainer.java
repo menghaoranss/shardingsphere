@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +25,12 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.DockerHealthcheckWaitStrategy;
 import org.testcontainers.images.RemoteDockerImage;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -76,5 +79,18 @@ public abstract class DockerITContainer extends GenericContainer<DockerITContain
     }
     
     protected void postStart() {
+    }
+    
+    @SphereEx
+    protected void mountConfigurationFiles(final Map<String, String> mountedResources) {
+        mountedResources.forEach((key, value) -> {
+            MountableFile mountableFile;
+            try {
+                mountableFile = MountableFile.forClasspathResource(key);
+            } catch (final IllegalArgumentException ignore) {
+                mountableFile = MountableFile.forHostPath(key);
+            }
+            withCopyFileToContainer(mountableFile, value);
+        });
     }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.statement.dml;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.sql.parser.statement.core.enums.SubqueryType;
@@ -60,6 +61,9 @@ public abstract class SelectStatement extends AbstractSQLStatement implements DM
     private WithSegment withSegment;
     
     private SubqueryType subqueryType;
+    
+    @SphereEx
+    private boolean inWith;
     
     /**
      * Get from.

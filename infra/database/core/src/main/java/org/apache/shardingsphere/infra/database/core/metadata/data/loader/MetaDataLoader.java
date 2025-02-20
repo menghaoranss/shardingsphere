@@ -63,7 +63,9 @@ public final class MetaDataLoader {
         Collection<Future<Collection<SchemaMetaData>>> futures = new LinkedList<>();
         for (MetaDataLoaderMaterial each : materials) {
             DataTypeRegistry.load(each.getDataSource(), each.getStorageType().getType());
+            // SPEX CHANGED: BEGIN
             futures.add(EXECUTOR_SERVICE.submit(() -> load(each)));
+            // SPEX CHANGED: END
         }
         try {
             for (Future<Collection<SchemaMetaData>> each : futures) {
@@ -84,8 +86,13 @@ public final class MetaDataLoader {
         Optional<DialectMetaDataLoader> dialectLoader = DatabaseTypedSPILoader.findService(DialectMetaDataLoader.class, material.getStorageType());
         if (dialectLoader.isPresent()) {
             try {
+                // SPEX CHANGED: BEGIN
                 return dialectLoader.get().load(material);
-            } catch (final SQLException ex) {
+                // TODO replace Exception to SQLException when all dialect loader can handle meta data load normally
+                // CHECKSTYLE:OFF
+            } catch (final Exception ex) {
+                // CHECKSTYLE:ON
+                // SPEX CHANGED: END
                 log.debug("Dialect load schema meta data error.", ex);
             }
         }

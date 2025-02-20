@@ -20,6 +20,9 @@
         <column name="user_id" type="integer" />
         <column name="address_id" type="integer" />
         <column name="number_cipher" type="varchar" />
+        <!-- SPEX ADDED: BEGIN -->
+        <column name="number_plain" type="varchar" />
+        <!-- SPEX ADDED: END -->
         <column name="description" type="varchar" />
     </metadata>
 </dataset>

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.mysql.metadata.database;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.NullsOrderType;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
@@ -59,17 +61,21 @@ public final class MySQLDatabaseMetaData implements DialectDatabaseMetaData {
     
     @Override
     public Map<String, Integer> getExtraDataTypes() {
-        Map<String, Integer> result = new HashMap<>(10, 1F);
-        result.put("JSON", Types.LONGVARCHAR);
-        result.put("GEOMETRY", Types.BINARY);
-        result.put("GEOMETRYCOLLECTION", Types.BINARY);
-        result.put("YEAR", Types.DATE);
-        result.put("POINT", Types.BINARY);
-        result.put("MULTIPOINT", Types.BINARY);
-        result.put("POLYGON", Types.BINARY);
-        result.put("MULTIPOLYGON", Types.BINARY);
-        result.put("LINESTRING", Types.BINARY);
-        result.put("MULTILINESTRING", Types.BINARY);
+        @SphereEx(Type.MODIFY)
+        Map<String, Integer> result = new HashMap<>(11, 1F);
+        result.putIfAbsent("JSON", Types.LONGVARCHAR);
+        result.putIfAbsent("GEOMETRY", Types.BINARY);
+        result.putIfAbsent("GEOMETRYCOLLECTION", Types.BINARY);
+        result.putIfAbsent("YEAR", Types.DATE);
+        result.putIfAbsent("POINT", Types.BINARY);
+        result.putIfAbsent("MULTIPOINT", Types.BINARY);
+        result.putIfAbsent("POLYGON", Types.BINARY);
+        result.putIfAbsent("MULTIPOLYGON", Types.BINARY);
+        result.putIfAbsent("LINESTRING", Types.BINARY);
+        result.putIfAbsent("MULTILINESTRING", Types.BINARY);
+        // SPEX ADDED: BEGIN
+        result.putIfAbsent("GEOMCOLLECTION", Types.OTHER);
+        // SPEX ADDED: END
         return result;
     }
     

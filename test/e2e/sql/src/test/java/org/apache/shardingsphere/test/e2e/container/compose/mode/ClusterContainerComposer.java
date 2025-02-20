@@ -17,7 +17,11 @@
 
 package org.apache.shardingsphere.test.e2e.container.compose.mode;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.util.DatabaseTypeUtils;
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.storage.impl.HeterogeneousContainer;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.test.e2e.container.compose.ContainerComposer;
 import org.apache.shardingsphere.test.e2e.container.config.ProxyClusterContainerConfigurationFactory;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.DockerITContainer;
@@ -33,6 +37,7 @@ import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.StorageCo
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.StorageContainerFactory;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.config.impl.StorageContainerConfigurationFactory;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.util.AdapterContainerUtils;
+import org.apache.shardingsphere.test.e2e.env.runtime.scenario.database.DatabaseEnvironmentManager;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -54,13 +59,33 @@ public final class ClusterContainerComposer implements ContainerComposer {
         containers = new ITContainers(scenario);
         // TODO support other types of governance
         governanceContainer = containers.registerContainer(GovernanceContainerFactory.newInstance("ZooKeeper"));
-        storageContainer = containers.registerContainer(StorageContainerFactory.newInstance(databaseType, StorageContainerConfigurationFactory.newInstance(databaseType, scenario)));
+        // SPEX CHANGED: BEGIN
+        storageContainer = containers.registerContainer(createStorageContainer(scenario, databaseType));
         AdaptorContainerConfiguration containerConfig = ProxyClusterContainerConfigurationFactory.newInstance(scenario, databaseType, AdapterContainerUtils.getAdapterContainerImage());
-        AdapterContainer adapterContainer = AdapterContainerFactory.newInstance(adapterMode, adapterType, databaseType, scenario, containerConfig, storageContainer);
+        DatabaseType protocolType = getProtocolType(scenario, databaseType);
+        AdapterContainer adapterContainer = AdapterContainerFactory.newInstance(adapterMode, adapterType, protocolType, scenario, containerConfig, storageContainer);
+        // SPEX CHANGED: END
         if (adapterContainer instanceof DockerITContainer) {
             ((DockerITContainer) adapterContainer).dependsOn(governanceContainer, storageContainer);
         }
         this.adapterContainer = containers.registerContainer(adapterContainer);
+    }
+    
+    @SphereEx
+    private StorageContainer createStorageContainer(final String scenario, final DatabaseType databaseType) {
+        if (DatabaseEnvironmentManager.isHeterogeneousDatabase(scenario, databaseType)) {
+            HeterogeneousContainer result = new HeterogeneousContainer(scenario, databaseType);
+            result.getStorageContainers().forEach(containers::registerContainer);
+            return result;
+        }
+        return StorageContainerFactory.newInstance(databaseType, StorageContainerConfigurationFactory.newInstance(databaseType, scenario));
+    }
+    
+    @SphereEx
+    private DatabaseType getProtocolType(final String scenario, final DatabaseType databaseType) {
+        // TODO getProtocolType according to global.yaml
+        return "sphereex_dual_write".equalsIgnoreCase(scenario) && DatabaseTypeUtils.isOracleDatabase(databaseType) ? TypedSPILoader.getService(DatabaseType.class, "MySQL")
+                : databaseType;
     }
     
     @Override

@@ -17,6 +17,10 @@
 
 package org.apache.shardingsphere.encrypt.merge.dal.show;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
+import com.sphereex.dbplusengine.encrypt.rule.mode.EncryptMode;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptTableRuleConfiguration;
@@ -112,6 +116,22 @@ class EncryptShowCreateTableMergedResultTest {
         assertThat(actual.getValue(2, String.class), is(expectedSQL));
     }
     
+    @SphereEx
+    @Test
+    void assertGetValueWithPlainColumn() throws SQLException {
+        when(mergedResult.next()).thenReturn(true).thenReturn(false);
+        when(mergedResult.getValue(2, String.class)).thenReturn(
+                "CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id_cipher` VARCHAR(100) NOT NULL, "
+                        + "`user_id` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_id_cipher", "foo_encryptor"));
+        columnRuleConfig.setPlain(new PlainColumnItemRuleConfiguration("user_id"));
+        EncryptShowCreateTableMergedResult actual = createMergedResult(mergedResult, "foo_tbl", mockEncryptRule(Collections.singletonList(columnRuleConfig)));
+        assertTrue(actual.next());
+        assertThat(actual.getValue(2, String.class),
+                is("CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"));
+    }
+    
+    @SphereEx(Type.MODIFY)
     @Test
     void assertGetValueWithAssistedQueryColumn() throws SQLException {
         when(mergedResult.next()).thenReturn(true);
@@ -136,22 +156,57 @@ class EncryptShowCreateTableMergedResultTest {
         columnRuleConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("user_id_like", "foo_like_encryptor"));
         EncryptShowCreateTableMergedResult actual = createMergedResult(mergedResult, "foo_tbl", mockEncryptRule(Collections.singleton(columnRuleConfig)));
         assertTrue(actual.next());
-        String expectedSQL = "CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        assertThat(actual.getValue(2, String.class), is(expectedSQL));
+        assertThat(actual.getValue(2, String.class),
+                is("CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"));
     }
     
     @Test
+    @SphereEx
+    void assertGetValueWhenConfigPlainColumnAndAssistedQueryColumn() throws SQLException {
+        when(mergedResult.next()).thenReturn(true).thenReturn(false);
+        when(mergedResult.getValue(2, String.class)).thenReturn(
+                "CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id_cipher` VARCHAR(100) NOT NULL, `user_id` VARCHAR(100) NOT NULL, "
+                        + "`user_id_assisted` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_id_cipher", "foo_encryptor"));
+        columnRuleConfig.setPlain(new PlainColumnItemRuleConfiguration("user_id"));
+        columnRuleConfig.setAssistedQuery(new EncryptColumnItemRuleConfiguration("user_id_assisted", "foo_like_encryptor"));
+        EncryptShowCreateTableMergedResult actual = createMergedResult(mergedResult, "foo_tbl", mockEncryptRule(Collections.singletonList(columnRuleConfig)));
+        assertTrue(actual.next());
+        assertThat(actual.getValue(2, String.class),
+                is("CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"));
+    }
+    
+    @Test
+    @SphereEx
+    void assertGetValueWhenConfigPlainColumnAndLikeQueryColumn() throws SQLException {
+        when(mergedResult.next()).thenReturn(true).thenReturn(false);
+        when(mergedResult.getValue(2, String.class)).thenReturn(
+                "CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id_cipher` VARCHAR(100) NOT NULL, `user_id` VARCHAR(100) NOT NULL, "
+                        + "`user_id_like` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_id_cipher", "foo_encryptor"));
+        columnRuleConfig.setPlain(new PlainColumnItemRuleConfiguration("user_id"));
+        columnRuleConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("user_id_like", "foo_like_encryptor"));
+        EncryptShowCreateTableMergedResult actual = createMergedResult(mergedResult, "foo_tbl", mockEncryptRule(Collections.singletonList(columnRuleConfig)));
+        assertTrue(actual.next());
+        assertThat(actual.getValue(2, String.class),
+                is("CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id` VARCHAR(100) NOT NULL, `order_id` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"));
+    }
+    
+    @Test
+    @SphereEx(Type.MODIFY)
     void assertGetValueWithMultiColumns() throws SQLException {
         when(mergedResult.next()).thenReturn(true);
-        String actualSQL = "CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id_cipher` VARCHAR(100) NOT NULL, `user_id_like` VARCHAR(100) NOT NULL, "
+        String actualSQL = "CREATE TABLE `foo_tbl` (`id` INT NOT NULL, `user_id_cipher` VARCHAR(100) NOT NULL, `user_id` VARCHAR(100) NOT NULL, `user_id_like` VARCHAR(100) NOT NULL, "
                 + "`order_id_cipher` VARCHAR(30) NOT NULL, `order_id_like` VARCHAR(30) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         when(mergedResult.getValue(2, String.class)).thenReturn(actualSQL);
         Collection<EncryptColumnRuleConfiguration> columns = new LinkedList<>();
         EncryptColumnRuleConfiguration userIdColumnConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_id_cipher", "foo_encryptor"));
         userIdColumnConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("user_id_like", "foo_like_encryptor"));
+        userIdColumnConfig.setPlain(new PlainColumnItemRuleConfiguration("user_id"));
         columns.add(userIdColumnConfig);
         EncryptColumnRuleConfiguration orderIdColumnConfig = new EncryptColumnRuleConfiguration("order_id", new EncryptColumnItemRuleConfiguration("order_id_cipher", "foo_encryptor"));
         orderIdColumnConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("order_id_like", "foo_like_encryptor"));
+        orderIdColumnConfig.setPlain(new PlainColumnItemRuleConfiguration("order_id"));
         columns.add(orderIdColumnConfig);
         EncryptShowCreateTableMergedResult actual = createMergedResult(mergedResult, "foo_tbl", mockEncryptRule(columns));
         assertTrue(actual.next());
@@ -215,9 +270,11 @@ class EncryptShowCreateTableMergedResultTest {
         return new EncryptShowCreateTableMergedResult(globalRuleMetaData, mergedResult, sqlStatementContext, rule);
     }
     
+    @SphereEx(Type.MODIFY)
     private EncryptRule mockEncryptRule(final Collection<EncryptColumnRuleConfiguration> encryptColumnRuleConfigs) {
         EncryptRule result = mock(EncryptRule.class);
-        EncryptTable encryptTable = new EncryptTable(new EncryptTableRuleConfiguration("foo_tbl", encryptColumnRuleConfigs), Collections.emptyMap());
+        EncryptTable encryptTable = new EncryptTable(
+                new EncryptTableRuleConfiguration("foo_tbl", encryptColumnRuleConfigs), Collections.emptyMap(), mock(DatabaseType.class), mock(EncryptMode.class));
         when(result.findEncryptTable("foo_tbl")).thenReturn(Optional.of(encryptTable));
         return result;
     }

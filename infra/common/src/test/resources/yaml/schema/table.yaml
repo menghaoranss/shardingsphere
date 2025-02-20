@@ -26,6 +26,10 @@ columns:
     visible: true
     unsigned: false
     nullable: false
+    # SPEX ADDED: BEGIN
+    dataTypeContent: integer
+    characterSetName: utf8mb4
+    # SPEX ADDED: END
 indexes:
    primary:
       name: PRIMARY

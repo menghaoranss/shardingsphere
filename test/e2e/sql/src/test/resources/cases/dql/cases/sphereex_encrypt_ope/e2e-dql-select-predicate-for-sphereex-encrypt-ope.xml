@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--SPEX ADDED: BEGIN-->
+<e2e-test-cases>
+    <!-- OPE 适配 SQL 场景参考：https://u01f1kqxrl.feishu.cn/wiki/VCinwK3y1iwG74kaitBc4ot0n1f -->
+    <!-- 测试字符串类型查询条件 >, < 和 BETWEEN AND 比较 -->
+    <test-case sql="SELECT * FROM t_user WHERE user_name > ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE ? &lt; user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name &lt; ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE ? > user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name BETWEEN ? AND ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String, 张翼:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型查询条件 >=, <= 和 BETWEEN AND 比较 -->
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item WHERE quantity >= ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item WHERE ? &lt;= quantity ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item WHERE quantity &lt;= ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item WHERE ? > quantity ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item WHERE quantity BETWEEN ? AND ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="50:int, 80:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+</e2e-test-cases>
+<!--SPEX ADDED: END-->

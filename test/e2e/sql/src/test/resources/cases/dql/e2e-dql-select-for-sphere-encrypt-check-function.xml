@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<e2e-test-cases>
+    <!-- ENCRYPT_CHECK function test cases -->
+    <test-case sql="SELECT user_id, ENCRYPT_CHECK(USER_NAME), ENCRYPT_CHECK(*), ENCRYPT_CHECK('*'), ENCRYPT_CHECK(USER_NAME, 'cipher,assisted_query'), ENCRYPT_CHECK('*', 'CIPHER, ASSISTED_QUERY') FROM t_user" db-types="MySQL" scenario-types="sphereex_encrypt_data_integrity">
+        <assertion expected-data-file="select_encrypt_check_user_table.xml" />
+    </test-case>
+    
+    <!-- TODO zhangcheng -->
+<!--    &lt;!&ndash; check function with more column params &ndash;&gt;-->
+<!--    <test-case sql="SELECT user_id, ENCRYPT_CHECK(PASSWORD, EMAIL) FROM t_user WHERE user_id > ?" db-types="MySQL,DM,Oracle,PostgreSQL,openGauss" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_params_user_table.xml" />-->
+<!--    </test-case>-->
+<!--    -->
+<!--    &lt;!&ndash; more check functions &ndash;&gt;-->
+<!--    <test-case sql="SELECT ENCRYPT_CHECK(USER_NAME), user_id, ENCRYPT_CHECK(password, email), ENCRYPT_CHECK(EMAIL, PASSWORD) FROM t_user WHERE user_id > ?" db-types="MySQL,DM,Oracle,PostgreSQL,openGauss" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_more_check_params_user_table1.xml" />-->
+<!--    </test-case>-->
+<!--    -->
+<!--    &lt;!&ndash; more check functions and alias &ndash;&gt;-->
+<!--    <test-case sql="SELECT ENCRYPT_CHECK(USER_NAME) AS `USER_CHECK`, user_id, ENCRYPT_CHECK(password, email) AS `PASSWORD_EMAIL_CHECK`, ENCRYPT_CHECK(EMAIL, PASSWORD) AS `EMAIL_PASSWORD_CHECK` FROM t_user WHERE user_id > ?" db-types="MySQL" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_more_check_params_user_table2.xml" />-->
+<!--    </test-case>-->
+
+<!--    <test-case sql="SELECT ENCRYPT_CHECK(USER_NAME) AS  &quot;USER_CHECK&quot;, user_id, ENCRYPT_CHECK(password, email) AS &quot;PASSWORD_EMAIL_CHECK&quot;, ENCRYPT_CHECK(EMAIL, PASSWORD) AS &quot;EMAIL_PASSWORD_CHECK&quot; FROM t_user WHERE user_id > ?" db-types="DM,Oracle,PostgreSQL,openGauss" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_more_check_params_user_table2.xml" />-->
+<!--    </test-case>-->
+
+<!--    &lt;!&ndash; more check functions and alias &ndash;&gt;-->
+<!--    <test-case sql="SELECT ENCRYPT_CHECK(USER_NAME) AS `USER_CHECK`, user_id, USER_NAME, ENCRYPT_CHECK(password, email) AS `PASSWORD_EMAIL_CHECK`, PASSWORD, ENCRYPT_CHECK(EMAIL, PASSWORD) AS `EMAIL_PASSWORD_CHECK` FROM t_user WHERE user_id > ?" db-types="MySQL" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_more_check_params_user_table3.xml" />-->
+<!--    </test-case>-->
+
+<!--    <test-case sql="SELECT ENCRYPT_CHECK(USER_NAME) AS &quot;USER_CHECK&quot;, user_id, USER_NAME, ENCRYPT_CHECK(password, email) AS &quot;PASSWORD_EMAIL_CHECK&quot;, PASSWORD, ENCRYPT_CHECK(EMAIL, PASSWORD) AS &quot;EMAIL_PASSWORD_CHECK&quot; FROM t_user WHERE user_id > ?" db-types="DM,Oracle,PostgreSQL,openGauss" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_more_check_params_user_table3.xml" />-->
+<!--    </test-case>-->
+<!--    -->
+<!--    &lt;!&ndash; check(*) &ndash;&gt;-->
+<!--    <test-case sql="SELECT USER_NAME, ENCRYPT_CHECK(*), USER_ID, ENCRYPT_CHECK(*), ENCRYPT_CHECK(USER_NAME) AS `USER_CHECK` FROM t_user WHERE user_id > ?" db-types="MySQL" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_stars_user_table.xml" />-->
+<!--    </test-case>-->
+
+<!--    <test-case sql="SELECT USER_NAME, ENCRYPT_CHECK(*), USER_ID, ENCRYPT_CHECK(*), ENCRYPT_CHECK(USER_NAME) AS &quot;USER_CHECK&quot; FROM t_user WHERE user_id > ?" db-types="DM,Oracle,PostgreSQL,openGauss" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_stars_user_table.xml" />-->
+<!--    </test-case>-->
+
+<!--    &lt;!&ndash; * and check(*) &ndash;&gt;-->
+<!--    <test-case sql="SELECT *, ENCRYPT_CHECK(*) AS `ROW_CHECK` FROM t_user WHERE user_id > ?" db-types="MySQL" scenario-types="sphereex_data_integrity,sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_stars_user_table2.xml" />-->
+<!--    </test-case>-->
+<!--    -->
+<!--    &lt;!&ndash; check data tampering scenario &ndash;&gt;-->
+<!--    <test-case sql="select ENCRYPT_CHECK(user_name), ENCRYPT_CHECK(password, email), ENCRYPT_CHECK(email, PASSWORD), ENCRYPT_CHECK(*), user_id from t_user_check where user_id >= ?" db-types="MySQL,DM,Oracle" scenario-types="sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_data_modified.xml" />-->
+<!--    </test-case>-->
+
+<!--    <test-case sql="select ENCRYPT_CHECK(user_name) AS &quot;USER_NAME_CHECK&quot;, ENCRYPT_CHECK(password, email), ENCRYPT_CHECK(email, PASSWORD) AS &quot;EMAIL_PASSWORD_CHECK&quot;, ENCRYPT_CHECK(*) AS &quot;ROW_CHECK&quot;, user_id from t_user_check where user_id >= ?" db-types="PostgreSQL,openGauss" scenario-types="sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_data_modified.xml" />-->
+<!--    </test-case>-->
+
+<!--    <test-case sql="select ENCRYPT_CHECK(user_name), user_name, ENCRYPT_CHECK(password, email), email, password from t_user_check where user_id >= ?" db-types="MySQL,DM,Oracle" scenario-types="sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_data_modified_columns.xml" />-->
+<!--    </test-case>-->
+
+<!--    <test-case sql="select ENCRYPT_CHECK(user_name), user_name, password from t_user_check where user_id >= ?" db-types="PostgreSQL,openGauss" scenario-types="sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_data_modified_columns1.xml" />-->
+<!--    </test-case>-->
+<!--    -->
+<!--    <test-case sql="select user_name, ENCRYPT_CHECK(*), email, password from t_user_check where user_id >= ?" db-types="MySQL,DM,Oracle,PostgreSQL,openGauss" scenario-types="sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_data_modified_columns2.xml" />-->
+<!--    </test-case>-->
+<!--    -->
+<!--    <test-case sql="select ENCRYPT_CHECK(user_name), user_name, ENCRYPT_CHECK(*), email, password from t_user_check where user_id >= ?" db-types="MySQL,DM,Oracle" scenario-types="sphereex_encrypt_data_integrity">-->
+<!--        <assertion parameters="10:int" expected-data-file="select_check_data_modified_columns3.xml" />-->
+<!--    </test-case>-->
+</e2e-test-cases>
+<!-- SPEX ADDED: END -->

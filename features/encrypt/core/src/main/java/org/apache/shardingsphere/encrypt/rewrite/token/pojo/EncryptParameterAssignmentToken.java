@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.pojo;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 
 import java.util.Collection;
@@ -50,5 +51,11 @@ public final class EncryptParameterAssignmentToken extends EncryptAssignmentToke
             result.add(getQuoteCharacter().wrap(each) + " = ?");
         }
         return result.toString();
+    }
+    
+    @SphereEx
+    @Override
+    public void addAssignment(final String columnName, final Object value) {
+        addColumnName(columnName);
     }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.single.checker.sql;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.DropTableStatementContext;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
 import org.apache.shardingsphere.infra.exception.kernel.syntax.UnsupportedDropCascadeTableException;
@@ -45,20 +47,23 @@ class SingleDropTableSupportedCheckerTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private SingleRule rule;
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithCascade() {
-        assertThrows(UnsupportedDropCascadeTableException.class, () -> new SingleDropTableSupportedChecker().check(rule, mockDatabase(), mock(), createSQLStatementContext(true)));
+        assertThrows(UnsupportedDropCascadeTableException.class, () -> new SingleDropTableSupportedChecker().check(rule, mock(), mockDatabase(), mock(), createSQLStatementContext(true)));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithoutCascade() {
-        new SingleDropTableSupportedChecker().check(rule, mockDatabase(), mock(), createSQLStatementContext(false));
+        new SingleDropTableSupportedChecker().check(rule, mock(), mockDatabase(), mock(), createSQLStatementContext(false));
     }
     
     private ShardingSphereDatabase mockDatabase() {
         ShardingSphereDatabase result = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
+        @SphereEx(Type.MODIFY)
         ShardingSphereSchema schema = new ShardingSphereSchema("foo_schema",
-                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE)), Collections.emptyList());
+                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE, null)), Collections.emptyList());
         when(result.getAllSchemas()).thenReturn(Collections.singleton(schema));
         return result;
     }

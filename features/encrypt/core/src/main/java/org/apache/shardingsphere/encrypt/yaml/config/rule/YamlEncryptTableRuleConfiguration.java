@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.yaml.config.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.util.yaml.YamlConfiguration;
@@ -34,4 +35,7 @@ public final class YamlEncryptTableRuleConfiguration implements YamlConfiguratio
     private String name;
     
     private Map<String, YamlEncryptColumnRuleConfiguration> columns = new LinkedHashMap<>();
+    
+    @SphereEx
+    private String renameTable;
 }

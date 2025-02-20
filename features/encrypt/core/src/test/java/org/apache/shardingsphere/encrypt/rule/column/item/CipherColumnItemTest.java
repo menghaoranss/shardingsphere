@@ -17,6 +17,9 @@
 
 package org.apache.shardingsphere.encrypt.rule.column.item;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
 import org.junit.jupiter.api.Test;
@@ -27,6 +30,7 @@ import static org.apache.shardingsphere.test.matcher.ShardingSphereArgumentVerif
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -42,29 +46,47 @@ class CipherColumnItemTest {
     @Test
     void assertEncryptSingleValue() {
         EncryptAlgorithm encryptAlgorithm = mock(EncryptAlgorithm.class);
-        when(encryptAlgorithm.encrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")))).thenReturn("encrypted_foo_value");
+        // SPEX CHANGED: BEGIN
+        when(encryptAlgorithm.encrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")), any())).thenReturn("encrypted_foo_value");
+        // SPEX CHANGED: END
         CipherColumnItem cipherColumnItem = new CipherColumnItem("foo_col", encryptAlgorithm);
+        // SPEX ADDED: BEGIN
+        cipherColumnItem.setEncryptColumn(new EncryptColumn("foo_col", new CipherColumnItem("foo_col_cipher", encryptAlgorithm)));
+        // SPEX ADDED: END
         assertThat(cipherColumnItem.encrypt("foo_db", "foo_schema", "foo_tbl", "foo_col", "foo_value"), is("encrypted_foo_value"));
     }
     
     @Test
     void assertEncryptMultipleValues() {
         EncryptAlgorithm encryptAlgorithm = mock(EncryptAlgorithm.class);
-        when(encryptAlgorithm.encrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")))).thenReturn("encrypted_foo_value");
+        // SPEX CHANGED: BEGIN
+        when(encryptAlgorithm.encrypt(eq("foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")), any())).thenReturn("encrypted_foo_value");
+        // SPEX CHANGED: END
         CipherColumnItem cipherColumnItem = new CipherColumnItem("foo_col", encryptAlgorithm);
+        // SPEX ADDED: BEGIN
+        cipherColumnItem.setEncryptColumn(new EncryptColumn("foo_col", new CipherColumnItem("foo_col_cipher", encryptAlgorithm)));
+        // SPEX ADDED: END
         assertThat(cipherColumnItem.encrypt("foo_db", "foo_schema", "foo_tbl", "foo_col", Arrays.asList(null, "foo_value")), is(Arrays.asList(null, "encrypted_foo_value")));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertDecryptNullValue() {
-        assertNull(new CipherColumnItem("foo_col", mock(EncryptAlgorithm.class)).decrypt("foo-db", "foo_schema", "foo_tbl", "foo_col", (Object) null));
+        assertNull(new CipherColumnItem("foo_col", mock(EncryptAlgorithm.class)).decrypt("foo-db", "foo_schema", "foo_tbl", "foo_col", null, null));
     }
     
     @Test
     void assertDecrypt() {
         EncryptAlgorithm encryptAlgorithm = mock(EncryptAlgorithm.class, RETURNS_DEEP_STUBS);
-        when(encryptAlgorithm.decrypt(eq("encrypted_foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")))).thenReturn("foo_value");
+        // SPEX CHANGED: BEGIN
+        when(encryptAlgorithm.decrypt(eq("encrypted_foo_value"), deepEq(new AlgorithmSQLContext("foo_db", "foo_schema", "foo_tbl", "foo_col")), any())).thenReturn("foo_value");
+        // SPEX CHANGED: END
         CipherColumnItem cipherColumnItem = new CipherColumnItem("foo_col", encryptAlgorithm);
-        assertThat(cipherColumnItem.decrypt("foo_db", "foo_schema", "foo_tbl", "foo_col", "encrypted_foo_value"), is("foo_value"));
+        // SPEX ADDED: BEGIN
+        cipherColumnItem.setEncryptColumn(new EncryptColumn("foo_col", new CipherColumnItem("foo_col_cipher", encryptAlgorithm)));
+        // SPEX ADDED: END
+        // SPEX CHANGED: BEGIN
+        assertThat(cipherColumnItem.decrypt("foo_db", "foo_schema", "foo_tbl", "foo_col", "encrypted_foo_value", null), is("foo_value"));
+        // SPEX CHANGED: END
     }
 }

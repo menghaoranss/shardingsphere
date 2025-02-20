@@ -17,7 +17,9 @@
   -->
 
 <e2e-test-cases>
-    <test-case sql="TRUNCATE TABLE t_order_details" db-types="H2,MySQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: BEGIN -->
+    <test-case sql="TRUNCATE TABLE t_order_details" db-types="H2,MySQL,SQLServer,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="unchanged_table.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
             <destroy-sql sql="DROP TABLE t_order_details" />
@@ -31,7 +33,9 @@
         </assertion>
     </test-case>
     
-    <test-case sql="TRUNCATE TABLE t_broadcast_table_for_ddl" db-types="H2,MySQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: BEGIN -->
+    <test-case sql="TRUNCATE TABLE t_broadcast_table_for_ddl" db-types="H2,MySQL,SQLServer,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="unchanged_broadcast_table.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
@@ -44,18 +48,22 @@
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
         </assertion>
     </test-case>
-    
+
+    <!-- SPEX CHANGED: BEGIN -->
     <test-case sql="TRUNCATE TABLE t_user_details" db-types="MySQL" scenario-types="encrypt,dbtbl_with_readwrite_splitting_and_encrypt,sharding_and_encrypt,encrypt_and_readwrite_splitting">
         <assertion expected-data-file="unchanged_table.xml">
-            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />
+            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_plain VARCHAR(45) NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />
             <destroy-sql sql="DROP TABLE t_user_details" />
         </assertion>
     </test-case>
-    
+    <!-- SPEX CHANGED: END -->
+
+    <!-- SPEX CHANGED: BEGIN -->
     <test-case sql="TRUNCATE t_user_details" db-types="PostgreSQL" scenario-types="encrypt,dbtbl_with_readwrite_splitting_and_encrypt,sharding_and_encrypt,encrypt_and_readwrite_splitting">
         <assertion expected-data-file="unchanged_table.xml">
-            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />
+            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_plain VARCHAR(45) NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />
             <destroy-sql sql="DROP TABLE t_user_details" />
         </assertion>
     </test-case>
+    <!-- SPEX CHANGED: END -->
 </e2e-test-cases>

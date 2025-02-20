@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.sharding.checker.sql.dml;
 
 import org.apache.shardingsphere.infra.binder.context.statement.dml.CopyStatementContext;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.sharding.exception.syntax.UnsupportedShardingOperationException;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
@@ -46,14 +47,18 @@ class ShardingCopySupportedCheckerTest {
     void assertCheckWhenTableSegmentForPostgreSQL() {
         PostgreSQLCopyStatement sqlStatement = new PostgreSQLCopyStatement();
         sqlStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order"))));
-        assertDoesNotThrow(() -> new ShardingCopySupportedChecker().check(rule, mock(), mock(), new CopyStatementContext(sqlStatement)));
+        // SPEX CHANGED: BEGIN
+        assertDoesNotThrow(() -> new ShardingCopySupportedChecker().check(rule, mock(), mock(), mock(), new CopyStatementContext(sqlStatement)));
+        // SPEX CHANGED: END
     }
     
     @Test
     void assertCheckWhenTableSegmentForOpenGauss() {
         OpenGaussCopyStatement sqlStatement = new OpenGaussCopyStatement();
         sqlStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order"))));
-        assertDoesNotThrow(() -> new ShardingCopySupportedChecker().check(rule, mock(), mock(), new CopyStatementContext(sqlStatement)));
+        // SPEX CHANGED: BEGIN
+        assertDoesNotThrow(() -> new ShardingCopySupportedChecker().check(rule, mock(), mock(), mock(), new CopyStatementContext(sqlStatement)));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -71,6 +76,8 @@ class ShardingCopySupportedCheckerTest {
         CopyStatementContext sqlStatementContext = new CopyStatementContext(sqlStatement);
         String tableName = "t_order";
         when(rule.isShardingTable(tableName)).thenReturn(true);
-        new ShardingCopySupportedChecker().check(rule, mock(), mock(), sqlStatementContext);
+        // SPEX CHANGED: BEGIN
+        new ShardingCopySupportedChecker().check(rule, mock(ShardingSphereMetaData.class), mock(), mock(), sqlStatementContext);
+        // SPEX CHANGED: END
     }
 }

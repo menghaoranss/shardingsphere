@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--SPEX ADDED: BEGIN-->
+<e2e-test-cases>
+    <!-- OPE 适配 SQL 场景参考：https://u01f1kqxrl.feishu.cn/wiki/VCinwK3y1iwG74kaitBc4ot0n1f -->
+    <!-- 测试字符串类型 GROUP BY, HAVING -->
+    <test-case sql="SELECT user_name, COUNT(1) FROM t_user GROUP BY user_name ORDER BY user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_name, COUNT(1) FROM t_user GROUP BY user_name HAVING user_name IN (?, ?) ORDER BY user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String, 张翼:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_name, COUNT(1) FROM t_user GROUP BY user_name HAVING user_name = ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String"  expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_name, COUNT(1) FROM t_user GROUP BY user_name HAVING user_name &lt; ? ORDER BY user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String"  expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_name, COUNT(1) FROM t_user GROUP BY user_name HAVING user_name BETWEEN ? AND ? ORDER BY user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="zhuqi:String, 张翼:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- 测试字符串类型存储数字 GROUP BY, HAVING -->
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc ORDER BY product_desc" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc HAVING product_desc IN (?, ?)" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000000:String, 1000005:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc HAVING product_desc = ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000005:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc HAVING product_desc &lt; ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000005:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc HAVING product_desc &lt;= ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000000:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc HAVING product_desc > ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000000:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc HAVING product_desc >= ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000000:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT product_desc, COUNT(1) FROM t_product_extend GROUP BY product_desc HAVING product_desc BETWEEN ? AND ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000000:String, 1000005:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型 GROUP BY, HAVING -->
+    <test-case sql="SELECT quantity, COUNT(1) FROM t_order_item GROUP BY quantity ORDER BY quantity" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT quantity, COUNT(1) FROM t_order_item GROUP BY quantity HAVING quantity IN (?, ?) ORDER BY quantity" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="3:int, 4:int" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT quantity, COUNT(1) FROM t_order_item GROUP BY quantity HAVING quantity = ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="3:int" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT quantity, COUNT(1) FROM t_order_item GROUP BY quantity HAVING quantity &lt; ? ORDER BY quantity" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="3:int" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT quantity, COUNT(1) FROM t_order_item GROUP BY quantity HAVING quantity BETWEEN ? AND ? ORDER BY quantity" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="3:int, 4:int" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <!-- 测试字符串类型 ORDER BY -->
+    <test-case sql="SELECT * FROM t_user ORDER BY user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user ORDER BY user_name DESC" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型 ORDER BY -->
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item ORDER BY quantity" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- TODO add Oracle db-type when support oracle numeric ope handle -->
+    <test-case sql="SELECT * FROM t_order_item ORDER BY quantity DESC" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+</e2e-test-cases>
+<!--SPEX ADDED: END-->

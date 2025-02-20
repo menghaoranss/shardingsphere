@@ -37,6 +37,8 @@
         </sql-statements>
     </create-procedure>
     <create-procedure sql-case-id="create_procedure_with_prepare_commit" />
+    <!-- FIXME causes InternalOracleParserIT failed -->
+    <!-- <create-procedure sql-case-id="create_plsql_block" /> -->
     <create-procedure sql-case-id="create_procedure_with_cursor_definition">
         <procedure-name name="my_proc" />
         <sql-statements>

@@ -17,7 +17,9 @@
 
 package org.apache.shardingsphere.infra.binder.context.statement.dml;
 
+import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.binder.context.aware.ParameterAware;
@@ -59,6 +61,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.Bina
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.subquery.SubquerySegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ShorthandProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.ColumnOrderByItemSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.ExpressionOrderByItemSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.IndexOrderByItemSegment;
@@ -114,6 +117,21 @@ public final class SelectStatementContext extends CommonSQLStatementContext impl
     
     private PaginationContext paginationContext;
     
+    @SphereEx
+    private final Collection<WhereSegment> whereSegmentsWithoutJoinConditions = new LinkedList<>();
+    
+    @SphereEx
+    private final Collection<ColumnSegment> columnSegmentsInProjectionForUDF = new LinkedList<>();
+    
+    @SphereEx
+    private final Collection<ColumnSegment> columnSegmentsWithoutProjectionForUDF = new LinkedList<>();
+    
+    @SphereEx
+    private final Collection<ShorthandProjectionSegment> shorthandProjectionSegmentsForUDF = new LinkedList<>();
+    
+    @SphereEx
+    private final Collection<String> commonTableExpressionAliases = new CaseInsensitiveSet<>();
+    
     public SelectStatementContext(final ShardingSphereMetaData metaData, final List<Object> params, final SelectStatement sqlStatement,
                                   final String currentDatabaseName, final Collection<TableSegment> inheritedTables) {
         super(sqlStatement);
@@ -128,10 +146,30 @@ public final class SelectStatementContext extends CommonSQLStatementContext impl
         projectionsContext = new ProjectionsContextEngine(getDatabaseType()).createProjectionsContext(getSqlStatement().getProjections(), groupByContext, orderByContext);
         paginationContext = new PaginationContextEngine(getDatabaseType()).createPaginationContext(sqlStatement, projectionsContext, params, whereSegments);
         containsEnhancedTable = isContainsEnhancedTable(metaData, tablesContext.getDatabaseNames(), currentDatabaseName);
+        // SPEX ADDED: BEGIN
+        extractWhereSegmentsWithoutJoinConditions(whereSegmentsWithoutJoinConditions, sqlStatement);
+        ColumnExtractor.extractFromProjections(columnSegmentsInProjectionForUDF, sqlStatement.getProjections().getProjections(), false);
+        ColumnExtractor.extractFromSelectStatementWithoutProjection(columnSegmentsWithoutProjectionForUDF, sqlStatement, false);
+        extractShortHandProjectionSegmentsForUDF(shorthandProjectionSegmentsForUDF, sqlStatement);
+        extractCommonTableExpressionAliases(sqlStatement);
+        // SPEX ADDED: END
+    }
+    
+    @SphereEx
+    private void extractCommonTableExpressionAliases(final SelectStatement selectStatement) {
+        if (!selectStatement.getWithSegment().isPresent()) {
+            return;
+        }
+        for (TableSegment each : selectStatement.getWithSegment().get().getCommonTableExpressions()) {
+            each.getAlias().ifPresent(optional -> commonTableExpressionAliases.add(optional.getValue()));
+        }
     }
     
     private void extractWhereSegments(final Collection<WhereSegment> whereSegments, final SelectStatement selectStatement) {
         selectStatement.getWhere().ifPresent(whereSegments::add);
+        // SPEX ADDED: BEGIN
+        selectStatement.getHaving().ifPresent(optional -> whereSegments.add(new WhereSegment(optional.getExpr().getStartIndex(), optional.getExpr().getStopIndex(), optional.getExpr())));
+        // SPEX ADDED: END
         whereSegments.addAll(WhereExtractor.extractSubqueryWhereSegments(selectStatement));
         whereSegments.addAll(WhereExtractor.extractJoinWhereSegments(selectStatement));
     }
@@ -415,6 +453,39 @@ public final class SelectStatementContext extends CommonSQLStatementContext impl
     @Override
     public Collection<BinaryOperationExpression> getJoinConditions() {
         return joinConditions;
+    }
+    
+    @SphereEx
+    private void extractWhereSegmentsWithoutJoinConditions(final Collection<WhereSegment> whereSegmentsWithoutJoinConditions, final SelectStatement selectStatement) {
+        selectStatement.getWhere().ifPresent(whereSegmentsWithoutJoinConditions::add);
+        whereSegmentsWithoutJoinConditions.addAll(WhereExtractor.getSubqueryWhereSegmentsWithoutJoinConditions(selectStatement));
+    }
+    
+    @SphereEx
+    private void extractShortHandProjectionSegmentsForUDF(final Collection<ShorthandProjectionSegment> shorthandProjectionSegments, final SelectStatement sqlStatement) {
+        sqlStatement.getProjections().getProjections().forEach(each -> {
+            if (each instanceof ShorthandProjectionSegment) {
+                shorthandProjectionSegments.add((ShorthandProjectionSegment) each);
+            }
+        });
+    }
+    
+    /**
+     * Judge whether sql statement is all subquery tables or not.
+     *
+     * @return whether sql statement is all subquery tables or not
+     */
+    @SphereEx
+    public boolean isAllSubqueryTables() {
+        return getSqlStatement().getFrom().isPresent() && isAllSubqueryTables(getSqlStatement().getFrom().get());
+    }
+    
+    @SphereEx
+    private boolean isAllSubqueryTables(final TableSegment tableSegment) {
+        if (tableSegment instanceof JoinTableSegment) {
+            return isAllSubqueryTables(((JoinTableSegment) tableSegment).getLeft()) && isAllSubqueryTables(((JoinTableSegment) tableSegment).getRight());
+        }
+        return tableSegment instanceof SubqueryTableSegment;
     }
     
     @Override

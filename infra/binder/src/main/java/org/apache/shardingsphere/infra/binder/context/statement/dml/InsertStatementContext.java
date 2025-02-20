@@ -18,6 +18,8 @@
 package org.apache.shardingsphere.infra.binder.context.statement.dml;
 
 import com.cedarsoftware.util.CaseInsensitiveMap;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.aware.ParameterAware;
 import org.apache.shardingsphere.infra.binder.context.segment.insert.keygen.GeneratedKeyContext;
@@ -49,6 +51,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.Bina
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.subquery.SubquerySegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.table.MultiTableConditionalIntoWhenThenSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.WithSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.InsertStatement;
@@ -86,6 +89,10 @@ public final class InsertStatementContext extends CommonSQLStatementContext impl
     @Getter
     private List<InsertValueContext> insertValueContexts;
     
+    @SphereEx
+    @Getter
+    private List<InsertStatementContext> multiInsertStatementContexts;
+    
     @Getter
     private InsertSelectContext insertSelectContext;
     
@@ -103,6 +110,9 @@ public final class InsertStatementContext extends CommonSQLStatementContext impl
         insertValueContexts = getInsertValueContexts(params, parametersOffset, valueExpressions);
         insertSelectContext = getInsertSelectContext(metaData, params, parametersOffset, currentDatabaseName).orElse(null);
         onDuplicateKeyUpdateValueContext = getOnDuplicateKeyUpdateValueContext(params, parametersOffset).orElse(null);
+        // SPEX ADDED: BEGIN
+        multiInsertStatementContexts = getMultiInsertStatementContexts(metaData, params, sqlStatement, parametersOffset, currentDatabaseName);
+        // SPEX ADDED: END
         tablesContext = new TablesContext(getAllSimpleTableSegments());
         List<String> insertColumnNames = getInsertColumnNames();
         ShardingSphereSchema schema = getSchema(metaData, currentDatabaseName);
@@ -132,7 +142,28 @@ public final class InsertStatementContext extends CommonSQLStatementContext impl
             result.add(insertValueContext);
             paramsOffset.addAndGet(insertValueContext.getParameterCount());
         }
+        // SPEX ADDED: BEGIN
+        if (!valueExpressions.isEmpty() && paramsOffset.get() > 0 && params.size() > paramsOffset.get()) {
+            appendBatchInsertValueContext(result, params, paramsOffset, valueExpressions);
+        }
+        // SPEX ADDED: END
         return result;
+    }
+    
+    @SphereEx
+    private void appendBatchInsertValueContext(final List<InsertValueContext> result, final List<Object> params,
+                                               final AtomicInteger paramsOffset, final List<List<ExpressionSegment>> valueExpressions) {
+        int oneBatchParamsSize = paramsOffset.get();
+        for (int index = 1; index < params.size() / oneBatchParamsSize; index++) {
+            int lastBatchParamsOffset = paramsOffset.get();
+            for (Collection<ExpressionSegment> each : valueExpressions) {
+                int lastParamsOffset = paramsOffset.get();
+                InsertValueContext insertValueContext = new InsertValueContext(each, params, lastParamsOffset);
+                insertValueContext.setLastParametersOffset(lastBatchParamsOffset);
+                paramsOffset.addAndGet(insertValueContext.getParameterCount());
+                result.add(insertValueContext);
+            }
+        }
     }
     
     private Optional<InsertSelectContext> getInsertSelectContext(final ShardingSphereMetaData metaData, final List<Object> params,
@@ -179,19 +210,71 @@ public final class InsertStatementContext extends CommonSQLStatementContext impl
         return Optional.of(onDuplicateUpdateContext);
     }
     
-    private Collection<SimpleTableSegment> getAllSimpleTableSegments() {
-        TableExtractor tableExtractor = new TableExtractor();
-        tableExtractor.extractTablesFromInsert(getSqlStatement());
-        return tableExtractor.getRewriteTables();
+    @SphereEx
+    private List<InsertStatementContext> getMultiInsertStatementContexts(final ShardingSphereMetaData metaData, final List<Object> params, final InsertStatement sqlStatement,
+                                                                         final AtomicInteger parametersOffset, final String currentDatabaseName) {
+        Collection<InsertStatement> insertStatements = getMultiInsertStatement(sqlStatement);
+        List<InsertStatementContext> result = new ArrayList<>(insertStatements.size());
+        for (InsertStatement each : insertStatements) {
+            InsertStatementContext insertStatementContext = new InsertStatementContext(metaData, getParameters(params, parametersOffset.get(), each.getParameterCount()), each, currentDatabaseName);
+            result.add(insertStatementContext);
+            parametersOffset.addAndGet(each.getParameterCount());
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private List<Object> getParameters(final List<Object> params, final int paramsOffset, final int parameterCount) {
+        if (params.isEmpty() || 0 == parameterCount) {
+            return Collections.emptyList();
+        }
+        List<Object> result = new ArrayList<>(parameterCount);
+        result.addAll(params.subList(paramsOffset, paramsOffset + parameterCount));
+        return result;
+    }
+    
+    @SphereEx
+    private Collection<InsertStatement> getMultiInsertStatement(final InsertStatement insertStatement) {
+        Collection<InsertStatement> result = new LinkedList<>();
+        if (insertStatement.getMultiTableInsertIntoSegment().isPresent()) {
+            result.addAll(insertStatement.getMultiTableInsertIntoSegment().get().getInsertStatements());
+        }
+        if (insertStatement.getMultiTableConditionalIntoSegment().isPresent()) {
+            for (MultiTableConditionalIntoWhenThenSegment each : insertStatement.getMultiTableConditionalIntoSegment().get().getWhenThenSegments()) {
+                result.addAll(each.getThenSegment().getInsertStatements());
+            }
+            insertStatement.getMultiTableConditionalIntoSegment().get().getElseSegment().ifPresent(optional -> result.addAll(optional.getInsertStatements()));
+        }
+        return result;
     }
     
     private ShardingSphereSchema getSchema(final ShardingSphereMetaData metaData, final String currentDatabaseName) {
-        String databaseName = tablesContext.getDatabaseName().orElse(currentDatabaseName);
+        @SphereEx(Type.MODIFY)
+        String databaseName = getDatabaseName(currentDatabaseName);
         ShardingSpherePreconditions.checkNotNull(databaseName, NoDatabaseSelectedException::new);
         ShardingSphereDatabase database = metaData.getDatabase(databaseName);
         ShardingSpherePreconditions.checkNotNull(database, () -> new UnknownDatabaseException(databaseName));
         String defaultSchema = new DatabaseTypeRegistry(getDatabaseType()).getDefaultSchemaName(databaseName);
         return tablesContext.getSchemaName().map(database::getSchema).orElseGet(() -> database.getSchema(defaultSchema));
+    }
+    
+    @SphereEx
+    private String getDatabaseName(final String currentDatabaseName) {
+        if (null == insertSelectContext) {
+            return tablesContext.getDatabaseName().orElse(currentDatabaseName);
+        }
+        return tablesContext.getDatabaseNames().isEmpty() ? currentDatabaseName : tablesContext.getDatabaseNames().iterator().next();
+    }
+    
+    private Collection<SimpleTableSegment> getAllSimpleTableSegments() {
+        TableExtractor tableExtractor = new TableExtractor();
+        tableExtractor.extractTablesFromInsert(getSqlStatement());
+        // SPEX ADDED: BEGIN
+        for (InsertStatementContext each : multiInsertStatementContexts) {
+            tableExtractor.extractTablesFromInsert(each.getSqlStatement());
+        }
+        // SPEX ADDED: END
+        return tableExtractor.getRewriteTables();
     }
     
     /**
@@ -213,6 +296,11 @@ public final class InsertStatementContext extends CommonSQLStatementContext impl
         for (InsertValueContext each : insertValueContexts) {
             result.add(each.getParameters());
         }
+        // SPEX ADDED: BEGIN
+        for (InsertStatementContext each : multiInsertStatementContexts) {
+            result.addAll(each.getGroupedParameters());
+        }
+        // SPEX ADDED: END
         if (null != insertSelectContext && !insertSelectContext.getParameters().isEmpty()) {
             result.add(insertSelectContext.getParameters());
         }
@@ -313,6 +401,9 @@ public final class InsertStatementContext extends CommonSQLStatementContext impl
     public void setUpParameters(final List<Object> params) {
         AtomicInteger parametersOffset = new AtomicInteger(0);
         insertValueContexts = getInsertValueContexts(params, parametersOffset, valueExpressions);
+        // SPEX ADDED: BEGIN
+        multiInsertStatementContexts = getMultiInsertStatementContexts(metaData, params, getSqlStatement(), parametersOffset, currentDatabaseName);
+        // SPEX ADDED: END
         insertSelectContext = getInsertSelectContext(metaData, params, parametersOffset, currentDatabaseName).orElse(null);
         onDuplicateKeyUpdateValueContext = getOnDuplicateKeyUpdateValueContext(params, parametersOffset).orElse(null);
         ShardingSphereSchema schema = getSchema(metaData, currentDatabaseName);

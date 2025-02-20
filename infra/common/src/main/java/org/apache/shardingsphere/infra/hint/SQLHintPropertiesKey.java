@@ -17,6 +17,9 @@
 
 package org.apache.shardingsphere.infra.hint;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
+import com.sphereex.dbplusengine.infra.hint.NoneUniqueKeyScenario;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.props.TypedPropertyKey;
@@ -66,7 +69,19 @@ public enum SQLHintPropertiesKey implements TypedPropertyKey {
     /**
      * Whether to use shadow or not.
      */
-    SHADOW_KEY("SHADOW", "shadow", String.valueOf(Boolean.FALSE), boolean.class);
+    SHADOW_KEY("SHADOW", "shadow", String.valueOf(Boolean.FALSE), boolean.class),
+    
+    /**
+     * None unique key scenario.
+     */
+    @SphereEx
+    NONE_UNIQUE_KEY_SCENARIO("NONE_UNIQUE_KEY_SCENARIO", "noneUniqueKeyScenario", NoneUniqueKeyScenario.NONE.name(), String.class),
+    
+    /**
+     * None unique key scenario.
+     */
+    @SphereEx
+    ENCRYPT_COLUMN_ITEM_TYPE("ENCRYPT_COLUMN_ITEM_TYPE", "encryptColumnItemType", EncryptColumnItemType.CIPHER.name(), String.class);
     
     private final String key;
     

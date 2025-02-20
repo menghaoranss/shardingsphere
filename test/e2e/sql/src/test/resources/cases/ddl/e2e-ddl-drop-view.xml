@@ -22,4 +22,19 @@
             <initial-sql sql="CREATE VIEW t_order_sharding_view AS SELECT o.* FROM t_order o INNER JOIN t_order_item i ON o.order_id = i.order_id" affected-table="t_order_sharding_view" />
         </assertion>
     </test-case>
+
+    <!-- SPEX ADDED: BEGIN -->
+    <test-case sql="DROP VIEW t_user_view" scenario-types="encrypt" db-types="MySQL,PostgreSQL,openGauss,Oracle,DM">
+        <assertion expected-data-file="drop_view.xml">
+            <initial-sql sql="CREATE VIEW t_user_view AS SELECT * FROM t_user" affected-table="t_user_view" />
+        </assertion>
+    </test-case>
+
+    <test-case sql="DROP VIEW IF EXISTS t_user_view" scenario-types="encrypt" db-types="MySQL,PostgreSQL,openGauss">
+        <assertion expected-data-file="drop_view.xml">
+            <initial-sql sql="CREATE VIEW t_merchant_view AS SELECT * FROM t_merchant" affected-table="t_user_view" />
+            <destroy-sql sql="DROP VIEW t_merchant_view" />
+        </assertion>
+    </test-case>
+    <!-- SPEX ADDED: END -->
 </e2e-test-cases>

@@ -17,6 +17,14 @@
 
 package org.apache.shardingsphere.encrypt.checker.config;
 
+import com.google.common.collect.Lists;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
+import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeRuleConfiguration;
+import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
+import com.sphereex.dbplusengine.encrypt.exception.metadata.EncryptPlainColumnConfigException;
+import com.sphereex.dbplusengine.encrypt.exception.metadata.UnsupportedEncryptColumnTypeException;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
@@ -28,14 +36,18 @@ import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfigurat
 import org.apache.shardingsphere.infra.algorithm.core.exception.MissingRequiredAlgorithmException;
 import org.apache.shardingsphere.infra.algorithm.core.exception.UnregisteredAlgorithmException;
 import org.apache.shardingsphere.infra.config.rule.checker.RuleConfigurationChecker;
+import org.apache.shardingsphere.infra.database.DatabaseTypeEngine;
+import org.apache.shardingsphere.infra.database.core.metadata.database.datatype.DataTypeRegistry;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.exception.core.external.sql.identifier.SQLExceptionIdentifier;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 
 import javax.sql.DataSource;
+import java.sql.Types;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -45,26 +57,49 @@ public final class EncryptRuleConfigurationChecker implements RuleConfigurationC
     
     @Override
     public void check(final String databaseName, final EncryptRuleConfiguration ruleConfig, final Map<String, DataSource> dataSourceMap, final Collection<ShardingSphereRule> builtRules) {
-        checkEncryptors(ruleConfig.getEncryptors());
-        checkTables(databaseName, ruleConfig.getTables(), ruleConfig.getEncryptors());
+        // SPEX CHANGED: BEGIN
+        // TODO Use key manager shouldn't check encryptor here, maybe need to merge checker logic
+        // checkEncryptors(ruleConfig.getEncryptors());
+        checkTables(databaseName, ruleConfig.getTables(), ruleConfig.getEncryptors(), ruleConfig.getEncryptMode(), dataSourceMap);
+        // SPEX CHANGED: END
     }
     
     private void checkEncryptors(final Map<String, AlgorithmConfiguration> encryptors) {
         encryptors.values().forEach(each -> TypedSPILoader.checkService(EncryptAlgorithm.class, each.getType(), each.getProps()));
     }
     
-    private void checkTables(final String databaseName, final Collection<EncryptTableRuleConfiguration> tableRuleConfigs, final Map<String, AlgorithmConfiguration> encryptors) {
-        tableRuleConfigs.forEach(each -> checkColumns(databaseName, each, encryptors));
+    @SphereEx(Type.MODIFY)
+    private void checkTables(final String databaseName, final Collection<EncryptTableRuleConfiguration> tableRuleConfigs, final Map<String, AlgorithmConfiguration> encryptors,
+                             @SphereEx final EncryptModeRuleConfiguration encryptMode, @SphereEx final Map<String, DataSource> dataSourceMap) {
+        tableRuleConfigs.forEach(each -> checkColumns(databaseName, each, encryptors, encryptMode, dataSourceMap));
     }
     
-    private void checkColumns(final String databaseName, final EncryptTableRuleConfiguration tableRuleConfig, final Map<String, AlgorithmConfiguration> encryptors) {
-        tableRuleConfig.getColumns().forEach(each -> checkColumn(databaseName, tableRuleConfig.getName(), each, encryptors));
+    @SphereEx(Type.MODIFY)
+    private void checkColumns(final String databaseName, final EncryptTableRuleConfiguration tableRuleConfig, final Map<String, AlgorithmConfiguration> encryptors,
+                              @SphereEx final EncryptModeRuleConfiguration encryptMode, final @SphereEx Map<String, DataSource> dataSourceMap) {
+        tableRuleConfig.getColumns().forEach(each -> checkColumn(databaseName, tableRuleConfig.getName(), each, encryptors, encryptMode, dataSourceMap));
     }
     
-    private void checkColumn(final String databaseName, final String tableName, final EncryptColumnRuleConfiguration columnRuleConfig, final Map<String, AlgorithmConfiguration> encryptors) {
+    private void checkColumn(final String databaseName, final String tableName, final EncryptColumnRuleConfiguration columnRuleConfig, final Map<String, AlgorithmConfiguration> encryptors,
+                             @SphereEx final EncryptModeRuleConfiguration encryptMode, final @SphereEx Map<String, DataSource> dataSourceMap) {
+        // SPEX ADDED: BEGIN
+        columnRuleConfig.getDataType().ifPresent(optional -> checkEncryptDataType(tableName, columnRuleConfig, dataSourceMap, optional));
+        // SPEX ADDED: END
         checkEncryptColumnItem(databaseName, tableName, columnRuleConfig.getName(), columnRuleConfig.getCipher(), encryptors, "Cipher");
         columnRuleConfig.getAssistedQuery().ifPresent(optional -> checkEncryptColumnItem(databaseName, tableName, columnRuleConfig.getName(), optional, encryptors, "Assist Query"));
         columnRuleConfig.getLikeQuery().ifPresent(optional -> checkEncryptColumnItem(databaseName, tableName, columnRuleConfig.getName(), optional, encryptors, "Like Query"));
+        // SPEX ADDED: BEGIN
+        columnRuleConfig.getOrderQuery().ifPresent(optional -> checkEncryptColumnItem(databaseName, tableName, columnRuleConfig.getName(), optional, encryptors, "Order Query"));
+        columnRuleConfig.getPlain().ifPresent(optional -> checkPlainColumn(databaseName, tableName, columnRuleConfig.getName(), optional, encryptMode));
+        // SPEX ADDED: END
+    }
+    
+    @SphereEx
+    private static void checkEncryptDataType(final String tableName, final EncryptColumnRuleConfiguration columnRuleConfig, final Map<String, DataSource> dataSourceMap, final String dataTypeName) {
+        Optional<Integer> dataType = DataTypeRegistry.getDataType(DatabaseTypeEngine.getStorageType(dataSourceMap.values().stream().iterator().next()).getType(), dataTypeName);
+        dataType.ifPresent(
+                optional -> ShardingSpherePreconditions.checkNotContains(Lists.newArrayList(Types.DATE, Types.TIME, Types.TIMESTAMP, Types.TIME_WITH_TIMEZONE, Types.TIMESTAMP_WITH_TIMEZONE), optional,
+                        () -> new UnsupportedEncryptColumnTypeException(tableName, columnRuleConfig.getName(), dataTypeName)));
     }
     
     private void checkEncryptColumnItem(final String databaseName, final String tableName, final String logicColumnName,
@@ -75,6 +110,23 @@ public final class EncryptRuleConfigurationChecker implements RuleConfigurationC
                 () -> new MissingRequiredAlgorithmException(itemType + " encrypt", new SQLExceptionIdentifier(databaseName, tableName, logicColumnName)));
         ShardingSpherePreconditions.checkContainsKey(encryptors, columnItem.getEncryptorName(),
                 () -> new UnregisteredAlgorithmException(itemType + " encrypt", columnItem.getEncryptorName(), new SQLExceptionIdentifier(databaseName, tableName, logicColumnName)));
+    }
+    
+    @SphereEx
+    private void checkPlainColumn(final String databaseName, final String tableName, final String logicColumnName, final PlainColumnItemRuleConfiguration plainColumnConfig,
+                                  final EncryptModeRuleConfiguration encryptMode) {
+        if (null != encryptMode && isConfigFrontendUseOriginalSQLWhenCipherQueryFailed(encryptMode)) {
+            ShardingSpherePreconditions.checkState(logicColumnName.equalsIgnoreCase(plainColumnConfig.getName()),
+                    () -> new EncryptPlainColumnConfigException(plainColumnConfig.getName(), logicColumnName));
+        }
+        ShardingSpherePreconditions.checkNotEmpty(plainColumnConfig.getName(),
+                () -> new MissingRequiredEncryptColumnException("Plain", new SQLExceptionIdentifier(databaseName, tableName, logicColumnName)));
+    }
+    
+    @SphereEx
+    private boolean isConfigFrontendUseOriginalSQLWhenCipherQueryFailed(final EncryptModeRuleConfiguration encryptMode) {
+        boolean useOriginalSQLWhenCipherQueryFailed = Boolean.parseBoolean(encryptMode.getProps().getOrDefault("use-original-sql-when-cipher-query-failed", "false").toString());
+        return EncryptModeType.FRONTEND == encryptMode.getType() && useOriginalSQLWhenCipherQueryFailed;
     }
     
     @Override

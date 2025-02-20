@@ -17,9 +17,11 @@
 
 package org.apache.shardingsphere.sharding.checker.sql.ddl;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.AlterIndexStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.sharding.checker.sql.util.ShardingSupportedCheckUtils;
@@ -42,7 +44,8 @@ public final class ShardingAlterIndexSupportedChecker implements SupportedSQLChe
     }
     
     @Override
-    public void check(final ShardingRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final AlterIndexStatementContext sqlStatementContext) {
+    public void check(final ShardingRule rule, final @SphereEx ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final AlterIndexStatementContext sqlStatementContext) {
         AlterIndexStatement alterIndexStatement = sqlStatementContext.getSqlStatement();
         Optional<IndexSegment> index = alterIndexStatement.getIndex();
         ShardingSphereSchema schema = index.flatMap(optional -> optional.getOwner().map(owner -> database.getSchema(owner.getIdentifier().getValue()))).orElse(currentSchema);

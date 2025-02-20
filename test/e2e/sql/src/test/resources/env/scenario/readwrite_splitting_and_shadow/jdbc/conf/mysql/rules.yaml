@@ -148,3 +148,7 @@ rules:
           operation: select
           column: merchant_id
           value: 0
+
+# SPEX ADDED: BEGIN
+
+# SPEX ADDED: END

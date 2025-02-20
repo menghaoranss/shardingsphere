@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.opengauss.metadata.data.loader;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
@@ -48,7 +50,13 @@ import static org.mockito.Mockito.when;
 
 class OpenGaussMetaDataLoaderTest {
     
-    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, ordinal_position, data_type, udt_name, column_default, table_schema, is_nullable"
+    @SphereEx(Type.MODIFY)
+    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, ordinal_position, data_type, udt_name, column_default, table_schema, is_nullable,"
+            + " CASE"
+            + " WHEN data_type IN ('character varying', 'varchar', 'character', 'char') THEN"
+            + " udt_name || '(' || character_maximum_length || ')'"
+            + " ELSE udt_name"
+            + " END AS column_type"
             + " FROM information_schema.columns WHERE table_schema IN ('public')";
     
     private static final String TABLE_META_DATA_SQL_WITHOUT_TABLES = BASIC_TABLE_META_DATA_SQL + " ORDER BY ordinal_position";
@@ -133,6 +141,9 @@ class OpenGaussMetaDataLoaderTest {
         when(result.getString("column_default")).thenReturn("nextval('id_seq'::regclass)", "");
         when(result.getString("table_schema")).thenReturn("public", "public");
         when(result.getString("is_nullable")).thenReturn("NO", "YES");
+        // SPEX ADDED: BEGIN
+        when(result.getString("column_type")).thenReturn("integer", "character varying(255)");
+        // SPEX ADDED: END
         return result;
     }
     
@@ -176,8 +187,10 @@ class OpenGaussMetaDataLoaderTest {
         TableMetaData actualTableMetaData = schemaMetaDataList.iterator().next().getTables().iterator().next();
         assertThat(actualTableMetaData.getColumns().size(), is(2));
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, true, true, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, "integer"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, true, true, false, true, "character varying(255)"));
+        // SPEX CHANGED: END
         assertThat(actualTableMetaData.getIndexes().size(), is(1));
         Iterator<IndexMetaData> indexesIterator = actualTableMetaData.getIndexes().iterator();
         IndexMetaData indexMetaData = new IndexMetaData("id", Collections.singletonList("id"));

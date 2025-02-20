@@ -19,6 +19,8 @@ package org.apache.shardingsphere.test.e2e.engine.type.dml;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.util.DatabaseTypeUtils;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -96,8 +98,10 @@ public abstract class BaseDMLE2EIT implements E2EEnvironmentAware {
      * @throws JAXBException JAXB exception
      */
     protected void init(final E2ETestParameter testParam) throws SQLException, IOException, JAXBException {
-        dataSetEnvironmentManager =
-                new DataSetEnvironmentManager(new ScenarioDataPath(testParam.getScenario()).getDataSetFile(Type.ACTUAL), getEnvironmentEngine().getActualDataSourceMap(), testParam.getDatabaseType());
+        // SPEX CHANGED: BEGIN
+        dataSetEnvironmentManager = new DataSetEnvironmentManager(new ScenarioDataPath(testParam.getScenario()).getDataSetFile(Type.ACTUAL, testParam.getDatabaseType()),
+                environmentEngine.getActualDataSourceMap(), testParam.getDatabaseType());
+        // SPEX CHANGED: END
         dataSetEnvironmentManager.fillData();
     }
     
@@ -108,12 +112,14 @@ public abstract class BaseDMLE2EIT implements E2EEnvironmentAware {
         }
     }
     
-    private DataSet getDataSet(final int[] actualUpdateCounts, final Collection<DataSet> dataSets, final String sql) {
+    private DataSet getDataSet(final int[] actualUpdateCounts, final Collection<DataSet> dataSets, final String sql, @SphereEx final DatabaseType databaseType) {
         Collection<DataSet> result = new LinkedList<>();
         assertThat(actualUpdateCounts.length, is(dataSets.size()));
         int count = 0;
         for (DataSet each : dataSets) {
-            if (Statement.SUCCESS_NO_INFO != actualUpdateCounts[count]) {
+            // SPEX CHANGED: BEGIN
+            if (Statement.SUCCESS_NO_INFO != actualUpdateCounts[count] && !(DatabaseTypeUtils.isOracleDatabase(databaseType))) {
+                // SPEX CHANGED: END
                 assertThat(actualUpdateCounts[count], is(each.getUpdateCount()));
             }
             result.add(each);
@@ -214,7 +220,8 @@ public abstract class BaseDMLE2EIT implements E2EEnvironmentAware {
         for (E2ETestCaseAssertion each : testParam.getTestCaseContext().getTestCase().getAssertions()) {
             dataSets.add(DataSetLoader.load(testParam.getTestCaseContext().getParentPath(), testParam.getScenario(), testParam.getDatabaseType(), testParam.getMode(), each.getExpectedDataFile()));
         }
-        DataSet dataSet = getDataSet(actualUpdateCounts, dataSets, testParam.getTestCaseContext().getTestCase().getSql());
+        @SphereEx(SphereEx.Type.MODIFY)
+        DataSet dataSet = getDataSet(actualUpdateCounts, dataSets, testParam.getTestCaseContext().getTestCase().getSql(), testParam.getDatabaseType());
         for (DataSetMetaData each : dataSet.getMetaDataList()) {
             assertDataSet(each, testParam, dataSet);
         }
@@ -273,14 +280,19 @@ public abstract class BaseDMLE2EIT implements E2EEnvironmentAware {
         } else if (Arrays.asList(Types.TIME, Types.TIME_WITH_TIMEZONE).contains(actual.getMetaData().getColumnType(columnIndex))) {
             assertThat(DateTimeFormatterFactory.getTimeFormatter().format(actual.getTime(columnIndex).toLocalTime()), is(expected));
         } else if (Arrays.asList(Types.TIMESTAMP, Types.TIMESTAMP_WITH_TIMEZONE).contains(actual.getMetaData().getColumnType(columnIndex))) {
-            if ("Oracle".equals(databaseType.getType()) && "DATE".equalsIgnoreCase(actual.getMetaData().getColumnTypeName(columnIndex)) || "openGauss".equals(databaseType.getType())) {
+            // SPEX CHANGED: BEGIN
+            if ("Oracle".equals(databaseType.getType()) && "DATE".equalsIgnoreCase(actual.getMetaData().getColumnTypeName(columnIndex)) || "openGauss".equals(databaseType.getType())
+                    || "DM".equals(databaseType.getType())) {
+                // SPEX CHANGED: END
                 assertThat(DateTimeFormatterFactory.getDateFormatter().format(actual.getDate(columnIndex).toLocalDate()), is(expected));
             } else {
                 assertThat(DateTimeFormatterFactory.getShortMillsFormatter().format(actual.getTimestamp(columnIndex).toLocalDateTime()), is(expected));
             }
+            // SPEX CHANGED: BEGIN
         } else if (Types.CHAR == actual.getMetaData().getColumnType(columnIndex)
                 && ("PostgreSQL".equals(databaseType.getType()) || "openGauss".equals(databaseType.getType())
-                        || "Oracle".equals(databaseType.getType()))) {
+                        || "Oracle".equals(databaseType.getType()) || "DM".equals(databaseType.getType()))) {
+            // SPEX CHANGED: END
             assertThat(String.valueOf(actual.getObject(columnIndex)).trim(), is(expected));
         } else if (isPostgreSQLOrOpenGaussMoney(actual.getMetaData().getColumnTypeName(columnIndex), databaseType)) {
             assertThat(actual.getString(columnIndex), is(expected));

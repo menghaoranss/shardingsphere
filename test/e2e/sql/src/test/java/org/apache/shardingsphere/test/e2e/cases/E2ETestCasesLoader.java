@@ -18,7 +18,11 @@
 package org.apache.shardingsphere.test.e2e.cases;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.SneakyThrows;
+import org.apache.shardingsphere.test.e2e.cases.casse.E2ETestCase;
 import org.apache.shardingsphere.test.e2e.cases.casse.E2ETestCaseContext;
 import org.apache.shardingsphere.test.e2e.framework.type.SQLCommandType;
 
@@ -38,6 +42,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -85,7 +90,26 @@ public final class E2ETestCasesLoader {
         for (File each : files) {
             result.addAll(getE2ETestCaseContexts(each));
         }
+        // SPEX ADDED: BEGIN
+        customizeIntegrationTestCaseContexts(result);
+        // SPEX ADDED: END
         return result;
+    }
+    
+    @SphereEx
+    private void customizeIntegrationTestCaseContexts(final Collection<E2ETestCaseContext> result) {
+        Splitter splitter = Splitter.on(",").trimResults();
+        for (E2ETestCaseContext each : result) {
+            E2ETestCase testCase = each.getTestCase();
+            if (Strings.isNullOrEmpty(testCase.getScenarioTypes())) {
+                continue;
+            }
+            List<String> scenarioTypes = splitter.splitToStream(testCase.getScenarioTypes()).collect(Collectors.toList());
+            if (scenarioTypes.contains("db")) {
+                scenarioTypes.add("sphereex_db_with_instance_connection");
+                testCase.setScenarioTypes(String.join(",", scenarioTypes));
+            }
+        }
     }
     
     private Collection<File> getFiles(final URL url, final SQLCommandType sqlCommandType) throws IOException, URISyntaxException {

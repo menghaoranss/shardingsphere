@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.segment.ddl.column;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Optional;
 
 /**
  * Column definition segment.
@@ -62,4 +64,24 @@ public final class ColumnDefinitionSegment implements CreateDefinitionSegment {
     
     @Setter
     private String collateName;
+    
+    /**
+     * Get charset name.
+     *
+     * @return charset name
+     */
+    @SphereEx
+    public Optional<String> getCharsetName() {
+        return Optional.ofNullable(charsetName);
+    }
+    
+    /**
+     * Get collate name.
+     *
+     * @return collate name
+     */
+    @SphereEx
+    public Optional<String> getCollateName() {
+        return Optional.ofNullable(collateName);
+    }
 }

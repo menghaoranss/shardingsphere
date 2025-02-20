@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.comparator;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -34,6 +36,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.Iden
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Insert select columns encryptor comparator.
@@ -47,22 +50,26 @@ public final class InsertSelectColumnsEncryptorComparator {
      * @param insertColumns insert columns
      * @param projections projections
      * @param encryptRule encrypt rule
+     * @param databaseEncryptRules database encrypt rules
      * @return same encryptors or not
      */
-    public static boolean isSame(final Collection<ColumnSegment> insertColumns, final Collection<Projection> projections, final EncryptRule encryptRule) {
+    public static boolean isSame(final Collection<ColumnSegment> insertColumns, final Collection<Projection> projections, final EncryptRule encryptRule,
+                                 @SphereEx final Map<String, EncryptRule> databaseEncryptRules) {
         Iterator<ColumnSegment> insertColumnsIterator = insertColumns.iterator();
         Iterator<Projection> projectionIterator = projections.iterator();
         while (insertColumnsIterator.hasNext()) {
             ColumnSegment insertColumnSegment = insertColumnsIterator.next();
-            EncryptAlgorithm insertColumnEncryptor = encryptRule.findQueryEncryptor(
-                    insertColumnSegment.getColumnBoundInfo().getOriginalTable().getValue(), insertColumnSegment.getColumnBoundInfo().getOriginalColumn().getValue()).orElse(null);
+            @SphereEx(Type.MODIFY)
+            EncryptAlgorithm insertColumnEncryptor = databaseEncryptRules.getOrDefault(insertColumnSegment.getColumnBoundInfo().getOriginalDatabase().getValue(), encryptRule)
+                    .findQueryEncryptor(insertColumnSegment.getColumnBoundInfo().getOriginalTable().getValue(), insertColumnSegment.getColumnBoundInfo().getOriginalColumn().getValue()).orElse(null);
             Projection projection = projectionIterator.next();
             if (isLiteralOrParameterMarker(projection)) {
                 continue;
             }
             ColumnSegmentBoundInfo projectionColumnBoundInfo = getColumnSegmentBoundInfo(projection);
-            EncryptAlgorithm projectionEncryptor =
-                    encryptRule.findQueryEncryptor(projectionColumnBoundInfo.getOriginalTable().getValue(), projectionColumnBoundInfo.getOriginalColumn().getValue()).orElse(null);
+            @SphereEx(Type.MODIFY)
+            EncryptAlgorithm projectionEncryptor = databaseEncryptRules.getOrDefault(projectionColumnBoundInfo.getOriginalDatabase().getValue(), encryptRule)
+                    .findQueryEncryptor(projectionColumnBoundInfo.getOriginalTable().getValue(), projectionColumnBoundInfo.getOriginalColumn().getValue()).orElse(null);
             if (!EncryptorComparator.isSame(insertColumnEncryptor, projectionEncryptor)) {
                 return false;
             }

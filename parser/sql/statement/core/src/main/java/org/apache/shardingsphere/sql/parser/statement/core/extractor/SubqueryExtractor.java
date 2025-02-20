@@ -88,6 +88,9 @@ public final class SubqueryExtractor {
         for (CommonTableExpressionSegment each : withSegment) {
             each.getSubquery().getSelect().setSubqueryType(SubqueryType.WITH);
             result.add(each.getSubquery());
+            // SPEX ADDED: BEGIN
+            each.getSubquery().getSelect().setInWith(true);
+            // SPEX ADDED: END
             extractRecursive(needRecursive, result, each.getSubquery().getSelect(), SubqueryType.TABLE);
         }
     }
@@ -95,6 +98,14 @@ public final class SubqueryExtractor {
     private static void extractRecursive(final boolean needRecursive, final List<SubquerySegment> result, final SelectStatement select, final SubqueryType parentSubqueryType) {
         if (needRecursive) {
             extractSubquerySegments(result, select, true, parentSubqueryType);
+            // SPEX ADDED: BEGIN
+            if (!select.getSubqueryType().isPresent() && parentSubqueryType != null) {
+                select.setSubqueryType(parentSubqueryType);
+            }
+            if (parentSubqueryType == SubqueryType.WITH) {
+                select.setSubqueryType(SubqueryType.WITH);
+            }
+            // SPEX ADDED: END
         }
     }
     

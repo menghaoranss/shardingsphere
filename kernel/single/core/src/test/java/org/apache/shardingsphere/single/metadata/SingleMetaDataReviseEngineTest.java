@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.single.metadata;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.IndexMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.SchemaMetaData;
@@ -40,6 +42,7 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 
 class SingleMetaDataReviseEngineTest {
@@ -49,7 +52,9 @@ class SingleMetaDataReviseEngineTest {
     @Test
     void assertRevise() {
         Map<String, SchemaMetaData> schemaMetaDataMap = Collections.singletonMap("sharding_db", new SchemaMetaData("sharding_db", Collections.singleton(createTableMetaData())));
-        Map<String, ShardingSphereSchema> actual = new MetaDataReviseEngine(Collections.singleton(mock(SingleRule.class))).revise(schemaMetaDataMap, mock(GenericSchemaBuilderMaterial.class));
+        @SphereEx(Type.MODIFY)
+        Map<String, ShardingSphereSchema> actual = new MetaDataReviseEngine(Collections.singleton(mock(SingleRule.class, RETURNS_DEEP_STUBS)))
+                .revise(schemaMetaDataMap, mock(GenericSchemaBuilderMaterial.class));
         assertThat(actual.size(), is(1));
         assertTrue(actual.containsKey("sharding_db"));
         assertThat(actual.get("sharding_db").getAllTables().size(), is(1));
@@ -65,9 +70,10 @@ class SingleMetaDataReviseEngineTest {
     }
     
     private TableMetaData createTableMetaData() {
-        Collection<ColumnMetaData> columns = Arrays.asList(new ColumnMetaData("id", Types.INTEGER, true, false, false, true, false, true),
-                new ColumnMetaData("name", Types.VARCHAR, false, false, false, true, false, false),
-                new ColumnMetaData("doc", Types.LONGVARCHAR, false, false, false, true, false, false));
+        @SphereEx(Type.MODIFY)
+        Collection<ColumnMetaData> columns = Arrays.asList(new ColumnMetaData("id", Types.INTEGER, true, false, false, true, false, true, ""),
+                new ColumnMetaData("name", Types.VARCHAR, false, false, false, true, false, false, ""),
+                new ColumnMetaData("doc", Types.LONGVARCHAR, false, false, false, true, false, false, ""));
         Collection<IndexMetaData> indexMetaDataList = Arrays.asList(new IndexMetaData("id"), new IndexMetaData("idx_name"));
         return new TableMetaData(TABLE_NAME, columns, indexMetaDataList, Collections.emptyList());
     }

@@ -18,10 +18,12 @@
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.insert;
 
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.PlainColumnItem;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
-import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.aware.DatabaseAware;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptAssignmentToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptFunctionAssignmentToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptLiteralAssignmentToken;
@@ -57,11 +59,11 @@ import java.util.Optional;
 @HighFrequencyInvocation
 @RequiredArgsConstructor
 @Setter
-public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLTokenGenerator<InsertStatementContext>, DatabaseAware {
+public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLTokenGenerator<InsertStatementContext> {
     
     private final EncryptRule rule;
     
-    private ShardingSphereDatabase database;
+    private final ShardingSphereDatabase database;
     
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
@@ -122,6 +124,10 @@ public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLT
         result.addColumnName(encryptColumn.getCipher().getName());
         encryptColumn.getAssistedQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
         encryptColumn.getLikeQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
+        // SPEX ADDED: BEGIN
+        encryptColumn.getOrderQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
+        encryptColumn.getPlain().ifPresent(optional -> result.addColumnName(optional.getName()));
+        // SPEX ADDED: END
         return result;
     }
     
@@ -132,6 +138,10 @@ public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLT
         addCipherAssignment(schemaName, tableName, encryptColumn, assignmentSegment, result);
         addAssistedQueryAssignment(schemaName, tableName, encryptColumn, assignmentSegment, result);
         addLikeAssignment(schemaName, tableName, encryptColumn, assignmentSegment, result);
+        // SPEX ADDED: BEGIN
+        addOrderAssignment(schemaName, tableName, encryptColumn, assignmentSegment, result);
+        addPlainAssignment(encryptColumn, assignmentSegment, result);
+        // SPEX ADDED: END
         return result;
     }
     
@@ -168,6 +178,22 @@ public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLT
         } else if (likeQueryColumn.isPresent() != valueLikeQueryColumn.isPresent()) {
             throw new UnsupportedEncryptSQLException(String.format("%s=VALUES(%s)", column, valueColumn));
         }
+        // SPEX ADDED: BEGIN
+        Optional<OrderQueryColumnItem> orderQueryColumn = encryptColumn.getOrderQuery();
+        Optional<OrderQueryColumnItem> valueOrderQueryColumn = encryptValueColumn.getOrderQuery();
+        if (orderQueryColumn.isPresent() && valueOrderQueryColumn.isPresent()) {
+            result.addAssignment(orderQueryColumn.get().getName(), "VALUES(" + valueOrderQueryColumn.get().getName() + ")");
+        } else if (orderQueryColumn.isPresent() != valueOrderQueryColumn.isPresent()) {
+            throw new UnsupportedEncryptSQLException(String.format("%s=VALUES(%s)", column, valueColumn));
+        }
+        Optional<PlainColumnItem> plainColumn = encryptColumn.getPlain();
+        Optional<PlainColumnItem> valuePlainColumn = encryptValueColumn.getPlain();
+        if (plainColumn.isPresent() && valuePlainColumn.isPresent()) {
+            result.addAssignment(plainColumn.get().getName(), "VALUES(" + valuePlainColumn.get().getName() + ")");
+        } else if (plainColumn.isPresent() != valuePlainColumn.isPresent()) {
+            throw new UnsupportedEncryptSQLException(String.format("%s=VALUES(%s)", column, valueColumn));
+        }
+        // SPEX ADDED: END
         if (result.isAssignmentsEmpty()) {
             throw new UnsupportedEncryptSQLException(String.format("%s=VALUES(%s)", column, valueColumn));
         }
@@ -200,5 +226,22 @@ public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLT
                     database.getName(), schemaName, tableName, assignmentSegment.getColumns().get(0).getIdentifier().getValue(), Collections.singletonList(originalValue)).iterator().next();
             token.addAssignment(optional.getName(), likeValue);
         });
+    }
+    
+    @SphereEx
+    private void addOrderAssignment(final String schemaName, final String tableName, final EncryptColumn encryptColumn,
+                                    final ColumnAssignmentSegment assignmentSegment, final EncryptLiteralAssignmentToken token) {
+        encryptColumn.getOrderQuery().ifPresent(optional -> {
+            Object originalValue = ((LiteralExpressionSegment) assignmentSegment.getValue()).getLiterals();
+            Object orderValue = optional.encrypt(
+                    database.getName(), schemaName, tableName, assignmentSegment.getColumns().get(0).getIdentifier().getValue(), Collections.singletonList(originalValue)).iterator().next();
+            token.addAssignment(optional.getName(), orderValue);
+        });
+    }
+    
+    @SphereEx
+    private void addPlainAssignment(final EncryptColumn encryptColumn, final ColumnAssignmentSegment assignmentSegment, final EncryptLiteralAssignmentToken token) {
+        Object originalValue = ((LiteralExpressionSegment) assignmentSegment.getValue()).getLiterals();
+        encryptColumn.getPlain().ifPresent(optional -> token.addAssignment(optional.getName(), originalValue));
     }
 }

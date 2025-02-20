@@ -17,11 +17,13 @@
 
 package org.apache.shardingsphere.sharding.checker.sql.dml;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.LoadDataStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.sharding.exception.syntax.UnsupportedShardingOperationException;
@@ -39,7 +41,8 @@ public final class ShardingLoadDataSupportedChecker implements SupportedSQLCheck
     }
     
     @Override
-    public void check(final ShardingRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final LoadDataStatementContext sqlStatementContext) {
+    public void check(final ShardingRule rule, final @SphereEx ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final LoadDataStatementContext sqlStatementContext) {
         String tableName = sqlStatementContext.getSqlStatement().getTableSegment().getTableName().getIdentifier().getValue();
         ShardingSpherePreconditions.checkState(!rule.isShardingTable(tableName), () -> new UnsupportedShardingOperationException("LOAD DATA", tableName));
     }

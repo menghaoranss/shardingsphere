@@ -63,26 +63,51 @@ rules:
     t_user:
       columns:
         pwd:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: pwd_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: pwd_cipher
             encryptorName: aes_encryptor
     t_user_details:
       columns:
         number:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: number_cipher
             encryptorName: aes_encryptor
         number_new:
-          cipher: 
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_new_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
+          cipher:
             name: number_new_cipher
             encryptorName: aes_encryptor
     t_merchant:
       columns:
         business_code:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: business_code_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: business_code_cipher
             encryptorName: aes_encryptor
         telephone:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: telephone_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: telephone_cipher
             encryptorName: aes_encryptor

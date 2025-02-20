@@ -17,16 +17,22 @@
 
 package org.apache.shardingsphere.infra.binder.context.statement.ddl;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
 import org.apache.shardingsphere.infra.binder.context.statement.CommonSQLStatementContext;
+import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
+import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContextFactory;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.TableExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.ddl.routine.RoutineBodySegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.ddl.CreateProcedureStatement;
+import org.apache.shardingsphere.sql.parser.statement.oracle.ddl.OracleCreateProcedureStatement;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Optional;
 
 /**
@@ -37,11 +43,20 @@ public final class CreateProcedureStatementContext extends CommonSQLStatementCon
     
     private final TablesContext tablesContext;
     
-    public CreateProcedureStatementContext(final CreateProcedureStatement sqlStatement) {
+    @SphereEx
+    private final Collection<SQLStatementContext> sqlStatementContexts = new LinkedList<>();
+    
+    public CreateProcedureStatementContext(final CreateProcedureStatement sqlStatement, @SphereEx final String currentDatabaseName, @SphereEx final ShardingSphereMetaData metaData) {
         super(sqlStatement);
         Optional<RoutineBodySegment> routineBodySegment = sqlStatement.getRoutineBody();
         Collection<SimpleTableSegment> tables = routineBodySegment.map(optional -> new TableExtractor().extractExistTableFromRoutineBody(optional)).orElseGet(Collections::emptyList);
         tablesContext = new TablesContext(tables);
+        // SPEX ADDED: BEGIN
+        if (sqlStatement instanceof OracleCreateProcedureStatement) {
+            ((OracleCreateProcedureStatement) sqlStatement).getSqlStatements()
+                    .forEach(each -> sqlStatementContexts.add(SQLStatementContextFactory.newInstance(metaData, each.getSqlStatement(), Collections.emptyList(), currentDatabaseName)));
+        }
+        // SPEX ADDED: END
     }
     
     @Override

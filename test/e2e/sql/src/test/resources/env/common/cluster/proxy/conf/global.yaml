@@ -33,7 +33,9 @@ authority:
       password: Proxy@123
       admin: true
   privilege:
-    type: ALL_PERMITTED
+    # SPEX CHANGED: BEGIN
+    type: Enterprise
+    # SPEX CHANGED: END
     
 sqlParser:
   sqlStatementCache:

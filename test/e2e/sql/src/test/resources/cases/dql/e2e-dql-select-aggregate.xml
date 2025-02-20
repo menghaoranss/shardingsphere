@@ -66,6 +66,12 @@
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
 
+    <!-- SPEX ADDED: BEGIN  -->
+    <test-case sql="SELECT COUNT(order_id) AS orders_count FROM t_order" db-types="DM" scenario-types="db,tbl">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    <!-- SPEX ADDED: END  -->
+
     <test-case sql="SELECT SUM(order_id) AS orders_sum, user_id FROM t_order GROUP BY user_id ORDER BY user_id" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
@@ -94,7 +100,9 @@
         <assertion parameters="10:int, 11:int, 1000:int, 1109:int" expected-data-source-name="read_dataset" />
     </test-case>
 
-    <test-case sql="SELECT sum(if(status=0, 1, 0)) func_status FROM t_order WHERE user_id = ? AND order_id = ?" db-types="MySQL" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: BEGIN -->
+    <test-case sql="SELECT sum(if(status=0, 1, 0)) func_status FROM t_order WHERE user_id = ? AND order_id = ?" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+        <!-- SPEX CHANGED: END -->
         <assertion parameters="12:int, 1000:int" expected-data-source-name="read_dataset" />
     </test-case>
 
@@ -125,7 +133,9 @@
         <assertion parameters="abc:String" expected-data-source-name="read_dataset" />
     </test-case>
 
-    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE CONCAT('%', CONCAT(?, '%'))" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt">
+    <!-- SPEX CHANGED: BEGIN -->
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE CONCAT('%', CONCAT(?, '%'))" db-types="MySQL,PostgreSQL,openGauss,DM,Oracle" scenario-types="encrypt">
+        <!-- SPEX CHANGED: END -->
         <assertion parameters="abc:String" expected-data-source-name="read_dataset" />
     </test-case>
 

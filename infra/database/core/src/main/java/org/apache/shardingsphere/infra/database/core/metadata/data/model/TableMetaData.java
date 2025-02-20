@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.database.core.metadata.data.model;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -42,11 +43,17 @@ public final class TableMetaData {
     
     private final TableType type;
     
+    @SphereEx
+    private final String characterSetName;
+    
     public TableMetaData(final String name, final Collection<ColumnMetaData> columns, final Collection<IndexMetaData> indexes, final Collection<ConstraintMetaData> constraints) {
         this.name = name;
         this.columns = columns;
         this.indexes = indexes;
         this.constraints = constraints;
         type = TableType.TABLE;
+        // SPEX ADDED: BEGIN
+        characterSetName = null;
+        // SPEX ADDED: END
     }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.constant;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -26,5 +28,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EncryptColumnDataType {
     
-    public static final String DEFAULT_DATA_TYPE = "VARCHAR(4000)";
+    @SphereEx
+    public static final int DEFAULT_DATA_LENGTH = 4000;
+    
+    @SphereEx(Type.MODIFY)
+    public static final String DEFAULT_DATA_TYPE = String.format("VARCHAR(%s)", DEFAULT_DATA_LENGTH);
 }

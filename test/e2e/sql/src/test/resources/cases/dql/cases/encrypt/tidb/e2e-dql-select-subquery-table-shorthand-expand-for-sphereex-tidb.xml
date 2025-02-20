@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<e2e-test-cases>
+    <test-case sql="SELECT * FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS `distinct_count` FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS `distinct_count` FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="TiDB">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT u.user_id AS &quot;user_id&quot;, u.telephone AS &quot;telephone&quot;, m.merchant_id AS &quot;merchant_id&quot; FROM t_user u INNER JOIN t_merchant m ON u.telephone = m.telephone WHERE u.user_id = ?) t" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+</e2e-test-cases>
+<!-- SPEX ADDED: END -->

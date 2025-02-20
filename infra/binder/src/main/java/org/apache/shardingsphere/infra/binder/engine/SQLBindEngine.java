@@ -17,6 +17,9 @@
 
 package org.apache.shardingsphere.infra.binder.engine;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.infra.binder.engine.dialect.SystemSchemaQueryDetector;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContextFactory;
@@ -24,6 +27,7 @@ import org.apache.shardingsphere.infra.binder.engine.type.DALStatementBindEngine
 import org.apache.shardingsphere.infra.binder.engine.type.DCLStatementBindEngine;
 import org.apache.shardingsphere.infra.binder.engine.type.DDLStatementBindEngine;
 import org.apache.shardingsphere.infra.binder.engine.type.DMLStatementBindEngine;
+import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
 import org.apache.shardingsphere.infra.hint.HintManager;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
@@ -55,12 +59,16 @@ public final class SQLBindEngine {
      * @return SQL statement context
      */
     public SQLStatementContext bind(final SQLStatement sqlStatement, final List<Object> params) {
-        SQLStatement boundSQLStatement = isNeedBind() ? bindSQLStatement(sqlStatement) : sqlStatement;
+        @SphereEx(Type.MODIFY)
+        SQLStatement boundSQLStatement = isNeedBind(sqlStatement) ? bindSQLStatement(sqlStatement) : sqlStatement;
         return SQLStatementContextFactory.newInstance(metaData, boundSQLStatement, params, currentDatabaseName);
     }
     
-    private boolean isNeedBind() {
-        return !hintValueContext.findHintDataSourceName().isPresent() && !HintManager.getDataSourceName().isPresent();
+    @SphereEx(Type.MODIFY)
+    private boolean isNeedBind(final SQLStatement sqlStatement) {
+        // TODO remove SystemSchemaQueryDetector when @maolin implement all database system table query in jdbc and proxy adapter
+        return !hintValueContext.findHintDataSourceName().isPresent() && !HintManager.getDataSourceName().isPresent()
+                && !DatabaseTypedSPILoader.findService(SystemSchemaQueryDetector.class, sqlStatement.getDatabaseType()).map(optional -> optional.isSystemSchemaQuery(sqlStatement)).orElse(false);
     }
     
     private SQLStatement bindSQLStatement(final SQLStatement statement) {

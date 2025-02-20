@@ -1,0 +1,47 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset>
+    <metadata data-nodes="expected_dataset.t_user">
+        <column name="user_id" type="numeric" />
+        <column name="user_name" type="varchar" />
+        <column name="age" type="numeric" />
+    </metadata>
+    <metadata data-nodes="expected_dataset.t_number">
+        <column name="id" type="numeric" />
+        <column name="asmallint" type="int" />
+        <column name="aMEDIUMINT" type="int" />
+        <column name="aintunsigned" type="long" />
+        <column name="aint" type="int" />
+        <column name="ainteger" type="int" />
+        <column name="aintegerunsigned" type="long" />
+        <column name="abigint" type="decimal" />
+        <column name="abigintunsigned" type="decimal" />
+        <column name="adecimal" type="decimal" />
+        <column name="anumeric" type="decimal" />
+        <column name="afixed" type="decimal" />
+        <column name="afloat" type="decimal" />
+        <column name="afloatbig" type="decimal" />
+        <column name="afloutdouble" type="decimal" />
+        <column name="adouble" type="decimal" />
+        <column name="adoubleprecision" type="decimal" />
+        <column name="areal" type="decimal" />
+    </metadata>
+    <row data-node="expected_dataset.t_number" values="1, 100, 8388607, 4294967295, 2147483647, 2147483647, 4294967295, 9223372036854775807, 18446744073709551615, 1.123455, 1.1234565, 1.1234555, 1.1234, 1.12345678, 1.12345, 1.123456, 1.1234567, 1.12345678"/>
+</dataset>
+<!-- SPEX ADDED: END -->

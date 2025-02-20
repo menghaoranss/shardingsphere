@@ -17,25 +17,28 @@
 
 package org.apache.shardingsphere.infra.binder.engine.type;
 
+import com.sphereex.dbplusengine.infra.binder.engine.statement.dml.MergeStatementBinder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.binder.engine.statement.SQLStatementBinderContext;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.CopyStatementBinder;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.DeleteStatementBinder;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.InsertStatementBinder;
-import org.apache.shardingsphere.infra.binder.engine.statement.dml.SelectStatementBinder;
-import org.apache.shardingsphere.infra.binder.engine.statement.dml.UpdateStatementBinder;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.LoadDataStatementBinder;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.LoadXMLStatementBinder;
+import org.apache.shardingsphere.infra.binder.engine.statement.dml.SelectStatementBinder;
+import org.apache.shardingsphere.infra.binder.engine.statement.dml.UpdateStatementBinder;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.CopyStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.DMLStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.InsertStatement;
-import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
-import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.LoadDataStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.LoadXMLStatement;
+import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.MergeStatement;
+import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
+import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.UpdateStatement;
+import org.apache.shardingsphere.sql.parser.statement.sqlserver.dml.SQLServerSelectStatement;
 
 /**
  * DML statement bind engine.
@@ -58,6 +61,12 @@ public final class DMLStatementBindEngine {
     public DMLStatement bind(final DMLStatement statement) {
         SQLStatementBinderContext binderContext = new SQLStatementBinderContext(metaData, currentDatabaseName, hintValueContext, statement);
         if (statement instanceof SelectStatement) {
+            // SPEX ADDED: BEGIN
+            // TODO Support WITH clauses in SELECT statements
+            if (statement instanceof SQLServerSelectStatement && ((SQLServerSelectStatement) statement).getWithSegment().isPresent()) {
+                return statement;
+            }
+            // SPEX ADDED: END
             return new SelectStatementBinder().bind((SelectStatement) statement, binderContext);
         }
         if (statement instanceof InsertStatement) {
@@ -78,6 +87,11 @@ public final class DMLStatementBindEngine {
         if (statement instanceof LoadXMLStatement) {
             return new LoadXMLStatementBinder().bind((LoadXMLStatement) statement, binderContext);
         }
+        // SPEX ADDED: BEGIN
+        if (statement instanceof MergeStatement) {
+            return new MergeStatementBinder().bind((MergeStatement) statement, binderContext);
+        }
+        // SPEX ADDED: END
         return statement;
     }
 }

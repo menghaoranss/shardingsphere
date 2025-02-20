@@ -364,16 +364,28 @@ rules:
     t_user:
       columns:
         pwd:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: pwd_plain
+          # SPEX ADDED: END
           cipher:
             name: pwd_cipher
             encryptorName: aes_encryptor
     t_user_details:
       columns:
         number:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_plain
+          # SPEX ADDED: END
           cipher:
             name: number_cipher
             encryptorName: aes_encryptor
         number_new:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_new_plain
+          # SPEX ADDED: END
           cipher:
             name: number_new_cipher
             encryptorName: aes_encryptor

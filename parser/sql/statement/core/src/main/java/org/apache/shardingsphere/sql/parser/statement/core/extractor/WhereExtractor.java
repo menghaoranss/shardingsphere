@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.extractor;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
@@ -74,6 +75,21 @@ public final class WhereExtractor {
         for (SubquerySegment each : SubqueryExtractor.extractSubquerySegments(selectStatement, false)) {
             each.getSelect().getWhere().ifPresent(result::add);
             result.addAll(extractJoinWhereSegments(each.getSelect()));
+        }
+        return result;
+    }
+    
+    /**
+     * Get subquery where segment without join conditions from SelectStatement.
+     *
+     * @param selectStatement SelectStatement
+     * @return subquery where segment collection
+     */
+    @SphereEx
+    public static Collection<WhereSegment> getSubqueryWhereSegmentsWithoutJoinConditions(final SelectStatement selectStatement) {
+        Collection<WhereSegment> result = new LinkedList<>();
+        for (SubquerySegment each : SubqueryExtractor.extractSubquerySegments(selectStatement, true)) {
+            each.getSelect().getWhere().ifPresent(result::add);
         }
         return result;
     }

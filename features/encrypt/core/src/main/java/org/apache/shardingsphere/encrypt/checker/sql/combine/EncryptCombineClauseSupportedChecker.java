@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql.combine;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
@@ -25,6 +26,7 @@ import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementCont
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 
@@ -54,7 +56,8 @@ public final class EncryptCombineClauseSupportedChecker implements SupportedSQLC
     }
     
     @Override
-    public void check(final EncryptRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final SQLStatementContext sqlStatementContext) {
+    public void check(final EncryptRule rule, final @SphereEx ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final SQLStatementContext sqlStatementContext) {
         Collection<String> tableNames = SQLStatementContextExtractor.getTableNames(database, sqlStatementContext);
         for (String each : tableNames) {
             ShardingSpherePreconditions.checkState(!rule.findEncryptTable(each).isPresent(), () -> new UnsupportedEncryptSQLException("COMBINE"));

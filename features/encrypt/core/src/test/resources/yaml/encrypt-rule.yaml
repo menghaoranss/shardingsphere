@@ -19,6 +19,9 @@ rules:
 - !ENCRYPT
   tables:
     t_user:
+      # SPEX ADDED: BEGIN
+      renameTable: spex_t_user
+      # SPEX ADDED: END
       columns:
         username:
           cipher:
@@ -27,6 +30,12 @@ rules:
           assistedQuery:
             name: assisted_query_username
             encryptorName: assisted_encryptor
+          # SPEX ADDED: BEGIN
+          plain:
+            name: username
+            queryWithPlain: false
+          dataType: VARCHAR (50)
+        # SPEX ADDED: END
   encryptors:
     aes_encryptor:
       type: AES
@@ -38,3 +47,12 @@ rules:
       props:
         aes-key-value: 123456abc
         digest-algorithm-name: SHA-1
+  # SPEX ADDED: BEGIN
+  encryptMode:
+    type: FRONTEND
+    props:
+      udf-sql-enabled: true
+      udf-routine-enabled: false
+      udf-view-enabled: false
+      rename-table-prefix: SPEX_
+  # SPEX ADDED: END

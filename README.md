@@ -114,7 +114,7 @@ We deeply appreciate [community contributors](https://shardingsphere.apache.org/
 
 <hr>
 
-:white_check_mark: Version 5.5.2: released :tada:
+:white_check_mark: Version 5.5.2-SNAPSHOT: released :tada:
 
 🔗 For the release notes, follow this link to the relevant [GitHub page](https://github.com/apache/shardingsphere/blob/master/RELEASE-NOTES.md).
 

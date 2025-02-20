@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<e2e-test-cases>
+    <test-case sql="select hr_staff_base.staff_name                      as `hr_staff_base.staff_name`,
+       hr_staff_base.base_code                       as `hr_staff_base.base_code`,
+       hr_staff_base.card_type                       as `hr_staff_base.card_type`,
+       hr_staff_base.idCard                          as `hr_staff_base.idCard`,
+       hr_staff_base.sex                             as `hr_staff_base.sex`,
+       hr_staff_base.from_nation                     as `hr_staff_base.from_nation`,
+       hr_staff_base.nation                          as `hr_staff_base.nation`,
+       hr_staff_base.join_date                       as `hr_staff_base.join_date`,
+       hr_staff_base.hsb_field_company_age_yearMonth as `hr_staff_base.hsb_field_company_age_yearMonth`,
+       pt_staff_stru.BELONG_UNIT_ORG_NAME            as `pt_staff_stru.BELONG_UNIT_ORG_NAME`,
+       pt_staff_stru.DEPT_ORG_ONE                    as `pt_staff_stru.DEPT_ORG_ONE`,
+       pt_staff_stru.DEPT_ORG_TWO                    as `pt_staff_stru.DEPT_ORG_TWO`,
+       pt_staff_stru.DEPT_ORG_NAME                   as `pt_staff_stru.DEPT_ORG_NAME`,
+       pt_staff_stru.POST_ORG_NAME                   as `pt_staff_stru.POST_ORG_NAME`,
+       pt_staff_stru.first_type_id                   as `pt_staff_stru.first_type_id`,
+       pt_staff_stru.second_type_id                  as `pt_staff_stru.second_type_id`,
+       pt_staff_stru.third_type_id                   as `pt_staff_stru.third_type_id`,
+       pt_staff_stru.fourth_type_id                  as `pt_staff_stru.fourth_type_id`,
+       pt_staff_stru.fifth_type_id                   as `pt_staff_stru.fifth_type_id`,
+       pt_staff_stru.POST_LEVEL_ID                   as `pt_staff_stru.POST_LEVEL_ID`,
+       pt_staff_stru.PT_POST_GRADE_ID                as `pt_staff_stru.PT_POST_GRADE_ID`,
+       pt_staff_stru.PRINCIPAL_STAFF_NAME            as `pt_staff_stru.PRINCIPAL_STAFF_NAME`,
+       hr_staff_base.identity                        as `hr_staff_base.identity`,
+       hr_staff_base.staff_status                    as `hr_staff_base.staff_status`,
+       hr_staff_base.period                          as `hr_staff_base.period`,
+       hr_staff_base.pre_correction_date             as `hr_staff_base.pre_correction_date`,
+       hr_staff_base.Regular_Time                    as `hr_staff_base.Regular_Time`,
+       hr_staff_base.mobile_phone                    as `hr_staff_base.mobile_phone`,
+       hr_staff_base.hsb_ext_Email                   as `hr_staff_base.hsb_ext_Email`,
+       hr_staff_base.work_date                       as `hr_staff_base.work_date`,
+       hr_staff_base.hsb_field_work_age_yearMonth    as `hr_staff_base.hsb_field_work_age_yearMonth`,
+       hr_staff_base.highedu                         as `hr_staff_base.highedu`,
+       hr_staff_edu.speciality                       as `hr_staff_edu.speciality`,
+       hr_staff_edu.gra_school                       as `hr_staff_edu.gra_school`,
+       hr_staff_base.person_status                   as `hr_staff_base.person_status`,
+       hr_staff_base.polity                          as `hr_staff_base.polity`,
+       hr_staff_base.marriage                        as `hr_staff_base.marriage`,
+       pt_staff_stru.stru_identity                   as `pt_staff_stru.stru_identity`,
+       hr_staff_base.call_person                     as `hr_staff_base.call_person`,
+       hr_staff_base.call_phone                      as `hr_staff_base.call_phone`,
+       hr_staff_base.call_relationship               as `hr_staff_base.call_relationship`,
+       hr_staff_base.live_place                      as `hr_staff_base.live_place`,
+       hr_staff_base.health                          as `hr_staff_base.health`,
+       hr_staff_base.id_address                      as `hr_staff_base.id_address`,
+       hr_staff_base.leaveOffice_date                as `hr_staff_base.leaveOffice_date`,
+       hr_staff_base.highest_pt_titleName            as `hr_staff_base.highest_pt_titleName`,
+       hr_staff_base.highest_pt_level                as `hr_staff_base.highest_pt_level`,
+       hr_staff_base.hsb_field_recruit_source        as `hr_staff_base.hsb_field_recruit_source`,
+       hr_staff_base.hsb_field_recruit_type          as `hr_staff_base.hsb_field_recruit_type`,
+       pt_staff_stru.ORG_FULL_PATH                   as `pt_staff_stru.ORG_FULL_PATH`,
+       hr_staff_base.birthday                        as `hr_staff_base.birthday`,
+       pt_staff_stru.DEPT_ORG_THREE                  as `pt_staff_stru.DEPT_ORG_THREE`,
+       pt_staff_stru.DEPT_ORG_FOUR                   as `pt_staff_stru.DEPT_ORG_FOUR`,
+       pt_staff_stru.DEPT_ORG_FIVE                   as `pt_staff_stru.DEPT_ORG_FIVE`,
+       pt_staff_stru.POST_STRU_ID                    as `pt_staff_stru.POST_STRU_ID`,
+       hr_staff_base.regist_property                 as `hr_staff_base.regist_property`,
+       hr_staff_base.firstEdu                        as `hr_staff_base.firstEdu`,
+       hr_staff_base.firstDegree                     as `hr_staff_base.firstDegree`,
+       hr_staff_base.jobEdu                          as `hr_staff_base.jobEdu`,
+       hr_staff_base.jobDegree                       as `hr_staff_base.jobDegree`,
+       hr_staff_edu.edu_e_date                       as `hr_staff_edu.edu_e_date`,
+       hr_staff_base.base_id                         as `hr_staff_base.base_id`,
+       pt_staff_stru.STRU_ID                         as `pt_staff_stru.STRU_ID`,
+       pt_post_level.LEVEL_ORDER                     as `pt_post_level.LEVEL_ORDER`,
+       pt_structure.GLOBAL_ORDER                     as `pt_structure.GLOBAL_ORDER`,
+       pt_structure.STRU_ORDER                       as `pt_structure.STRU_ORDER`,
+       pt_structure.STRU_LEVEL                       as `pt_structure.STRU_LEVEL`,
+       pt_staff_stru.IN_USE                          as `pt_staff_stru.IN_USE`,
+       pt_staff_stru.STRU_TREE_CODE                  as `pt_staff_stru.STRU_TREE_CODE`,
+       pt_staff_stru.PRINCIPAL_STAFF_ID              as `pt_staff_stru.PRINCIPAL_STAFF_ID`,
+       pt_staff_stru.STRU_ORDER                      as `pt_staff_stru.STRU_ORDER`,
+       pt_staff_stru.GLOBAL_ORDER                    as `pt_staff_stru.GLOBAL_ORDER`,
+       hr_staff_base.defriend_status                 as `hr_staff_base.defriend_status`,
+       hr_staff_base.name_spell                      as `hr_staff_base.name_spell`,
+       hr_staff_contract.contract_start_date         as `hr_staff_contract.contract_start_date`,
+       hr_staff_contract.contract_end_date           as `hr_staff_contract.contract_end_date`
+from hr_staff_base AS hr_staff_base
+         JOIN pt_staff_stru AS pt_staff_stru on hr_staff_base.base_id = pt_staff_stru.STAFF_ID
+         LEFT JOIN pt_post_level AS pt_post_level on pt_staff_stru.POST_LEVEL_ID = pt_post_level.LEVEL_ID
+         LEFT JOIN hr_staff_edu AS hr_staff_edu
+                   on hr_staff_base.base_id = hr_staff_edu.base_id AND hr_staff_edu.is_highEdu in ('1') AND
+                      hr_staff_edu.IN_USE = '1'
+         LEFT JOIN pt_staff_stru AS pt_staff_stru1
+                   on pt_staff_stru.PRINCIPAL_STAFF_ID = pt_staff_stru1.STAFF_ID AND pt_staff_stru1.POST_STRU_ID = '1'
+         LEFT JOIN pt_structure AS pt_structure on pt_structure.STRU_ID = pt_staff_stru.DEPT_STRU_ID
+         LEFT JOIN hr_staff_contract AS hr_staff_contract
+                   on hr_staff_base.current_contract_id = hr_staff_contract.contract_id AND
+                      hr_staff_base.base_id = hr_staff_contract.base_id AND hr_staff_contract.IN_USE = '1'
+where 1 = 1
+  and pt_staff_stru.`STRU_TREE_CODE` like 'pdzx%'
+  AND (pt_staff_stru.`POST_STRU_ID` in ('1') OR pt_staff_stru.`IN_USE` in ('1'))
+  AND ((pt_staff_stru.POST_STRU_ID in ('1')) AND
+       ((find_in_set('1', hr_staff_base.person_status) or find_in_set('4', hr_staff_base.person_status))))
+ORDER BY pt_structure.global_order asc, pt_structure.stru_order asc, pt_structure.stru_level asc,
+         pt_staff_stru.stru_order asc, pt_post_level.level_order asc, hr_staff_base.base_id
+LIMIT 0,15;" db-types="MySQL" scenario-types="encrypt">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="select hr_staff_selfhelp2.*,
+       hr_staff_selfhelp.operator_name,
+       hr_staff_selfhelp.is_collect_info,
+       CASE WHEN hr_staff_selfhelp2.approve_status = '1' THEN NULL ELSE hr_staff_selfhelp.approve_name END approve_name,
+       CASE WHEN hr_staff_selfhelp2.approve_status = '1' THEN NULL ELSE hr_staff_selfhelp.approve_time END approve_time
+FROM hr_staff_selfhelp
+         RIGHT JOIN (select hr_staff_base.staff_name,
+                            hr_staff_base.base_code,
+                            pt_staff_stru.ROOT_ID,
+                            pt_staff_stru.BELONG_UNIT_ORG_NAME,
+                            pt_staff_stru.DEPT_ORG_NAME,
+                            pt_staff_stru.POST_ORG_NAME,
+                            pt_staff_stru.ORG_FULL_PATH,
+                            hr_staff_base.idCard,
+                            pt_staff_stru.POST_LEVEL_NAME,
+                            pt_staff_stru.EXT1                                         postType,
+                            hr_staff_base.join_date,
+                            hr_staff_edu.education,
+                            hr_staff_edu.speciality,
+                            hr_staff_edu.edu_e_date,
+                            CASE
+                                WHEN find_in_set('1', GROUP_CONCAT(hr_staff_selfhelp.approve_status)) &gt; 0 THEN '1'
+                                WHEN find_in_set('4', GROUP_CONCAT(hr_staff_selfhelp.approve_status)) &gt; 0 THEN '4'
+                                WHEN find_in_set('2', GROUP_CONCAT(hr_staff_selfhelp.approve_status)) &gt; 0 THEN '2'
+                                WHEN find_in_set('5', GROUP_CONCAT(hr_staff_selfhelp.approve_status)) &gt; 0 THEN '5'
+                                ELSE '3' end                                           approve_status,
+                            MAX(hr_staff_selfhelp.submit_time)                         submit_time,
+                            MAX(hr_staff_selfhelp.operate_time)                        operate_time,
+                            hr_staff_selfhelp.base_id,
+                            min(hr_staff_selfhelp.create_time)                         create_time,
+                            hr_staff_selfhelp.selfhelp_num,
+                            hr_staff_selfhelp.creater_id,
+                            GROUP_CONCAT(DISTINCT CASE
+                                                      WHEN hr_staff_selfhelp.ext4 = '' THEN NULL
+                                                      ELSE hr_staff_selfhelp.ext4 END) ext4,
+                            task.id                                                    task_id,
+                            IFNULL(config.step, task.step)                             step,
+                            IFNULL(config.step_name, task.step_name)                   step_name
+                     from hr_staff_selfhelp
+                              join hr_staff_base
+                                   on hr_staff_selfhelp.base_id = hr_staff_base.base_id and hr_staff_base.IN_USE = 1
+                              left join pt_staff_stru on hr_staff_base.base_id = pt_staff_stru.staff_id and
+                                                         pt_staff_stru.POST_STRU_ID = 1 and pt_staff_stru.IN_USE = 1
+                              left join hr_staff_edu
+                                        on hr_staff_edu.base_id = hr_staff_base.base_id and hr_staff_edu.IN_USE = 1 and
+                                           hr_staff_edu.is_highEdu = 1
+                              LEFT JOIN hr_staff_selfhelp_task task
+                                        ON task.selfhelp_num = hr_staff_selfhelp.selfhelp_num AND task.state = 'RUNNING'
+                              LEFT JOIN hr_staff_selfhelp_config config ON config.id = task.config_id
+                     where hr_staff_selfhelp.edit_status = 2
+                       and hr_staff_selfhelp.in_use = '1'
+                       AND pt_staff_stru.ROOT_ID = 'pdzx'
+                       AND (pt_staff_stru.STRU_TREE_CODE like 'pdzx-00014%')
+                       AND (EXISTS (SELECT 1
+                                    FROM hr_staff_selfhelp_task
+                                    WHERE hr_staff_selfhelp_task.selfhelp_num = hr_staff_selfhelp.selfhelp_num
+                                      and ((hr_staff_selfhelp_task.id = task.id and modules is not null) or
+                                           (hr_staff_selfhelp_task.id = task.id and modules is null) or task.id is null)
+                                      and (hr_staff_selfhelp_task.participant_id = 'c3dfba3566d74d098761881293728220' or
+                                           hr_staff_selfhelp_task.participant_id = 'renshi' or
+                                           hr_staff_selfhelp_task.participant_id = 'gonggong')) OR
+                            (SELECT IFNULL(count(1), 0)
+                             FROM hr_staff_selfhelp_task
+                             WHERE hr_staff_selfhelp_task.selfhelp_num = hr_staff_selfhelp.selfhelp_num
+                               and hr_staff_selfhelp_task.state &lt;&gt; 'BACK'
+                               and (modules is null or
+                                    hr_staff_selfhelp_task.modules like concat('%', hr_staff_selfhelp.table_id, '%'))) =
+                            '0')
+                     GROUP BY hr_staff_selfhelp.selfhelp_num) hr_staff_selfhelp2
+                    ON hr_staff_selfhelp.base_id = hr_staff_selfhelp2.base_id and
+                       hr_staff_selfhelp.selfhelp_num = hr_staff_selfhelp2.selfhelp_num AND
+                       hr_staff_selfhelp.operate_time = hr_staff_selfhelp2.operate_time
+where 1 = 1
+  and hr_staff_selfhelp2.approve_status = '1'
+GROUP BY hr_staff_selfhelp2.selfhelp_num
+ORDER BY hr_staff_selfhelp2.operate_time DESC
+LIMIT 0,15;" db-types="MySQL" scenario-types="encrypt">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+</e2e-test-cases>

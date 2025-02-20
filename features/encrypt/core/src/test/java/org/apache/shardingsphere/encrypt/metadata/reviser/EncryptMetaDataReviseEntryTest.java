@@ -59,6 +59,8 @@ class EncryptMetaDataReviseEntryTest {
     
     private EncryptRule createEncryptRule() {
         EncryptRuleConfiguration ruleConfig = new EncryptRuleConfiguration(Collections.singleton(new EncryptTableRuleConfiguration(TABLE_NAME, Collections.emptyList())), Collections.emptyMap());
-        return new EncryptRule("foo_db", ruleConfig);
+        // SPEX CHANGED: BEGIN
+        return new EncryptRule("foo_db", ruleConfig, Collections.emptyMap(), Collections.emptyList());
+        // SPEX CHANGED: END
     }
 }
