@@ -19,8 +19,8 @@ package org.apache.shardingsphere.encrypt.checker.sql.predicate;
 
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.encrypt.rewrite.util.EncryptSQLRewriteUtils;
+import org.apache.shardingsphere.encrypt.checker.cryptographic.JoinConditionsEncryptorChecker;
 import org.apache.shardingsphere.encrypt.exception.metadata.MissingMatchedEncryptQueryAlgorithmException;
-import org.apache.shardingsphere.encrypt.rewrite.token.comparator.JoinConditionsEncryptorComparator;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
@@ -64,8 +64,7 @@ public final class EncryptPredicateColumnSupportedChecker implements SupportedSQ
         @SphereEx
         Map<String, EncryptRule> databaseEncryptRules = EncryptSQLRewriteUtils.getDatabaseEncryptRules(metaData);
         // SPEX CHANGED: BEGIN
-        ShardingSpherePreconditions.checkState(JoinConditionsEncryptorComparator.isSame(joinConditions, rule, databaseEncryptRules),
-                () -> new UnsupportedSQLOperationException("Can not use different encryptor in join condition"));
+        JoinConditionsEncryptorChecker.checkIsSame(joinConditions, rule, databaseEncryptRules, "join condition");
         // SPEX CHANGED: END
         check(rule, (WhereAvailable) sqlStatementContext);
     }

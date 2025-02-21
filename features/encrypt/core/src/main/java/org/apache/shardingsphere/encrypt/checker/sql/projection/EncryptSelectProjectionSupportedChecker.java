@@ -19,15 +19,13 @@ package org.apache.shardingsphere.encrypt.checker.sql.projection;
 
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.SphereEx.Type;
-import com.sphereex.dbplusengine.encrypt.rewrite.token.comparator.CombineProjectionColumnsEncryptorComparator;
+import com.sphereex.dbplusengine.encrypt.checker.cryptographic.CombineProjectionColumnsEncryptorChecker;
 import com.sphereex.dbplusengine.encrypt.rewrite.util.EncryptSQLRewriteUtils;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
-import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
-import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
@@ -62,7 +60,6 @@ public final class EncryptSelectProjectionSupportedChecker implements SupportedS
     
     @SphereEx(Type.MODIFY)
     private void checkSelectStatementContext(final EncryptRule rule, final SelectStatementContext selectStatementContext, @SphereEx final Map<String, EncryptRule> databaseEncryptRules) {
-        ShardingSpherePreconditions.checkState(!selectStatementContext.isContainsCombine() || CombineProjectionColumnsEncryptorComparator.isSame(selectStatementContext, rule, databaseEncryptRules),
-                () -> new UnsupportedSQLOperationException("Can not use different encryptor for projection columns in combine statement"));
+        CombineProjectionColumnsEncryptorChecker.checkIsSame(selectStatementContext, rule, databaseEncryptRules);
     }
 }

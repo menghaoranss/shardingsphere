@@ -17,7 +17,7 @@
 
 package com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select;
 
-import com.sphereex.dbplusengine.encrypt.rewrite.token.comparator.UsingConditionsEncryptorComparator;
+import com.sphereex.dbplusengine.encrypt.checker.cryptographic.UsingConditionsEncryptorChecker;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.pojo.EncryptJoinUsingColumnsToken;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.pojo.EncryptNaturalJoinToken;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.util.EncryptTokenGeneratorUtils;
@@ -26,8 +26,6 @@ import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
-import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
-import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.JoinTableSegment;
@@ -68,16 +66,14 @@ public final class EncryptUsingNaturalJoinTokenGenerator implements CollectionSQ
         Collection<SQLToken> result = new LinkedHashSet<>();
         JoinTableSegment joinTableSegment = (JoinTableSegment) tableSegment;
         if (!joinTableSegment.getUsing().isEmpty()) {
-            ShardingSpherePreconditions.checkState(UsingConditionsEncryptorComparator.isSame(joinTableSegment.getUsing(), rule, databaseEncryptRules),
-                    () -> new UnsupportedSQLOperationException("Can not use different encryptor in using condition"));
+            UsingConditionsEncryptorChecker.checkIsSame(joinTableSegment.getUsing(), rule, databaseEncryptRules, "using condition");
             result.add(new EncryptJoinUsingColumnsToken(joinTableSegment.getRight().getStopIndex() + 1, tableSegment.getStopIndex(), joinTableSegment.getUsing(), tablesContext, rule,
                     databaseEncryptRules));
             result.addAll(generateSQLTokens(joinTableSegment.getLeft(), tablesContext));
             result.addAll(generateSQLTokens(joinTableSegment.getRight(), tablesContext));
         }
         if (joinTableSegment.isNatural()) {
-            ShardingSpherePreconditions.checkState(UsingConditionsEncryptorComparator.isSame(joinTableSegment.getDerivedUsing(), rule, databaseEncryptRules),
-                    () -> new UnsupportedSQLOperationException("Can not use different encryptor in natural join condition"));
+            UsingConditionsEncryptorChecker.checkIsSame(joinTableSegment.getDerivedUsing(), rule, databaseEncryptRules, "natural join condition");
             result.add(new EncryptJoinUsingColumnsToken(joinTableSegment.getRight().getStopIndex() + 1, tableSegment.getStopIndex(), joinTableSegment.getDerivedUsing(), tablesContext, rule,
                     databaseEncryptRules));
             result.add(new EncryptNaturalJoinToken(joinTableSegment.getLeft().getStopIndex() + 1, joinTableSegment.getRight().getStartIndex() - 1, joinTableSegment.getJoinType()));

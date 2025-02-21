@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package com.sphereex.dbplusengine.encrypt.rewrite.token.comparator;
+package com.sphereex.dbplusengine.encrypt.checker.cryptographic;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.encrypt.rewrite.token.comparator.EncryptorComparator;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
+import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
 
@@ -31,24 +33,22 @@ import java.util.Map;
  * Using conditions encryptor comparator.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UsingConditionsEncryptorComparator {
+public final class UsingConditionsEncryptorChecker {
     
     /**
-     * Judge whether all using columns use same encryptor or not.
+     * Check whether all using columns use same encryptor or not.
      *
      * @param usingColumns using columns
      * @param rule encrypt rule
      * @param databaseEncryptRules database encrypt rules
-     * @return same or different encryptors are using
+     * @param scenario scenario
      */
-    public static boolean isSame(final Collection<ColumnSegment> usingColumns, final EncryptRule rule, final Map<String, EncryptRule> databaseEncryptRules) {
+    public static void checkIsSame(final Collection<ColumnSegment> usingColumns, final EncryptRule rule, final Map<String, EncryptRule> databaseEncryptRules, final String scenario) {
         for (ColumnSegment each : usingColumns) {
             ColumnSegmentBoundInfo leftColumnInfo = each.getColumnBoundInfo();
             ColumnSegmentBoundInfo rightColumnInfo = each.getOtherUsingColumnBoundInfo();
-            if (!EncryptorComparator.isSame(rule, leftColumnInfo, rightColumnInfo, databaseEncryptRules)) {
-                return false;
-            }
+            ShardingSpherePreconditions.checkState(EncryptorComparator.isSame(rule, leftColumnInfo, rightColumnInfo, databaseEncryptRules),
+                    () -> new UnsupportedSQLOperationException("Can not use different encryptor for " + leftColumnInfo + " and " + rightColumnInfo + " in " + scenario));
         }
-        return true;
     }
 }

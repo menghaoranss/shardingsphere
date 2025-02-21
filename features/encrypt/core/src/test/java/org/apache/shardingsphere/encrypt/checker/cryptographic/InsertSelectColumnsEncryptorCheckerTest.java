@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.encrypt.rewrite.token.comparator;
+package org.apache.shardingsphere.encrypt.checker.cryptographic;
 
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class InsertSelectColumnsEncryptorComparatorTest {
+class InsertSelectColumnsEncryptorCheckerTest {
     
     @Test
     void assertInsertSelectIsSame() {
@@ -58,7 +58,7 @@ class InsertSelectColumnsEncryptorComparatorTest {
         ColumnProjection projection2 = getSelectProjection("card", databaseValue, schemaValue);
         // SPEX CHANGED: BEGIN
         EncryptRule encryptRule = new EncryptRule(databaseName, createEncryptRuleConfiguration(), Collections.emptyMap(), Collections.emptyList());
-        boolean result = InsertSelectColumnsEncryptorComparator.isSame(Arrays.asList(insertColumn1, insertColumn2), Arrays.asList(projection1, projection2), encryptRule,
+        boolean result = InsertSelectColumnsEncryptorChecker.isSame(Arrays.asList(insertColumn1, insertColumn2), Arrays.asList(projection1, projection2), encryptRule,
                 Collections.singletonMap(databaseName, encryptRule));
         // SPEX CHANGED: END
         assertTrue(result);
@@ -112,7 +112,7 @@ class InsertSelectColumnsEncryptorComparatorTest {
         ColumnProjection projection1 = getSelectProjection("pwd", databaseValue, schemaValue);
         ColumnProjection projection2 = getSelectProjection("card", databaseValue, schemaValue);
         EncryptRule encryptRule = new EncryptRule(databaseName, createEncryptRuleConfigurationWithPlain(), Collections.emptyMap(), Collections.emptyList());
-        boolean result = InsertSelectColumnsEncryptorComparator.isSame(Arrays.asList(insertColumn1, insertColumn2), Arrays.asList(projection1, projection2), encryptRule,
+        boolean result = InsertSelectColumnsEncryptorChecker.isSame(Arrays.asList(insertColumn1, insertColumn2), Arrays.asList(projection1, projection2), encryptRule,
                 Collections.singletonMap(databaseName, encryptRule));
         assertTrue(result);
     }

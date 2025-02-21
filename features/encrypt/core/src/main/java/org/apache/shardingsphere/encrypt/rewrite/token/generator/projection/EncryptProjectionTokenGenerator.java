@@ -20,7 +20,7 @@ package org.apache.shardingsphere.encrypt.rewrite.token.generator.projection;
 import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.SphereEx.Type;
-import com.sphereex.dbplusengine.encrypt.rewrite.token.comparator.CombineProjectionColumnsEncryptorComparator;
+import com.sphereex.dbplusengine.encrypt.checker.cryptographic.CombineProjectionColumnsEncryptorChecker;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.function.EncryptFunctionSQLTokenGeneratorEngine;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.util.EncryptTokenGeneratorUtils;
 import com.sphereex.dbplusengine.infra.util.DatabaseTypeUtils;
@@ -37,7 +37,6 @@ import org.apache.shardingsphere.infra.binder.context.segment.select.projection.
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
-import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
@@ -98,9 +97,7 @@ public final class EncryptProjectionTokenGenerator {
     
     private Collection<SQLToken> generateSelectSQLTokens(final SelectStatementContext selectStatementContext) {
         // SPEX ADDED: BEGIN
-        ShardingSpherePreconditions.checkState(
-                !selectStatementContext.isContainsCombine() || CombineProjectionColumnsEncryptorComparator.isSame(selectStatementContext, rule, databaseEncryptRules),
-                () -> new UnsupportedSQLOperationException("Can not use different encryptor for projection columns in combine statement"));
+        CombineProjectionColumnsEncryptorChecker.checkIsSame(selectStatementContext, rule, databaseEncryptRules);
         // SPEX ADDED: END
         Collection<SQLToken> result = new LinkedList<>();
         Collection<String> existColumnNames = new CaseInsensitiveSet<>();

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.sphereex.dbplusengine.encrypt.rewrite.token.comparator;
+package com.sphereex.dbplusengine.encrypt.checker.cryptographic;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -38,19 +38,18 @@ import java.util.Map;
  * Combine projection columns encryptor comparator.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CombineProjectionColumnsEncryptorComparator {
+public final class CombineProjectionColumnsEncryptorChecker {
     
     /**
-     * Judge whether all combine projection columns use same encryptor.
+     * Check whether all combine projection columns use same encryptor.
      *
      * @param selectStatementContext select statement context
      * @param rule encrypt rule
      * @param databaseEncryptRules database and encrypt rule map
-     * @return using same or different encryptors
      */
-    public static boolean isSame(final SelectStatementContext selectStatementContext, final EncryptRule rule, final Map<String, EncryptRule> databaseEncryptRules) {
-        if (!selectStatementContext.getSqlStatement().getCombine().isPresent()) {
-            return true;
+    public static void checkIsSame(final SelectStatementContext selectStatementContext, final EncryptRule rule, final Map<String, EncryptRule> databaseEncryptRules) {
+        if (!selectStatementContext.isContainsCombine()) {
+            return;
         }
         CombineSegment combineSegment = selectStatementContext.getSqlStatement().getCombine().get();
         List<Projection> leftProjections = selectStatementContext.getSubqueryContexts().get(combineSegment.getLeft().getStartIndex()).getProjectionsContext().getExpandProjections();
@@ -59,11 +58,9 @@ public final class CombineProjectionColumnsEncryptorComparator {
         for (int i = 0; i < leftProjections.size(); i++) {
             ColumnSegmentBoundInfo leftColumnInfo = getColumnSegmentBoundInfo(leftProjections.get(i));
             ColumnSegmentBoundInfo rightColumnInfo = getColumnSegmentBoundInfo(rightProjections.get(i));
-            if (!EncryptorComparator.isSame(rule, leftColumnInfo, rightColumnInfo, databaseEncryptRules)) {
-                return false;
-            }
+            ShardingSpherePreconditions.checkState(EncryptorComparator.isSame(rule, leftColumnInfo, rightColumnInfo, databaseEncryptRules),
+                    () -> new UnsupportedSQLOperationException("Can not use different encryptor for " + leftColumnInfo + " and " + rightColumnInfo + " in combine statement"));
         }
-        return true;
     }
     
     private static ColumnSegmentBoundInfo getColumnSegmentBoundInfo(final Projection projection) {
