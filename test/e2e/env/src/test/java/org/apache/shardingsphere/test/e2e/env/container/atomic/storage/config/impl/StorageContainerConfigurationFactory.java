@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.storage.config.impl;
 
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.storage.config.impl.oracle.OracleContainerConfigurationFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -51,6 +52,10 @@ public final class StorageContainerConfigurationFactory {
                 return OpenGaussContainerConfigurationFactory.newInstance(scenario);
             case "H2":
                 return H2ContainerConfigurationFactory.newInstance(scenario);
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return OracleContainerConfigurationFactory.newInstance(scenario);
+            // SPEX ADDED: END
             default:
                 throw new RuntimeException(String.format("Database `%s` is unknown.", databaseType.getType()));
         }
@@ -76,6 +81,10 @@ public final class StorageContainerConfigurationFactory {
                 return H2ContainerConfigurationFactory.newInstance();
             case "MariaDB":
                 return MariaDBContainerConfigurationFactory.newInstance();
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return OracleContainerConfigurationFactory.newInstance();
+            // SPEX ADDED: END
             default:
                 throw new RuntimeException(String.format("Database `%s` is unknown.", databaseType.getType()));
         }
@@ -98,6 +107,10 @@ public final class StorageContainerConfigurationFactory {
                 return OpenGaussContainerConfigurationFactory.newInstance();
             case "H2":
                 return H2ContainerConfigurationFactory.newInstance();
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return OracleContainerConfigurationFactory.newInstance();
+            // SPEX ADDED: END
             default:
                 throw new RuntimeException(String.format("Database `%s` is unknown.", databaseType.getType()));
         }
