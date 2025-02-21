@@ -26,12 +26,12 @@ import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
 import com.sphereex.dbplusengine.infra.binder.context.statement.dml.MergeStatementContext;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.shardingsphere.encrypt.checker.cryptographic.JoinConditionsEncryptorChecker;
 import org.apache.shardingsphere.encrypt.rewrite.condition.EncryptCondition;
 import org.apache.shardingsphere.encrypt.rewrite.condition.EncryptConditionEngine;
 import org.apache.shardingsphere.encrypt.rewrite.condition.EncryptConditionValues;
 import org.apache.shardingsphere.encrypt.rewrite.condition.impl.EncryptBinaryCondition;
 import org.apache.shardingsphere.encrypt.rewrite.condition.impl.EncryptInCondition;
-import org.apache.shardingsphere.encrypt.rewrite.token.comparator.JoinConditionsEncryptorComparator;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.insert.EncryptInsertCipherNameTokenGenerator;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.insert.EncryptInsertDefaultColumnsTokenGenerator;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.insert.EncryptInsertDerivedColumnsTokenGenerator;
@@ -148,8 +148,7 @@ public final class EncryptMergeTokenGenerator implements CollectionSQLTokenGener
         ExpressionSegment condition = mergeStatementContext.getSqlStatement().getExpression().getExpr();
         Collection<BinaryOperationExpression> joinConditions = new LinkedList<>();
         ExpressionExtractor.extractJoinConditions(joinConditions, Collections.singleton(new WhereSegment(0, 0, condition)));
-        ShardingSpherePreconditions.checkState(JoinConditionsEncryptorComparator.isSame(joinConditions, rule, databaseEncryptRules),
-                () -> new UnsupportedSQLOperationException("Can not use different encryptor in using condition"));
+        JoinConditionsEncryptorChecker.checkIsSame(joinConditions, rule, databaseEncryptRules, "using condition");
         Collection<ColumnSegment> columnSegments = new LinkedList<>();
         ColumnExtractor.extractColumnSegments(columnSegments, Collections.singleton(new WhereSegment(0, 0, condition)));
         Collection<SQLToken> result = new LinkedList<>(generateSQLTokensForPredicateColumns(columnSegments, Collections.singleton(condition), mergeStatementContext.getDatabaseType()));
@@ -464,15 +463,18 @@ public final class EncryptMergeTokenGenerator implements CollectionSQLTokenGener
                     && rule.getEncryptTable(((SimpleTableSegment) sourceTable).getTableName().getIdentifier().getValue()).isEncryptColumn(rightColumn.getIdentifier().getValue())) {
                 ShardingSpherePreconditions.checkState(isSameColumnEncrypt(rule.getEncryptTable(targetTable).getEncryptColumn(leftColumn.getIdentifier().getValue()),
                         rule.getEncryptTable(((SimpleTableSegment) sourceTable).getTableName().getIdentifier().getValue()).getEncryptColumn(rightColumn.getIdentifier().getValue())),
-                        () -> new UnsupportedSQLOperationException("Can not use different encryptor in update set clause"));
+                        () -> new UnsupportedSQLOperationException(
+                                "Can not use different encryptor for " + leftColumn.getColumnBoundInfo() + " and " + rightColumn.getColumnBoundInfo() + " in update set clause"));
                 sqlTokens.add(generateColumnSQLToken(segment, leftColumn, rightColumn, rule.getEncryptTable(targetTable).getEncryptColumn(leftColumn.getIdentifier().getValue()),
                         rule.getEncryptTable(((SimpleTableSegment) sourceTable).getTableName().getIdentifier().getValue()).getEncryptColumn(rightColumn.getIdentifier().getValue())));
             } else {
-                throw new UnsupportedSQLOperationException("Can not use different encryptor in update set clause");
+                throw new UnsupportedSQLOperationException(
+                        "Can not use different encryptor for " + leftColumn.getColumnBoundInfo() + " and " + rightColumn.getColumnBoundInfo() + " in update set clause");
             }
         } else if (sourceTable instanceof SimpleTableSegment && rule.findEncryptTable(((SimpleTableSegment) sourceTable).getTableName().getIdentifier().getValue()).isPresent()
                 && rule.getEncryptTable(((SimpleTableSegment) sourceTable).getTableName().getIdentifier().getValue()).isEncryptColumn(rightColumn.getIdentifier().getValue())) {
-            throw new UnsupportedSQLOperationException("Can not use different encryptor in update set clause");
+            throw new UnsupportedSQLOperationException(
+                    "Can not use different encryptor for " + leftColumn.getColumnBoundInfo() + " and " + rightColumn.getColumnBoundInfo() + " in update set clause");
         }
     }
     
@@ -524,8 +526,7 @@ public final class EncryptMergeTokenGenerator implements CollectionSQLTokenGener
         for (WhereSegment each : whereSegments) {
             Collection<BinaryOperationExpression> joinConditions = new LinkedList<>();
             ExpressionExtractor.extractJoinConditions(joinConditions, Collections.singleton(each));
-            ShardingSpherePreconditions.checkState(JoinConditionsEncryptorComparator.isSame(joinConditions, rule, databaseEncryptRules),
-                    () -> new UnsupportedSQLOperationException("Can not use different encryptor in where clause with two equal column"));
+            JoinConditionsEncryptorChecker.checkIsSame(joinConditions, rule, databaseEncryptRules, "where clause with two equal column");
             Collection<ColumnSegment> columnSegments = ColumnExtractor.extract(each.getExpr());
             result.addAll(generateSQLTokensForPredicateColumns(columnSegments, Collections.singleton(each.getExpr()), mergeStatementContext.getDatabaseType()));
             result.addAll(generateSQLTokensForPredicateRightValue(each.getExpr(), columnSegments, mergeStatementContext));

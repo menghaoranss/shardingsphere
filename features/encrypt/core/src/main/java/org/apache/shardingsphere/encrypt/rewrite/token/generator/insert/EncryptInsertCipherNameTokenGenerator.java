@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.shardingsphere.encrypt.rewrite.token.comparator.InsertSelectColumnsEncryptorComparator;
+import org.apache.shardingsphere.encrypt.checker.cryptographic.InsertSelectColumnsEncryptorChecker;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
@@ -103,8 +103,7 @@ public final class EncryptInsertCipherNameTokenGenerator implements CollectionSQ
         Collection<Projection> projections = selectStatementContext.getProjectionsContext().getExpandProjections();
         ShardingSpherePreconditions.checkState(insertColumns.size() == projections.size(), () -> new UnsupportedSQLOperationException("Column count doesn't match value count."));
         // SPEX CHANGED: BEGIN
-        ShardingSpherePreconditions.checkState(InsertSelectColumnsEncryptorComparator.isSame(insertColumns, projections, rule, databaseEncryptRules),
-                () -> new UnsupportedSQLOperationException("Can not use different encryptor in insert select columns"));
+        InsertSelectColumnsEncryptorChecker.checkIsSame(insertColumns, projections, rule, databaseEncryptRules);
         // SPEX CHANGED: END
     }
 }

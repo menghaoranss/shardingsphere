@@ -22,7 +22,7 @@ import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.shardingsphere.encrypt.rewrite.token.comparator.InsertSelectColumnsEncryptorComparator;
+import org.apache.shardingsphere.encrypt.checker.cryptographic.InsertSelectColumnsEncryptorChecker;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
@@ -105,8 +105,7 @@ public final class EncryptInsertDefaultColumnsTokenGenerator implements Optional
             Collection<Projection> projections = insertStatementContext.getInsertSelectContext().getSelectStatementContext().getProjectionsContext().getExpandProjections();
             ShardingSpherePreconditions.checkState(derivedInsertColumns.size() == projections.size(), () -> new UnsupportedSQLOperationException("Column count doesn't match value count."));
             // SPEX CHANGED: BEGIN
-            ShardingSpherePreconditions.checkState(InsertSelectColumnsEncryptorComparator.isSame(derivedInsertColumns, projections, rule, databaseEncryptRules),
-                    () -> new UnsupportedSQLOperationException("Can not use different encryptor in insert select columns"));
+            InsertSelectColumnsEncryptorChecker.checkIsSame(derivedInsertColumns, projections, rule, databaseEncryptRules);
             // SPEX CHANGED: END
         }
         // SPEX CHANGED: BEGIN
