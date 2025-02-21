@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.storage;
 
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.storage.impl.OracleContainer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -68,6 +69,10 @@ public final class StorageContainerFactory {
                 return new H2Container(storageContainerConfig);
             case "MariaDB":
                 return new MariaDBContainer(storageContainerImage, storageContainerConfig);
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return new OracleContainer(storageContainerImage, storageContainerConfig);
+            // SPEX ADDED: END
             default:
                 throw new RuntimeException(String.format("Database `%s` is unknown.", databaseType.getType()));
         }
