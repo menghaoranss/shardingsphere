@@ -15,33 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.test.e2e.env.container.atomic.adapter.config;
+package com.sphereex.dbplusengine.infra.database.oceanbase.mysql.type;
 
-import com.sphereex.dbplusengine.SphereEx;
-import com.sphereex.dbplusengine.SphereEx.Type;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 
 /**
- * Adaptor container configuration.
+ * Database type of OceanBase MySQL mode.
  */
-@AllArgsConstructor
-@Getter
-public final class AdaptorContainerConfiguration {
+public final class OceanbaseMySQLModeDatabaseType implements DatabaseType {
     
-    private final String proxyDataSourceName;
+    @Override
+    public Collection<String> getJdbcUrlPrefixes() {
+        return Collections.singleton("jdbc:oceanbase");
+    }
     
-    private final List<String> portBindings;
+    @Override
+    public Optional<DatabaseType> getTrunkDatabaseType() {
+        return Optional.of(TypedSPILoader.getService(DatabaseType.class, "MySQL"));
+    }
     
-    @SphereEx(Type.MODIFY)
-    @Setter
-    private Map<String, String> mountedResources;
-    
-    private final String adapterContainerImage;
-    
-    private final String containerCommand;
+    @Override
+    public String getType() {
+        return "OceanBase_MySQL";
+    }
 }

@@ -43,5 +43,34 @@
         <module>sql92</module>
         <module>p6spy</module>
         <module>testcontainers</module>
+        <!-- SPEX ADDED: BEGIN -->
+        <module>oceanbase</module>
+        <!-- SPEX ADD: END -->
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-infra-database-core</artifactId>
+            <version>5.5.2-PINGAN-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-infra-database-core</artifactId>
+            <version>5.5.2-PINGAN-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

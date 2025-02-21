@@ -15,11 +15,4 @@
 # limitations under the License.
 #
 
-org.apache.shardingsphere.transaction.xa.jta.connection.dialect.PostgreSQLXAConnectionWrapper
-org.apache.shardingsphere.transaction.xa.jta.connection.dialect.OracleXAConnectionWrapper
-org.apache.shardingsphere.transaction.xa.jta.connection.dialect.OpenGaussXAConnectionWrapper
-org.apache.shardingsphere.transaction.xa.jta.connection.dialect.MySQLXAConnectionWrapper
-org.apache.shardingsphere.transaction.xa.jta.connection.dialect.MariaDBXAConnectionWrapper
-org.apache.shardingsphere.transaction.xa.jta.connection.dialect.H2XAConnectionWrapper
-
-com.sphereex.dbplusengine.transaction.xa.jta.connection.dialect.OceanBaseOracleModeXAConnectionWrapper
+com.sphereex.dbplusengine.infra.database.oceanbase.oracle.metadata.data.loader.OceanbaseOracleModeMetaDataLoader

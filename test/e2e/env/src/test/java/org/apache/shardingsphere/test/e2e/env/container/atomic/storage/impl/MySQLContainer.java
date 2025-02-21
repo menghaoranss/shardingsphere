@@ -25,7 +25,6 @@ import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.DockerSto
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.config.StorageContainerConfiguration;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Optional;
