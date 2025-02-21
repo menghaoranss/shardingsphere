@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--SPEX ADDED: BEGIN-->
+<e2e-test-cases>
+    <!-- NOTE:
+        * PostgreSQL、openGauss、KingbaseES 不支持投影列中包含聚合函数，ORDER BY 中指定非聚合列，因此 Case 中删除了 ORDER BY 主键；
+        * Oracle、DM 数据库不支持投影列中 >, < 和 BETWEEN AND 比较，以及 MAX, MIN 函数叠加 >, <, >=, <=, BETWEEN AND 比较；
+    -->
+
+    <!-- OPE 适配 SQL 场景参考：https://u01f1kqxrl.feishu.cn/wiki/VCinwK3y1iwG74kaitBc4ot0n1f -->
+    <!-- 测试字符串类型 >, < 和 BETWEEN AND 比较 -->
+    <test-case sql="SELECT user_name > ? FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_name &lt; ? FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT ? &lt; user_name FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT ? > user_name FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_name BETWEEN ? AND ? FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="liba:String, tom:String" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型 >=, <= 和 BETWEEN AND 比较 -->
+    <test-case sql="SELECT quantity >= ? FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT quantity &lt;= ? FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT ? &lt;= quantity FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT ? >= quantity FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT quantity BETWEEN ? AND ? FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="100:int, 1000:int" expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试字符串类型 MAX, MIN 比较 -->
+    <test-case sql="SELECT MAX(user_name), MIN(user_name) FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,Oracle,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型 MAX, MIN 比较 -->
+    <test-case sql="SELECT MAX(quantity), MIN(quantity) FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,Oracle,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试字符串类型列 >, <, >=, <=, BETWEEN AND 比较 -->
+    <test-case sql="SELECT user_name > user_name, user_name &lt; user_name, user_name >= user_name, user_name &lt;= user_name FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_name BETWEEN user_name AND user_name FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型列 >, <, >=, <=, BETWEEN AND 比较 -->
+    <test-case sql="SELECT quantity > quantity, quantity &lt; quantity, quantity >= quantity, quantity &lt;= quantity FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT quantity BETWEEN quantity AND quantity FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试字符串类型列 MAX, MIN 函数叠加 >, <, >=, <=, BETWEEN AND 比较 -->
+    <test-case sql="SELECT MAX(user_name) > MIN(user_name), MAX(user_name) &lt; MIN(user_name), MAX(user_name) >= MIN(user_name), MAX(user_name) &lt;= MIN(user_name) FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT MAX(user_name) BETWEEN MIN(user_name) AND MAX(user_name) FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <!-- 测试数值类型列 MAX, MIN 函数叠加 >, <, >=, <=, BETWEEN AND 比较 -->
+    <test-case sql="SELECT MAX(quantity) > MIN(quantity), MAX(quantity) &lt; MIN(quantity), MAX(quantity) >= MIN(quantity), MAX(quantity) &lt;= MIN(quantity) FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT MAX(quantity) BETWEEN MIN(quantity) AND MAX(quantity) FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,TiDB" scenario-types="sphereex_encrypt_ope">
+        <assertion expected-data-source-name="expected_dataset" />
+    </test-case>
+</e2e-test-cases>
+<!--SPEX ADDED: END-->

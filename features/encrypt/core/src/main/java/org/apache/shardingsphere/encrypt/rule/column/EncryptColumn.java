@@ -17,6 +17,9 @@
 
 package org.apache.shardingsphere.encrypt.rule.column;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.PlainColumnItem;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -43,6 +46,15 @@ public final class EncryptColumn {
     
     private LikeQueryColumnItem likeQuery;
     
+    @SphereEx
+    private OrderQueryColumnItem orderQuery;
+    
+    @SphereEx
+    private PlainColumnItem plain;
+    
+    @SphereEx
+    private String dataType;
+    
     /**
      * Get assisted query column item.
      *
@@ -68,5 +80,25 @@ public final class EncryptColumn {
      */
     public EncryptAlgorithm getQueryEncryptor() {
         return null == assistedQuery ? cipher.getEncryptor() : assistedQuery.getEncryptor();
+    }
+    
+    /**
+     * Get order query column item.
+     *
+     * @return order query column item
+     */
+    @SphereEx
+    public Optional<OrderQueryColumnItem> getOrderQuery() {
+        return Optional.ofNullable(orderQuery);
+    }
+    
+    /**
+     * Get plain column.
+     *
+     * @return plain column
+     */
+    @SphereEx
+    public Optional<PlainColumnItem> getPlain() {
+        return Optional.ofNullable(plain);
     }
 }

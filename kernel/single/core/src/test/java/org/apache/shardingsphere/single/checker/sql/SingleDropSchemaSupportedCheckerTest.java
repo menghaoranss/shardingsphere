@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.single.checker.sql;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.UnknownSQLStatementContext;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
@@ -48,27 +50,33 @@ class SingleDropSchemaSupportedCheckerTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private SingleRule rule;
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithoutCascadeSchema() {
-        assertThrows(DropNotEmptySchemaException.class, () -> new SingleDropSchemaSupportedChecker().check(rule, mockDatabase(), mock(), createSQLStatementContext("foo_schema", false)));
+        assertThrows(DropNotEmptySchemaException.class, () -> new SingleDropSchemaSupportedChecker().check(rule, mock(), mockDatabase(), mock(), createSQLStatementContext("foo_schema", false)));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithNotExistedSchema() {
         ShardingSphereDatabase database = mockDatabase();
         when(database.getSchema("not_existed_schema")).thenReturn(null);
-        assertThrows(SchemaNotFoundException.class, () -> new SingleDropSchemaSupportedChecker().check(rule, database, mock(), createSQLStatementContext("not_existed_schema", true)));
+        // SPEX ADDED: BEGIN
+        assertThrows(SchemaNotFoundException.class, () -> new SingleDropSchemaSupportedChecker().check(rule, mock(), database, mock(), createSQLStatementContext("not_existed_schema", true)));
+        // SPEX ADDED: END
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheck() {
-        new SingleDropSchemaSupportedChecker().check(rule, mockDatabase(), mock(), createSQLStatementContext("foo_schema", true));
+        new SingleDropSchemaSupportedChecker().check(rule, mock(), mockDatabase(), mock(), createSQLStatementContext("foo_schema", true));
     }
     
     private ShardingSphereDatabase mockDatabase() {
         ShardingSphereDatabase result = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
+        @SphereEx(Type.MODIFY)
         ShardingSphereSchema schema = new ShardingSphereSchema("foo_schema",
-                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE)), Collections.emptyList());
+                Collections.singleton(new ShardingSphereTable("foo_tbl", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TableType.TABLE, null)), Collections.emptyList());
         when(result.getAllSchemas()).thenReturn(Collections.singleton(schema));
         return result;
     }

@@ -17,18 +17,21 @@
 
 package org.apache.shardingsphere.infra.database.oracle.metadata.database;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.NullsOrderType;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -59,18 +62,28 @@ public final class OracleDatabaseMetaData implements DialectDatabaseMetaData {
         return RESERVED_KEYWORDS.contains(identifier.toUpperCase());
     }
     
+    @SphereEx(Type.MODIFY)
     @Override
     public boolean isSchemaAvailable() {
-        return true;
+        return false;
     }
     
     @Override
+    @SphereEx(Type.MODIFY)
     public String getSchema(final Connection connection) {
         try {
-            return Optional.ofNullable(connection.getMetaData().getUserName()).map(String::toUpperCase).orElse(null);
-        } catch (final SQLException ignored) {
-            return null;
+            return connection.getSchema();
+        } catch (final SQLException | AbstractMethodError ignored) {
         }
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL")) {
+            if (resultSet.next()) {
+                return resultSet.getString(1);
+            }
+        } catch (final SQLException ignored) {
+        }
+        return null;
     }
     
     @Override

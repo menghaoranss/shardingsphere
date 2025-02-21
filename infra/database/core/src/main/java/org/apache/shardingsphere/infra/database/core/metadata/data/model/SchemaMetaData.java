@@ -17,11 +17,13 @@
 
 package org.apache.shardingsphere.infra.database.core.metadata.data.model;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.util.Collection;
+import java.util.Properties;
 
 /**
 * Schema meta data.
@@ -34,4 +36,7 @@ public final class SchemaMetaData {
     private final String name;
     
     private final Collection<TableMetaData> tables;
+    
+    @SphereEx
+    private final Properties props = new Properties();
 }

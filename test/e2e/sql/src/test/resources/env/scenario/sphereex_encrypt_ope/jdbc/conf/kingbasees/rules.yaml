@@ -1,0 +1,97 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# SPEX ADDED: BEGIN
+databaseName: sphereex_encrypt_ope
+
+dataSources:
+  sphereex_encrypt_ope:
+    url: jdbc:kingbase8://kingbasees.sphereex_encrypt_ope.host:54321/sphereex_encrypt_ope
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    username: test_user
+    password: Test@123
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 2
+    minPoolSize: 2
+
+rules:
+- !SINGLE
+  tables:
+    - "*.*"
+- !ENCRYPT
+  encryptors:
+    ope_encryptor:
+      props:
+        alpha-key: '0.8935217796678353'
+        factor-e-key: '0.9186430364852792'
+        factor-k-key: '523211953918290'
+      type: SphereEx:FASTOPE
+    aes_encryptor:
+      type: AES
+      props:
+        aes-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+  tables:
+    t_user:
+      columns:
+        user_name:
+          dataType: VARCHAR(50)
+          plain:
+            name: user_name_plain
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: user_name_cipher
+            dataType: VARCHAR(100)
+            encryptorName: ope_encryptor
+    t_order_item:
+      columns:
+        quantity:
+          dataType: INT4
+          plain:
+            name: quantity_plain
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: quantity_cipher
+            dataType: VARCHAR(100)
+            encryptorName: aes_encryptor
+          orderQuery:
+            name: quantity_order
+            dataType: VARCHAR(100)
+            encryptorName: ope_encryptor
+    t_product_extend:
+      columns:
+        product_desc:
+          dataType: CHARACTER VARYING(50)
+          plain:
+            name: product_desc_plain
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: product_desc_cipher
+            dataType: CHARACTER VARYING(400)
+            encryptorName: aes_encryptor
+          orderQuery:
+            name: product_desc_order
+            dataType: CHARACTER VARYING(400)
+            encryptorName: ope_encryptor
+
+props:
+  sql-show: true
+
+
+# SPEX ADDED: END

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.merge.dal.show;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
@@ -97,8 +99,13 @@ public final class EncryptShowCreateTableMergedResult implements MergedResult {
         String columnName = columnSegment.getIdentifier().getValue();
         if (encryptTable.isCipherColumn(columnName)) {
             String logicColumn = encryptTable.getLogicColumnByCipherColumn(columnName);
+            // SPEX CHANGED: BEGIN
+            String dataType = Optional.ofNullable(encryptTable.getEncryptColumn(logicColumn).getDataType())
+                    .orElse(createTableSQL.substring(columnDefinition.getDataType().getStartIndex(), columnDefinition.getDataType().getStopIndex() + 1));
             return Optional.of(createTableSQL.substring(columnDefinition.getStartIndex(), columnSegment.getStartIndex())
-                    + columnSegment.getIdentifier().getQuoteCharacter().wrap(logicColumn) + createTableSQL.substring(columnSegment.getStopIndex() + 1, columnDefinition.getStopIndex() + 1));
+                    + columnSegment.getIdentifier().getQuoteCharacter().wrap(logicColumn) + " " + dataType
+                    + createTableSQL.substring(columnDefinition.getDataType().getStopIndex() + 1, columnDefinition.getStopIndex() + 1));
+            // SPEX CHANGED: BEGIN
         }
         if (isDerivedColumn(encryptTable, columnName)) {
             return Optional.empty();
@@ -106,8 +113,9 @@ public final class EncryptShowCreateTableMergedResult implements MergedResult {
         return Optional.of(createTableSQL.substring(columnDefinition.getStartIndex(), columnDefinition.getStopIndex() + 1));
     }
     
+    @SphereEx(Type.MODIFY)
     private boolean isDerivedColumn(final EncryptTable encryptTable, final String columnName) {
-        return encryptTable.isAssistedQueryColumn(columnName) || encryptTable.isLikeQueryColumn(columnName);
+        return encryptTable.isAssistedQueryColumn(columnName) || encryptTable.isLikeQueryColumn(columnName) || encryptTable.isPlainColumn(columnName) || encryptTable.isOrderQueryColumn(columnName);
     }
     
     @Override

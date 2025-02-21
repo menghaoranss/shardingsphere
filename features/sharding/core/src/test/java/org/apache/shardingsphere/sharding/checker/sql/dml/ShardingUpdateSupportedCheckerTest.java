@@ -59,7 +59,9 @@ class ShardingUpdateSupportedCheckerTest {
         Collection<String> tableNames = sqlStatementContext.getTablesContext().getTableNames();
         when(rule.isAllShardingTables(tableNames)).thenReturn(true);
         when(rule.containsShardingTable(tableNames)).thenReturn(true);
-        assertDoesNotThrow(() -> new ShardingUpdateSupportedChecker().check(rule, mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertDoesNotThrow(() -> new ShardingUpdateSupportedChecker().check(rule, mock(), mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -72,7 +74,9 @@ class ShardingUpdateSupportedCheckerTest {
         UpdateStatementContext sqlStatementContext = new UpdateStatementContext(updateStatement);
         Collection<String> tableNames = sqlStatementContext.getTablesContext().getTableNames();
         when(rule.containsShardingTable(tableNames)).thenReturn(true);
-        assertThrows(DMLWithMultipleShardingTablesException.class, () -> new ShardingUpdateSupportedChecker().check(rule, mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertThrows(DMLWithMultipleShardingTablesException.class, () -> new ShardingUpdateSupportedChecker().check(rule, mock(), mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: END
     }
     
     private UpdateStatement createUpdateStatement() {

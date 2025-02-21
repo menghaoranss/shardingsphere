@@ -17,9 +17,11 @@
 
 package org.apache.shardingsphere.infra.checker;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
@@ -39,15 +41,19 @@ public final class SupportedSQLCheckEngine {
      * @param rules rules
      * @param sqlStatementContext to be checked SQL statement context
      * @param database database
+     * @param metaData meta data
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void checkSQL(final Collection<ShardingSphereRule> rules, final SQLStatementContext sqlStatementContext, final ShardingSphereDatabase database) {
+    public void checkSQL(final Collection<ShardingSphereRule> rules, final SQLStatementContext sqlStatementContext, final ShardingSphereDatabase database,
+                         @SphereEx final ShardingSphereMetaData metaData) {
         ShardingSphereSchema currentSchema = getCurrentSchema(sqlStatementContext, database);
         for (Entry<ShardingSphereRule, SupportedSQLCheckersBuilder> entry : OrderedSPILoader.getServices(SupportedSQLCheckersBuilder.class, rules).entrySet()) {
             Collection<SupportedSQLChecker> checkers = entry.getValue().getSupportedSQLCheckers();
             for (SupportedSQLChecker each : checkers) {
                 if (each.isCheck(sqlStatementContext)) {
-                    each.check(entry.getKey(), database, currentSchema, sqlStatementContext);
+                    // SPEX CHANGED: BEGIN
+                    each.check(entry.getKey(), metaData, database, currentSchema, sqlStatementContext);
+                    // SPEX CHANGED: END
                 }
             }
         }

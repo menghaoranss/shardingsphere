@@ -17,12 +17,17 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * In expression.
@@ -57,8 +62,46 @@ public final class InExpression implements ExpressionSegment {
         return result;
     }
     
+    /**
+     * Get expression list from right.
+     *
+     * @param rowExpression row expression
+     * @param columnName column name
+     * @return expression list
+     */
+    @SphereEx
+    public Collection<ExpressionSegment> getRowExpressionList(final RowExpression rowExpression, final String columnName) {
+        Collection<ExpressionSegment> result = new LinkedList<>();
+        int columnIndex = getColumnIndex(new ArrayList<>(rowExpression.getItems()), columnName);
+        if (!(right instanceof ListExpression)) {
+            return Collections.singleton(right);
+        }
+        for (ExpressionSegment each : ((ListExpression) right).getItems()) {
+            if (each instanceof RowExpression) {
+                result.add(new ArrayList<>(((RowExpression) each).getItems()).get(columnIndex));
+            } else {
+                result.add(each);
+            }
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private int getColumnIndex(final List<ExpressionSegment> rowItems, final String columnName) {
+        int result = 0;
+        for (int index = 0; index < rowItems.size(); index++) {
+            ExpressionSegment expression = rowItems.get(index);
+            if (expression instanceof ColumnSegment && ((ColumnSegment) expression).getIdentifier().getValue().equalsIgnoreCase(columnName)) {
+                result = index;
+                break;
+            }
+        }
+        return result;
+    }
+    
     @Override
     public String getText() {
-        return left.getText() + right.getText();
+        String operator = not ? " NOT IN " : " IN ";
+        return left.getText() + operator + right.getText();
     }
 }

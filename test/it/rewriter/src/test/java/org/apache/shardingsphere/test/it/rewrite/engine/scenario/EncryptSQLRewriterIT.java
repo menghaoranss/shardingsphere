@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.test.it.rewrite.engine.scenario;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.database.core.metadata.database.datatype.DataTypeRegistry;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereColumn;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereTable;
@@ -31,6 +33,8 @@ import org.apache.shardingsphere.test.fixture.jdbc.MockedDataSource;
 import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterIT;
 import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterITSettings;
 import org.apache.shardingsphere.test.it.rewrite.engine.parameter.SQLRewriteEngineTestParameters;
+import org.junit.jupiter.api.AfterEach;
+import org.mockito.MockedStatic;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -48,14 +52,32 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @SQLRewriterITSettings("scenario/encrypt/case")
 class EncryptSQLRewriterIT extends SQLRewriterIT {
+    
+    @SphereEx
+    private final MockedStatic<DataTypeRegistry> mockedDataTypeHolder = mockStatic(DataTypeRegistry.class);
+    
+    @SphereEx
+    @AfterEach
+    void tearDown() {
+        mockedDataTypeHolder.close();
+    }
+    
+    @SphereEx
+    @Override
+    protected void mockDatabaseType(final String databaseType) {
+        mockedDataTypeHolder.when(() -> DataTypeRegistry.getDataType(databaseType, "INTEGER")).thenReturn(Optional.of(4));
+        mockedDataTypeHolder.when(() -> DataTypeRegistry.getDataType(databaseType, "VARCHAR")).thenReturn(Optional.of(12));
+    }
     
     @Override
     protected YamlRootConfiguration createRootConfiguration(final SQLRewriteEngineTestParameters testParams) throws IOException {
@@ -95,7 +117,25 @@ class EncryptSQLRewriterIT extends SQLRewriterIT {
                 new ShardingSphereColumn("email", Types.VARCHAR, false, false, false, true, false, false),
                 new ShardingSphereColumn("telephone", Types.VARCHAR, false, false, false, true, false, false),
                 new ShardingSphereColumn("creation_date", Types.DATE, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
-        return Collections.singleton(new ShardingSphereSchema(schemaName, tables, Collections.emptyList()));
+        // SPEX ADDED: BEGIN
+        tables.add(new ShardingSphereTable("t_config", Arrays.asList(
+                new ShardingSphereColumn("username", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("password", Types.VARCHAR, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_account_item", Arrays.asList(
+                new ShardingSphereColumn("account_id", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("certificate_number", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("password", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("amount", Types.DECIMAL, false, false, false, true, false, false),
+                new ShardingSphereColumn("status", Types.TINYINT, false, false, false, false, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_encrypt_config", Arrays.asList(
+                new ShardingSphereColumn("certificate_number_new", Types.INTEGER, false, false, false, true, true, false),
+                new ShardingSphereColumn("password", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("amount", Types.DECIMAL, false, false, false, true, false, false),
+                new ShardingSphereColumn("status", Types.TINYINT, false, false, false, false, false, false)), Collections.emptyList(), Collections.emptyList()));
+        // SPEX ADDED: END
+        // SPEX CHANGED: BEGIN
+        return Collections.singleton(new ShardingSphereSchema(schemaName, tables, Collections.emptyList(), new Properties()));
+        // SPEX CHANGED: END
     }
     
     @Override
@@ -107,6 +147,10 @@ class EncryptSQLRewriterIT extends SQLRewriterIT {
             singleRule.get().getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).put("encrypt_ds", schemaName, "t_account_detail");
             singleRule.get().getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).put("encrypt_ds", schemaName, "t_order");
             singleRule.get().getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).put("encrypt_ds", schemaName, "t_user");
+            // SPEX ADDED: BEGIN
+            singleRule.get().getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).put("encrypt_ds", schemaName, "t_config");
+            singleRule.get().getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).put("encrypt_ds", schemaName, "t_encrypt_config");
+            // SPEX ADDED: END
         }
     }
     

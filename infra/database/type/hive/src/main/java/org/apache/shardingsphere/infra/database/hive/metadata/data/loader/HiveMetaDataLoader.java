@@ -68,7 +68,8 @@ public final class HiveMetaDataLoader implements DialectMetaDataLoader {
             HiveConf hiveConf = new HiveConf();
             hiveConf.set(HIVE_METASTORE_URIS, hiveMetastoreUris);
             storeClient = new HiveMetaStoreClient(hiveConf);
-            return Collections.singletonList(new SchemaMetaData(material.getDefaultSchemaName(), getTableMetaData(storeClient.getAllTables(material.getDefaultSchemaName()), storeClient, material)));
+            return Collections.singletonList(
+                    new SchemaMetaData(material.getDefaultSchemaName(), getTableMetaData(storeClient.getAllTables(material.getDefaultSchemaName()), storeClient, material)));
         } catch (final TException ignored) {
             throw new SQLException();
         } finally {
@@ -90,7 +91,9 @@ public final class HiveMetaDataLoader implements DialectMetaDataLoader {
     private Collection<ColumnMetaData> getColumnMetaData(final Table table) {
         Collection<ColumnMetaData> result = new LinkedList<>();
         for (FieldSchema each : table.getSd().getCols()) {
-            result.add(new ColumnMetaData(each.getName(), DataTypeRegistry.getDataType(getDatabaseType(), each.getType()).orElse(Types.VARCHAR), false, false, false, false, false, false));
+            // SPEX CHANGED: BEGIN
+            result.add(new ColumnMetaData(each.getName(), DataTypeRegistry.getDataType(getDatabaseType(), each.getType()).orElse(Types.VARCHAR), false, false, false, false, false, false, ""));
+            // SPEX CHANGED: END
         }
         return result;
     }

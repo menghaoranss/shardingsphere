@@ -17,22 +17,29 @@
 
 package org.apache.shardingsphere.single.decider;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
+import org.apache.shardingsphere.infra.database.core.connector.ConnectionProperties;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.database.resource.unit.StorageUnit;
 import org.apache.shardingsphere.infra.metadata.database.rule.RuleMetaData;
 import org.apache.shardingsphere.infra.metadata.database.schema.QualifiedTable;
+import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.rule.attribute.RuleAttributes;
 import org.apache.shardingsphere.infra.rule.attribute.datanode.MutableDataNodeRuleAttribute;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.single.rule.SingleRule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,6 +52,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class SingleSQLFederationDeciderTest {
+    
+    @SphereEx
+    private Map<String, StorageUnit> storageUnits;
+    
+    @BeforeEach
+    @SphereEx
+    void setUp() {
+        storageUnits = new LinkedHashMap<>();
+        ConnectionProperties dataSourceMetaData1 = mock(ConnectionProperties.class);
+        ConnectionProperties dataSourceMetaData2 = mock(ConnectionProperties.class);
+        when(dataSourceMetaData1.isInSameDatabaseInstance(dataSourceMetaData1)).thenReturn(true);
+        when(dataSourceMetaData1.isInSameDatabaseInstance(dataSourceMetaData2)).thenReturn(false);
+        StorageUnit storageUnit1 = mock(StorageUnit.class, RETURNS_DEEP_STUBS);
+        when(storageUnit1.getConnectionProperties()).thenReturn(dataSourceMetaData1);
+        StorageUnit storageUnit2 = mock(StorageUnit.class, RETURNS_DEEP_STUBS);
+        when(storageUnit2.getConnectionProperties()).thenReturn(dataSourceMetaData2);
+        storageUnits.put("ds_0", storageUnit1);
+        storageUnits.put("ds_1", storageUnit2);
+    }
     
     @Test
     void assertDecideWhenNotContainsSingleTable() {
@@ -60,7 +86,9 @@ class SingleSQLFederationDeciderTest {
         SingleRule rule = createSingleRule(qualifiedTables);
         SelectStatementContext select = createStatementContext();
         Collection<DataNode> includedDataNodes = new HashSet<>();
-        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables)).thenReturn(true);
+        // SPEX CHANGED: BEGIN
+        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables, storageUnits)).thenReturn(true);
+        // SPEX CHANGED: END
         assertFalse(new SingleSQLFederationDecider().decide(select, Collections.emptyList(), mock(RuleMetaData.class), createDatabase(), rule, includedDataNodes));
         assertThat(includedDataNodes.size(), is(2));
     }
@@ -71,7 +99,9 @@ class SingleSQLFederationDeciderTest {
         SingleRule rule = createSingleRule(qualifiedTables);
         SelectStatementContext select = createStatementContext();
         Collection<DataNode> includedDataNodes = new HashSet<>();
-        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables)).thenReturn(false);
+        // SPEX CHANGED: BEGIN
+        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables, storageUnits)).thenReturn(false);
+        // SPEX CHANGED: END
         assertTrue(new SingleSQLFederationDecider().decide(select, Collections.emptyList(), mock(RuleMetaData.class), createDatabase(), rule, includedDataNodes));
         assertThat(includedDataNodes.size(), is(2));
     }
@@ -82,7 +112,9 @@ class SingleSQLFederationDeciderTest {
         SingleRule rule = createSingleRule(qualifiedTables);
         SelectStatementContext select = createStatementContext();
         Collection<DataNode> includedDataNodes = new HashSet<>(Collections.singleton(new DataNode("ds_0", "t_user")));
-        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables)).thenReturn(true);
+        // SPEX CHANGED: BEGIN
+        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables, storageUnits)).thenReturn(true);
+        // SPEX CHANGED: END
         assertFalse(new SingleSQLFederationDecider().decide(select, Collections.emptyList(), mock(RuleMetaData.class), createDatabase(), rule, includedDataNodes));
         assertThat(includedDataNodes.size(), is(3));
     }
@@ -93,7 +125,9 @@ class SingleSQLFederationDeciderTest {
         SingleRule rule = createSingleRule(qualifiedTables);
         SelectStatementContext select = createStatementContext();
         Collection<DataNode> includedDataNodes = new HashSet<>(Collections.singleton(new DataNode("ds_1", "t_user")));
-        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables)).thenReturn(false);
+        // SPEX CHANGED: BEGIN
+        when(rule.isAllTablesInSameComputeNode(includedDataNodes, qualifiedTables, storageUnits)).thenReturn(false);
+        // SPEX CHANGED: END
         assertTrue(new SingleSQLFederationDecider().decide(select, Collections.emptyList(), mock(RuleMetaData.class), createDatabase(), rule, includedDataNodes));
         assertThat(includedDataNodes.size(), is(3));
     }
@@ -117,6 +151,10 @@ class SingleSQLFederationDeciderTest {
     private ShardingSphereDatabase createDatabase() {
         ShardingSphereDatabase result = mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS);
         when(result.getName()).thenReturn("foo_db");
+        when(result.getSchema("foo_db")).thenReturn(mock(ShardingSphereSchema.class));
+        // SPEX CHANGED: BEGIN
+        when(result.getResourceMetaData().getStorageUnits()).thenReturn(storageUnits);
+        // SPEX CHANGED: END
         return result;
     }
 }

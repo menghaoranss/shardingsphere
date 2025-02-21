@@ -44,7 +44,7 @@ class ShardingLoadDataSupportedCheckerTest {
     void assertCheckWithSingleTable() {
         MySQLLoadDataStatement sqlStatement = new MySQLLoadDataStatement();
         sqlStatement.setTableSegment(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order"))));
-        assertDoesNotThrow(() -> new ShardingLoadDataSupportedChecker().check(rule, mock(), mock(), new LoadDataStatementContext(sqlStatement)));
+        assertDoesNotThrow(() -> new ShardingLoadDataSupportedChecker().check(rule, mock(), mock(), mock(), new LoadDataStatementContext(sqlStatement)));
     }
     
     @Test
@@ -52,6 +52,9 @@ class ShardingLoadDataSupportedCheckerTest {
         MySQLLoadDataStatement sqlStatement = new MySQLLoadDataStatement();
         sqlStatement.setTableSegment(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order"))));
         when(rule.isShardingTable("t_order")).thenReturn(true);
-        assertThrows(UnsupportedShardingOperationException.class, () -> new ShardingLoadDataSupportedChecker().check(rule, mock(), mock(), new LoadDataStatementContext(sqlStatement)));
+        // SPEX CHANGED: BEGIN
+        assertThrows(UnsupportedShardingOperationException.class,
+                () -> new ShardingLoadDataSupportedChecker().check(rule, mock(), mock(), mock(), new LoadDataStatementContext(sqlStatement)));
+        // SPEX CHANGED: END
     }
 }

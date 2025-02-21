@@ -19,6 +19,7 @@ package org.apache.shardingsphere.sharding.checker.sql.ddl;
 
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.DropTableStatementContext;
 import org.apache.shardingsphere.infra.datanode.DataNode;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
@@ -69,7 +70,9 @@ class ShardingDropTableSupportedCheckerTest {
         ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
         when(schema.containsTable("t_order_item")).thenReturn(true);
         ShardingDropTableSupportedChecker checker = new ShardingDropTableSupportedChecker();
-        assertDoesNotThrow(() -> checker.check(rule, database, schema, sqlStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertDoesNotThrow(() -> checker.check(rule, mock(ShardingSphereMetaData.class), database, schema, sqlStatementContext));
+        // SPEX CHANGED: END
     }
     
     private ShardingTable createShardingTable(final String tableName) {

@@ -17,6 +17,10 @@
 
 package org.apache.shardingsphere.encrypt.metadata.reviser;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
+import com.sphereex.dbplusengine.encrypt.metadata.reviser.column.EncryptColumnDataTypeReviser;
+import com.sphereex.dbplusengine.encrypt.metadata.reviser.table.EncryptTableNameReviser;
 import org.apache.shardingsphere.encrypt.constant.EncryptOrder;
 import org.apache.shardingsphere.encrypt.metadata.reviser.column.EncryptColumnExistedReviser;
 import org.apache.shardingsphere.encrypt.metadata.reviser.column.EncryptColumnNameReviser;
@@ -31,18 +35,48 @@ import java.util.Optional;
  */
 public final class EncryptMetaDataReviseEntry implements MetaDataReviseEntry<EncryptRule> {
     
+    @SphereEx
+    @Override
+    public Optional<EncryptTableNameReviser> getTableNameReviser() {
+        return Optional.of(new EncryptTableNameReviser());
+    }
+    
     @Override
     public Optional<EncryptColumnExistedReviser> getColumnExistedReviser(final EncryptRule rule, final String tableName) {
+        // SPEX ADDED: BEGIN
+        if (EncryptModeType.BACKEND == rule.getEncryptMode().getType()) {
+            return rule.findEncryptTableByActualTable(tableName).map(EncryptColumnExistedReviser::new);
+        }
+        // SPEX ADDED: END
         return rule.findEncryptTable(tableName).map(EncryptColumnExistedReviser::new);
     }
     
     @Override
     public Optional<EncryptColumnNameReviser> getColumnNameReviser(final EncryptRule rule, final String tableName) {
+        // SPEX ADDED: BEGIN
+        if (EncryptModeType.BACKEND == rule.getEncryptMode().getType()) {
+            return rule.findEncryptTableByActualTable(tableName).map(EncryptColumnNameReviser::new);
+        }
+        // SPEX ADDED: END
         return rule.findEncryptTable(tableName).map(EncryptColumnNameReviser::new);
+    }
+    
+    @SphereEx
+    @Override
+    public Optional<? extends EncryptColumnDataTypeReviser> getColumnDataTypeReviser(final EncryptRule rule, final String tableName) {
+        if (EncryptModeType.BACKEND == rule.getEncryptMode().getType()) {
+            return rule.findEncryptTableByActualTable(tableName).map(EncryptColumnDataTypeReviser::new);
+        }
+        return rule.findEncryptTable(tableName).map(EncryptColumnDataTypeReviser::new);
     }
     
     @Override
     public Optional<EncryptIndexReviser> getIndexReviser(final EncryptRule rule, final String tableName) {
+        // SPEX ADDED: BEGIN
+        if (EncryptModeType.BACKEND == rule.getEncryptMode().getType()) {
+            return rule.findEncryptTableByActualTable(tableName).map(EncryptIndexReviser::new);
+        }
+        // SPEX ADDED: END
         return rule.findEncryptTable(tableName).map(EncryptIndexReviser::new);
     }
     

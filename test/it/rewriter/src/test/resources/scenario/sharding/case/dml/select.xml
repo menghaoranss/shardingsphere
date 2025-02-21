@@ -490,7 +490,7 @@
 
     <rewrite-assertion id="select_union_single_table" db-types="MySQL">
         <input sql="SELECT id FROM t_single UNION SELECT id FROM t_single_extend" />
-        <output sql="SELECT id FROM t_single UNION SELECT id FROM t_single_extend" />
+        <output sql="SELECT id FROM `db`.t_single UNION SELECT id FROM `db`.t_single_extend" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_with_join_table_with_different_sharding_columns">
@@ -508,9 +508,9 @@
         <output sql="SELECT * FROM (SELECT id, content FROM t_user_1 WHERE id = ? AND content IN (SELECT content FROM t_user_extend_1 WHERE user_id = ?)) AS temp" parameters="1, 1" />
     </rewrite-assertion>
     
-    <rewrite-assertion id="select_with_broadcast_table_and_single_table">
+    <rewrite-assertion id="select_with_broadcast_table_and_single_table" db-types="MySQL">
         <input sql="SELECT * FROM t_single s INNER JOIN t_config c ON s.account_id = c.account_id" />
-        <output sql="SELECT * FROM t_single s INNER JOIN t_config c ON s.account_id = c.account_id" />
+        <output sql="SELECT * FROM `db`.t_single s INNER JOIN t_config c ON s.account_id = c.account_id" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_binding_table_with_uppercase_table_name">

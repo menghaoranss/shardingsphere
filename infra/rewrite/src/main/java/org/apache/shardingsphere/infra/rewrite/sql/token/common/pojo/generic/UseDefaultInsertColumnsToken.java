@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.Attachable;
@@ -24,7 +25,10 @@ import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Default insert columns token.
@@ -35,6 +39,10 @@ public final class UseDefaultInsertColumnsToken extends SQLToken implements Atta
     private final List<String> columns;
     
     private final QuoteCharacter quoteCharacter;
+    
+    @SphereEx
+    @Getter
+    private final Map<Integer, Collection<String>> addedColumns = new HashMap<>();
     
     public UseDefaultInsertColumnsToken(final int startIndex, final List<String> columns) {
         super(startIndex);
@@ -48,6 +56,17 @@ public final class UseDefaultInsertColumnsToken extends SQLToken implements Atta
         this.quoteCharacter = quoteCharacter;
     }
     
+    /**
+     * Add added column name.
+     *
+     * @param index index
+     * @param columnName column name
+     */
+    @SphereEx
+    public void addAddedValue(final int index, final String columnName) {
+        addedColumns.computeIfAbsent(index, unused -> new LinkedList<>()).add(columnName);
+    }
+    
     @Override
     public String toString() {
         return columns.isEmpty() ? "" : "(" + String.join(", ", getColumnNames()) + ")";
@@ -55,9 +74,21 @@ public final class UseDefaultInsertColumnsToken extends SQLToken implements Atta
     
     private Collection<String> getColumnNames() {
         Collection<String> result = new ArrayList<>(columns.size());
+        // SPEX ADDED: BEGIN
+        int index = 0;
+        // SPEX ADDED: END
         for (String each : columns) {
             result.add(quoteCharacter.wrap(each));
+            // SPEX ADDED: BEGIN
+            Collection<String> currentAddedColumns = addedColumns.get(index++);
+            if (null == currentAddedColumns) {
+                continue;
+            }
+            for (String column : currentAddedColumns) {
+                result.add(quoteCharacter.wrap(column));
+            }
         }
+        // SPEX ADDED: END
         return result;
     }
     

@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +79,12 @@ public class ParameterMarkerExpressionSegment implements SimpleExpressionSegment
     @Override
     public int getParameterIndex() {
         return parameterMarkerIndex;
+    }
+    
+    @SphereEx
+    @Override
+    public ColumnSegmentBoundInfo getBoundInfo() {
+        return Optional.ofNullable(boundInfo).orElseGet(() -> new ColumnSegmentBoundInfo(new IdentifierValue("")));
     }
     
     @Override

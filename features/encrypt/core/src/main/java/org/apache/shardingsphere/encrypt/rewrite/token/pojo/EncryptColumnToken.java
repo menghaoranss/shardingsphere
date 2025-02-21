@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.pojo;
 
+import com.google.common.base.Strings;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.Substitutable;
@@ -49,6 +50,11 @@ public final class EncryptColumnToken extends SQLToken implements Substitutable 
     
     @Override
     public String toString() {
+        // SPEX ADDED: BEGIN
+        if (Strings.isNullOrEmpty(dataType)) {
+            return lastColumn ? String.format(", %s", columnName) : columnName;
+        }
+        // SPEX ADDED: END
         return lastColumn ? String.format(", %s %s", columnName, dataType) : String.format("%s %s", columnName, dataType);
     }
 }

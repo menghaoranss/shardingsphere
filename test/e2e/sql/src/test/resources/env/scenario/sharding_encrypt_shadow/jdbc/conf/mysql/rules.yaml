@@ -332,6 +332,14 @@ rules:
       t_shadow:
         columns:
           order_name:
+            # SPEX ADDED: BEGIN
+            plain:
+              name: order_name_plain
+              queryWithPlain: ${query_with_plain}
+            # SPEX ADDED: END
             cipher:
               name: order_name_cipher
               encryptorName: aes_encryptor
+# SPEX ADDED: BEGIN
+
+# SPEX ADDED: END

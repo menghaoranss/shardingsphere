@@ -17,6 +17,8 @@
 
 DROP TABLE IF EXISTS t_user;
 
-CREATE TABLE t_user (user_id INT NOT NULL, address_id INT NOT NULL, pwd_cipher VARCHAR(45) NULL, status VARCHAR(45) NULL, PRIMARY KEY (user_id));
+-- SPEX CHANGED: BEGIN
+CREATE TABLE t_user (user_id INT NOT NULL, address_id INT NOT NULL, pwd_plain VARCHAR(45) NULL, pwd_cipher VARCHAR(45) NULL, status VARCHAR(45) NULL, PRIMARY KEY (user_id));
+-- SPEX CHANGED: END
 
 CREATE INDEX user_index_t_user ON t_user (user_id);

@@ -17,6 +17,10 @@
 
 package org.apache.shardingsphere.encrypt.algorithm.assisted;
 
+import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
@@ -39,14 +43,16 @@ class MD5AssistedEncryptAlgorithmTest {
         encryptAlgorithm = TypedSPILoader.getService(EncryptAlgorithm.class, "MD5");
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertEncrypt() {
-        assertThat(encryptAlgorithm.encrypt("test", mock(AlgorithmSQLContext.class)), is("098f6bcd4621d373cade4e832627b4f6"));
+        assertThat(encryptAlgorithm.encrypt("test", mock(AlgorithmSQLContext.class), mock(EncryptContext.class)), is("098f6bcd4621d373cade4e832627b4f6"));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertDecrypt() {
-        assertThrows(UnsupportedOperationException.class, () -> encryptAlgorithm.decrypt("test", mock(AlgorithmSQLContext.class)));
+        assertThrows(UnsupportedOperationException.class, () -> encryptAlgorithm.decrypt("test", mock(AlgorithmSQLContext.class), mock(EncryptContext.class)));
     }
     
     @Test
@@ -54,5 +60,22 @@ class MD5AssistedEncryptAlgorithmTest {
         AlgorithmConfiguration actual = encryptAlgorithm.toConfiguration();
         assertThat(actual.getType(), is("MD5"));
         assertTrue(actual.getProps().isEmpty());
+    }
+    
+    @SphereEx
+    @Test
+    void assertExpansibility() {
+        String plainValue = Strings.repeat("漢", 100);
+        int actualCipherCharLength = encryptAlgorithm.encrypt(plainValue, mock(AlgorithmSQLContext.class), mock(EncryptContext.class)).toString().length();
+        int expectedMaxCipherCharLength = encryptAlgorithm.getMetaData().getExpansibility().calculate(plainValue.length(), 4);
+        assertThat(actualCipherCharLength, is(32));
+        assertThat(expectedMaxCipherCharLength, is(32));
+        assertThat(actualCipherCharLength, is(expectedMaxCipherCharLength));
+        plainValue = Strings.repeat("漢", 200);
+        actualCipherCharLength = encryptAlgorithm.encrypt(plainValue, mock(AlgorithmSQLContext.class), mock(EncryptContext.class)).toString().length();
+        expectedMaxCipherCharLength = encryptAlgorithm.getMetaData().getExpansibility().calculate(plainValue.length(), 4);
+        assertThat(actualCipherCharLength, is(32));
+        assertThat(expectedMaxCipherCharLength, is(32));
+        assertThat(actualCipherCharLength, is(expectedMaxCipherCharLength));
     }
 }

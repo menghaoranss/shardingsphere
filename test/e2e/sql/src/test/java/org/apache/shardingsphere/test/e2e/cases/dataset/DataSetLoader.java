@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.test.e2e.cases.dataset;
 
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.util.ConfigPlaceholderReplacer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -49,7 +50,9 @@ public final class DataSetLoader {
      */
     @SneakyThrows({JAXBException.class, IOException.class})
     public static DataSet load(final String parentPath, final String scenario, final DatabaseType databaseType, final String mode, final String dataSetFile) {
-        try (FileReader reader = new FileReader(getFile(parentPath, scenario, databaseType, mode, dataSetFile))) {
+        // SPEX CHANGED: BEGIN
+        try (FileReader reader = new FileReader(ConfigPlaceholderReplacer.getReplacedResource(getFile(parentPath, scenario, databaseType, mode, dataSetFile)))) {
+            // SPEX CHANGED: END
             return (DataSet) JAXBContext.newInstance(DataSet.class).createUnmarshaller().unmarshal(reader);
         }
     }

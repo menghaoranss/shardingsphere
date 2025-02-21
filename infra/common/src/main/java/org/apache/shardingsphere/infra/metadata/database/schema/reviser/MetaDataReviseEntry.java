@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.metadata.database.schema.reviser;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.metadata.database.schema.reviser.column.ColumnDataTypeReviser;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.metadata.database.schema.reviser.column.ColumnExistedReviser;
 import org.apache.shardingsphere.infra.metadata.database.schema.reviser.column.ColumnGeneratedReviser;
@@ -33,7 +35,7 @@ import java.util.Optional;
 
 /**
  * Meta data revise entry.
- * 
+ *
  * @param <T> type of rule
  */
 @SingletonSPI
@@ -77,6 +79,18 @@ public interface MetaDataReviseEntry<T extends ShardingSphereRule> extends Order
      * @return column name reviser
      */
     default Optional<? extends ColumnNameReviser> getColumnNameReviser(final T rule, final String tableName) {
+        return Optional.empty();
+    }
+    
+    /**
+     * Get column data type reviser.
+     *
+     * @param rule rule
+     * @param tableName table name
+     * @return column data type reviser
+     */
+    @SphereEx
+    default Optional<? extends ColumnDataTypeReviser> getColumnDataTypeReviser(final T rule, final String tableName) {
         return Optional.empty();
     }
     

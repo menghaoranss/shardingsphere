@@ -18,6 +18,8 @@
 package org.apache.shardingsphere.infra.metadata.database.schema.model;
 
 import com.cedarsoftware.util.CaseInsensitiveMap;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
@@ -61,18 +63,25 @@ public final class ShardingSphereTable {
     
     private final TableType type;
     
+    @SphereEx
+    private final String characterSetName;
+    
+    @SphereEx(Type.MODIFY)
     public ShardingSphereTable(final String name, final Collection<ShardingSphereColumn> columns,
                                final Collection<ShardingSphereIndex> indexes, final Collection<ShardingSphereConstraint> constraints) {
-        this(name, columns, indexes, constraints, TableType.TABLE);
+        this(name, columns, indexes, constraints, TableType.TABLE, null);
     }
     
     public ShardingSphereTable(final String name, final Collection<ShardingSphereColumn> columns,
-                               final Collection<ShardingSphereIndex> indexes, final Collection<ShardingSphereConstraint> constraints, final TableType type) {
+                               final Collection<ShardingSphereIndex> indexes, final Collection<ShardingSphereConstraint> constraints, final TableType type, @SphereEx final String characterSetName) {
         this.name = name;
         this.columns = createColumns(columns);
         this.indexes = createIndexes(indexes);
         this.constraints = createConstraints(constraints);
         this.type = type;
+        // SPEX ADDED: BEGIN
+        this.characterSetName = characterSetName;
+        // SPEX ADDED: END
     }
     
     private Map<ShardingSphereIdentifier, ShardingSphereColumn> createColumns(final Collection<ShardingSphereColumn> columns) {

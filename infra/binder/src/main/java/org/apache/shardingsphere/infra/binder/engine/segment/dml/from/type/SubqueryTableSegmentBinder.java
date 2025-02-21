@@ -19,18 +19,28 @@ package org.apache.shardingsphere.infra.binder.engine.segment.dml.from.type;
 
 import com.cedarsoftware.util.CaseInsensitiveMap.CaseInsensitiveString;
 import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.binder.engine.segment.parameter.ParameterMarkerExpressionSegmentBinder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.binder.engine.segment.dml.from.context.TableSegmentBinderContext;
 import org.apache.shardingsphere.infra.binder.engine.segment.dml.from.context.type.SimpleTableSegmentBinderContext;
+import org.apache.shardingsphere.infra.binder.engine.segment.util.SubqueryTableBindUtils;
 import org.apache.shardingsphere.infra.binder.engine.statement.SQLStatementBinderContext;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.SelectStatementBinder;
-import org.apache.shardingsphere.infra.binder.engine.segment.util.SubqueryTableBindUtils;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.subquery.SubquerySegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.AliasSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.TableSegmentBoundInfo;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SubqueryTableSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
 /**
  * Subquery table segment binder.
@@ -45,11 +55,12 @@ public final class SubqueryTableSegmentBinder {
      * @param binderContext SQL statement binder context
      * @param tableBinderContexts table binder contexts
      * @param outerTableBinderContexts outer table binder contexts
+     * @param fromWithSegment is from with segment
      * @return bound subquery table segment
      */
     public static SubqueryTableSegment bind(final SubqueryTableSegment segment, final SQLStatementBinderContext binderContext,
                                             final Multimap<CaseInsensitiveString, TableSegmentBinderContext> tableBinderContexts,
-                                            final Multimap<CaseInsensitiveString, TableSegmentBinderContext> outerTableBinderContexts) {
+                                            final Multimap<CaseInsensitiveString, TableSegmentBinderContext> outerTableBinderContexts, final boolean fromWithSegment) {
         fillPivotColumnNamesInBinderContext(segment, binderContext);
         SQLStatementBinderContext subqueryBinderContext =
                 new SQLStatementBinderContext(binderContext.getMetaData(), binderContext.getCurrentDatabaseName(), binderContext.getHintValueContext(), segment.getSubquery().getSelect());
@@ -59,14 +70,38 @@ public final class SubqueryTableSegmentBinder {
         binderContext.getCommonTableExpressionsSegmentsUniqueAliases().addAll(subqueryBinderContext.getCommonTableExpressionsSegmentsUniqueAliases());
         SubquerySegment boundSubquerySegment = new SubquerySegment(segment.getSubquery().getStartIndex(), segment.getSubquery().getStopIndex(), boundSubSelect, segment.getSubquery().getText());
         IdentifierValue subqueryTableName = segment.getAliasSegment().map(AliasSegment::getIdentifier).orElseGet(() -> new IdentifierValue(""));
+        // SPEX ADD: BEGIN
+        bindParameterMarkerProjection(boundSubquerySegment, subqueryTableName);
+        // SPEX ADD: END
         SubqueryTableSegment result = new SubqueryTableSegment(segment.getStartIndex(), segment.getStopIndex(), boundSubquerySegment);
         segment.getAliasSegment().ifPresent(result::setAlias);
-        tableBinderContexts.put(new CaseInsensitiveString(subqueryTableName.getValue()), new SimpleTableSegmentBinderContext(
-                SubqueryTableBindUtils.createSubqueryProjections(boundSubSelect.getProjections().getProjections(), subqueryTableName, binderContext.getSqlStatement().getDatabaseType())));
+        SimpleTableSegmentBinderContext tableBinderContext =
+                new SimpleTableSegmentBinderContext(
+                        SubqueryTableBindUtils.createSubqueryProjections(boundSubSelect.getProjections().getProjections(), subqueryTableName, binderContext.getSqlStatement().getDatabaseType()));
+        tableBinderContext.setFromWithSegment(fromWithSegment);
+        tableBinderContexts.put(new CaseInsensitiveString(subqueryTableName.getValue()), tableBinderContext);
         return result;
     }
     
     private static void fillPivotColumnNamesInBinderContext(final SubqueryTableSegment segment, final SQLStatementBinderContext binderContext) {
         segment.getPivot().ifPresent(optional -> optional.getPivotColumns().forEach(each -> binderContext.getPivotColumnNames().add(each.getIdentifier().getValue())));
+    }
+    
+    @SphereEx
+    private static void bindParameterMarkerProjection(final SubquerySegment boundSubquerySegment, final IdentifierValue subqueryTableName) {
+        SelectStatement boundSelect = boundSubquerySegment.getSelect();
+        Collection<ProjectionSegment> projections = new LinkedList<>(boundSelect.getProjections().getProjections());
+        boundSelect.getProjections().getProjections().clear();
+        for (ProjectionSegment each : projections) {
+            if (!(each instanceof ParameterMarkerExpressionSegment)) {
+                boundSelect.getProjections().getProjections().add(each);
+                continue;
+            }
+            ParameterMarkerExpressionSegment parameterMarkerProjection = (ParameterMarkerExpressionSegment) each;
+            // TODO add database and schema in ColumnSegmentBoundInfo
+            boundSelect.getProjections().getProjections().add(ParameterMarkerExpressionSegmentBinder.bind(parameterMarkerProjection, Collections.singletonMap(parameterMarkerProjection,
+                    new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), subqueryTableName,
+                            parameterMarkerProjection.getAlias().orElseGet(() -> new IdentifierValue(""))))));
+        }
     }
 }

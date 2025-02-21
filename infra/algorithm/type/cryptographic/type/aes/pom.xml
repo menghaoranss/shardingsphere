@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere-infra-algorithm-cryptographic-type</artifactId>
-        <version>5.5.2</version>
+        <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
     
     <artifactId>shardingsphere-infra-algorithm-cryptographic-aes</artifactId>
@@ -33,6 +33,12 @@
             <artifactId>shardingsphere-infra-algorithm-cryptographic-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <!-- SPEX ADDED: END -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>

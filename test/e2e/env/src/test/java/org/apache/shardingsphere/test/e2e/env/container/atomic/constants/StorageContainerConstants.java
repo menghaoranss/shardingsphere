@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.constants;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,9 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StorageContainerConstants {
+    
+    @SphereEx
+    public static final int ORACLE_EXPOSED_PORT = 1521;
     
     public static final String USERNAME = "test_user";
     

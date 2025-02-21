@@ -49,6 +49,9 @@ public final class ProxyStandaloneContainerConfigurationFactory {
     
     private static Map<String, String> getMountedResources(final String scenario, final DatabaseType databaseType) {
         Map<String, String> result = new HashMap<>(3, 1F);
+        // SPEX ADDED: BEGIN
+        result.put("/env/common/standalone/proxy/conf/sphere-ex.license", ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER + "sphere-ex.license");
+        // SPEX ADDED: END
         result.put("/env/common/standalone/proxy/conf/logback.xml", ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER + "logback.xml");
         result.put("/env/scenario/" + scenario + "/proxy/conf/" + databaseType.getType().toLowerCase(), ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER);
         result.put(getGlobalYamlPath(scenario, databaseType), ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER + "global.yaml");

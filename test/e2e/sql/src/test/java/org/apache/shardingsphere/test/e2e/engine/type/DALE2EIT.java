@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.engine.type;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.util.datetime.DateTimeFormatterFactory;
 import org.apache.shardingsphere.test.e2e.cases.dataset.metadata.DataSetColumn;
 import org.apache.shardingsphere.test.e2e.cases.dataset.metadata.DataSetMetaData;
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -132,11 +134,27 @@ class DALE2EIT implements E2EEnvironmentAware {
             String columnLabel = actualMetaData.getColumnLabel(columnIndex);
             if (Types.DATE == actual.getMetaData().getColumnType(columnIndex)) {
                 assertDateValue(actual, columnIndex, columnLabel, each);
+                // SPEX ADDED: BEGIN
+            } else if (Types.CLOB == actual.getMetaData().getColumnType(columnIndex) || Types.NCLOB == actual.getMetaData().getColumnType(columnIndex)) {
+                assertClobValue(actual, columnIndex, columnLabel, each);
+                // SPEX ADDED: END
             } else {
                 assertObjectValue(actual, columnIndex, columnLabel, each);
             }
             columnIndex++;
         }
+    }
+    
+    @SphereEx
+    private void assertClobValue(final ResultSet actual, final int columnIndex, final String columnLabel, final String expected) throws SQLException {
+        if (E2ETestContext.NOT_VERIFY_FLAG.equals(expected)) {
+            return;
+        }
+        Clob clob = actual.getClob(columnIndex);
+        assertThat(clob.getSubString(1L, (int) clob.length()), is(expected));
+        clob = actual.getClob(columnLabel);
+        assertThat(clob.getSubString(1L, (int) clob.length()), is(expected));
+        
     }
     
     private void assertDateValue(final ResultSet actual, final int columnIndex, final String columnLabel, final String expected) throws SQLException {

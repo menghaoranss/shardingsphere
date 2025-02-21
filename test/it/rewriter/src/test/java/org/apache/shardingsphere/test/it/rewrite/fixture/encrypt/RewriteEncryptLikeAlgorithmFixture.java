@@ -18,6 +18,9 @@
 package org.apache.shardingsphere.test.it.rewrite.fixture.encrypt;
 
 import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
@@ -28,6 +31,7 @@ import org.apache.shardingsphere.infra.algorithm.core.exception.AlgorithmInitial
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -53,8 +57,9 @@ public final class RewriteEncryptLikeAlgorithmFixture implements EncryptAlgorith
     
     private static final int MAX_NUMERIC_LETTER_CHAR = 255;
     
+    @SphereEx(Type.MODIFY)
     @Getter
-    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(false, true, true);
+    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(false, true, true, false, (plainCharLength, charToByteRatio) -> plainCharLength);
     
     private int delta;
     
@@ -127,13 +132,19 @@ public final class RewriteEncryptLikeAlgorithmFixture implements EncryptAlgorith
     }
     
     @Override
-    public String encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public Object encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         return null == plainValue ? null : digest(String.valueOf(plainValue));
     }
     
     @Override
-    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         throw new UnsupportedOperationException(String.format("Algorithm `%s` is unsupported to decrypt", getType()));
+    }
+    
+    @SphereEx
+    @Override
+    public Map<String, Object> getUdfDataModel() {
+        return Collections.emptyMap();
     }
     
     private String digest(final String plainValue) {

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<e2e-test-cases>
+    <test-case sql="SELECT * FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS &quot;distinct_count&quot; FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS &quot;distinct_count&quot; FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT *
+                    FROM (
+                        SELECT tmp_tb.*, ROWNUM AS row_id
+                        FROM (
+                            SELECT bsc.*, ue.USR_TYP_CD, ue.REG_CHL_CD
+                            FROM (
+                                SELECT DISTINCT u.ID, u.USR_NM, u.OPEN_ID, u.MP, u.E_MAIL
+                                    , u.QQ, u.IS_SYS_DEF, u.IS_VALID, u.IS_DEL, u.CRT_TM
+                                    , u.CRT_USR_ID, u.MDF_TM, u.MDF_USR_ID, us.IS_SYS_DEF AS REF_IS_SYS_DEF, us.RL_NM AS REF_RL_NM
+                                    , us.ID AS REF_ID, us.PWD AS REF_PWD, us.SYS_CD AS REF_SYS_CD, us.REG_TYP_CD AS REF_REG_TYP_CD, us.REG_DT AS REF_REG_DT
+                                    , us.IS_VALID AS REF_IS_VALID, us.IS_DEL AS REF_IS_DEL, us.CERT_TYP_CD AS REF_CERT_TYP_CD, us.CERT_NO AS REF_CERT_NO, us.REF_MP AS REF_REF_MP
+                                    , us.NICK_NM AS REF_NICK_NM, us.LATELY_LOGIN_TM AS REF_LATELY_LOGIN_TM, us.NO_TALK_TYP AS REF_NO_TALK_TYP, us.NO_TALK_TM AS REF_NO_TALK_TM, us.REF_USR_ID AS REF_REF_USR_ID
+                                    , us.REF_USR_BUS_TYP AS REF_REF_USR_BUS_TYP, us.SALT AS REF_SALT, us.PWD_CRT_TM AS REF_PWD_CRT_TM, us.LOCK_STATE AS REF_LOCK_STATE, us.IS_LEAVE AS REF_IS_LEAVE
+                                    , us.PER_TYPE_CD AS REF_PER_TYPE_CD, us.MP_STS_CD AS REF_MP_STS_CD
+                                FROM SYS_USR u
+                                    INNER JOIN SYS_USR_SYS_R us ON u.id = us.usr_id 
+                                WHERE u.IS_DEL = 0
+                                    AND us.IS_DEL = 0
+                                    AND us.SYS_CD = ?
+                            ) bsc
+                                LEFT JOIN (
+                                    SELECT ext.*
+                                    FROM (
+                                        SELECT USR_ID, USR_TYP_CD, REG_CHL_CD, ROW_NUMBER() OVER (PARTITION BY USR_ID ORDER BY CRT_TM) AS row_ord
+                                        FROM SYS_USR_EXT_INFO
+                                    ) ext
+                                    WHERE ext.row_ord = ?
+                                ) ue ON bsc.id = ue.usr_id 
+                            ORDER BY bsc.CRT_TM DESC, bsc.&quot;ID&quot;
+                        ) tmp_tb
+                        WHERE ROWNUM &lt;= ?
+                    )
+                    WHERE row_id &gt; ?" scenario-types="encrypt" db-types="Oracle">
+        <assertion parameters="11000:int, 1:int, 20:int, 0:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT bsc.*, ue.USR_TYP_CD, ue.REG_CHL_CD
+                    FROM (
+                        SELECT u.ID, u.USR_NM, u.OPEN_ID, u.MP, u.E_MAIL
+                            , u.QQ, u.IS_SYS_DEF, u.IS_VALID, u.IS_DEL, u.CRT_TM
+                            , u.CRT_USR_ID, u.MDF_TM, u.MDF_USR_ID
+                        FROM SYS_USR u
+                        WHERE u.ID = 1
+                            AND u.IS_DEL = ?
+                    ) bsc
+                        LEFT JOIN (
+                            SELECT ext.*
+                            FROM (
+                                SELECT USR_ID, USR_TYP_CD, REG_CHL_CD, ROW_NUMBER() OVER (PARTITION BY USR_ID ORDER BY CRT_TM) AS row_ord
+                                FROM SYS_USR_EXT_INFO
+                            ) ext
+                            WHERE ext.row_ord = ?
+                        ) ue ON bsc.id = ue.usr_id " scenario-types="encrypt" db-types="Oracle">
+        <assertion parameters="0:int, 1:int" expected-data-source-name="read_dataset" />
+    </test-case>
+</e2e-test-cases>
+<!-- SPEX ADDED: END -->

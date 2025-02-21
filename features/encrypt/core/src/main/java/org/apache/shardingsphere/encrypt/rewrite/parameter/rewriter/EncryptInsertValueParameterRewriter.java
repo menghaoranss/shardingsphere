@@ -114,6 +114,14 @@ public final class EncryptInsertValueParameterRewriter implements ParameterRewri
         if (encryptColumn.getLikeQuery().isPresent()) {
             addedParams.add(encryptColumn.getLikeQuery().get().encrypt(databaseName, schemaName, tableName, columnName, originalValue));
         }
+        // SPEX ADDED: BEGIN
+        if (encryptColumn.getOrderQuery().isPresent()) {
+            addedParams.add(encryptColumn.getOrderQuery().get().encrypt(databaseName, schemaName, tableName, columnName, originalValue));
+        }
+        if (encryptColumn.getPlain().isPresent()) {
+            addedParams.add(originalValue);
+        }
+        // SPEX ADDED: END
         if (!addedParams.isEmpty()) {
             if (!paramBuilder.getAddedIndexAndParameters().containsKey(paramIndex)) {
                 paramBuilder.getAddedIndexAndParameters().put(paramIndex, new LinkedList<>());

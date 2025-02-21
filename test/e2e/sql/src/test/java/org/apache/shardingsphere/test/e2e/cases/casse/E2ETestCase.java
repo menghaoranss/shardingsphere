@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.cases.casse;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.test.e2e.cases.casse.assertion.E2ETestCaseAssertion;
@@ -59,4 +60,12 @@ public final class E2ETestCase {
     
     @XmlElement(name = "assertion")
     private Collection<E2ETestCaseAssertion> assertions = new LinkedList<>();
+    
+    @SphereEx
+    @XmlAttribute(name = "ignore-batch-test")
+    private Boolean ignoreBatchTest;
+    
+    @SphereEx
+    @XmlAttribute(name = "sql-case-types")
+    private String sqlCaseTypes;
 }

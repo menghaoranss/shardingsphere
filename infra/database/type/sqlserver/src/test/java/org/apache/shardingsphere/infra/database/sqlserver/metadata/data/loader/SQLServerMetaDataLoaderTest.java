@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.sqlserver.metadata.data.loader;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
@@ -48,29 +50,69 @@ import static org.mockito.Mockito.when;
 
 class SQLServerMetaDataLoaderTest {
     
+    @SphereEx(Type.MODIFY)
     private static final String LOAD_COLUMN_META_DATA_WITHOUT_TABLES_HIGH_VERSION = "SELECT obj.name AS TABLE_NAME, col.name AS COLUMN_NAME, t.name AS DATA_TYPE,"
             + " col.collation_name AS COLLATION_NAME, col.column_id, is_identity AS IS_IDENTITY, col.is_nullable AS IS_NULLABLE, is_hidden AS IS_HIDDEN,"
             + " (SELECT TOP 1 ind.is_primary_key FROM sys.index_columns ic LEFT JOIN sys.indexes ind ON ic.object_id = ind.object_id"
-            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY"
+            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY,"
+            + " CASE"
+            + " WHEN t.name IN ('varchar', 'char', 'nvarchar', 'nchar') THEN"
+            + " t.name +"
+            + " CASE"
+            + " WHEN col.max_length = -1 THEN '(MAX)'"
+            + " ELSE '(' + CAST(col.max_length AS VARCHAR) + ')'"
+            + " END"
+            + " ELSE t.name"
+            + " END AS COLUMN_TYPE"
             + " FROM sys.objects obj INNER JOIN sys.columns col ON obj.object_id = col.object_id LEFT JOIN sys.types t ON t.user_type_id = col.user_type_id ORDER BY col.column_id";
     
+    @SphereEx(Type.MODIFY)
     private static final String LOAD_COLUMN_META_DATA_WITHOUT_TABLES_LOW_VERSION = "SELECT obj.name AS TABLE_NAME, col.name AS COLUMN_NAME, t.name AS DATA_TYPE,"
             + " col.collation_name AS COLLATION_NAME, col.column_id, is_identity AS IS_IDENTITY, col.is_nullable AS IS_NULLABLE,"
             + "  (SELECT TOP 1 ind.is_primary_key FROM sys.index_columns ic LEFT JOIN sys.indexes ind ON ic.object_id = ind.object_id"
-            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY"
+            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY,"
+            + " CASE"
+            + " WHEN t.name IN ('varchar', 'char', 'nvarchar', 'nchar') THEN"
+            + " t.name +"
+            + " CASE"
+            + " WHEN col.max_length = -1 THEN '(MAX)'"
+            + " ELSE '(' + CAST(col.max_length AS VARCHAR) + ')'"
+            + " END"
+            + " ELSE t.name"
+            + " END AS COLUMN_TYPE"
             + " FROM sys.objects obj INNER JOIN sys.columns col ON obj.object_id = col.object_id LEFT JOIN sys.types t ON t.user_type_id = col.user_type_id ORDER BY col.column_id";
     
+    @SphereEx(Type.MODIFY)
     private static final String LOAD_COLUMN_META_DATA_WITH_TABLES_HIGH_VERSION = "SELECT obj.name AS TABLE_NAME, col.name AS COLUMN_NAME, t.name AS DATA_TYPE,"
             + " col.collation_name AS COLLATION_NAME, col.column_id, is_identity AS IS_IDENTITY, col.is_nullable AS IS_NULLABLE, is_hidden AS IS_HIDDEN,"
             + " (SELECT TOP 1 ind.is_primary_key FROM sys.index_columns ic LEFT JOIN sys.indexes ind ON ic.object_id = ind.object_id"
-            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY"
+            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY,"
+            + " CASE"
+            + " WHEN t.name IN ('varchar', 'char', 'nvarchar', 'nchar') THEN"
+            + " t.name +"
+            + " CASE"
+            + " WHEN col.max_length = -1 THEN '(MAX)'"
+            + " ELSE '(' + CAST(col.max_length AS VARCHAR) + ')'"
+            + " END"
+            + " ELSE t.name"
+            + " END AS COLUMN_TYPE"
             + " FROM sys.objects obj INNER JOIN sys.columns col ON obj.object_id = col.object_id LEFT JOIN sys.types t ON t.user_type_id = col.user_type_id"
             + " WHERE obj.name IN ('tbl') ORDER BY col.column_id";
     
+    @SphereEx(Type.MODIFY)
     private static final String LOAD_COLUMN_META_DATA_WITH_TABLES_LOW_VERSION = "SELECT obj.name AS TABLE_NAME, col.name AS COLUMN_NAME, t.name AS DATA_TYPE,"
             + " col.collation_name AS COLLATION_NAME, col.column_id, is_identity AS IS_IDENTITY, col.is_nullable AS IS_NULLABLE,"
             + "  (SELECT TOP 1 ind.is_primary_key FROM sys.index_columns ic LEFT JOIN sys.indexes ind ON ic.object_id = ind.object_id"
-            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY"
+            + " AND ic.index_id = ind.index_id AND ind.name LIKE 'PK_%' WHERE ic.object_id = obj.object_id AND ic.column_id = col.column_id) AS IS_PRIMARY_KEY,"
+            + " CASE"
+            + " WHEN t.name IN ('varchar', 'char', 'nvarchar', 'nchar') THEN"
+            + " t.name +"
+            + " CASE"
+            + " WHEN col.max_length = -1 THEN '(MAX)'"
+            + " ELSE '(' + CAST(col.max_length AS VARCHAR) + ')'"
+            + " END"
+            + " ELSE t.name"
+            + " END AS COLUMN_TYPE"
             + " FROM sys.objects obj INNER JOIN sys.columns col ON obj.object_id = col.object_id LEFT JOIN sys.types t ON t.user_type_id = col.user_type_id"
             + " WHERE obj.name IN ('tbl') ORDER BY col.column_id";
     
@@ -96,8 +138,10 @@ class SQLServerMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -116,8 +160,10 @@ class SQLServerMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, true, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, true, false, true, "varchar(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -135,8 +181,10 @@ class SQLServerMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -154,8 +202,10 @@ class SQLServerMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, true, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, true, false, true, "varchar(32)"));
+        // SPEX CHANGED: END
     }
     
     private DataSource mockDataSource() throws SQLException {
@@ -184,6 +234,7 @@ class SQLServerMetaDataLoaderTest {
         when(result.getString("IS_HIDDEN")).thenReturn("0", "1");
         when(result.getString("COLLATION_NAME")).thenReturn("SQL_Latin1_General_CP1_CS_AS", "utf8");
         when(result.getString("IS_NULLABLE")).thenReturn("0", "1");
+        when(result.getString("COLUMN_TYPE")).thenReturn(null, "varchar(32)");
         return result;
     }
     

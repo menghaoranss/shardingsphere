@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.binder.context.statement.dml;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
 import org.apache.shardingsphere.infra.binder.context.statement.CommonSQLStatementContext;
@@ -53,12 +54,18 @@ public final class DeleteStatementContext extends CommonSQLStatementContext impl
     
     private final Collection<BinaryOperationExpression> joinConditions = new LinkedList<>();
     
+    @SphereEx
+    private final Collection<ColumnSegment> columnSegmentsForUDF = new LinkedList<>();
+    
     public DeleteStatementContext(final DeleteStatement sqlStatement) {
         super(sqlStatement);
         tablesContext = new TablesContext(getAllSimpleTableSegments());
         getSqlStatement().getWhere().ifPresent(whereSegments::add);
         ColumnExtractor.extractColumnSegments(columnSegments, whereSegments);
         ExpressionExtractor.extractJoinConditions(joinConditions, whereSegments);
+        // SPEX ADDED: BEGIN
+        sqlStatement.getWhere().ifPresent(optional -> ColumnExtractor.extractFromWhere(columnSegmentsForUDF, optional, true));
+        // SPEX ADDED: END
     }
     
     private Collection<SimpleTableSegment> getAllSimpleTableSegments() {

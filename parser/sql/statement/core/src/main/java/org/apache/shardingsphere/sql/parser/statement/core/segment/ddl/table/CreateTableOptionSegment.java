@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.segment.ddl.table;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -62,5 +63,25 @@ public final class CreateTableOptionSegment implements CreateDefinitionSegment {
      */
     public Optional<CommentSegment> getComment() {
         return Optional.ofNullable(commentSegment);
+    }
+    
+    /**
+     * Get charset name.
+     *
+     * @return charset name 
+     */
+    @SphereEx
+    public Optional<String> getCharsetName() {
+        return Optional.ofNullable(charsetName);
+    }
+    
+    /**
+     * Get collate name.
+     *
+     * @return collate name 
+     */
+    @SphereEx
+    public Optional<String> getCollateName() {
+        return Optional.ofNullable(collateName);
     }
 }

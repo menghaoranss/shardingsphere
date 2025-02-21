@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.proxy.backend.handler.data;
 
+import com.sphereex.dbplusengine.proxy.backend.connector.EnterpriseDatabaseConnector;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
@@ -97,7 +98,9 @@ class DatabaseBackendHandlerFactoryTest {
                 DatabaseBackendHandlerFactory.newInstance(
                         new QueryContext(sqlStatementContext, sql, Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mock(ShardingSphereMetaData.class)),
                         connectionSession, false);
-        assertThat(actual, instanceOf(StandardDatabaseConnector.class));
+        // SPEX CHANGED: BEGIN
+        assertThat(actual, instanceOf(EnterpriseDatabaseConnector.class));
+        // SPEX CHANGED: END
     }
     
     private SQLStatementContext mockSQLStatementContext() {
@@ -119,7 +122,9 @@ class DatabaseBackendHandlerFactoryTest {
     }
     
     private ConnectionSession mockConnectionSession() {
-        ConnectionSession result = mock(ConnectionSession.class);
+        // SPEX CHANGED: BEGIN
+        ConnectionSession result = mock(ConnectionSession.class, RETURNS_DEEP_STUBS);
+        // SPEX CHANGED: END
         when(result.getUsedDatabaseName()).thenReturn("foo_db");
         when(result.getDatabaseConnectionManager()).thenReturn(mock(ProxyDatabaseConnectionManager.class));
         when(result.getDatabaseConnectionManager().getConnectionSession()).thenReturn(result);

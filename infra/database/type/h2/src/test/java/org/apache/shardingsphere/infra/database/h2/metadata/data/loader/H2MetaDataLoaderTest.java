@@ -52,10 +52,18 @@ class H2MetaDataLoaderTest {
     void assertLoadWithoutTables() throws SQLException {
         DataSource dataSource = mockDataSource();
         ResultSet resultSet = mockTableMetaDataResultSet();
+        // SPEX CHANGED: BEGIN
         when(dataSource.getConnection().prepareStatement(
-                "SELECT TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION, COALESCE(IS_VISIBLE, FALSE) IS_VISIBLE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS"
+                "SELECT TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION, COALESCE(IS_VISIBLE, FALSE) IS_VISIBLE, IS_NULLABLE,"
+                        + " CASE"
+                        + " WHEN DATA_TYPE IN ('VARCHAR', 'CHAR', 'CHARACTER VARYING') THEN"
+                        + " DATA_TYPE || '(' || CHARACTER_MAXIMUM_LENGTH || ')'"
+                        + " ELSE DATA_TYPE"
+                        + " END AS COLUMN_TYPE"
+                        + " FROM INFORMATION_SCHEMA.COLUMNS"
                         + " WHERE TABLE_CATALOG=? AND TABLE_SCHEMA=? ORDER BY ORDINAL_POSITION")
                 .executeQuery()).thenReturn(resultSet);
+        // SPEX CHANGED: END
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(
                 "SELECT TABLE_CATALOG, TABLE_NAME, INDEX_NAME, INDEX_TYPE_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE TABLE_CATALOG=? AND TABLE_SCHEMA=? AND UPPER(TABLE_NAME) IN ('TBL')")
@@ -69,17 +77,27 @@ class H2MetaDataLoaderTest {
                         + " INFORMATION_SCHEMA.INDEXES I ON C.TABLE_NAME=I.TABLE_NAME WHERE C.TABLE_CATALOG=? AND C.TABLE_SCHEMA=?")
                 .executeQuery()).thenReturn(generatedInfo);
         DataTypeRegistry.load(dataSource, "H2");
+        // SPEX CHANGED: BEGIN
         assertTableMetaDataMap(getDialectTableMetaDataLoader().load(new MetaDataLoaderMaterial(Collections.emptyList(), "foo_ds", dataSource, new H2DatabaseType(), "sharding_db")));
+        // SPEX CHANGED: END
     }
     
     @Test
     void assertLoadWithTables() throws SQLException {
         DataSource dataSource = mockDataSource();
         ResultSet resultSet = mockTableMetaDataResultSet();
+        // SPEX CHANGED: BEGIN
         when(dataSource.getConnection().prepareStatement(
-                "SELECT TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION, COALESCE(IS_VISIBLE, FALSE) IS_VISIBLE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS"
+                "SELECT TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION, COALESCE(IS_VISIBLE, FALSE) IS_VISIBLE, IS_NULLABLE,"
+                        + " CASE"
+                        + " WHEN DATA_TYPE IN ('VARCHAR', 'CHAR', 'CHARACTER VARYING') THEN"
+                        + " DATA_TYPE || '(' || CHARACTER_MAXIMUM_LENGTH || ')'"
+                        + " ELSE DATA_TYPE"
+                        + " END AS COLUMN_TYPE"
+                        + " FROM INFORMATION_SCHEMA.COLUMNS"
                         + " WHERE TABLE_CATALOG=? AND TABLE_SCHEMA=? AND UPPER(TABLE_NAME) IN ('TBL') ORDER BY ORDINAL_POSITION")
                 .executeQuery()).thenReturn(resultSet);
+        // SPEX CHANGED: END
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(
                 "SELECT TABLE_CATALOG, TABLE_NAME, INDEX_NAME, INDEX_TYPE_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE TABLE_CATALOG=? AND TABLE_SCHEMA=? AND UPPER(TABLE_NAME) IN ('TBL')")
@@ -94,7 +112,9 @@ class H2MetaDataLoaderTest {
                         + " RIGHT JOIN INFORMATION_SCHEMA.INDEXES I ON C.TABLE_NAME=I.TABLE_NAME WHERE C.TABLE_CATALOG=? AND C.TABLE_SCHEMA=? AND C.TABLE_NAME IN ('tbl')")
                 .executeQuery()).thenReturn(generatedInfo);
         DataTypeRegistry.load(dataSource, "H2");
+        // SPEX CHANGED: BEGIN
         assertTableMetaDataMap(getDialectTableMetaDataLoader().load(new MetaDataLoaderMaterial(Collections.singletonList("tbl"), "foo_ds", dataSource, new H2DatabaseType(), "sharding_db")));
+        // SPEX CHANGED: END
     }
     
     private DataSource mockDataSource() throws SQLException {
@@ -122,6 +142,9 @@ class H2MetaDataLoaderTest {
         when(result.getInt("ORDINAL_POSITION")).thenReturn(0, 1);
         when(result.getBoolean("IS_VISIBLE")).thenReturn(true, false);
         when(result.getString("IS_NULLABLE")).thenReturn("NO", "YES");
+        // SPEX ADDED: BEGIN
+        when(result.getString("COLUMN_TYPE")).thenReturn(null, "varchar(255)");
+        // SPEX ADDED: END
         return result;
     }
     
@@ -162,8 +185,10 @@ class H2MetaDataLoaderTest {
         TableMetaData actualTableMetaData = schemaMetaDataList.iterator().next().getTables().iterator().next();
         assertThat(actualTableMetaData.getColumns().size(), is(2));
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, false, false, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, false, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar(255)"));
+        // SPEX CHANGED: END
         assertThat(actualTableMetaData.getIndexes().size(), is(1));
         Iterator<IndexMetaData> indexesIterator = actualTableMetaData.getIndexes().iterator();
         IndexMetaData indexMetaData = new IndexMetaData("id");

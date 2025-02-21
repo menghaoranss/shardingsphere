@@ -17,3 +17,5 @@
 
 org.apache.shardingsphere.encrypt.rule.changed.EncryptTableChangedProcessor
 org.apache.shardingsphere.encrypt.rule.changed.EncryptorChangedProcessor
+
+com.sphereex.dbplusengine.encrypt.rule.changed.EncryptModeChangedProcessor

@@ -17,8 +17,10 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.assignment;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptAssignmentToken;
+import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptFunctionAssignmentToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptLiteralAssignmentToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptParameterAssignmentToken;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -26,11 +28,13 @@ import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
+import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.ColumnAssignmentSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.SetAssignmentSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 
@@ -80,6 +84,11 @@ public final class EncryptAssignmentTokenGenerator {
         if (segment.getValue() instanceof LiteralExpressionSegment) {
             return Optional.of(generateLiteralSQLToken(schemaName, tableName, encryptColumn, segment));
         }
+        // SPEX ADDED: BEGIN
+        if (segment.getValue() instanceof FunctionSegment) {
+            return Optional.of(generateFunctionSQLToken(encryptColumn, segment));
+        }
+        // SPEX ADDED: END
         return Optional.empty();
     }
     
@@ -89,6 +98,10 @@ public final class EncryptAssignmentTokenGenerator {
         result.addColumnName(encryptColumn.getCipher().getName());
         encryptColumn.getAssistedQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
         encryptColumn.getLikeQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
+        // SPEX ADDED: BEGIN
+        encryptColumn.getOrderQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
+        encryptColumn.getPlain().ifPresent(optional -> result.addColumnName(optional.getName()));
+        // SPEX ADDED: END
         return result;
     }
     
@@ -98,7 +111,30 @@ public final class EncryptAssignmentTokenGenerator {
         addCipherAssignment(schemaName, tableName, encryptColumn, segment, result);
         addAssistedQueryAssignment(schemaName, tableName, encryptColumn, segment, result);
         addLikeAssignment(schemaName, tableName, encryptColumn, segment, result);
+        // SPEX ADDED: BEGIN
+        addOrderAssignment(schemaName, tableName, encryptColumn, segment, result);
+        addPlainAssignment(encryptColumn, segment, result);
+        // SPEX ADDED: END
         return result;
+    }
+    
+    @SphereEx
+    private EncryptAssignmentToken generateFunctionSQLToken(final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment) {
+        QuoteCharacter quoteCharacter = segment.getColumns().get(0).getIdentifier().getQuoteCharacter();
+        EncryptFunctionAssignmentToken result =
+                new EncryptFunctionAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), quoteCharacter);
+        String functionName = ((FunctionSegment) segment.getValue()).getFunctionName();
+        result.addAssignment(encryptColumn.getCipher().getName(), getFunctionToken(functionName, encryptColumn.getCipher().getName(), quoteCharacter));
+        encryptColumn.getAssistedQuery().ifPresent(optional -> result.addAssignment(optional.getName(), getFunctionToken(functionName, optional.getName(), quoteCharacter)));
+        encryptColumn.getLikeQuery().ifPresent(optional -> result.addAssignment(optional.getName(), getFunctionToken(functionName, optional.getName(), quoteCharacter)));
+        encryptColumn.getOrderQuery().ifPresent(optional -> result.addAssignment(optional.getName(), getFunctionToken(functionName, optional.getName(), quoteCharacter)));
+        encryptColumn.getPlain().ifPresent(optional -> result.addAssignment(optional.getName(), getFunctionToken(functionName, optional.getName(), quoteCharacter)));
+        return result;
+    }
+    
+    @SphereEx
+    private String getFunctionToken(final String functionName, final String name, final QuoteCharacter quoteCharacter) {
+        return functionName + "(" + quoteCharacter.wrap(name) + "," + " ?)";
     }
     
     private void addCipherAssignment(final String schemaName, final String tableName,
@@ -126,5 +162,22 @@ public final class EncryptAssignmentTokenGenerator {
                     tableName, segment.getColumns().get(0).getIdentifier().getValue(), Collections.singletonList(originalValue)).iterator().next();
             token.addAssignment(encryptColumn.getLikeQuery().get().getName(), assistedQueryValue);
         }
+    }
+    
+    @SphereEx
+    private void addOrderAssignment(final String schemaName, final String tableName,
+                                    final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment, final EncryptLiteralAssignmentToken token) {
+        Object originalValue = ((LiteralExpressionSegment) segment.getValue()).getLiterals();
+        if (encryptColumn.getOrderQuery().isPresent()) {
+            Object assistedQueryValue = encryptColumn.getOrderQuery().get().encrypt(databaseName, schemaName,
+                    tableName, segment.getColumns().get(0).getIdentifier().getValue(), Collections.singletonList(originalValue)).iterator().next();
+            token.addAssignment(encryptColumn.getOrderQuery().get().getName(), assistedQueryValue);
+        }
+    }
+    
+    @SphereEx
+    private void addPlainAssignment(final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment, final EncryptLiteralAssignmentToken token) {
+        Object originalValue = ((LiteralExpressionSegment) segment.getValue()).getLiterals();
+        encryptColumn.getPlain().ifPresent(optional -> token.addAssignment(optional.getName(), originalValue));
     }
 }

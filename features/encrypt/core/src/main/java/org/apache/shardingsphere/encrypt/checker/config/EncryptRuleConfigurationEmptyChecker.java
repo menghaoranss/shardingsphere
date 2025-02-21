@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.checker.config;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.infra.config.rule.scope.DatabaseRuleConfigurationEmptyChecker;
 
@@ -25,9 +27,10 @@ import org.apache.shardingsphere.infra.config.rule.scope.DatabaseRuleConfigurati
  */
 public final class EncryptRuleConfigurationEmptyChecker implements DatabaseRuleConfigurationEmptyChecker<EncryptRuleConfiguration> {
     
+    @SphereEx(Type.MODIFY)
     @Override
     public boolean isEmpty(final EncryptRuleConfiguration ruleConfig) {
-        return ruleConfig.getTables().isEmpty();
+        return ruleConfig.getTables().isEmpty() && ruleConfig.getKeyManagers().isEmpty() && null == ruleConfig.getEncryptMode();
     }
     
     @Override

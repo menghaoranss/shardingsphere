@@ -25,8 +25,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_1:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_1?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -34,8 +36,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_2:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_2?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -43,8 +47,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_3:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_3?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -52,8 +58,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_4:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_4?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -61,8 +69,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_5:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_5?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -70,8 +80,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_6:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_6?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -79,8 +91,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_7:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_7?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -88,8 +102,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_8:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_8?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -97,8 +113,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   write_ds_9:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/write_ds_9?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -106,8 +124,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_0:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_0?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -115,8 +135,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_1:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_1?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -124,8 +146,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_2:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_2?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -133,8 +157,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_3:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_3?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -142,8 +168,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_4:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_4?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -151,8 +179,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_5:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_5?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -160,8 +190,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_6:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_6?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -169,8 +201,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_7:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_7?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -178,8 +212,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_8:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_8?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -187,8 +223,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
   read_ds_9:
     url: jdbc:mysql://mysql.dbtbl_with_readwrite_splitting.host:3306/read_ds_9?useSSL=false&characterEncoding=utf-8
     username: test_user
@@ -196,8 +234,10 @@ dataSources:
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
-    maxPoolSize: 20
-    minPoolSize: 10
+    # SPEX CHANGED: BEGIN
+    maxPoolSize: 5
+    minPoolSize: 2
+    # SPEX CHANGED: END
 
 rules:
 - !SINGLE

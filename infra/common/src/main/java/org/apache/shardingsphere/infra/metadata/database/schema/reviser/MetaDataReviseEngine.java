@@ -17,12 +17,16 @@
 
 package org.apache.shardingsphere.infra.metadata.database.schema.reviser;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ConstraintMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.IndexMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.SchemaMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.TableMetaData;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.metadata.database.resource.unit.StorageUnit;
 import org.apache.shardingsphere.infra.metadata.database.schema.builder.GenericSchemaBuilderMaterial;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereColumn;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereConstraint;
@@ -32,6 +36,7 @@ import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSp
 import org.apache.shardingsphere.infra.metadata.database.schema.reviser.schema.SchemaMetaDataReviseEngine;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 
+import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,15 +66,23 @@ public final class MetaDataReviseEngine {
         }
         Map<String, ShardingSphereSchema> result = new HashMap<>(schemaMetaDataMap.size(), 1F);
         for (Entry<String, SchemaMetaData> entry : schemaMetaDataMap.entrySet()) {
-            SchemaMetaData schemaMetaData = new SchemaMetaDataReviseEngine(rules, material.getProps()).revise(entry.getValue());
-            result.put(entry.getKey(), new ShardingSphereSchema(entry.getKey(), convertToTables(schemaMetaData.getTables()), new LinkedList<>()));
+            @SphereEx
+            DatabaseType databaseType = material.getStorageUnits().values().stream().map(StorageUnit::getStorageType).findFirst().orElse(null);
+            @SphereEx
+            DataSource dataSource = material.getStorageUnits().values().stream().map(StorageUnit::getDataSource).findFirst().orElse(null);
+            // SPEX CHANGED: BEGIN
+            SchemaMetaData schemaMetaData = new SchemaMetaDataReviseEngine(rules, material.getProps(), databaseType, dataSource).revise(entry.getValue());
+            result.put(entry.getKey(), new ShardingSphereSchema(entry.getKey(), convertToTables(schemaMetaData.getTables()), new LinkedList<>(),
+                    entry.getValue().getProps()));
+            // SPEX CHANGED: END
         }
         return result;
     }
     
+    @SphereEx(Type.MODIFY)
     private Collection<ShardingSphereTable> convertToTables(final Collection<TableMetaData> tableMetaDataList) {
-        return tableMetaDataList.stream().map(each -> new ShardingSphereTable(
-                each.getName(), convertToColumns(each.getColumns()), convertToIndexes(each.getIndexes()), convertToConstraints(each.getConstraints()), each.getType())).collect(Collectors.toList());
+        return tableMetaDataList.stream().map(each -> new ShardingSphereTable(each.getName(), convertToColumns(each.getColumns()),
+                convertToIndexes(each.getIndexes()), convertToConstraints(each.getConstraints()), each.getType(), each.getCharacterSetName())).collect(Collectors.toList());
     }
     
     private Collection<ShardingSphereColumn> convertToColumns(final Collection<ColumnMetaData> columnMetaDataList) {

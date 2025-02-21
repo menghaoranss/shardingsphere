@@ -17,21 +17,28 @@
 
 package org.apache.shardingsphere.test.it.rewrite.fixture.encrypt;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
 import lombok.Getter;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithmMetaData;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
 
+import java.util.Collections;
+import java.util.Map;
+
 import java.util.Properties;
 
 @Getter
 public final class RewriteNormalEncryptAlgorithmFixture implements EncryptAlgorithm {
     
-    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(true, true, false);
+    @SphereEx(Type.MODIFY)
+    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(true, true, false, false, (plainCharLength, charToByteRatio) -> 2 * plainCharLength);
     
     @Override
-    public String encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public String encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         if (null == plainValue) {
             return null;
         }
@@ -39,11 +46,17 @@ public final class RewriteNormalEncryptAlgorithmFixture implements EncryptAlgori
     }
     
     @Override
-    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         if (null == cipherValue) {
             return null;
         }
         return cipherValue.toString().replaceAll("encrypt_", "");
+    }
+    
+    @SphereEx
+    @Override
+    public Map<String, Object> getUdfDataModel() {
+        return Collections.emptyMap();
     }
     
     @Override

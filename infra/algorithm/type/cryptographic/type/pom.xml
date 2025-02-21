@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere-infra-algorithm-cryptographic</artifactId>
-        <version>5.5.2</version>
+        <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
     <artifactId>shardingsphere-infra-algorithm-cryptographic-type</artifactId>
     <packaging>pom</packaging>
@@ -29,5 +29,12 @@
     
     <modules>
         <module>aes</module>
+        <!-- SPEX ADDED: BEGIN -->
+        <module>rc4</module>
+        <module>des</module>
+        <module>fpe</module>
+        <module>rsa</module>
+        <module>sm</module>
+        <!-- SPEX ADDED: END -->
     </modules>
 </project>

@@ -17,8 +17,12 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.adapter.config;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +30,7 @@ import java.util.Map;
 /**
  * Adaptor container configuration.
  */
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
 public final class AdaptorContainerConfiguration {
     
@@ -34,7 +38,9 @@ public final class AdaptorContainerConfiguration {
     
     private final List<String> portBindings;
     
-    private final Map<String, String> mountedResources;
+    @SphereEx(Type.MODIFY)
+    @Setter
+    private Map<String, String> mountedResources;
     
     private final String adapterContainerImage;
     

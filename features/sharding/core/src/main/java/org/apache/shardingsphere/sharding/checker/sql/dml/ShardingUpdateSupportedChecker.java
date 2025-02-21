@@ -17,10 +17,12 @@
 
 package org.apache.shardingsphere.sharding.checker.sql.dml;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.UpdateStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.sharding.checker.sql.common.ShardingSupportedCommonChecker;
@@ -38,7 +40,8 @@ public final class ShardingUpdateSupportedChecker implements SupportedSQLChecker
     }
     
     @Override
-    public void check(final ShardingRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final UpdateStatementContext sqlStatementContext) {
+    public void check(final ShardingRule rule, final @SphereEx ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final UpdateStatementContext sqlStatementContext) {
         ShardingSupportedCommonChecker.checkMultipleTable(rule, sqlStatementContext);
     }
 }

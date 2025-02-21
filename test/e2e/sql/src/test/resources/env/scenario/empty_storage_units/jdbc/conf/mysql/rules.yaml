@@ -17,3 +17,7 @@
 
 props:
   proxy-frontend-database-protocol-type: MySQL
+
+# SPEX ADDED: BEGIN
+
+# SPEX ADDED: END

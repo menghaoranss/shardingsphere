@@ -17,15 +17,19 @@
 
 package org.apache.shardingsphere.infra.metadata.database.schema.reviser.schema;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ConstraintMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.IndexMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.SchemaMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.TableMetaData;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.rule.builder.fixture.FixtureGlobalRule;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,8 +47,9 @@ class SchemaMetaDataReviseEngineTest {
     @Test
     void assertReviseWithoutMetaDataReviseEntry() {
         SchemaMetaData schemaMetaData = new SchemaMetaData("expected", Collections.singleton(mock(TableMetaData.class)));
+        @SphereEx(Type.MODIFY)
         SchemaMetaData actual = new SchemaMetaDataReviseEngine(
-                Collections.emptyList(), new ConfigurationProperties(new Properties())).revise(schemaMetaData);
+                Collections.emptyList(), new ConfigurationProperties(new Properties()), mock(DatabaseType.class), mock(DataSource.class)).revise(schemaMetaData);
         assertThat(actual.getName(), is(schemaMetaData.getName()));
         assertThat(actual.getTables(), is(schemaMetaData.getTables()));
     }
@@ -52,8 +57,9 @@ class SchemaMetaDataReviseEngineTest {
     @Test
     void assertReviseWithMetaDataReviseEntry() {
         SchemaMetaData schemaMetaData = new SchemaMetaData("expected", Collections.singletonList(createTableMetaData()));
+        @SphereEx(Type.MODIFY)
         SchemaMetaData actual = new SchemaMetaDataReviseEngine(
-                Collections.singleton(new FixtureGlobalRule()), new ConfigurationProperties(new Properties())).revise(schemaMetaData);
+                Collections.singleton(new FixtureGlobalRule()), new ConfigurationProperties(new Properties()), mock(DatabaseType.class), mock(DataSource.class)).revise(schemaMetaData);
         assertThat(actual.getName(), is(schemaMetaData.getName()));
         assertThat(actual.getTables().size(), is(schemaMetaData.getTables().size()));
         Iterator<TableMetaData> expectedTableIterator = schemaMetaData.getTables().iterator();
@@ -61,9 +67,10 @@ class SchemaMetaDataReviseEngineTest {
     }
     
     private TableMetaData createTableMetaData() {
-        Collection<ColumnMetaData> columns = new LinkedHashSet<>(Arrays.asList(new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false),
-                new ColumnMetaData("pwd_cipher", Types.VARCHAR, false, false, true, true, false, false),
-                new ColumnMetaData("pwd_like", Types.VARCHAR, false, false, true, true, false, false)));
+        @SphereEx(Type.MODIFY)
+        Collection<ColumnMetaData> columns = new LinkedHashSet<>(Arrays.asList(new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, ""),
+                new ColumnMetaData("pwd_cipher", Types.VARCHAR, false, false, true, true, false, false, ""),
+                new ColumnMetaData("pwd_like", Types.VARCHAR, false, false, true, true, false, false, "")));
         IndexMetaData indexMetaData = new IndexMetaData("index_name");
         ConstraintMetaData constraintMetaData = new ConstraintMetaData("constraint_name", "table_name_2");
         return new TableMetaData("table_name", columns, Collections.singletonList(indexMetaData), Collections.singleton(constraintMetaData));

@@ -276,9 +276,9 @@ fromClause
     ;
 
 tableReferences
-    // DORIS CHANGED BEGIN
+    // DORIS CHANGED: BEGIN
     : tableReference (COMMA_ tableReference)* (COMMA_ regularFunction)?
-    // DORIS CHANGED END
+    // DORIS CHANGED: END
     ;
 
 escapedTableReference

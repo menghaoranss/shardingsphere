@@ -17,11 +17,11 @@
 
 package org.apache.shardingsphere.single.route.engine;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.datanode.DataNode;
-import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.exception.dialect.exception.syntax.table.TableExistsException;
-import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.metadata.database.schema.QualifiedTable;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
@@ -78,12 +78,15 @@ public final class SingleRouteEngine {
         if (sqlStatement instanceof DDLStatement) {
             routeDDLStatement(routeContext, rule);
         } else {
-            boolean allTablesInSameComputeNode = rule.isAllTablesInSameComputeNode(getDataNodes(routeContext), singleTables);
-            ShardingSpherePreconditions.checkState(allTablesInSameComputeNode, () -> new UnsupportedSQLOperationException("all tables must be in the same compute node"));
-            fillRouteContext(rule, routeContext, singleTables);
+            // SPEX CHANGED: BEGIN
+            if (routeContext.getRouteUnits().isEmpty()) {
+                fillRouteContext(rule, routeContext, Collections.singleton(singleTables.iterator().next()));
+            }
+            // SPEX CHANGED: END
         }
     }
     
+    @SphereEx(Type.DELETE)
     private Collection<DataNode> getDataNodes(final RouteContext routeContext) {
         Collection<DataNode> result = new LinkedList<>();
         for (Collection<DataNode> each : routeContext.getOriginalDataNodes()) {

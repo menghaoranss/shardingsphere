@@ -21,8 +21,18 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere-infra-exception</artifactId>
-        <version>5.5.2</version>
+        <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
     <artifactId>shardingsphere-infra-exception-core</artifactId>
     <name>${project.artifactId}</name>
+    
+    <!-- SPEX ADDED: BEGIN -->
+    <dependencies>
+        <dependency>
+            <groupId>com.sphere-ex</groupId>
+            <artifactId>dbplusengine-infra-diff</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+    <!-- SPEX ADDED: END -->
 </project>

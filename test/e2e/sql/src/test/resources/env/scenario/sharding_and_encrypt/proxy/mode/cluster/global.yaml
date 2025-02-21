@@ -33,7 +33,9 @@ authority:
       password: Proxy@123
       admin: true
   privilege:
-    type: ALL_PERMITTED
+    # SPEX CHANGED: BEGIN
+    type: Enterprise
+    # SPEX CHANGED: END
 
 sqlFederation:
   sqlFederationEnabled: true
@@ -42,6 +44,9 @@ sqlFederation:
     maximumSize: 65535
 
 props:
+  # SPEX ADDED: BEGIN
+  meta-data-consistency-enabled: false
+  # SPEX ADDED: END
   max-connections-size-per-query: 1
   kernel-executor-size: 16  # Infinite by default.
   proxy-frontend-flush-threshold: 128  # The default value is 128.

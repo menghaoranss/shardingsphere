@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.rewrite;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
@@ -33,6 +34,8 @@ import org.apache.shardingsphere.infra.session.query.QueryContext;
 import org.apache.shardingsphere.infra.spi.type.ordered.OrderedSPILoader;
 import org.apache.shardingsphere.sqltranslator.rule.SQLTranslatorRule;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -56,6 +59,16 @@ public final class SQLRewriteEntry {
         this.globalRuleMetaData = globalRuleMetaData;
         this.props = props;
         decorators = OrderedSPILoader.getServices(SQLRewriteContextDecorator.class, database.getRuleMetaData().getRules());
+    }
+    
+    @SphereEx
+    public SQLRewriteEntry(final Collection<ShardingSphereDatabase> databases, final RuleMetaData globalRuleMetaData, final ConfigurationProperties props) {
+        // TODO adapte multi logic database for database usage scenario
+        database = databases.isEmpty() ? null : databases.iterator().next();
+        this.globalRuleMetaData = globalRuleMetaData;
+        this.props = props;
+        decorators = new LinkedHashMap<>();
+        databases.forEach(each -> decorators.putAll(OrderedSPILoader.getServices(SQLRewriteContextDecorator.class, each.getRuleMetaData().getRules())));
     }
     
     /**

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<e2e-test-cases>
+    <!-- TiDB projection subquery -->
+    <test-case sql="SELECT u.user_id, (SELECT user_name FROM t_user LIMIT 1) FROM t_user u WHERE u.user_id = ?" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT u.user_id, (SELECT user_name FROM t_user LIMIT 1) AS `user_name` FROM t_user u WHERE u.user_id = ?" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <!-- TiDB predicate subquery -->
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.telephone = (SELECT DISTINCT telephone FROM t_merchant WHERE telephone = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="86100000001:String" expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE telephone = (SELECT DISTINCT telephone FROM t_merchant WHERE telephone = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="86100000001:String" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = ANY (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name IN (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name != ALL (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT u.* FROM t_user u WHERE EXISTS (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT u.* FROM t_user u WHERE NOT EXISTS (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = ANY (SELECT user_name FROM t_user u2 WHERE u.user_id = u2.user_id)" scenario-types="encrypt" db-types="TiDB">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    
+    <test-case sql="SELECT * FROM (SELECT * FROM t_user) AS temp WHERE user_id = ?" scenario-types="encrypt" db-types="TiDB">
+        <assertion parameters="10:int" expected-data-source-name="read_dataset" />
+    </test-case>
+</e2e-test-cases>
+<!-- SPEX ADDED: END -->

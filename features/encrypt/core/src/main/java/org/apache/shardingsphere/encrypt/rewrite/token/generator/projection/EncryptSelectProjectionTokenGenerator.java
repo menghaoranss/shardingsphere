@@ -17,18 +17,23 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.projection;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.aware.PreviousSQLTokensAware;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Select projection token generator for encrypt.
@@ -40,6 +45,15 @@ public final class EncryptSelectProjectionTokenGenerator implements CollectionSQ
     
     private final EncryptRule rule;
     
+    @SphereEx
+    private final Map<String, EncryptRule> databaseEncryptRules;
+    
+    @SphereEx
+    private final ShardingSphereDatabase database;
+    
+    @SphereEx
+    private final ShardingSphereMetaData metaData;
+    
     private List<SQLToken> previousSQLTokens;
     
     @Override
@@ -47,8 +61,9 @@ public final class EncryptSelectProjectionTokenGenerator implements CollectionSQ
         return sqlStatementContext instanceof SelectStatementContext && !((SelectStatementContext) sqlStatementContext).getTablesContext().getSimpleTables().isEmpty();
     }
     
+    @SphereEx(Type.MODIFY)
     @Override
     public Collection<SQLToken> generateSQLTokens(final SelectStatementContext sqlStatementContext) {
-        return new EncryptProjectionTokenGenerator(previousSQLTokens, rule, sqlStatementContext.getDatabaseType()).generateSQLTokens(sqlStatementContext);
+        return new EncryptProjectionTokenGenerator(previousSQLTokens, sqlStatementContext.getDatabaseType(), rule, databaseEncryptRules, database, metaData).generateSQLTokens(sqlStatementContext);
     }
 }

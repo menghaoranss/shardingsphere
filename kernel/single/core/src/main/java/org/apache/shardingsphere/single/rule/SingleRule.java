@@ -18,15 +18,18 @@
 package org.apache.shardingsphere.single.rule;
 
 import com.cedarsoftware.util.CaseInsensitiveSet;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.IndexAvailable;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
+import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.resource.PhysicalDataSourceAggregator;
+import org.apache.shardingsphere.infra.metadata.database.resource.unit.StorageUnit;
 import org.apache.shardingsphere.infra.metadata.database.rule.RuleMetaData;
 import org.apache.shardingsphere.infra.metadata.database.schema.QualifiedTable;
 import org.apache.shardingsphere.infra.metadata.database.schema.util.IndexMetaDataUtils;
@@ -99,17 +102,22 @@ public final class SingleRule implements DatabaseRule {
      *
      * @param dataNodes data nodes
      * @param singleTables single tables
+     * @param storageUnits storage units
      * @return whether all tables are in same compute node or not
      */
-    public boolean isAllTablesInSameComputeNode(final Collection<DataNode> dataNodes, final Collection<QualifiedTable> singleTables) {
-        if (!isSingleTablesInSameComputeNode(singleTables)) {
+    public boolean isAllTablesInSameComputeNode(final Collection<DataNode> dataNodes, final Collection<QualifiedTable> singleTables, @SphereEx final Map<String, StorageUnit> storageUnits) {
+        // SPEX CHANGED: BEGIN
+        if (!isSingleTablesInSameComputeNode(singleTables, storageUnits)) {
+            // SPEX CHANGED: END
             return false;
         }
         QualifiedTable sampleTable = singleTables.iterator().next();
         Optional<DataNode> sampleDataNode = mutableDataNodeRuleAttribute.findTableDataNode(sampleTable.getSchemaName(), sampleTable.getTableName());
         if (sampleDataNode.isPresent()) {
             for (DataNode each : dataNodes) {
-                if (!isSameComputeNode(sampleDataNode.get().getDataSourceName(), each.getDataSourceName())) {
+                // SPEX CHANGED: BEGIN
+                if (!isSameComputeNode(sampleDataNode.get().getDataSourceName(), each.getDataSourceName(), storageUnits)) {
+                    // SPEX CHANGED: END
                     return false;
                 }
             }
@@ -117,11 +125,19 @@ public final class SingleRule implements DatabaseRule {
         return true;
     }
     
-    private boolean isSameComputeNode(final String sampleDataSourceName, final String dataSourceName) {
+    private boolean isSameComputeNode(final String sampleDataSourceName, final String dataSourceName, @SphereEx final Map<String, StorageUnit> storageUnits) {
+        // SPEX ADDED: BEGIN
+        // TODO support more database if it support cross database calculation
+        if (protocolType instanceof MySQLDatabaseType && storageUnits.containsKey(sampleDataSourceName) && storageUnits.containsKey(dataSourceName)) {
+            // TODO consider support instance judge when use readwrite-splitting
+            return storageUnits.get(sampleDataSourceName).getConnectionProperties()
+                    .isInSameDatabaseInstance(storageUnits.get(dataSourceName).getConnectionProperties());
+        }
+        // SPEX ADDED: END
         return sampleDataSourceName.equalsIgnoreCase(dataSourceName);
     }
     
-    private boolean isSingleTablesInSameComputeNode(final Collection<QualifiedTable> singleTables) {
+    private boolean isSingleTablesInSameComputeNode(final Collection<QualifiedTable> singleTables, @SphereEx final Map<String, StorageUnit> storageUnits) {
         String sampleDataSourceName = null;
         for (QualifiedTable each : singleTables) {
             Optional<DataNode> dataNode = mutableDataNodeRuleAttribute.findTableDataNode(each.getSchemaName(), each.getTableName());
@@ -132,7 +148,9 @@ public final class SingleRule implements DatabaseRule {
                 sampleDataSourceName = dataNode.get().getDataSourceName();
                 continue;
             }
-            if (!isSameComputeNode(sampleDataSourceName, dataNode.get().getDataSourceName())) {
+            // SPEX CHANGED: BEGIN
+            if (!isSameComputeNode(sampleDataSourceName, dataNode.get().getDataSourceName(), storageUnits)) {
+                // SPEX CHANGED: END
                 return false;
             }
         }

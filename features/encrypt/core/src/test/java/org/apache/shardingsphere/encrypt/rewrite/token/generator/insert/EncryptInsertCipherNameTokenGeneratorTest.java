@@ -17,9 +17,13 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.insert;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.fixture.EncryptGeneratorFixtureBuilder;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,9 +40,11 @@ class EncryptInsertCipherNameTokenGeneratorTest {
     
     private EncryptInsertCipherNameTokenGenerator generator;
     
+    @SphereEx(Type.MODIFY)
     @BeforeEach
     void setup() {
-        generator = new EncryptInsertCipherNameTokenGenerator(EncryptGeneratorFixtureBuilder.createEncryptRule());
+        generator = new EncryptInsertCipherNameTokenGenerator(EncryptGeneratorFixtureBuilder.createEncryptRule(), Collections.emptyMap(), mock(ShardingSphereDatabase.class),
+                mock(ShardingSphereMetaData.class));
     }
     
     @Test

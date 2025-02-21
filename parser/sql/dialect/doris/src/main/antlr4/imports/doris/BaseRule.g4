@@ -1153,11 +1153,11 @@ castType
     | castTypeName = REAL
     | castTypeName = DOUBLE PRECISION
     | castTypeName = FLOAT precision?
-    // DORIS ADDED BEGIN
+    // DORIS ADDED: BEGIN
     | castTypeName = STRING
     | castTypeName = INT
     | castTypeName = BIGINT
-    // DORIS ADDED END
+    // DORIS ADDED: END
     ;
 
 positionFunction
@@ -1214,16 +1214,16 @@ shorthandRegularFunction
     ;
 
 completeRegularFunction
-    // DORIS CHANGED BEGIN
+    // DORIS CHANGED: BEGIN
     : regularFunctionName (LP_ (expr (COMMA_ expr)* | ASTERISK_)? RP_) indexAlias?
-    // DORIS CHANGED END
+    // DORIS CHANGED: END
     ;
 
-// DORIS ADDED BEGIN
+// DORIS ADDED: BEGIN
 indexAlias
     : LBT_ (NUMBER_ | columnRef) RBT_ (SEMI_? (AS | EQ_) (identifier | columnRef))?
     ;
-// DORIS ADDED END
+// DORIS ADDED: END
 
 regularFunctionName
     : IF | LOCALTIME | LOCALTIMESTAMP | REPLACE | INSERT | INTERVAL | MOD
@@ -1296,9 +1296,9 @@ dataType
     | (dataTypeName = REAL | dataTypeName = DOUBLE PRECISION?) precision? fieldOptions?
     | dataTypeName = (FLOAT | DECIMAL | DEC | NUMERIC | FIXED) (fieldLength | precision)? fieldOptions?
     | dataTypeName = BIT fieldLength?
-    // DORIS ADDED BEGIN
+    // DORIS ADDED: BEGIN
     | dataTypeName = DECIMAL64 precision
-    // DORIS ADDED END
+    // DORIS ADDED: END
     | dataTypeName = (BOOL | BOOLEAN)
     | dataTypeName = CHAR fieldLength? charsetWithOptBinary?
     | (dataTypeName = NCHAR | dataTypeName = NATIONAL_CHAR) fieldLength? BINARY?

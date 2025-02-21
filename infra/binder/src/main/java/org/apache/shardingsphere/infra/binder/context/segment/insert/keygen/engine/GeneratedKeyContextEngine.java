@@ -98,9 +98,11 @@ public final class GeneratedKeyContextEngine {
                 if (params.isEmpty()) {
                     continue;
                 }
-                if (params.size() > ((ParameterMarkerExpressionSegment) expression).getParameterMarkerIndex()
-                        && null != params.get(((ParameterMarkerExpressionSegment) expression).getParameterMarkerIndex())) {
-                    result.getGeneratedValues().add((Comparable<?>) params.get(((ParameterMarkerExpressionSegment) expression).getParameterMarkerIndex()));
+                // SPEX CHANGED: BEGIN
+                if (params.size() > (((ParameterMarkerExpressionSegment) expression).getParameterMarkerIndex() + each.getLastParametersOffset())
+                        && null != params.get(((ParameterMarkerExpressionSegment) expression).getParameterMarkerIndex() + each.getLastParametersOffset())) {
+                    result.getGeneratedValues().add((Comparable<?>) params.get(((ParameterMarkerExpressionSegment) expression).getParameterMarkerIndex() + each.getLastParametersOffset()));
+                    // SPEX CHANGED: END
                 }
             } else if (expression instanceof LiteralExpressionSegment) {
                 result.getGeneratedValues().add((Comparable<?>) ((LiteralExpressionSegment) expression).getLiterals());

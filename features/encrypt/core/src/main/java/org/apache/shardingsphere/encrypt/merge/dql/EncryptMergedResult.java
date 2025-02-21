@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.merge.dql;
 
+import com.sphereex.dbplusengine.encrypt.merge.dql.function.EncryptFunctionMergedResultGetterEngine;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.encrypt.exception.data.DecryptFailedException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -28,6 +29,7 @@ import org.apache.shardingsphere.infra.exception.core.external.sql.identifier.SQ
 import org.apache.shardingsphere.infra.merge.result.MergedResult;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.database.resource.unit.StorageUnit;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -58,7 +60,9 @@ public final class EncryptMergedResult implements MergedResult {
     public Object getValue(final int columnIndex, final Class<?> type) throws SQLException {
         Optional<ColumnProjection> columnProjection = selectStatementContext.findColumnProjection(columnIndex);
         if (!columnProjection.isPresent()) {
-            return mergedResult.getValue(columnIndex, type);
+            // SPEX CHANGED: BEGIN
+            return new EncryptFunctionMergedResultGetterEngine(database, selectStatementContext, mergedResult).getValue(columnIndex, type);
+            // SPEX CHANGED: END
         }
         String originalTableName = columnProjection.get().getOriginalTable().getValue();
         String originalColumnName = columnProjection.get().getOriginalColumn().getValue();
@@ -66,7 +70,10 @@ public final class EncryptMergedResult implements MergedResult {
                 ? metaData.getDatabase(columnProjection.get().getColumnBoundInfo().getOriginalDatabase().getValue())
                 : this.database;
         Optional<EncryptRule> rule = database.getRuleMetaData().findSingleRule(EncryptRule.class);
-        if (!rule.isPresent() || !rule.get().findEncryptTable(originalTableName).map(optional -> optional.isEncryptColumn(originalColumnName)).orElse(false)) {
+        // SPEX CHANGED: BEGIN
+        if (!rule.isPresent() || !rule.get().findEncryptTable(originalTableName).map(optional -> optional.isEncryptColumn(originalColumnName)).orElse(false)
+                || rule.get().isQueryWithPlain(originalTableName, originalColumnName)) {
+            // SPEX CHANGED: END
             return mergedResult.getValue(columnIndex, type);
         }
         Object cipherValue = mergedResult.getValue(columnIndex, Object.class);
@@ -74,7 +81,10 @@ public final class EncryptMergedResult implements MergedResult {
         String schemaName = selectStatementContext.getTablesContext().getSchemaName()
                 .orElseGet(() -> new DatabaseTypeRegistry(selectStatementContext.getDatabaseType()).getDefaultSchemaName(database.getName()));
         try {
-            return encryptColumn.getCipher().decrypt(database.getName(), schemaName, originalTableName, originalColumnName, cipherValue);
+            // SPEX CHANGED: BEGIN
+            return encryptColumn.getCipher().decrypt(database.getName(), schemaName, originalTableName, originalColumnName, cipherValue,
+                    database.getResourceMetaData().getStorageUnits().values().stream().findFirst().map(StorageUnit::getStorageType).orElse(database.getProtocolType()));
+            // SPEX CHANGED: END
             // CHECKSTYLE:OFF
         } catch (final Exception ex) {
             // CHECKSTYLE:ON

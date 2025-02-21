@@ -1,0 +1,165 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+databaseName: sphereex_encrypt_expansibility
+
+dataSources:
+  encrypt:
+    url: jdbc:mysql://mysql.sphereex_encrypt_expansibility.host:3306/encrypt?useSSL=false&characterEncoding=utf-8
+    username: test_user
+    password: Test@123
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 2
+    minPoolSize: 2
+
+rules:
+  - !SINGLE
+    tables:
+      - "*.*"
+  - !ENCRYPT
+    encryptors:
+      aes_encryptor:
+        type: AES
+        props:
+          aes-key-value: 123456abc
+          digest-algorithm-name: SHA-1
+      des_encryptor:
+        type: SphereEx:DES
+        props:
+          des-key-value: 123456abc
+          digest-algorithm-name: SHA-1
+      desede_encryptor:
+        type: SphereEx:DESEDE
+        props:
+          desede-key-value: 123456abc
+          digest-algorithm-name: SHA-1
+      rsa_encryptor:
+        type: SphereEx:RSA
+        props:
+          rsa-public-key-value: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnkOZVTuURVurYRbFIjtWwSEcCyJ3vwlvlwUEAFsbp0Ub0toFAlkPZ+lSI1xyOw0u0bs/kxItk6kRkOUJcPf9nXCrLHEpxoeN9QBhU86k5c/M2g2C5iIyiJXTYz0R0ddYJWIuz7jXimnQP7uHoLR8PUAT9DMhcG3lK5cT4LDiiqAvuxhVJzlNIDPFJ5U0/XdpJ5oKzJYVal/10pYT0Nt5prx3tFl0uwTgw+NhRWx7IssNfwiqKaD8Cq9/lwb0gtXNxmL8KDCG/8TNj+bfJQD+9y0lQXIenUx+JYCXc32NA9Pb7Js8SHyAvmpkreu4XYzMk4so+OCb1SIxBhbIM1tvuQIDAQAB
+          rsa-private-key-value: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCeQ5lVO5RFW6thFsUiO1bBIRwLIne/CW+XBQQAWxunRRvS2gUCWQ9n6VIjXHI7DS7Ruz+TEi2TqRGQ5Qlw9/2dcKsscSnGh431AGFTzqTlz8zaDYLmIjKIldNjPRHR11glYi7PuNeKadA/u4egtHw9QBP0MyFwbeUrlxPgsOKKoC+7GFUnOU0gM8UnlTT9d2knmgrMlhVqX/XSlhPQ23mmvHe0WXS7BODD42FFbHsiyw1/CKopoPwKr3+XBvSC1c3GYvwoMIb/xM2P5t8lAP73LSVBch6dTH4lgJdzfY0D09vsmzxIfIC+amSt67hdjMyTiyj44JvVIjEGFsgzW2+5AgMBAAECggEAQgmO54OuwKoZfq+Tnk8IShnYq8S8FpiHWYqcOtHJXih2DasvP+WNihxPS7X9bCp6CMWLJ4EER4Lac40+PUcdKh6jLi4h8lcJott/wQqOv93PaoUMw54tW9S4mcYXs2mZvC+VvNMyDO1OGenUE/h7hstACDt1joYsg93MS4tDW/gHC9eP7hDANZrHs7db26iiP6D8b7GjB+XL6QFgN1q+o6qXmqzvpePGRj4GYuootpDkuxZoDv3GH1gzHoOQnuPMfOm7cE5ov6DrC7OFNgNKDqn5pvo215RL8yBfJ4a6E32AuOzbjtgASX8x7RQQAIHCuEMU75JO+BDw39QqSszsKQKBgQDSnM+/pGztII/IUyFdtSGoJxu2wDoBEMUshJFLSddtvjBH8tqmTGVIl20TbpB4C4sItj2wpMKEzbjs4+wmw+a7h/tR0NHlGEY7pXgNY9QPOjY8kQJeCsVPMUZqqprT2329xm9OUXdgSgaMgvhfaMvRwU+/ufs6UwtyMIwsKFU2rwKBgQDAXswiWVufUQn/RyiY2bb2+lwG8MLhgKv+ntV/CF0+O2d6Pi+HsFPzrEgNYsWCrnYA9wv9McJQi78mBkQYmKQvWfaTMwLOCLsdK/7icPFSWlACRlDOBHc8XXdliQD29dNaqG6BDkwAZ9AgBjKHEMjQMExmgYnR+VFlWX3bp6ZaFwKBgBtZ8ATkVp0I8INEgH3J6yAKTCgUmLPQuLqKUNAlO8vtuhlt6YVVQIYH3Et8vVhJr3mnKSXKj9RtXwmso9t473sFMtcyNj/5Qg229HtQrpZ3qdl9v3/1CCC7tnhdxZOj2pWNsqDKJaWkl2siCx1g369S2od8oKq3ZDIlKd8GMeLTAoGBAJ/+eBNddImV0hXCLi6qbLUPVvjix4LcDLCxk+maoEqBB7gw/kEBU2GH+UlAy/q7dSOqVQtZlj59bBaJAZvfYDaNwTl+JKgNtOo3TD8zJlKTEJZDuzMNncnUBtio0OeVXxq4mWe251ky/nOUE/Qn7ozQjsp2lJTRonQDsVy+G+ozAoGBAISp1Hb/cWfZWpi2P6+UlN4PJhitpNam6se2PDbQheUn782OdWt9uV8HmeRscXPvobb1nD2pY8mKs32GNAzqikoVzfNcH2nxwopcz+z6WsrUzeLtdEFk9ABkDAAtQnlPpfnjLZVt5rc0Is7VZ9kDmiXiUOUN7eiQeaXnGykH7B5/
+      rc4_encryptor:
+        type: RC4
+        props:
+          rc4-key-value: test-sharding
+      sm2_encryptor:
+        type: SphereEx:SM2
+        props:
+          sm2-public-key-value: MFkwEwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAE0oppHTfuiESO0DR+9c5g7iRlrbDHgPVeRQzNsskL4ZSHkYvyms76Zv4He95WySnTuZMo0OaQchhRbmXIkXRuyA==
+          sm2-private-key-value: MIGTAgEAMBMGByqGSM49AgEGCCqBHM9VAYItBHkwdwIBAQQg7ltTxwCxo5gUftPXTLCfDCKCvl7284CRkc/bk4YyzJagCgYIKoEcz1UBgi2hRANCAATSimkdN+6IRI7QNH71zmDuJGWtsMeA9V5FDM2yyQvhlIeRi/Kazvpm/gd73lbJKdO5kyjQ5pByGFFuZciRdG7I
+      sm4_encryptor:
+        type: SM4
+        props:
+          sm4-mode: ECB
+          sm4-padding: PKCS5Padding
+          sm4-key: 4D744E003D713D054E7E407C350E447E
+      char_transform_like_encryptor:
+        type: SphereEx:CHAR_TRANSFORM_LIKE
+      char_digest_like_encryptor:
+        type: CHAR_DIGEST_LIKE
+      md5_assisted_encryptor:
+        type: MD5
+      sha_assisted_encryptor:
+        type: SphereEx:SHA
+      ope_encryptor:
+        props:
+          alpha-key: '0.8935217796678353'
+          factor-e-key: '0.9186430364852792'
+          factor-k-key: '523211953918290'
+        type: SphereEx:FASTOPE
+    tables:
+      t_user:
+        columns:
+          user_name:
+            plain:
+              name: user_name_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: user_name_cipher
+              encryptorName: aes_encryptor
+            likeQuery:
+              name: user_name_like
+              encryptorName: char_transform_like_encryptor
+            assistedQuery:
+              name: user_name_assisted_query
+              encryptorName: sha_assisted_encryptor
+          password:
+            plain:
+              name: password_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: password_cipher
+              encryptorName: des_encryptor
+            likeQuery:
+              name: password_like
+              encryptorName: char_digest_like_encryptor
+            assistedQuery:
+              name: password_assisted_query
+              encryptorName: md5_assisted_encryptor
+          email:
+            plain:
+              name: email_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: email_cipher
+              encryptorName: desede_encryptor
+          address:
+            plain:
+              name: address_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: address_cipher
+              encryptorName: rsa_encryptor
+          city:
+            plain:
+              name: city_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: city_cipher
+              encryptorName: rc4_encryptor
+          country:
+            plain:
+              name: country_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: country_cipher
+              encryptorName: rc4_encryptor
+          province:
+            plain:
+              name: province_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: province_cipher
+              encryptorName: sm4_encryptor
+      t_user_details:
+        columns:
+          number:
+            plain:
+              name: number_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: number_cipher
+              encryptorName: aes_encryptor
+          number_new:
+            plain:
+              name: number_new_plain
+              queryWithPlain: ${query_with_plain}
+            cipher:
+              name: number_new_cipher
+              encryptorName: aes_encryptor

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.h2.metadata.data.loader;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
@@ -43,7 +45,13 @@ import java.util.stream.Collectors;
  */
 public final class H2MetaDataLoader implements DialectMetaDataLoader {
     
-    private static final String TABLE_META_DATA_NO_ORDER = "SELECT TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION, COALESCE(IS_VISIBLE, FALSE) IS_VISIBLE, IS_NULLABLE"
+    @SphereEx(Type.MODIFY)
+    private static final String TABLE_META_DATA_NO_ORDER = "SELECT TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION, COALESCE(IS_VISIBLE, FALSE) IS_VISIBLE, IS_NULLABLE,"
+            + " CASE"
+            + " WHEN DATA_TYPE IN ('VARCHAR', 'CHAR', 'CHARACTER VARYING') THEN"
+            + " DATA_TYPE || '(' || CHARACTER_MAXIMUM_LENGTH || ')'"
+            + " ELSE DATA_TYPE"
+            + " END AS COLUMN_TYPE"
             + " FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG=? AND TABLE_SCHEMA=?";
     
     private static final String ORDER_BY_ORDINAL_POSITION = " ORDER BY ORDINAL_POSITION";
@@ -108,7 +116,12 @@ public final class H2MetaDataLoader implements DialectMetaDataLoader {
         boolean generated = tableGenerated.getOrDefault(columnName, Boolean.FALSE);
         boolean isVisible = resultSet.getBoolean("IS_VISIBLE");
         boolean isNullable = "YES".equals(resultSet.getString("IS_NULLABLE"));
-        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), primaryKey, generated, false, isVisible, false, isNullable);
+        @SphereEx
+        String dataTypeContent = resultSet.getString("COLUMN_TYPE");
+        // SPEX CHANGED: BEGIN
+        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), primaryKey, generated, false, isVisible, false, isNullable,
+                dataTypeContent);
+        // SPEX CHANGED: END
     }
     
     private String getTableMetaDataSQL(final Collection<String> tables) {

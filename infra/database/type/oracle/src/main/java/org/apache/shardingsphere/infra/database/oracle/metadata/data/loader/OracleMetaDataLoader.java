@@ -18,6 +18,8 @@
 package org.apache.shardingsphere.infra.database.oracle.metadata.data.loader;
 
 import com.google.common.collect.Lists;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderConnection;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
@@ -35,11 +37,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +55,15 @@ import java.util.stream.Collectors;
  */
 public final class OracleMetaDataLoader implements DialectMetaDataLoader {
     
+    @SphereEx(Type.MODIFY)
     private static final String TABLE_META_DATA_SQL_NO_ORDER =
-            "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN %s FROM ALL_TAB_COLS WHERE OWNER = ?";
+            "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN %s,"
+                    + " CASE"
+                    + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+                    + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+                    + " ELSE DATA_TYPE"
+                    + " END AS COLUMN_TYPE"
+                    + " FROM ALL_TAB_COLS WHERE OWNER = ?";
     
     private static final String ORDER_BY_COLUMN_ID = " ORDER BY COLUMN_ID";
     
@@ -71,6 +82,9 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
     
     private static final String INDEX_COLUMN_META_DATA_SQL = "SELECT COLUMN_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER = ? AND TABLE_NAME = ? AND INDEX_NAME = ?";
     
+    @SphereEx
+    private static final String USER_SYNONYMS_SQL = "SELECT * FROM USER_SYNONYMS";
+    
     private static final int COLLATION_START_MAJOR_VERSION = 12;
     
     private static final int COLLATION_START_MINOR_VERSION = 2;
@@ -79,13 +93,52 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
     
     private static final int MAX_EXPRESSION_SIZE = 1000;
     
+    @SphereEx
+    private static final int USER_SYNONYMS_TABLE_OWNER = 2;
+    
+    @SphereEx
+    private static final int USER_SYNONYMS_TABLE_NAME = 3;
+    
+    @SphereEx
+    private static final int USER_SYNONYMS_SYNONYM_NAME = 1;
+    
     @Override
     public Collection<SchemaMetaData> load(final MetaDataLoaderMaterial material) throws SQLException {
         Collection<TableMetaData> tableMetaDataList = new LinkedList<>();
         try (Connection connection = new MetaDataLoaderConnection(TypedSPILoader.getService(DatabaseType.class, "Oracle"), material.getDataSource().getConnection())) {
+            // SPEX ADDED: BEGIN
+            tableMetaDataList.addAll(getSchemaTableNameSynonymMaps(material, connection));
+            // SPEX ADDED: END
+            // SPEX CHANGED: BEGIN
             tableMetaDataList.addAll(getTableMetaDataList(connection, connection.getSchema(), material.getActualTableNames()));
+            // SPEX CHANGED: END
         }
         return Collections.singletonList(new SchemaMetaData(material.getDefaultSchemaName(), tableMetaDataList));
+    }
+    
+    @SphereEx
+    private Collection<TableMetaData> getSchemaTableNameSynonymMaps(final MetaDataLoaderMaterial material, final Connection connection) throws SQLException {
+        Collection<TableMetaData> result = new LinkedList<>();
+        Map<String, Map<String, String>> schemaTableNameSynonymMaps = loadLinkedTableNameSynonymMapSchemaGroup(connection);
+        Collection<String> actualTableNames = new HashSet<>(material.getActualTableNames());
+        for (Entry<String, Map<String, String>> entry : schemaTableNameSynonymMaps.entrySet()) {
+            Collection<String> neededLinkedTableNames = entry.getValue().entrySet().stream().filter(each -> actualTableNames.contains(each.getValue())).map(Entry::getKey)
+                    .collect(Collectors.toList());
+            Collection<TableMetaData> linkedTableMetaDataList = getTableMetaDataList(connection, entry.getKey(), neededLinkedTableNames);
+            result.addAll(rebuildSynonymMetaDataList(linkedTableMetaDataList, entry.getValue()));
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private Collection<TableMetaData> rebuildSynonymMetaDataList(final Collection<TableMetaData> linkedTableMetaDataList, final Map<String, String> linkedTableNameSynonymMap) {
+        Collection<TableMetaData> result = new LinkedList<>();
+        for (TableMetaData each : linkedTableMetaDataList) {
+            TableMetaData tableMetaData = new TableMetaData(linkedTableNameSynonymMap.get(each.getName()), each.getColumns(), each.getIndexes(), each.getConstraints(), each.getType(),
+                    each.getCharacterSetName());
+            result.add(tableMetaData);
+        }
+        return result;
     }
     
     private Collection<TableMetaData> getTableMetaDataList(final Connection connection, final String schema, final Collection<String> tableNames) throws SQLException {
@@ -94,13 +147,32 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
         Map<String, Collection<IndexMetaData>> indexMetaDataMap = new HashMap<>(tableNames.size(), 1F);
         for (List<String> each : Lists.partition(new ArrayList<>(tableNames), MAX_EXPRESSION_SIZE)) {
             viewNames.addAll(loadViewNames(connection, each, schema));
+            // SPEX CHANGED: BEGIN
             columnMetaDataMap.putAll(loadColumnMetaDataMap(connection, each, schema));
+            // SPEX CHANGED: END
             indexMetaDataMap.putAll(loadIndexMetaData(connection, each, schema));
         }
         Collection<TableMetaData> result = new LinkedList<>();
         for (Entry<String, Collection<ColumnMetaData>> entry : columnMetaDataMap.entrySet()) {
             result.add(new TableMetaData(entry.getKey(), entry.getValue(), indexMetaDataMap.getOrDefault(entry.getKey(), Collections.emptyList()), Collections.emptyList(),
-                    viewNames.contains(entry.getKey()) ? TableType.VIEW : TableType.TABLE));
+                    // TODO load characterSetName here
+                    // SPEX CHANGED: BEGIN
+                    viewNames.contains(entry.getKey()) ? TableType.VIEW : TableType.TABLE, null));
+            // SPEX CHANGED: END
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private Map<String, Map<String, String>> loadLinkedTableNameSynonymMapSchemaGroup(final Connection connection) throws SQLException {
+        Map<String, Map<String, String>> result = new HashMap<>();
+        try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery(USER_SYNONYMS_SQL)) {
+                while (resultSet.next()) {
+                    Map<String, String> linkedTableNameSynonymMap = result.computeIfAbsent(resultSet.getString(USER_SYNONYMS_TABLE_OWNER), unused -> new HashMap<>());
+                    linkedTableNameSynonymMap.put(resultSet.getString(USER_SYNONYMS_TABLE_NAME), resultSet.getString(USER_SYNONYMS_SYNONYM_NAME));
+                }
+            }
         }
         return result;
     }
@@ -128,6 +200,9 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
             Map<String, Collection<String>> tablePrimaryKeys = loadTablePrimaryKeys(connection, tables);
             preparedStatement.setString(1, schema);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                // SPEX CHANGED: BEGIN
+                resultSet.setFetchSize(1000);
+                // SPEX CHANGED: END
                 while (resultSet.next()) {
                     String tableName = resultSet.getString("TABLE_NAME");
                     ColumnMetaData columnMetaData = loadColumnMetaData(resultSet, tablePrimaryKeys.getOrDefault(tableName, Collections.emptyList()), connection.getMetaData());
@@ -151,7 +226,12 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
         boolean caseSensitive = null != collation && collation.endsWith("_CS");
         boolean isVisible = "NO".equals(resultSet.getString("HIDDEN_COLUMN"));
         boolean nullable = "Y".equals(resultSet.getString("NULLABLE"));
-        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), primaryKey, generated, caseSensitive, isVisible, false, nullable);
+        @SphereEx
+        String dataTypeContent = resultSet.getString("COLUMN_TYPE");
+        // SPEX CHANGED: BEGIN
+        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), primaryKey, generated, caseSensitive, isVisible, false, nullable,
+                dataTypeContent);
+        // SPEX CHANGED: END
     }
     
     private String getOriginalDataType(final String dataType) {

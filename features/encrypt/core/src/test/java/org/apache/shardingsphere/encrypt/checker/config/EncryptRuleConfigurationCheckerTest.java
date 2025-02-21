@@ -17,6 +17,11 @@
 
 package org.apache.shardingsphere.encrypt.checker.config;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeRuleConfiguration;
+import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
+import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
+import com.sphereex.dbplusengine.encrypt.exception.metadata.EncryptPlainColumnConfigException;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
@@ -27,6 +32,8 @@ import org.apache.shardingsphere.infra.algorithm.core.exception.MissingRequiredA
 import org.apache.shardingsphere.infra.algorithm.core.exception.UnregisteredAlgorithmException;
 import org.apache.shardingsphere.infra.config.rule.checker.RuleConfigurationChecker;
 import org.apache.shardingsphere.infra.spi.type.ordered.OrderedSPILoader;
+import org.apache.shardingsphere.test.util.PropertiesBuilder;
+import org.apache.shardingsphere.test.util.PropertiesBuilder.Property;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,9 +65,18 @@ class EncryptRuleConfigurationCheckerTest {
     
     private EncryptRuleConfiguration createValidRuleConfiguration() {
         EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_cipher", "aes_encryptor"));
+        // SPEX ADDED: BEGIN
+        PlainColumnItemRuleConfiguration plainConfig = new PlainColumnItemRuleConfiguration("user_plain");
+        plainConfig.setQueryWithPlain(true);
+        columnRuleConfig.setPlain(plainConfig);
+        // SPEX ADDED: END
         Collection<EncryptTableRuleConfiguration> tables = Collections.singleton(new EncryptTableRuleConfiguration("t_encrypt", Collections.singleton(columnRuleConfig)));
         Map<String, AlgorithmConfiguration> encryptors = Collections.singletonMap("aes_encryptor", new AlgorithmConfiguration("MD5", new Properties()));
-        return new EncryptRuleConfiguration(tables, encryptors);
+        // SPEX CHANGED: BEGIN
+        EncryptRuleConfiguration result = new EncryptRuleConfiguration(tables, encryptors);
+        result.setEncryptMode(new EncryptModeRuleConfiguration(EncryptModeType.FRONTEND, new Properties()));
+        return result;
+        // SPEX CHANGED: END
     }
     
     @SuppressWarnings("unchecked")
@@ -100,6 +116,11 @@ class EncryptRuleConfigurationCheckerTest {
     
     private EncryptRuleConfiguration createRuleConfigurationWithUnregisteredCipherEncryptor() {
         EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_cipher", "no_encryptor"));
+        // SPEX ADDED: BEGIN
+        PlainColumnItemRuleConfiguration plainConfig = new PlainColumnItemRuleConfiguration("user_plain");
+        plainConfig.setQueryWithPlain(true);
+        columnRuleConfig.setPlain(plainConfig);
+        // SPEX ADDED: END
         Collection<EncryptTableRuleConfiguration> tables = Collections.singleton(new EncryptTableRuleConfiguration("t_encrypt", Collections.singleton(columnRuleConfig)));
         Map<String, AlgorithmConfiguration> encryptors = Collections.singletonMap("aes_encryptor", new AlgorithmConfiguration("MD5", new Properties()));
         return new EncryptRuleConfiguration(tables, encryptors);
@@ -115,6 +136,11 @@ class EncryptRuleConfigurationCheckerTest {
     private EncryptRuleConfiguration createRuleConfigurationWithInvalidAssistColumn() {
         EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_cipher", "aes_encryptor"));
         columnRuleConfig.setAssistedQuery(new EncryptColumnItemRuleConfiguration("user_assisted", "aes_assisted_encryptor"));
+        // SPEX ADDED: BEGIN
+        PlainColumnItemRuleConfiguration plainConfig = new PlainColumnItemRuleConfiguration("user_plain");
+        plainConfig.setQueryWithPlain(true);
+        columnRuleConfig.setPlain(plainConfig);
+        // SPEX ADDED: END
         Collection<EncryptTableRuleConfiguration> tables = Collections.singleton(new EncryptTableRuleConfiguration("t_encrypt", Collections.singleton(columnRuleConfig)));
         Map<String, AlgorithmConfiguration> encryptors = Collections.singletonMap("aes_encryptor", new AlgorithmConfiguration("MD5", new Properties()));
         return new EncryptRuleConfiguration(tables, encryptors);
@@ -130,9 +156,32 @@ class EncryptRuleConfigurationCheckerTest {
     private EncryptRuleConfiguration createRuleConfigurationWithInvalidLikeColumn() {
         EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_cipher", "aes_encryptor"));
         columnRuleConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("user_like", "like_cn_encryptor"));
+        // SPEX ADDED: BEGIN
+        PlainColumnItemRuleConfiguration plainConfig = new PlainColumnItemRuleConfiguration("user_plain");
+        plainConfig.setQueryWithPlain(true);
+        columnRuleConfig.setPlain(plainConfig);
+        // SPEX ADDED: END
         Collection<EncryptTableRuleConfiguration> tables = Collections.singleton(new EncryptTableRuleConfiguration("t_encrypt", Collections.singleton(columnRuleConfig)));
         Map<String, AlgorithmConfiguration> encryptors = Collections.singletonMap("aes_encryptor", new AlgorithmConfiguration("MD5", new Properties()));
         return new EncryptRuleConfiguration(tables, encryptors);
+    }
+    
+    @SphereEx
+    @SuppressWarnings("unchecked")
+    @Test
+    void assertCheckWhenConfigDifferentPlainAndLogicalColumnName() {
+        EncryptRuleConfiguration ruleConfig = createRuleConfigurationWithDifferentPlainAndLogicalColumnName();
+        assertThrows(EncryptPlainColumnConfigException.class, () -> checker.check("foo_db", ruleConfig, Collections.emptyMap(), Collections.emptyList()));
+    }
+    
+    private EncryptRuleConfiguration createRuleConfigurationWithDifferentPlainAndLogicalColumnName() {
+        EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("user_id", new EncryptColumnItemRuleConfiguration("user_cipher", "aes_encryptor"));
+        columnRuleConfig.setPlain(new PlainColumnItemRuleConfiguration("user_id_plain"));
+        EncryptTableRuleConfiguration tableRuleConfig = new EncryptTableRuleConfiguration("t_user", Collections.singleton(columnRuleConfig));
+        EncryptRuleConfiguration result = new EncryptRuleConfiguration(
+                Collections.singleton(tableRuleConfig), Collections.singletonMap("aes_encryptor", new AlgorithmConfiguration("AES", new Properties())));
+        result.setEncryptMode(new EncryptModeRuleConfiguration(EncryptModeType.FRONTEND, PropertiesBuilder.build(new Property("use-original-sql-when-cipher-query-failed", Boolean.TRUE.toString()))));
+        return result;
     }
     
     @SuppressWarnings("unchecked")

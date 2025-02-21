@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.metadata.reviser.column;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.infra.metadata.database.schema.reviser.column.ColumnExistedReviser;
@@ -30,7 +32,10 @@ public final class EncryptColumnExistedReviser implements ColumnExistedReviser {
     private final EncryptTable encryptTable;
     
     @Override
+    @SphereEx(Type.MODIFY)
     public boolean isExisted(final String originalName) {
-        return encryptTable.isCipherColumn(originalName) || !encryptTable.isAssistedQueryColumn(originalName) && !encryptTable.isLikeQueryColumn(originalName);
+        return encryptTable.isCipherColumn(originalName)
+                || !encryptTable.isAssistedQueryColumn(originalName) && !encryptTable.isLikeQueryColumn(originalName) && !encryptTable.isOrderQueryColumn(originalName)
+                || encryptTable.isPlainColumn(originalName);
     }
 }

@@ -18,9 +18,11 @@
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.insert;
 
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
+import com.sphereex.dbplusengine.encrypt.rule.column.item.PlainColumnItem;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.aware.DatabaseAware;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptInsertValuesToken;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
@@ -58,13 +60,13 @@ import java.util.Optional;
  */
 @RequiredArgsConstructor
 @Setter
-public final class EncryptInsertValuesTokenGenerator implements OptionalSQLTokenGenerator<InsertStatementContext>, PreviousSQLTokensAware, DatabaseAware {
+public final class EncryptInsertValuesTokenGenerator implements OptionalSQLTokenGenerator<InsertStatementContext>, PreviousSQLTokensAware {
     
     private final EncryptRule rule;
     
-    private List<SQLToken> previousSQLTokens;
+    private final ShardingSphereDatabase database;
     
-    private ShardingSphereDatabase database;
+    private List<SQLToken> previousSQLTokens;
     
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
@@ -156,7 +158,19 @@ public final class EncryptInsertValuesTokenGenerator implements OptionalSQLToken
             }
             if (encryptColumn.getLikeQuery().isPresent()) {
                 addLikeQueryColumn(schemaName, tableName, encryptColumn, insertValueToken, valueExpression, columnIndex, indexDelta, originalValue);
+                // SPEX ADDED: BEGIN
+                indexDelta++;
+                // SPEX ADDED: END
             }
+            // SPEX ADDED: BEGIN
+            if (encryptColumn.getOrderQuery().isPresent()) {
+                addOrderQueryColumn(schemaName, tableName, encryptColumn, insertValueToken, valueExpression, columnIndex, indexDelta, originalValue);
+                indexDelta++;
+            }
+            if (encryptColumn.getPlain().isPresent()) {
+                addPlainColumn(encryptColumn.getPlain().get(), insertValueToken, valueExpression, columnIndex, indexDelta, originalValue);
+            }
+            // SPEX ADDED: END
         }
     }
     
@@ -167,6 +181,11 @@ public final class EncryptInsertValuesTokenGenerator implements OptionalSQLToken
                     valueExpression.getStartIndex(), valueExpression.getStopIndex(),
                     encryptColumn.getCipher().encrypt(database.getName(), schemaName, tableName, encryptColumn.getName(), originalValue)));
         }
+        // SPEX ADDED: BEGIN
+        if (valueExpression instanceof ColumnSegment) {
+            insertValueToken.getValues().set(columnIndex, createColumnSegment((ColumnSegment) valueExpression, encryptColumn.getCipher().getName()));
+        }
+        // SPEX ADDED: END
     }
     
     private void addAssistedQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final InsertValue insertValueToken,
@@ -185,6 +204,21 @@ public final class EncryptInsertValuesTokenGenerator implements OptionalSQLToken
         addDerivedColumn(insertValueToken, valueExpression, columnIndex, indexDelta, derivedValue, likeQueryColumnItem.get().getName());
     }
     
+    @SphereEx
+    private void addOrderQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final InsertValue insertValueToken,
+                                     final ExpressionSegment valueExpression, final int columnIndex, final int indexDelta, final Object originalValue) {
+        Optional<OrderQueryColumnItem> orderQueryColumnItem = encryptColumn.getOrderQuery();
+        Preconditions.checkState(orderQueryColumnItem.isPresent());
+        Object derivedValue = orderQueryColumnItem.get().encrypt(database.getName(), schemaName, tableName, encryptColumn.getName(), originalValue);
+        addDerivedColumn(insertValueToken, valueExpression, columnIndex, indexDelta, derivedValue, orderQueryColumnItem.get().getName());
+    }
+    
+    @SphereEx
+    private void addPlainColumn(final PlainColumnItem plainColumnItem, final InsertValue insertValueToken, final ExpressionSegment valueExpression, final int columnIndex, final int indexDelta,
+                                final Object originalValue) {
+        addDerivedColumn(insertValueToken, valueExpression, columnIndex, indexDelta, originalValue, plainColumnItem.getName());
+    }
+    
     private void addDerivedColumn(final InsertValue insertValueToken, final ExpressionSegment valueExpression, final int columnIndex, final int indexDelta, final Object derivedValue,
                                   final String derivedColumnName) {
         ExpressionSegment derivedExpression;
@@ -192,14 +226,19 @@ public final class EncryptInsertValuesTokenGenerator implements OptionalSQLToken
             derivedExpression = new DerivedLiteralExpressionSegment(derivedValue);
         } else if (valueExpression instanceof ParameterMarkerExpressionSegment) {
             derivedExpression = new DerivedParameterMarkerExpressionSegment(getParameterIndexCount(insertValueToken));
+            // SPEX ADDED: BEGIN
         } else if (valueExpression instanceof ColumnSegment) {
             derivedExpression = createColumnSegment((ColumnSegment) valueExpression, derivedColumnName);
+            // SPEX ADDED: END
         } else {
             derivedExpression = valueExpression;
         }
-        insertValueToken.getValues().add(columnIndex + indexDelta, derivedExpression);
+        // SPEX CHANGED: BEGIN
+        insertValueToken.addAddedValue(columnIndex, derivedExpression);
+        // SPEX CHANGED: END
     }
     
+    @SphereEx
     private ColumnSegment createColumnSegment(final ColumnSegment originalColumn, final String columnName) {
         ColumnSegment result = new ColumnSegment(originalColumn.getStartIndex(), originalColumn.getStopIndex(), new IdentifierValue(columnName, originalColumn.getIdentifier().getQuoteCharacter()));
         result.setNestedObjectAttributes(originalColumn.getNestedObjectAttributes());

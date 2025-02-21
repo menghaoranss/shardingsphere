@@ -79,7 +79,7 @@
     
     <rewrite-assertion id="drop_index_with_single_table_for_table_uniqueness_level_db" db-types="MySQL">
         <input sql="DROP INDEX single_id_idx ON t_single" />
-        <output sql="DROP INDEX single_id_idx ON t_single" />
+        <output sql="DROP INDEX single_id_idx ON `db`.t_single" />
     </rewrite-assertion>
     
     <rewrite-assertion id="drop_index_with_broadcast_table_for_table_uniqueness_level_db" db-types="MySQL">

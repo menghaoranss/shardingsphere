@@ -18,6 +18,8 @@
 package org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter;
 
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.hint.NoneUniqueKeyScenario;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
@@ -26,12 +28,15 @@ import org.apache.shardingsphere.infra.binder.context.statement.dml.InsertStatem
 import org.apache.shardingsphere.infra.binder.context.statement.dml.UpdateStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
+import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.ParameterBuilder;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.impl.GroupedParameterBuilder;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.impl.StandardParameterBuilder;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewriter;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.ColumnAssignmentSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.SetAssignmentSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.SQLStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.InsertStatement;
@@ -53,6 +58,9 @@ public final class EncryptAssignmentParameterRewriter implements ParameterRewrit
     
     private final String databaseName;
     
+    @SphereEx
+    private final HintValueContext hintValueContext;
+    
     @Override
     public boolean isNeedRewrite(final SQLStatementContext sqlStatementContext) {
         if (sqlStatementContext instanceof UpdateStatementContext) {
@@ -71,12 +79,17 @@ public final class EncryptAssignmentParameterRewriter implements ParameterRewrit
                 .orElseGet(() -> new DatabaseTypeRegistry(sqlStatementContext.getDatabaseType()).getDefaultSchemaName(databaseName));
         for (ColumnAssignmentSegment each : getSetAssignmentSegment(sqlStatementContext.getSqlStatement()).getAssignments()) {
             String columnName = each.getColumns().get(0).getIdentifier().getValue();
-            if (each.getValue() instanceof ParameterMarkerExpressionSegment && rule.findEncryptTable(tableName).map(optional -> optional.isEncryptColumn(columnName)).orElse(false)) {
+            // SPEX CHANGED: BEGIN
+            if ((each.getValue() instanceof FunctionSegment || each.getValue() instanceof ParameterMarkerExpressionSegment)
+                    && rule.findEncryptTable(tableName).map(optional -> optional.isEncryptColumn(columnName)).orElse(false)) {
+                // SPEX CHANGED: END
                 EncryptColumn encryptColumn = rule.getEncryptTable(tableName).getEncryptColumn(columnName);
                 StandardParameterBuilder standardParamBuilder = paramBuilder instanceof StandardParameterBuilder
                         ? (StandardParameterBuilder) paramBuilder
                         : ((GroupedParameterBuilder) paramBuilder).getParameterBuilders().get(0);
-                encryptParameters(standardParamBuilder, schemaName, tableName, encryptColumn, ((ParameterMarkerExpressionSegment) each.getValue()).getParameterMarkerIndex(), params);
+                // SPEX CHANGED: BEGIN
+                encryptParameters(standardParamBuilder, schemaName, tableName, encryptColumn, getParameterMarkerIndex(each.getValue()), params);
+                // SPEX CHANGED: END
             }
         }
     }
@@ -90,10 +103,29 @@ public final class EncryptAssignmentParameterRewriter implements ParameterRewrit
         return ((UpdateStatement) sqlStatement).getSetAssignment();
     }
     
+    @SphereEx
+    private int getParameterMarkerIndex(final ExpressionSegment expressionSegment) {
+        if (expressionSegment instanceof ParameterMarkerExpressionSegment) {
+            return ((ParameterMarkerExpressionSegment) expressionSegment).getParameterMarkerIndex();
+        }
+        for (ExpressionSegment each : ((FunctionSegment) expressionSegment).getParameters()) {
+            if (each instanceof ParameterMarkerExpressionSegment) {
+                return ((ParameterMarkerExpressionSegment) each).getParameterMarkerIndex();
+            }
+        }
+        return 0;
+    }
+    
     private void encryptParameters(final StandardParameterBuilder paramBuilder, final String schemaName,
                                    final String tableName, final EncryptColumn encryptColumn, final int parameterMarkerIndex, final List<Object> params) {
         String columnName = encryptColumn.getName();
         Object originalValue = params.get(parameterMarkerIndex);
+        // SPEX ADDED: BEGIN
+        if (NoneUniqueKeyScenario.DECRYPT == hintValueContext.getNoneUniqueKeyScenario()) {
+            paramBuilder.addReplacedParameters(parameterMarkerIndex, originalValue);
+            return;
+        }
+        // SPEX ADDED: END
         Object cipherValue = encryptColumn.getCipher().encrypt(databaseName, schemaName, tableName, columnName, Collections.singletonList(originalValue)).iterator().next();
         paramBuilder.addReplacedParameters(parameterMarkerIndex, cipherValue);
         Collection<Object> addedParams = new LinkedList<>();
@@ -103,6 +135,14 @@ public final class EncryptAssignmentParameterRewriter implements ParameterRewrit
         if (encryptColumn.getLikeQuery().isPresent()) {
             addedParams.add(encryptColumn.getLikeQuery().get().encrypt(databaseName, schemaName, tableName, columnName, Collections.singletonList(originalValue)).iterator().next());
         }
+        // SPEX ADDED: BEGIN
+        if (encryptColumn.getOrderQuery().isPresent()) {
+            addedParams.add(encryptColumn.getOrderQuery().get().encrypt(databaseName, schemaName, tableName, columnName, Collections.singletonList(originalValue)).iterator().next());
+        }
+        if (encryptColumn.getPlain().isPresent()) {
+            addedParams.add(originalValue);
+        }
+        // SPEX ADDED: END
         if (!addedParams.isEmpty()) {
             paramBuilder.addAddedParameters(parameterMarkerIndex, addedParams);
         }

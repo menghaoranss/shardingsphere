@@ -18,6 +18,9 @@
 package org.apache.shardingsphere.test.e2e.engine.type;
 
 import com.google.common.base.Splitter;
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.expr.core.InlineExpressionParserFactory;
 import org.apache.shardingsphere.test.e2e.cases.dataset.metadata.DataSetColumn;
@@ -186,7 +189,7 @@ class DDLE2EIT implements E2EEnvironmentAware {
             assertNotContainsTable(environmentEngine, dataNodes);
             return;
         }
-        assertTableMetaData(testParam, getActualColumns(dataNodes), getActualIndexes(dataNodes), expected);
+        assertTableMetaData(testParam, getActualColumns(dataNodes, testParam.getDatabaseType()), getActualIndexes(dataNodes), expected);
     }
     
     private void assertTableMetaData(final AssertionTestParameter testParam, final List<DataSetColumn> actualColumns, final List<DataSetIndex> actualIndexes, final DataSetMetaData expected) {
@@ -206,11 +209,13 @@ class DDLE2EIT implements E2EEnvironmentAware {
         assertFalse(connection.getMetaData().getTables(null, null, tableName, new String[]{"TABLE"}).next(), String.format("Table `%s` should not existed", tableName));
     }
     
-    private List<DataSetColumn> getActualColumns(final Collection<DataNode> dataNodes) throws SQLException {
+    private List<DataSetColumn> getActualColumns(final Collection<DataNode> dataNodes, @SphereEx final DatabaseType databaseType) throws SQLException {
         Set<DataSetColumn> result = new LinkedHashSet<>();
         for (DataNode each : dataNodes) {
             try (Connection connection = environmentEngine.getActualDataSourceMap().get(each.getDataSourceName()).getConnection()) {
-                result.addAll(getActualColumns(connection, each.getTableName()));
+                // SPEX CHANGED: BEGIN
+                result.addAll(getActualColumns(connection, new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData().formatTableNamePattern(each.getTableName())));
+                // SPEX CHANGED: END
             }
         }
         return new LinkedList<>(result);
@@ -264,8 +269,10 @@ class DDLE2EIT implements E2EEnvironmentAware {
     }
     
     private void assertColumnMetaData(final AssertionTestParameter testParam, final DataSetColumn actual, final DataSetColumn expected) {
-        assertThat("Mismatched column name.", actual.getName(), is(expected.getName()));
-        if ("MySQL".equals(testParam.getDatabaseType().getType()) && "integer".equals(expected.getType())) {
+        assertThat("Mismatched column name.", actual.getName().toLowerCase(), is(expected.getName().toLowerCase()));
+        // SPEX CHANGED: BEGIN
+        if (("MySQL".equals(testParam.getDatabaseType().getType()) || "DM".equals(testParam.getDatabaseType().getType())) && "integer".equals(expected.getType())) {
+            // SPEX CHANGED: END
             assertThat("Mismatched column type.", actual.getType(), is("int"));
         } else if ("PostgreSQL".equals(testParam.getDatabaseType().getType()) && "integer".equals(expected.getType())) {
             assertThat("Mismatched column type.", actual.getType(), is("int4"));

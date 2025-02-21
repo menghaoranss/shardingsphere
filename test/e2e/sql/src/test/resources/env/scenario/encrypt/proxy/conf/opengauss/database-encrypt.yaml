@@ -40,13 +40,20 @@ rules:
         aes-key-value: 123456abc
         digest-algorithm-name: SHA-1
     like_encryptor:
-      type: IT.ENCRYPT.LIKE.FIXTURE
+      #   SPEX CHANGED: BEGIN
+      type: SphereEx:CHAR_TRANSFORM_LIKE
       props:
-        mask: 4093
+        transform-indexes: 1,2,3,5,7,14
+  # SPEX CHANGED: END
   tables:
     t_user:
       columns:
         user_name:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: user_name_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: user_name_cipher
             encryptorName: aes_encryptor
@@ -54,14 +61,29 @@ rules:
             name: user_name_like
             encryptorName: like_encryptor
         password:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: password_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: password_cipher
             encryptorName: aes_encryptor
         email:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: email_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: email_cipher
             encryptorName: aes_encryptor
         telephone:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: user_telephone_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: user_telephone_cipher
             encryptorName: aes_encryptor
@@ -71,16 +93,31 @@ rules:
     t_user_details:
       columns:
         number:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: number_cipher
             encryptorName: aes_encryptor
         number_new:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: number_new_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: number_new_cipher
             encryptorName: aes_encryptor
     t_merchant:
       columns:
         business_code:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: business_code_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: business_code_cipher
             encryptorName: aes_encryptor
@@ -88,9 +125,25 @@ rules:
             name: business_code_like
             encryptorName: like_encryptor
         telephone:
+          # SPEX ADDED: BEGIN
+          plain:
+            name: merchant_telephone_plain
+            queryWithPlain: ${query_with_plain}
+          # SPEX ADDED: END
           cipher:
             name: merchant_telephone_cipher
             encryptorName: aes_encryptor
           likeQuery:
             name: merchant_telephone_like
             encryptorName: like_encryptor
+    # SPEX ADDED: BEGIN
+    t_product_extend:
+      columns:
+        manual:
+          plain:
+            name: manual_plain
+            queryWithPlain: ${query_with_plain}
+          cipher:
+            name: manual_cipher
+            encryptorName: aes_encryptor
+    # SPEX ADDED: END

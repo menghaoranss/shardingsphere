@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.merge;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.merge.dal.EncryptDALResultDecorator;
 import org.apache.shardingsphere.encrypt.merge.dql.EncryptDQLResultDecorator;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -59,6 +61,7 @@ class EncryptResultDecoratorEngineTest {
     @Test
     void assertNewInstanceWithSelectStatement() {
         EncryptResultDecoratorEngine engine = (EncryptResultDecoratorEngine) OrderedSPILoader.getServices(ResultProcessEngine.class, Collections.singleton(rule)).get(rule);
+        @SphereEx(Type.MODIFY)
         Optional<ResultDecorator<EncryptRule>> actual =
                 engine.newInstance(mock(ShardingSphereMetaData.class), database, mock(ConfigurationProperties.class), mock(SelectStatementContext.class, RETURNS_DEEP_STUBS));
         assertTrue(actual.isPresent());
@@ -70,7 +73,9 @@ class EncryptResultDecoratorEngineTest {
         SQLStatementContext sqlStatementContext = mock(ExplainStatementContext.class);
         when(sqlStatementContext.getSqlStatement()).thenReturn(mock(MySQLExplainStatement.class));
         EncryptResultDecoratorEngine engine = (EncryptResultDecoratorEngine) OrderedSPILoader.getServices(ResultProcessEngine.class, Collections.singleton(rule)).get(rule);
-        Optional<ResultDecorator<EncryptRule>> actual = engine.newInstance(mock(ShardingSphereMetaData.class), database, mock(ConfigurationProperties.class), sqlStatementContext);
+        @SphereEx(Type.MODIFY)
+        Optional<ResultDecorator<EncryptRule>> actual =
+                engine.newInstance(mock(ShardingSphereMetaData.class), database, mock(ConfigurationProperties.class), sqlStatementContext);
         assertTrue(actual.isPresent());
         assertThat(actual.get(), instanceOf(EncryptDALResultDecorator.class));
     }
@@ -78,6 +83,9 @@ class EncryptResultDecoratorEngineTest {
     @Test
     void assertNewInstanceWithOtherStatement() {
         EncryptResultDecoratorEngine engine = (EncryptResultDecoratorEngine) OrderedSPILoader.getServices(ResultProcessEngine.class, Collections.singleton(rule)).get(rule);
-        assertFalse(engine.newInstance(mock(ShardingSphereMetaData.class), database, mock(ConfigurationProperties.class), mock(InsertStatementContext.class)).isPresent());
+        // SPEX CHANGED: BEGIN
+        assertFalse(engine.newInstance(mock(ShardingSphereMetaData.class), database, mock(ConfigurationProperties.class), mock(InsertStatementContext.class))
+                .isPresent());
+        // SPEX CHANGED: END
     }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.config.props;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -128,7 +129,13 @@ public enum ConfigurationPropertyKey implements TypedPropertyKey {
     /**
      * Agent plugins enabled.
      */
-    AGENT_PLUGINS_ENABLED("agent-plugins-enabled", String.valueOf(Boolean.TRUE), boolean.class, false);
+    AGENT_PLUGINS_ENABLED("agent-plugins-enabled", String.valueOf(Boolean.TRUE), boolean.class, false),
+    
+    /**
+     * Default character set name.
+     */
+    @SphereEx
+    DEFAULT_CHARACTER_SET_NAME("default-character-set-name", "utf8mb4", String.class, false);
     
     private final String key;
     

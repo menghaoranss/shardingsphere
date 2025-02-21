@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.database.oracle.metadata.data.loader;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.ColumnMetaData;
@@ -56,26 +58,68 @@ class OracleMetaDataLoaderTest {
     
     private static final String ALL_INDEXES_SQL = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, UNIQUENESS FROM ALL_INDEXES WHERE OWNER = ? AND TABLE_NAME IN ('tbl')";
     
-    private static final String ALL_TAB_COLUMNS_SQL_CONDITION1 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN, COLLATION"
+    @SphereEx(Type.MODIFY)
+    private static final String ALL_TAB_COLUMNS_SQL_CONDITION1 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN, COLLATION,"
+            + " CASE"
+            + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+            + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+            + " ELSE DATA_TYPE"
+            + " END AS COLUMN_TYPE"
             + " FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
     
-    private static final String ALL_TAB_COLUMNS_SQL_CONDITION2 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN"
+    @SphereEx(Type.MODIFY)
+    private static final String ALL_TAB_COLUMNS_SQL_CONDITION2 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN,"
+            + " CASE"
+            + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+            + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+            + " ELSE DATA_TYPE"
+            + " END AS COLUMN_TYPE"
             + " FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
     
+    @SphereEx(Type.MODIFY)
     private static final String ALL_TAB_COLUMNS_SQL_CONDITION3 =
-            "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN  FROM ALL_TAB_COLS WHERE OWNER = ?"
-                    + " AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
+            "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN ,"
+                    + " CASE"
+                    + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+                    + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+                    + " ELSE DATA_TYPE"
+                    + " END AS COLUMN_TYPE"
+                    + " FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
     
-    private static final String ALL_TAB_COLUMNS_SQL_CONDITION4 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN, COLLATION"
+    @SphereEx(Type.MODIFY)
+    private static final String ALL_TAB_COLUMNS_SQL_CONDITION4 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN, COLLATION,"
+            + " CASE"
+            + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+            + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+            + " ELSE DATA_TYPE"
+            + " END AS COLUMN_TYPE"
             + " FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
     
-    private static final String ALL_TAB_COLUMNS_SQL_CONDITION5 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN "
-            + "FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
+    @SphereEx(Type.MODIFY)
+    private static final String ALL_TAB_COLUMNS_SQL_CONDITION5 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN,"
+            + " CASE"
+            + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+            + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+            + " ELSE DATA_TYPE"
+            + " END AS COLUMN_TYPE"
+            + " FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
     
-    private static final String ALL_TAB_COLUMNS_SQL_CONDITION6 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN  FROM ALL_TAB_COLS"
-            + " WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
+    @SphereEx(Type.MODIFY)
+    private static final String ALL_TAB_COLUMNS_SQL_CONDITION6 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN ,"
+            + " CASE"
+            + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+            + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+            + " ELSE DATA_TYPE"
+            + " END AS COLUMN_TYPE"
+            + " FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
     
-    private static final String ALL_TAB_COLUMNS_SQL_CONDITION7 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN, COLLATION"
+    @SphereEx(Type.MODIFY)
+    private static final String ALL_TAB_COLUMNS_SQL_CONDITION7 = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NULLABLE, DATA_TYPE, COLUMN_ID, HIDDEN_COLUMN , IDENTITY_COLUMN, COLLATION,"
+            + " CASE"
+            + " WHEN DATA_TYPE IN ('VARCHAR2', 'CHAR') THEN"
+            + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
+            + " ELSE DATA_TYPE"
+            + " END AS COLUMN_TYPE"
             + " FROM ALL_TAB_COLS WHERE OWNER = ? AND TABLE_NAME IN ('tbl') ORDER BY COLUMN_ID";
     
     @Test
@@ -95,8 +139,10 @@ class OracleMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -116,8 +162,10 @@ class OracleMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, false, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -137,8 +185,10 @@ class OracleMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, false, false, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, false, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -148,7 +198,9 @@ class OracleMetaDataLoaderTest {
         when(dataSource.getConnection().prepareStatement(ALL_TAB_COLUMNS_SQL_CONDITION4).executeQuery()).thenReturn(resultSet);
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_INDEXES_SQL).executeQuery()).thenReturn(indexResultSet);
-        when(dataSource.getConnection().getMetaData().getUserName()).thenReturn("TEST");
+        // SPEX CHANGED: BEGIN
+        when(dataSource.getConnection().getSchema()).thenReturn("TEST");
+        // SPEX CHANGED: END
         ResultSet primaryKeys = mockPrimaryKeysMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_CONSTRAINTS_SQL_WITH_TABLES).executeQuery()).thenReturn(primaryKeys);
         when(dataSource.getConnection().getMetaData().getDatabaseMajorVersion()).thenReturn(12);
@@ -159,8 +211,10 @@ class OracleMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -170,7 +224,9 @@ class OracleMetaDataLoaderTest {
         when(dataSource.getConnection().prepareStatement(ALL_TAB_COLUMNS_SQL_CONDITION5).executeQuery()).thenReturn(resultSet);
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_INDEXES_SQL).executeQuery()).thenReturn(indexResultSet);
-        when(dataSource.getConnection().getMetaData().getUserName()).thenReturn("TEST");
+        // SPEX CHANGED: BEGIN
+        when(dataSource.getConnection().getSchema()).thenReturn("TEST");
+        // SPEX CHANGED: END
         ResultSet primaryKeys = mockPrimaryKeysMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_CONSTRAINTS_SQL_WITH_TABLES).executeQuery()).thenReturn(primaryKeys);
         when(dataSource.getConnection().getMetaData().getDatabaseMajorVersion()).thenReturn(12);
@@ -181,8 +237,10 @@ class OracleMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, false, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -192,7 +250,9 @@ class OracleMetaDataLoaderTest {
         when(dataSource.getConnection().prepareStatement(ALL_TAB_COLUMNS_SQL_CONDITION6).executeQuery()).thenReturn(resultSet);
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_INDEXES_SQL).executeQuery()).thenReturn(indexResultSet);
-        when(dataSource.getConnection().getMetaData().getUserName()).thenReturn("TEST");
+        // SPEX CHANGED: BEGIN
+        when(dataSource.getConnection().getSchema()).thenReturn("TEST");
+        // SPEX CHANGED: END
         ResultSet primaryKeys = mockPrimaryKeysMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_CONSTRAINTS_SQL_WITH_TABLES).executeQuery()).thenReturn(primaryKeys);
         when(dataSource.getConnection().getMetaData().getDatabaseMajorVersion()).thenReturn(11);
@@ -203,8 +263,10 @@ class OracleMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, false, false, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, false, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -214,7 +276,9 @@ class OracleMetaDataLoaderTest {
         when(dataSource.getConnection().prepareStatement(ALL_TAB_COLUMNS_SQL_CONDITION7).executeQuery()).thenReturn(resultSet);
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_INDEXES_SQL).executeQuery()).thenReturn(indexResultSet);
-        when(dataSource.getConnection().getMetaData().getUserName()).thenReturn("TEST");
+        // SPEX CHANGED: BEGIN
+        when(dataSource.getConnection().getSchema()).thenReturn("TEST");
+        // SPEX CHANGED: END
         ResultSet primaryKeys = mockPrimaryKeysMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement(ALL_CONSTRAINTS_SQL_WITH_TABLES).executeQuery()).thenReturn(primaryKeys);
         when(dataSource.getConnection().getMetaData().getDatabaseMajorVersion()).thenReturn(12);
@@ -225,9 +289,11 @@ class OracleMetaDataLoaderTest {
         assertTableMetaDataMap(actual);
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("address", Types.VARCHAR, false, false, false, false, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("address", Types.VARCHAR, false, false, false, false, false, true, "varchar2(64)"));
+        // SPEX CHANGED: END
     }
     
     private DataSource mockDataSource() throws SQLException {
@@ -255,6 +321,9 @@ class OracleMetaDataLoaderTest {
         when(result.getString("IDENTITY_COLUMN")).thenReturn("YES", "NO", "NO");
         when(result.getString("COLLATION")).thenReturn("BINARY_CS", "BINARY_CI", "BINARY_CI");
         when(result.getString("NULLABLE")).thenReturn("N", "Y", "Y");
+        // SPEX ADDED: BEGIN
+        when(result.getString("COLUMN_TYPE")).thenReturn(null, "varchar2(32)", null);
+        // SPEX ADDED: END
         return result;
     }
     
@@ -268,6 +337,9 @@ class OracleMetaDataLoaderTest {
         when(result.getString("IDENTITY_COLUMN")).thenReturn("YES", "NO", "NO");
         when(result.getString("COLLATION")).thenReturn("BINARY_CS", "BINARY_CI", null);
         when(result.getString("NULLABLE")).thenReturn("N", "Y", "Y");
+        // SPEX ADDED: BEGIN
+        when(result.getString("COLUMN_TYPE")).thenReturn(null, "varchar2(32)", "varchar2(64)");
+        // SPEX ADDED: END
         return result;
     }
     

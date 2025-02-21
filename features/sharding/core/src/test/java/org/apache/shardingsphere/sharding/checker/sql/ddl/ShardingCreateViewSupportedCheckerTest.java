@@ -17,7 +17,10 @@
 
 package org.apache.shardingsphere.sharding.checker.sql.ddl;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.CreateViewStatementContext;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
 import org.apache.shardingsphere.sharding.exception.metadata.EngagedViewException;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
@@ -71,15 +74,20 @@ class ShardingCreateViewSupportedCheckerTest {
         when(routeContext.getRouteUnits().size()).thenReturn(2);
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheck() {
-        assertDoesNotThrow(() -> new ShardingCreateViewSupportedChecker().check(rule, mock(), mock(), createViewStatementContext));
+        assertDoesNotThrow(() -> new ShardingCreateViewSupportedChecker()
+                .check(rule, mock(ShardingSphereMetaData.class), mock(), mock(), createViewStatementContext));
     }
     
     @Test
     void assertCheckWithException() {
         when(rule.isShardingTable(any())).thenReturn(true);
         when(rule.isAllConfigBindingTables(any())).thenReturn(false);
-        assertThrows(EngagedViewException.class, () -> new ShardingCreateViewSupportedChecker().check(rule, mock(), mock(), createViewStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertThrows(EngagedViewException.class, () -> new ShardingCreateViewSupportedChecker()
+                .check(rule, mock(ShardingSphereMetaData.class), mock(), mock(), createViewStatementContext));
+        // SPEX CHANGED: END
     }
 }

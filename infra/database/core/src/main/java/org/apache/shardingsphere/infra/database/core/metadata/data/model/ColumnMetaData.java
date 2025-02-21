@@ -17,9 +17,12 @@
 
 package org.apache.shardingsphere.infra.database.core.metadata.data.model;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import java.util.Optional;
 
 /**
  * Column meta data.
@@ -44,4 +47,29 @@ public final class ColumnMetaData {
     private final boolean unsigned;
     
     private final boolean nullable;
+    
+    @SphereEx
+    private final String dataTypeContent;
+    
+    @SphereEx
+    private final String characterSetName;
+    
+    // TODO will be removed after all databases load character set name
+    @SphereEx
+    public ColumnMetaData(final String name, final int dataType, final boolean primaryKey, final boolean generated, final boolean caseSensitive, final boolean visible, final boolean unsigned,
+                          final boolean nullable, final String dataTypeContent) {
+        this(name, dataType, primaryKey, generated, caseSensitive, visible, unsigned, nullable, dataTypeContent, null);
+    }
+    
+    /**
+     * Get column data length.
+     *
+     * @return data length
+     */
+    @SphereEx
+    public Optional<Integer> getDataLength() {
+        return Optional.ofNullable(dataTypeContent).filter(content -> content.contains("(") && content.contains(")"))
+                .map(content -> content.substring(content.indexOf('(') + 1, content.indexOf(')')))
+                .map(Integer::parseInt);
+    }
 }

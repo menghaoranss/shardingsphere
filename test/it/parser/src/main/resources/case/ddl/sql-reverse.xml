@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<sql-parser-test-cases>
+    <sql-reverse sql-case-id="create_table_reverse" reversed-sql="DROP TABLE IF EXISTS t_order" />
+    <sql-reverse sql-case-id="create_index_reverse" reversed-sql="DROP INDEX order_id_idx ON t_order" />
+    <sql-reverse sql-case-id="create_unique_index_reverse" reversed-sql="DROP INDEX order_id_idx ON t_order" />
+    <sql-reverse sql-case-id="alter_table_add_index_reverse" reversed-sql="ALTER TABLE t_order DROP INDEX idx_t_order_user_id" />
+    <sql-reverse sql-case-id="alter_table_add_multi_index_reverse" reversed-sql="ALTER TABLE t_order DROP INDEX idx_t_order_user_id_order_id" />
+    <sql-reverse sql-case-id="alter_table_add_primary_index_reverse" reversed-sql="ALTER TABLE t_order DROP PRIMARY KEY" />
+    <sql-reverse sql-case-id="alter_table_add_unique_index_reverse" reversed-sql="ALTER TABLE t_order DROP INDEX t_order_user_id" />
+    <sql-reverse sql-case-id="alter_table_add_unique_index_with_name_reverse" reversed-sql="ALTER TABLE t_order DROP INDEX idx_user_id" />
+    <sql-reverse sql-case-id="alter_table_add_index_and_column_reverse" reversed-sql="ALTER TABLE t_order DROP INDEX idx_t_order_user_id, DROP COLUMN `test_column`" />
+    <sql-reverse sql-case-id="alter_table_rename_index_reverse" reversed-sql="ALTER TABLE t_order RENAME INDEX idx_user_id TO idx_t_order_user_id" />
+    <sql-reverse sql-case-id="alter_table_rename_column_reverse" reversed-sql="ALTER TABLE t_order RENAME COLUMN `status_new` TO `status`" />
+    <sql-reverse sql-case-id="alter_table_add_column_reverse" reversed-sql="ALTER TABLE t_order DROP COLUMN `test_column`" />
+    <sql-reverse sql-case-id="alter_table_add_multi_column_reverse" reversed-sql="ALTER TABLE t_order DROP COLUMN `test_column`, DROP COLUMN `test_column2`" />
+    <sql-reverse sql-case-id="rename_table_to_reverse" reversed-sql="RENAME TABLE t_order_new TO t_order" />
+    <sql-reverse sql-case-id="create_schema_reverse" reversed-sql="DROP SCHEMA schema_name" />
+    <sql-reverse sql-case-id="alter_table_add_unique_index_reverse_pg_og" reversed-sql="ALTER TABLE t_order DROP CONSTRAINT t_order_user_id_order_id" />
+    <sql-reverse sql-case-id="alter_table_add_constraint_reverse_pg_og" reversed-sql="ALTER TABLE t_order DROP CONSTRAINT idx_user_id" />
+    <sql-reverse sql-case-id="alter_table_rename_column_reverse_pg_og" reversed-sql="ALTER TABLE t_order RENAME COLUMN status_new TO status" />
+    <sql-reverse sql-case-id="alter_table_rename_constraint_reverse" reversed-sql="ALTER TABLE t_order RENAME CONSTRAINT idx_user_id_new TO idx_user_id" />
+    <sql-reverse sql-case-id="alter_table_add_column_reverse_pg_og" reversed-sql="ALTER TABLE t_order DROP COLUMN test_column" />
+    <sql-reverse sql-case-id="alter_table_add_multi_column_reverse_pg_og" reversed-sql="ALTER TABLE t_order DROP COLUMN test_column, DROP COLUMN test_column2" />
+    <sql-reverse sql-case-id="alter_schema_rename_reverse" reversed-sql="ALTER SCHEMA new_name RENAME TO schema_name" />
+</sql-parser-test-cases>
+<!-- SPEX ADDED: END -->

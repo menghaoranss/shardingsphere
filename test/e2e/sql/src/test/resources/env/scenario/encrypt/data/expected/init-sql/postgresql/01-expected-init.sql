@@ -26,10 +26,17 @@ DROP TABLE IF EXISTS t_order;
 DROP TABLE IF EXISTS t_order_item;
 DROP TABLE IF EXISTS t_user;
 DROP TABLE IF EXISTS t_merchant;
+-- SPEX ADDED: BEGIN
+DROP TABLE IF EXISTS t_product_extend;
+-- SPEX ADDED: END
 
 CREATE TABLE t_order (order_id INT PRIMARY KEY, user_id INT NOT NULL, status VARCHAR(50) NOT NULL, merchant_id INT, remark VARCHAR(50) NOT NULL, creation_date DATE NOT NULL);
 CREATE TABLE t_order_item (item_id INT PRIMARY KEY, order_id INT NOT NULL, user_id INT NOT NULL, product_id INT NOT NULL, quantity INT NOT NULL, creation_date DATE NOT NULL);
 CREATE TABLE t_user (user_id INT PRIMARY KEY, user_name VARCHAR(50) NOT NULL, password VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, telephone CHAR(11) NOT NULL, creation_date DATE NOT NULL);
 CREATE TABLE t_merchant (merchant_id INT PRIMARY KEY, country_id SMALLINT NOT NULL, merchant_name VARCHAR(50) NOT NULL, business_code VARCHAR(50) NOT NULL, telephone CHAR(11) NOT NULL, creation_date DATE NOT NULL);
-
+-- SPEX ADDED: BEGIN
+CREATE TABLE t_product_extend (extend_id INT PRIMARY KEY, product_id INT NOT NULL, manual TEXT);
+CREATE TABLE t_user_insert (user_id INT PRIMARY KEY, user_name VARCHAR(50), password VARCHAR(50), creation_date DATE, update_date TIMESTAMP);
+CREATE TABLE t_user_select (user_id INT PRIMARY KEY, user_name VARCHAR(50), password VARCHAR(50), creation_date DATE, update_date TIMESTAMP);
+-- SPEX ADDED: END
 CREATE INDEX user_index_t_user ON t_user (user_id);

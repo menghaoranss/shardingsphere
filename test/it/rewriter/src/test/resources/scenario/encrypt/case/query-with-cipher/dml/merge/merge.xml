@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--  SPEX ADDED: BEGIN  -->
+<rewrite-assertions yaml-rule="scenario/encrypt/config/query-with-cipher.yaml">
+    <rewrite-assertion id="merge_condition" db-types="Oracle">
+        <input sql="merge into t_account fi using t_account_item se on ( fi.certificate_number = se.certificate_number ) when matched then update set fi.amount = se.amount" />
+        <output sql="merge into &quot;ENCRYPT_DS&quot;.t_account fi using t_account_item se on ( fi.assisted_query_certificate_number = se.assisted_query_certificate_number ) when matched then update set fi.cipher_amount = se.cipher_amount" />
+    </rewrite-assertion>
+
+    <rewrite-assertion id="merge_with_param" db-types="Oracle">
+        <input sql="merge into t_account fi using t_account_item se on (fi.certificate_number = se.certificate_number and fi.certificate_number = ?) when matched then update set fi.password = se.password, fi.amount = ? where se.certificate_number = ? delete where fi.certificate_number = ? when not matched then insert (password, amount) values (?, ?) where se.amount = ?" parameters="101, 102, 103, 104, five, 106, 107" />
+        <output sql="merge into &quot;ENCRYPT_DS&quot;.t_account fi using t_account_item se on (fi.assisted_query_certificate_number = se.assisted_query_certificate_number and fi.assisted_query_certificate_number = ?) when matched then update set fi.cipher_password = se.cipher_password, fi.assisted_query_password = se.assisted_query_password, fi.like_query_password = se.like_query_password, cipher_amount = ? where se.assisted_query_certificate_number = ? delete where fi.assisted_query_certificate_number = ? when not matched then insert (cipher_password, assisted_query_password, like_query_password, cipher_amount) values (?, ?, ?, ?) where se.cipher_amount = ?" parameters="assisted_query_101, encrypt_102, assisted_query_103, assisted_query_104, encrypt_five, assisted_query_five, like_query_five, encrypt_106, encrypt_107" />
+    </rewrite-assertion>
+</rewrite-assertions>
+<!--  SPEX ADDED: END  -->

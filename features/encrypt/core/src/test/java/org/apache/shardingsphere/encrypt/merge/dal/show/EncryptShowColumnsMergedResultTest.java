@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.merge.dal.show;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
@@ -123,10 +125,12 @@ class EncryptShowColumnsMergedResultTest {
         assertThat(createMergedResult(mergedResult, mock(EncryptRule.class)).getValue(1, String.class), is("user_id_assisted"));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertGetValueWithOtherIndex() throws SQLException {
-        when(mergedResult.getValue(2, String.class)).thenReturn("order_id");
-        assertThat(createMergedResult(mergedResult, mock(EncryptRule.class)).getValue(2, String.class), is("order_id"));
+        when(mergedResult.getValue(1, String.class)).thenReturn("order_id");
+        when(mergedResult.getValue(2, String.class)).thenReturn("int");
+        assertThat(createMergedResult(mergedResult, mock(EncryptRule.class)).getValue(2, String.class), is("int"));
     }
     
     @Test

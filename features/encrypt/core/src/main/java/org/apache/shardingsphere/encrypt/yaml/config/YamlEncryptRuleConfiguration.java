@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.yaml.config;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.yaml.config.rule.YamlEncryptModeRuleConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
@@ -43,6 +45,10 @@ public final class YamlEncryptRuleConfiguration implements YamlRuleConfiguration
     
     @RepositoryTupleField(type = Type.ALGORITHM)
     private Map<String, YamlAlgorithmConfiguration> encryptors = new LinkedHashMap<>();
+    
+    @SphereEx
+    @RepositoryTupleField(type = Type.OTHER)
+    private YamlEncryptModeRuleConfiguration encryptMode;
     
     @Override
     public Class<EncryptRuleConfiguration> getRuleConfigurationType() {

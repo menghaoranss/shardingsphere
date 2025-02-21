@@ -17,7 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql.orderby;
 
-import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.encrypt.exception.metadata.MissingMatchedEncryptQueryAlgorithmException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
@@ -26,6 +27,7 @@ import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementCont
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
@@ -59,7 +61,8 @@ public final class EncryptOrderByItemSupportedChecker implements SupportedSQLChe
     }
     
     @Override
-    public void check(final EncryptRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final SelectStatementContext sqlStatementContext) {
+    public void check(final EncryptRule rule, @SphereEx final ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final SelectStatementContext sqlStatementContext) {
         for (OrderByItem each : getOrderByItems(sqlStatementContext)) {
             if (each.getSegment() instanceof ColumnOrderByItemSegment) {
                 checkColumnOrderByItem(rule, ((ColumnOrderByItemSegment) each.getSegment()).getColumn());
@@ -81,6 +84,11 @@ public final class EncryptOrderByItemSupportedChecker implements SupportedSQLChe
     private void checkColumnOrderByItem(final EncryptRule rule, final ColumnSegment columnSegment) {
         Optional<EncryptTable> encryptTable = rule.findEncryptTable(columnSegment.getColumnBoundInfo().getOriginalTable().getValue());
         String columnName = columnSegment.getIdentifier().getValue();
-        ShardingSpherePreconditions.checkState(!encryptTable.isPresent() || !encryptTable.get().isEncryptColumn(columnName), () -> new UnsupportedEncryptSQLException("ORDER BY"));
+        // SPEX CHANGED: BEGIN
+        ShardingSpherePreconditions.checkState(!encryptTable.isPresent() || !encryptTable.get().isEncryptColumn(columnName)
+                || encryptTable.get().getEncryptColumn(columnName).getOrderQuery().isPresent()
+                || encryptTable.get().getEncryptColumn(columnName).getCipher().getEncryptor().getMetaData().isSupportOrder(),
+                () -> new MissingMatchedEncryptQueryAlgorithmException(columnSegment.getColumnBoundInfo().getOriginalTable().getValue(), columnName, "ORDER"));
+        // SPEX CHANGED: END
     }
 }

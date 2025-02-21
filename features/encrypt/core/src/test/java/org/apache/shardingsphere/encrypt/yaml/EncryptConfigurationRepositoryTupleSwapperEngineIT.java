@@ -18,8 +18,8 @@
 package org.apache.shardingsphere.encrypt.yaml;
 
 import org.apache.shardingsphere.encrypt.yaml.config.YamlEncryptRuleConfiguration;
-import org.apache.shardingsphere.mode.node.tuple.RepositoryTuple;
 import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlRuleConfiguration;
+import org.apache.shardingsphere.mode.node.tuple.RepositoryTuple;
 import org.apache.shardingsphere.test.it.yaml.RepositoryTupleSwapperEngineIT;
 
 import java.util.List;
@@ -35,9 +35,14 @@ class EncryptConfigurationRepositoryTupleSwapperEngineIT extends RepositoryTuple
     
     @Override
     protected void assertRepositoryTuples(final List<RepositoryTuple> actualRepositoryTuples, final YamlRuleConfiguration expectedYamlRuleConfig) {
-        assertThat(actualRepositoryTuples.size(), is(3));
+        // SPEX CHANGED: BEGIN
+        assertThat(actualRepositoryTuples.size(), is(4));
+        // SPEX CHANGED: END
         assertRepositoryTuple(actualRepositoryTuples.get(0), "encryptors/aes_encryptor", ((YamlEncryptRuleConfiguration) expectedYamlRuleConfig).getEncryptors().get("aes_encryptor"));
         assertRepositoryTuple(actualRepositoryTuples.get(1), "encryptors/assisted_encryptor", ((YamlEncryptRuleConfiguration) expectedYamlRuleConfig).getEncryptors().get("assisted_encryptor"));
         assertRepositoryTuple(actualRepositoryTuples.get(2), "tables/t_user", ((YamlEncryptRuleConfiguration) expectedYamlRuleConfig).getTables().get("t_user"));
+        // SPEX ADDED: BEGIN
+        assertRepositoryTuple(actualRepositoryTuples.get(3), "encrypt_mode", ((YamlEncryptRuleConfiguration) expectedYamlRuleConfig).getEncryptMode());
+        // SPEX ADDED: END
     }
 }

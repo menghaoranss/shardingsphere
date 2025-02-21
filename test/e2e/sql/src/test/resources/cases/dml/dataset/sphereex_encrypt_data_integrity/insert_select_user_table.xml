@@ -1,0 +1,42 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset update-count="1">
+    <metadata data-nodes="encrypt.t_user">
+        <column name="user_id" type="numeric" />
+        <column name="user_name_cipher" type="varchar" />
+        <column name="user_name_like" type="varchar" />
+        <column name="user_name_plain" type="varchar" />
+        <column name="password_cipher" type="varchar" />
+        <column name="email_cipher" type="varchar" />
+        <column name="user_telephone_cipher" type="varchar" />
+        <column name="user_telephone_like" type="varchar" />
+        <column name="user_telephone_plain" type="varchar" />
+        <column name="creation_date" type="datetime" />
+        <column name="digest_user_name" type="varchar" />
+        <column name="digest_password_email" type="varchar" />
+    </metadata>
+    <row data-node="encrypt.t_user" values="10, sVq8Lmm+j6bZE5EKSilJEQ==, @R[T]I[T, zhangsan, aQol0b6th65d0aXe+zFPsQ==, WM0fHOH91JNWnHTkiqBdyNmzk4uJ7CCz4mB1va9Ya1M=, kLjLJIMnfyHT2nA+viaoaQ==, ,/.)(+*8$--, 12345678900, 2017-08-08, digest_zhangsan, digest_111111_zhangsan@gmail.com" />
+    <row data-node="encrypt.t_user" values="11, fQ7IzBxKVuNHtUF6h6WSBg==, VSIS, lisi, wuhmEKgdgrWQYt+Ev0hgGA==, svATu3uWv9KfiloWJeWx3A==, 0kDFxndQdzauFwL/wyCsNQ==, ,/.)(+*8$-,, 12345678901, 2017-08-08, digest_lisi, digest_222222_lisi@gmail.com" />
+    <row data-node="encrypt.t_user" values="12, AQRWSlufQPog/b64YRhu6Q==, M[T]MO, wangwu, x7A+2jq9B6DSOSFtSOibdA==, nHJv9e6NiClIuGHOjHLvCAq2ZLhWcqfQ8/EQnIqMx+g=, a/SzSJLapt5iBXvF2c9ycw==, ,/.)(+*8$-/, 12345678902, 2017-08-08, digest_wangwu, digest_333333_wangwu@gmail.com" />
+    <row data-node="encrypt.t_user" values="13, 5NqS4YvpT+mHBFqZOZ3QDA==, @R[UVSO, zhaoliu, zi6b4xYRjjV+bBk2R4wB+w==, MLBZczLjriUXvg3aM5QPTxMJbLjNh8yeNrSNBek/VTw=, b6VVhG+F6ujG8IMUZJAIFg==, ,/.)(+*8$-., 12345678903, 2017-08-08, digest_zhaoliu, digest_444444_zhaoliu@gmail.com" />
+    <row data-node="encrypt.t_user" values="14, qeIY9od3u1KwhjihzLQUTQ==, @ROKS, zhuqi, 51UmlLAC+tUvdOAj8CjWfQ==, JCmeNdPyrKO5BW5zvhAA+g==, f995xinpZdKMVU5J5/yv3w==, ,/.)(+*8$-), 12345678904, 2017-08-08, digest_zhuqi, digest_555555_zhuqi@gmail.com" />
+    <row data-node="encrypt.t_user" values="15, VbNUtguwtpeGhHGnPJ3aXg==, VSX[, liba, +3/5CVbqoKhg3sqznKTFFQ==, T+X+e3Q3+ZNIXXmg/80uxg==, GETj+S6DrO042E7NuBXLBQ==, ,/.)(+*8$-(, 12345678905, 2017-08-08, digest_liba, digest_666666_liba@gmail.com" />
+    <row data-node="encrypt.t_user" values="40, fQ7IzBxKVuNHtUF6h6WSBg==, VSIS, lisi, wuhmEKgdgrWQYt+Ev0hgGA==, svATu3uWv9KfiloWJeWx3A==, 0kDFxndQdzauFwL/wyCsNQ==, ,/.)(+*8$-,, 12345678901, 2017-08-08, digest_lisi, digest_222222_lisi@gmail.com" />
+</dataset>
+<!-- SPEX ADDED: END -->

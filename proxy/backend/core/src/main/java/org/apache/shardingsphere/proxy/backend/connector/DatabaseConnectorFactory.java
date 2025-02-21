@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.proxy.backend.connector;
 
+import com.sphereex.dbplusengine.proxy.backend.connector.EnterpriseDatabaseConnector;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.executor.sql.prepare.driver.jdbc.JDBCDriverType;
@@ -49,7 +50,9 @@ public final class DatabaseConnectorFactory {
      */
     public DatabaseConnector newInstance(final QueryContext queryContext, final ProxyDatabaseConnectionManager databaseConnectionManager, final boolean preferPreparedStatement) {
         String driverType = preferPreparedStatement || !queryContext.getParameters().isEmpty() ? JDBCDriverType.PREPARED_STATEMENT : JDBCDriverType.STATEMENT;
-        DatabaseConnector result = new StandardDatabaseConnector(driverType, queryContext, databaseConnectionManager);
+        // SPEX CHANGED: BEGIN
+        DatabaseConnector result = new EnterpriseDatabaseConnector(driverType, queryContext, databaseConnectionManager);
+        // SPEX CHANGED: END
         databaseConnectionManager.add(result);
         return result;
     }

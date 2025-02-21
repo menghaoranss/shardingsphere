@@ -1,0 +1,42 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dataset update-count="1">
+    <metadata table-name="t_user" data-nodes="encrypt.t_user">
+        <column name="user_id" type="numeric" />
+        <column name="user_name_cipher" type="varchar" />
+        <column name="user_name_assisted_query" type="varchar" />
+        <column name="user_name_like" type="varchar" />
+        <column name="user_name_plain" type="varchar" />
+        <column name="password_cipher" type="varchar" />
+        <column name="password_assisted_query" type="varchar" />
+        <column name="password_like" type="varchar" />
+        <column name="password_plain" type="varchar" />
+        <column name="email_cipher" type="varchar" />
+        <column name="email_plain" type="varchar" />
+        <column name="address_cipher" type="varchar" />
+        <column name="address_plain" type="varchar" />
+        <column name="city_cipher" type="varchar" />
+        <column name="city_plain" type="varchar" />
+        <column name="country_cipher" type="varchar" />
+        <column name="country_plain" type="varchar" />
+        <column name="province_cipher" type="varchar" />
+        <column name="province_plain" type="varchar" />
+        <column name="creation_date" type="datetime" />
+    </metadata>
+    <row data-node="encrypt.t_user" values="1, +ed8Ge+L1/edbanm0r9NrpNRpPCr3VWwcF1Sak+O1QEtfj9RAqHIyRVBOcJldWgAbQ3DC1uAJ2djINFmGbNNiA==, dUzOccGtw5/0ZZm5zfipwHOVLg8R3wQyU7pWO7MQPS4=, 鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈鎈, 漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢, gOWfp1SauxYTcgYRCMfwCdrRrk1B/tr7CiXoRELMXmI=, 2801bf6e442feb0cf62867e4b451bf68, 丝偈丝偈丝偈丝偈丝偈, 密码密码密码密码密码, kePBeJU5+HXBQ5HuwSF/E+/GS1dYcI+rEEPhzMfDgaM=, 邮箱邮箱邮箱邮箱邮箱, jNNwBE33g7NGzqF6uqdrEYD49UnA/0ADUOzrmnaRHwXNZX9Jl7jm4gTKNHoHDza3EhslXQzTFCtDDaOR3gEKMFfcvBEB1D6HEeujtEl9ErimAjGKle1nbKg5lym6jpGKEn6pf1858ib1Oi5WyM7gBsHVxNx5uvhKibGkh+UrIGpuP3OfNH7mgrCBnjQ64NO5vDyK+DO/GcWOfMMETuNMgsa3fgoF87LIa061j3WEHvFkFwuQX0SOzaRINmEtIRn9Hn0hxrso+zAw9gzG0Z5NlfHSaoZi2dtRpUOGIHlfsrIlZ57vAJ4blIlSbIy5zx5wFlXuM2h2Y2joc9CO8kKe9A==, 地址地址地址地址地址, cMMGBCiieHlf/niVs0nRsAlVgcB2QlmxibsaO4vp, 城市城市城市城市城市, cMc1BD6WeH1s/m6hs03isB9hgcRFQk+Fib8pO53d, 国家国家国家国家国家, 38593e9f50685997fb48ae33b273c2617fc1d5e77d48f056faf32e860b98f413, 省份省份省份省份省份, 2024-08-09" />
+</dataset>

@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.adapter;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -28,7 +29,12 @@ import org.apache.shardingsphere.test.e2e.env.container.atomic.adapter.impl.Shar
 import org.apache.shardingsphere.test.e2e.env.container.atomic.enums.AdapterMode;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.enums.AdapterType;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.StorageContainer;
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.util.ConfigPlaceholderReplacer;
 import org.apache.shardingsphere.test.e2e.env.runtime.scenario.path.ScenarioCommonPath;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Adapter container factory.
@@ -52,15 +58,30 @@ public final class AdapterContainerFactory {
                                                final String scenario, final AdaptorContainerConfiguration containerConfig, final StorageContainer storageContainer) {
         switch (adapter) {
             case PROXY:
+                // SPEX ADDED: BEGIN
+                containerConfig.setMountedResources(getReplacedMountedResources(containerConfig));
+                // SPEX ADDED: END
                 return AdapterMode.CLUSTER == mode
                         ? new ShardingSphereProxyClusterContainer(databaseType, containerConfig)
                         : new ShardingSphereProxyStandaloneContainer(databaseType, containerConfig);
             case PROXY_RANDOM:
+                // SPEX ADDED: BEGIN
+                containerConfig.setMountedResources(getReplacedMountedResources(containerConfig));
+                // SPEX ADDED: END
                 return new ShardingSphereMultiProxyClusterContainer(databaseType, containerConfig);
             case JDBC:
-                return new ShardingSphereJdbcContainer(storageContainer, new ScenarioCommonPath(scenario).getRuleConfigurationFile(databaseType));
+                // SPEX CHANGED: BEGIN
+                return new ShardingSphereJdbcContainer(storageContainer,
+                        ConfigPlaceholderReplacer.getReplacedResources(Collections.singleton(new ScenarioCommonPath(scenario).getRuleConfigurationFile(databaseType))).values().iterator().next());
+            // SPEX CHANGED: END
             default:
                 throw new RuntimeException(String.format("Unknown adapter `%s`.", adapter));
         }
+    }
+    
+    @SphereEx
+    private static Map<String, String> getReplacedMountedResources(final AdaptorContainerConfiguration containerConfig) {
+        Map<String, String> replacedResources = ConfigPlaceholderReplacer.getReplacedResources(containerConfig.getMountedResources().keySet());
+        return containerConfig.getMountedResources().entrySet().stream().collect(Collectors.toMap(each -> replacedResources.get(each.getKey()), Map.Entry::getValue));
     }
 }

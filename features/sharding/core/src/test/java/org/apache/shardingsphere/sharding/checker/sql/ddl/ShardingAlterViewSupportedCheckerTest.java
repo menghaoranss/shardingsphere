@@ -17,9 +17,11 @@
 
 package org.apache.shardingsphere.sharding.checker.sql.ddl;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.AlterViewStatementContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.rule.attribute.table.TableMapperRuleAttribute;
 import org.apache.shardingsphere.sharding.exception.metadata.EngagedViewException;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
@@ -63,7 +65,9 @@ class ShardingAlterViewSupportedCheckerTest {
         when(metaData.getDatabase("foo_db")).thenReturn(database);
         AlterViewStatementContext sqlStatementContext = new AlterViewStatementContext(metaData, Collections.emptyList(), sqlStatement, "foo_db");
         when(rule.isShardingTable("t_order")).thenReturn(false);
-        assertDoesNotThrow(() -> new ShardingAlterViewSupportedChecker().check(rule, mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertDoesNotThrow(() -> new ShardingAlterViewSupportedChecker().check(rule, metaData, database, mock(ShardingSphereSchema.class), sqlStatementContext));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -80,7 +84,10 @@ class ShardingAlterViewSupportedCheckerTest {
         when(metaData.getDatabase("foo_db")).thenReturn(database);
         AlterViewStatementContext sqlStatementContext = new AlterViewStatementContext(metaData, Collections.emptyList(), sqlStatement, "foo_db");
         when(rule.isShardingTable("t_order")).thenReturn(true);
-        assertThrows(EngagedViewException.class, () -> new ShardingAlterViewSupportedChecker().check(rule, mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertThrows(EngagedViewException.class,
+                () -> new ShardingAlterViewSupportedChecker().check(rule, metaData, database, mock(ShardingSphereSchema.class), sqlStatementContext));
+        // SPEX CHANGED: END
     }
     
     @Test
@@ -89,6 +96,10 @@ class ShardingAlterViewSupportedCheckerTest {
         sqlStatement.setView(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order_view"))));
         sqlStatement.setRenameView(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order_new"))));
         AlterViewStatementContext sqlStatementContext = new AlterViewStatementContext(mock(ShardingSphereMetaData.class), Collections.emptyList(), sqlStatement, "foo_db");
-        assertDoesNotThrow(() -> new ShardingAlterViewSupportedChecker().check(rule, mock(), mock(), sqlStatementContext));
+        @SphereEx
+        ShardingSphereDatabase database = mock(ShardingSphereDatabase.class);
+        // SPEX CHANGED: BEGIN
+        assertDoesNotThrow(() -> new ShardingAlterViewSupportedChecker().check(rule, mock(ShardingSphereMetaData.class), database, mock(ShardingSphereSchema.class), sqlStatementContext));
+        // SPEX CHANGED: END
     }
 }

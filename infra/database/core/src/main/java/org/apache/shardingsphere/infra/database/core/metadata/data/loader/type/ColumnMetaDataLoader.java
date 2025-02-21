@@ -27,7 +27,9 @@ import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -67,15 +69,22 @@ public final class ColumnMetaDataLoader {
         List<Boolean> primaryKeyFlags = new ArrayList<>();
         List<Boolean> caseSensitiveFlags = new ArrayList<>();
         List<Boolean> nullableFlags = new ArrayList<>();
+        List<String> dataTypeContents = new ArrayList<>();
         try (ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), tableNamePattern, "%")) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString(TABLE_NAME);
                 if (Objects.equals(tableNamePattern, tableName)) {
                     String columnName = resultSet.getString(COLUMN_NAME);
-                    columnTypes.add(resultSet.getInt(DATA_TYPE));
+                    int columnType = resultSet.getInt(DATA_TYPE);
+                    columnTypes.add(columnType);
                     primaryKeyFlags.add(primaryKeys.contains(columnName));
                     nullableFlags.add("YES".equals(resultSet.getString(IS_NULLABLE)));
                     columnNames.add(columnName);
+                    String dataTypeContent = resultSet.getString("TYPE_NAME");
+                    if (columnType == Types.VARCHAR || columnType == Types.CHAR) {
+                        dataTypeContent = resultSet.getString("TYPE_NAME") + "(" + resultSet.getInt("COLUMN_SIZE") + ")";
+                    }
+                    dataTypeContents.add(dataTypeContent);
                 }
             }
         }
@@ -85,7 +94,10 @@ public final class ColumnMetaDataLoader {
             for (int i = 0; i < columnNames.size(); i++) {
                 boolean generated = resultSet.getMetaData().isAutoIncrement(i + 1);
                 caseSensitiveFlags.add(resultSet.getMetaData().isCaseSensitive(resultSet.findColumn(columnNames.get(i))));
-                result.add(new ColumnMetaData(columnNames.get(i), columnTypes.get(i), primaryKeyFlags.get(i), generated, caseSensitiveFlags.get(i), true, false, nullableFlags.get(i)));
+                result.add(new ColumnMetaData(columnNames.get(i), columnTypes.get(i), primaryKeyFlags.get(i), generated, caseSensitiveFlags.get(i), true, false, nullableFlags.get(i),
+                        // SPEX CHANGED: BEGIN
+                        dataTypeContents.get(i), null));
+                // SPEX CHANGED: END
             }
         }
         return result;
@@ -103,6 +115,10 @@ public final class ColumnMetaDataLoader {
             while (resultSet.next()) {
                 result.add(resultSet.getString(COLUMN_NAME));
             }
+            // SPEX ADDED: BEGIN
+        } catch (final SQLFeatureNotSupportedException ignore) {
+            return result;
+            // SPEX ADDED: END
         }
         return result;
     }

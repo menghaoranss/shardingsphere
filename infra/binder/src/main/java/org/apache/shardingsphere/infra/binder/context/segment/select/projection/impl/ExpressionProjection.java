@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.binder.context.segment.select.projection.impl;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
+import java.util.LinkedList;
 import java.util.Optional;
 
 /**
@@ -43,6 +45,9 @@ public final class ExpressionProjection implements Projection {
     private final IdentifierValue alias;
     
     private final DatabaseType databaseType;
+    
+    @SphereEx
+    private final LinkedList<String> wrappedUDFNames = new LinkedList<>();
     
     @Override
     public String getColumnName() {

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<e2e-test-cases>
+    <!-- multi table insert into test case with same encrypt tables -->
+    <test-case sql="INSERT ALL INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 41:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO t_user VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO t_user VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 41:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <!-- multi table insert into test case with different encrypt tables -->
+    <test-case sql="INSERT ALL INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO t_merchant (merchant_id, country_id, merchant_name, business_code, telephone, creation_date) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 21:int, 1:int, tesla:String, 01000020:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO t_user VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO t_merchant VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 21:int, 1:int, tesla:String, 01000020:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>
+    
+    <!-- multi table insert into select test case with same encrypt tables -->
+    <test-case sql="INSERT ALL INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, user_name, password, email, telephone, creation_date) INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, user_name, password, email, telephone, creation_date) SELECT * FROM t_user WHERE user_id = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 41:int, 39:int" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO t_user VALUES (?, user_name, password, email, telephone, creation_date) INTO t_user VALUES (?, user_name, password, email, telephone, creation_date) SELECT * FROM t_user WHERE user_id = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 41:int, 39:int" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <!-- multi table insert into select test case with different encrypt tables -->
+    <!--<test-case sql="INSERT ALL INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, user_name, password, email, telephone, creation_date) INTO t_merchant (merchant_id, country_id, merchant_name, business_code, telephone, creation_date) VALUES (?, ?, ?, ?, telephone, creation_date) SELECT * FROM t_user WHERE user_id = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 21:int, 1:int, tesla:String, 01000020:String, 39:int" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO t_user VALUES (?, user_name, password, email, telephone, creation_date) INTO t_merchant VALUES (?, ?, ?, ?, telephone, creation_date) SELECT * FROM t_user WHERE user_id = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 21:int, 1:int, tesla:String, 01000020:String, 39:int" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>-->
+    
+    <!-- multi table insert into conditional test case with same encrypt tables -->
+    <test-case sql="INSERT ALL WHEN creation_date &lt; DATE '2017-08-08' THEN INTO t_user (user_id, user_name, password, email, telephone, creation_date) WHEN creation_date = DATE '2017-08-08' THEN INTO t_user (user_id, user_name, password, email, telephone, creation_date) ELSE INTO t_user (user_id, user_name, password, email, telephone, creation_date) SELECT user_id + 2, user_name, password, email, telephone, creation_date FROM t_user WHERE user_id >= ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="38:int" expected-data-file="batch_insert_conditional_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL WHEN creation_date &lt; DATE '2017-08-08' THEN INTO t_user WHEN creation_date = DATE '2017-08-08' THEN INTO t_user ELSE INTO t_user SELECT user_id + 2, user_name, password, email, telephone, creation_date FROM t_user WHERE user_id >= ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="38:int" expected-data-file="batch_insert_conditional_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <!-- multi table insert into test case with same encrypt tables and quote -->
+    <test-case sql="INSERT ALL INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 41:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO &quot;T_USER&quot; VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO &quot;T_USER&quot; VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 41:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <!-- multi table insert into test case with different encrypt tables and quote -->
+    <test-case sql="INSERT ALL INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO &quot;T_MERCHANT&quot; (&quot;MERCHANT_ID&quot;, &quot;COUNTRY_ID&quot;, &quot;MERCHANT_NAME&quot;, &quot;BUSINESS_CODE&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 21:int, 1:int, tesla:String, 01000020:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO &quot;T_USER&quot; VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') INTO &quot;T_MERCHANT&quot; VALUES (?, ?, ?, ?, ?, DATE '2017-08-08') SELECT * FROM DUAL" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String, 21:int, 1:int, tesla:String, 01000020:String, 18012512345:String" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>
+    
+    <!-- multi table insert into select test case with same encrypt tables and quote -->
+    <test-case sql="INSERT ALL INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) SELECT * FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 41:int, 39:int" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO &quot;T_USER&quot; VALUES (?, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) INTO &quot;T_USER&quot; VALUES (?, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) SELECT * FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 41:int, 39:int" expected-data-file="batch_insert_into_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <!-- multi table insert into select test case with different encrypt tables and quote -->
+    <!--<test-case sql="INSERT ALL INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) INTO &quot;T_MERCHANT&quot; (&quot;MERCHANT_ID&quot;, &quot;COUNTRY_ID&quot;, &quot;MERCHANT_NAME&quot;, &quot;BUSINESS_CODE&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, ?, ?, ?, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) SELECT * FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 21:int, 1:int, tesla:String, 01000020:String, 39:int" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL INTO &quot;T_USER&quot; VALUES (?, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) INTO &quot;T_MERCHANT&quot; VALUES (?, ?, ?, ?, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) SELECT * FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="40:int, 21:int, 1:int, tesla:String, 01000020:String, 39:int" expected-data-file="batch_insert_into_t_user_t_merchant_for_sphereex.xml" />
+    </test-case>-->
+    
+    <!-- multi table insert into conditional test case with same encrypt tables and quote -->
+    <test-case sql="INSERT ALL WHEN &quot;CREATION_DATE&quot; &lt; DATE '2017-08-08' THEN INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) WHEN &quot;CREATION_DATE&quot; = DATE '2017-08-08' THEN INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) ELSE INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) SELECT &quot;USER_ID&quot; + 2, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot; FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; >= ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="38:int" expected-data-file="batch_insert_conditional_t_user_for_sphereex.xml" />
+    </test-case>
+    
+    <test-case sql="INSERT ALL WHEN &quot;CREATION_DATE&quot; &lt; DATE '2017-08-08' THEN INTO &quot;T_USER&quot; WHEN &quot;CREATION_DATE&quot; = DATE '2017-08-08' THEN INTO &quot;T_USER&quot; ELSE INTO &quot;T_USER&quot; SELECT &quot;USER_ID&quot; + 2, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot; FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; >= ?" db-types="Oracle,DM" scenario-types="encrypt">
+        <assertion parameters="38:int" expected-data-file="batch_insert_conditional_t_user_for_sphereex.xml" />
+    </test-case>
+</e2e-test-cases>
+<!-- SPEX ADDED: END -->

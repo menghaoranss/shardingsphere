@@ -17,8 +17,10 @@
 
 package org.apache.shardingsphere.encrypt.config.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.Collection;
 
@@ -32,4 +34,8 @@ public final class EncryptTableRuleConfiguration {
     private final String name;
     
     private final Collection<EncryptColumnRuleConfiguration> columns;
+    
+    @SphereEx
+    @Setter
+    private String renameTable;
 }

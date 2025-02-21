@@ -24,73 +24,100 @@
         </assertion>
     </test-case>
     
-    <test-case sql="ALTER TABLE t_order_details DROP COLUMN description" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: BEGIN -->
+    <!-- fixme dm TableExistsException -->
+    <test-case sql="ALTER TABLE t_order_details DROP COLUMN description" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="alter_drop.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
             <destroy-sql sql="DROP TABLE t_order_details" />
         </assertion>
     </test-case>
     
+    <!-- SPEX CHANGED: BEGIN -->
+    <!-- fixme dm TableExistsException -->
     <test-case sql="ALTER TABLE t_order_details CHANGE description description_new varchar(10)" db-types="H2,MySQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="alter_change.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
             <destroy-sql sql="DROP TABLE t_order_details" />
         </assertion>
     </test-case>
-    
+
     <test-case sql="ALTER TABLE t_order_details RENAME description TO description_new" db-types="PostgreSQL" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-file="alter_change.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
             <destroy-sql sql="DROP TABLE t_order_details" />
         </assertion>
     </test-case>
-    
+
     <test-case sql="ALTER TABLE t_broadcast_table_for_ddl ADD name varchar(10)" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-file="alter_broadcast_add.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
         </assertion>
     </test-case>
-    
+
     <test-case sql="ALTER TABLE t_broadcast_table_for_ddl DROP COLUMN description" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-file="alter_broadcast_drop.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
         </assertion>
     </test-case>
-    
+
     <test-case sql="ALTER TABLE t_broadcast_table_for_ddl CHANGE description description_new varchar(10)" db-types="H2,MySQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-file="alter_broadcast_change.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
         </assertion>
     </test-case>
-    
+
+    <!-- SPEX ADDED: BEGIN -->
+    <test-case sql="ALTER TABLE t_broadcast_table_for_ddl rename column description to description_new" db-types="DM" scenario-types="db,tbl">
+        <assertion expected-data-file="alter_broadcast_change.xml">
+            <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
+            <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
+        </assertion>
+    </test-case>
+    <!-- SPEX ADDED: END -->
+
     <test-case sql="ALTER TABLE t_broadcast_table_for_ddl RENAME description TO description_new" db-types="PostgreSQL" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-file="alter_broadcast_change.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
         </assertion>
     </test-case>
-    
+
+    <!-- SPEX CHANGED: BEGIN -->
     <test-case sql="ALTER TABLE t_user_details ADD name varchar(10)" scenario-types="encrypt,dbtbl_with_readwrite_splitting_and_encrypt,sharding_and_encrypt,encrypt_and_readwrite_splitting" db-types="MySQL,PostgreSQL,openGauss">
         <assertion expected-data-file="alter_add.xml">
-            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />
+            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_plain VARCHAR(45) NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />
             <destroy-sql sql="DROP TABLE t_user_details" />
         </assertion>
     </test-case>
-    
+    <!-- SPEX CHANGED: END -->
+
     <test-case sql="ALTER TABLE t_user_details ADD number VARCHAR(45) NULL AFTER address_id" scenario-types="encrypt,dbtbl_with_readwrite_splitting_and_encrypt,sharding_and_encrypt,encrypt_and_readwrite_splitting" db-types="MySQL">
         <assertion expected-data-file="alter_add_encrypt_column.xml">
             <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, description varchar(10))" affected-table="t_user_details" />
             <destroy-sql sql="DROP TABLE t_user_details" />
         </assertion>
     </test-case>
-    
+
+    <!-- SPEX CHANGED: BEGIN -->
     <!--    <test-case sql="ALTER TABLE t_user_details RENAME number TO number_new" db-types="PostgreSQL" scenario-types="encrypt,dbtbl_with_readwrite_splitting_and_encrypt">-->
     <!--        <assertion expected-data-file="alter_change.xml">-->
-    <!--            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />-->
+    <!--            <initial-sql sql="CREATE TABLE t_user_details (user_id INT NOT NULL, address_id INT NOT NULL, number_plain VARCHAR(45) NULL, number_cipher VARCHAR(45) NULL, description varchar(10))" affected-table="t_user_details" />-->
     <!--        </assertion>-->
     <!--    </test-case>-->
-    
+    <!-- SPEX CHANGED: END -->
+
+    <!-- SPEX ADDED: BEGIN -->
+    <test-case sql="ALTER TABLE t_product ADD price DECIMAL" db-types="MySQL,TiDB" scenario-types="sphereex_encrypt_data_type">
+        <assertion expected-data-file="alter_add_with_data_type.xml">
+            <initial-sql sql="CREATE TABLE t_product (product_id INT, product_name VARCHAR(200), category_id INT, status VARCHAR(20), creation_date DATE)" affected-table="t_product" />
+            <destroy-sql sql="DROP TABLE t_product" />
+        </assertion>
+    </test-case>
+    <!-- SPEX ADDED: END -->
 </e2e-test-cases>

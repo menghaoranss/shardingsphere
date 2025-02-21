@@ -17,12 +17,18 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.parameter;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptInsertSelectParameterRewriter;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptMergeParameterRewriter;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptMultiTableInsertValueParameterRewriter;
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptAssignmentParameterRewriter;
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptInsertOnDuplicateKeyUpdateValueParameterRewriter;
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptInsertPredicateParameterRewriter;
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptInsertValueParameterRewriter;
 import org.apache.shardingsphere.encrypt.rewrite.parameter.rewriter.EncryptPredicateParameterRewriter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
+import org.apache.shardingsphere.infra.rewrite.context.SQLRewriteContext;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewriter;
 import org.junit.jupiter.api.Test;
 
@@ -33,18 +39,31 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class EncryptParameterRewritersRegistryTest {
     
     @Test
     void assertGetParameterRewriters() {
-        List<ParameterRewriter> actual = new ArrayList<>(new EncryptParameterRewritersRegistry(mock(EncryptRule.class), "foo_db", Collections.emptyList()).getParameterRewriters());
-        assertThat(actual.size(), is(5));
+        SQLRewriteContext sqlRewriteContext = mock(SQLRewriteContext.class, RETURNS_DEEP_STUBS);
+        when(sqlRewriteContext.getDatabase().getName()).thenReturn("foo_db");
+        @SphereEx(Type.MODIFY)
+        List<ParameterRewriter> actual =
+                new ArrayList<>(new EncryptParameterRewritersRegistry(mock(EncryptRule.class), sqlRewriteContext, Collections.emptyList(), Collections.emptyMap()).getParameterRewriters());
+        // SPEX CHANGED: BEGIN
+        assertThat(actual.size(), is(9));
+        // SPEX CHANGED: END
         assertThat(actual.get(0), instanceOf(EncryptAssignmentParameterRewriter.class));
         assertThat(actual.get(1), instanceOf(EncryptPredicateParameterRewriter.class));
         assertThat(actual.get(2), instanceOf(EncryptInsertPredicateParameterRewriter.class));
         assertThat(actual.get(3), instanceOf(EncryptInsertValueParameterRewriter.class));
         assertThat(actual.get(4), instanceOf(EncryptInsertOnDuplicateKeyUpdateValueParameterRewriter.class));
+        // SPEX ADDED: BEGIN
+        assertThat(actual.get(5), instanceOf(EncryptMultiTableInsertValueParameterRewriter.class));
+        assertThat(actual.get(6), instanceOf(EncryptMergeParameterRewriter.class));
+        assertThat(actual.get(7), instanceOf(EncryptInsertSelectParameterRewriter.class));
+        // SPEX ADDED: END
     }
 }

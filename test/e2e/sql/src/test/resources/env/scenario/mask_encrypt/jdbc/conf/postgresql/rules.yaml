@@ -68,6 +68,11 @@ rules:
       t_user:
         columns:
           user_name:
+            # SPEX ADDED: BEGIN
+            plain:
+              name: user_name_plain
+              queryWithPlain: ${query_with_plain}
+            # SPEX ADDED: END
             cipher:
               name: user_name_cipher
               encryptorName: aes_encryptor
@@ -80,6 +85,14 @@ rules:
               name: email_cipher
               encryptorName: aes_encryptor
           telephone:
+            # SPEX ADDED: BEGIN
+            plain:
+              name: telephone_plain
+              queryWithPlain: ${query_with_plain}
+            # SPEX ADDED: END
             cipher:
               name: telephone_cipher
               encryptorName: aes_encryptor
+# SPEX ADDED: BEGIN
+
+# SPEX ADDED: END

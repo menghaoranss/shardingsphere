@@ -17,6 +17,11 @@
 
 package org.apache.shardingsphere.driver.executor.engine.facade;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.driver.executor.physical.PhysicalExecuteQueryExecutor;
+import com.sphereex.dbplusengine.infra.rule.attribute.failover.FailOverRuleAttribute;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.driver.executor.callback.add.StatementAddCallback;
 import org.apache.shardingsphere.driver.executor.callback.execute.StatementExecuteCallback;
 import org.apache.shardingsphere.driver.executor.callback.execute.StatementExecuteUpdateCallback;
@@ -52,6 +57,9 @@ import java.util.Optional;
 /**
  * Driver executor facade.
  */
+// SPEX ADDED: BEGIN
+@Slf4j
+// SPEX ADDED: END
 public final class DriverExecutorFacade implements AutoCloseable {
     
     private final ShardingSphereConnection connection;
@@ -72,6 +80,9 @@ public final class DriverExecutorFacade implements AutoCloseable {
     
     private final DriverExecuteExecutor executeExecutor;
     
+    @SphereEx
+    private final PhysicalExecuteQueryExecutor physicalQueryExecutor;
+    
     public DriverExecutorFacade(final ShardingSphereConnection connection, final StatementOption statementOption, final StatementManager statementManager, final String jdbcDriverType) {
         this.connection = connection;
         this.statementOption = statementOption;
@@ -87,6 +98,9 @@ public final class DriverExecutorFacade implements AutoCloseable {
         queryExecutor = new DriverExecuteQueryExecutor(connection, metaData, jdbcExecutor, rawExecutor, sqlFederationEngine);
         updateExecutor = new DriverExecuteUpdateExecutor(connection, metaData, jdbcExecutor, rawExecutor);
         executeExecutor = new DriverExecuteExecutor(connection, metaData, jdbcExecutor, rawExecutor, sqlFederationEngine, transactionExecutor);
+        // SPEX ADDED: BEGIN
+        physicalQueryExecutor = new PhysicalExecuteQueryExecutor(connection.getCurrentDatabaseName(), connection.getDatabaseConnectionManager());
+        // SPEX ADDED: END
     }
     
     /**
@@ -104,8 +118,37 @@ public final class DriverExecutorFacade implements AutoCloseable {
     @SuppressWarnings("rawtypes")
     public ResultSet executeQuery(final ShardingSphereDatabase database, final QueryContext queryContext, final Statement statement, final Map<String, Integer> columnLabelAndIndexMap,
                                   final StatementAddCallback addCallback, final StatementReplayCallback replayCallback) throws SQLException {
-        SQLAuditEngine.audit(queryContext, connection.getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData(), database);
-        return queryExecutor.executeQuery(database, queryContext, createDriverExecutionPrepareEngine(database, jdbcDriverType), statement, columnLabelAndIndexMap, addCallback, replayCallback);
+        // SPEX ADDED: BEGIN
+        try {
+            // SPEX ADDED: END
+            SQLAuditEngine.audit(queryContext, connection.getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData(), database);
+            return queryExecutor.executeQuery(database, queryContext, createDriverExecutionPrepareEngine(database, jdbcDriverType), statement, columnLabelAndIndexMap, addCallback, replayCallback);
+            // SPEX ADDED: BEGIN
+            // CHECKSTYLE:OFF
+        } catch (final Exception ex) {
+            // CHECKSTYLE:ON
+            Optional<FailOverRuleAttribute> attribute = database.getRuleMetaData().findAttribute(FailOverRuleAttribute.class);
+            // TODO consider optimize this logic when multi FailOverRuleAttribute use together
+            if (attribute.isPresent() && attribute.get().isNeedFailOver(queryContext.getSqlStatementContext().getSqlStatement())) {
+                return executeFailOverSQL(queryContext, ex, attribute.get().getFailOverDataSourceName(database.getResourceMetaData()));
+            }
+            throw ex;
+        }
+        // SPEX ADDED: END
+    }
+    
+    @SphereEx
+    private ResultSet executeFailOverSQL(final QueryContext queryContext, final Exception originalEx, final String failOverDataSourceName) throws SQLException {
+        try {
+            ResultSet result = physicalQueryExecutor.executeQuery(queryContext, failOverDataSourceName);
+            log.warn("Execute fail over SQL success: {} ::: {} ::: {}", failOverDataSourceName, queryContext.getSql(), queryContext.getParameters(), originalEx);
+            return result;
+            // CHECKSTYLE:OFF
+        } catch (final Exception ex) {
+            // CHECKSTYLE:ON
+            log.warn("Execute fail over SQL failed: {} ::: {} ::: {}", failOverDataSourceName, queryContext.getSql(), queryContext.getParameters(), ex);
+            throw new SQLException(originalEx);
+        }
     }
     
     /**
@@ -140,8 +183,23 @@ public final class DriverExecutorFacade implements AutoCloseable {
     @SuppressWarnings("rawtypes")
     public boolean execute(final ShardingSphereDatabase database, final QueryContext queryContext,
                            final StatementExecuteCallback executeCallback, final StatementAddCallback addCallback, final StatementReplayCallback replayCallback) throws SQLException {
-        SQLAuditEngine.audit(queryContext, connection.getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData(), database);
-        return executeExecutor.execute(database, queryContext, createDriverExecutionPrepareEngine(database, jdbcDriverType), executeCallback, addCallback, replayCallback);
+        // SPEX ADDED: BEGIN
+        try {
+            // SPEX ADDED: END
+            SQLAuditEngine.audit(queryContext, connection.getContextManager().getMetaDataContexts().getMetaData().getGlobalRuleMetaData(), database);
+            return executeExecutor.execute(database, queryContext, createDriverExecutionPrepareEngine(database, jdbcDriverType), executeCallback, addCallback, replayCallback);
+            // SPEX ADDED: BEGIN
+            // CHECKSTYLE:OFF
+        } catch (final Exception ex) {
+            // CHECKSTYLE:ON
+            Optional<FailOverRuleAttribute> attribute = database.getRuleMetaData().findAttribute(FailOverRuleAttribute.class);
+            // TODO consider optimize this logic when multi FailOverRuleAttribute use together
+            if (attribute.isPresent() && attribute.get().isNeedFailOver(queryContext.getSqlStatementContext().getSqlStatement())) {
+                return null != executeFailOverSQL(queryContext, ex, attribute.get().getFailOverDataSourceName(database.getResourceMetaData()));
+            }
+            throw ex;
+        }
+        // SPEX ADDED: END
     }
     
     private DriverExecutionPrepareEngine<JDBCExecutionUnit, Connection> createDriverExecutionPrepareEngine(final ShardingSphereDatabase database, final String jdbcDriverType) {
@@ -160,9 +218,14 @@ public final class DriverExecutorFacade implements AutoCloseable {
      * @return result set
      * @throws SQLException SQL exception
      */
+    @SphereEx(Type.MODIFY)
     public Optional<ResultSet> getResultSet(final ShardingSphereDatabase database,
                                             final SQLStatementContext sqlStatementContext, final Statement statement, final List<? extends Statement> statements) throws SQLException {
-        return executeExecutor.getResultSet(database, sqlStatementContext, statement, statements);
+        Optional<ResultSet> resultSet = executeExecutor.getResultSet(database, sqlStatementContext, statement, statements);
+        if (resultSet.isPresent()) {
+            return resultSet;
+        }
+        return Optional.ofNullable(physicalQueryExecutor.getResultSet());
     }
     
     @Override

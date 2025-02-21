@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.proxy.backend.connector;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.infra.binder.context.aware.CursorAware;
 import org.apache.shardingsphere.infra.binder.context.segment.insert.keygen.GeneratedKeyContext;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
@@ -94,6 +96,10 @@ import java.util.stream.Collectors;
 /**
  * Standard database connector.
  */
+// SPEX ADDED: BEGIN
+@Getter
+@Slf4j
+// SPEX ADDED: END
 public final class StandardDatabaseConnector implements DatabaseConnector {
     
     private final String driverType;

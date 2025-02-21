@@ -52,13 +52,18 @@ class MySQLMetaDataLoaderTest {
     void assertLoadWithoutTables() throws SQLException {
         DataSource dataSource = mockDataSource();
         ResultSet resultSet = mockTableMetaDataResultSet();
-        when(dataSource.getConnection().prepareStatement("SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA, COLLATION_NAME, ORDINAL_POSITION, COLUMN_TYPE, IS_NULLABLE "
+        // SPEX CHANGED: BEGIN
+        when(dataSource.getConnection().prepareStatement("SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA, COLLATION_NAME, ORDINAL_POSITION, COLUMN_TYPE, IS_NULLABLE, CHARACTER_SET_NAME "
                 + "FROM information_schema.columns WHERE TABLE_SCHEMA=? ORDER BY ORDINAL_POSITION")
                 .executeQuery()).thenReturn(resultSet);
+        // SPEX CHANGED: END
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement("SELECT TABLE_NAME, INDEX_NAME, NON_UNIQUE, COLUMN_NAME FROM information_schema.statistics "
                 + "WHERE TABLE_SCHEMA=? and TABLE_NAME IN ('tbl') ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX").executeQuery()).thenReturn(indexResultSet);
         DataTypeRegistry.load(dataSource, "MySQL");
+        // SPEX ADDED: BEGIN
+        when(dataSource.getConnection().getMetaData().getURL()).thenReturn("jdbc:mysql://127.0.0.1/foo_ds");
+        // SPEX ADDED: END
         assertTableMetaDataMap(dialectMetaDataLoader.load(new MetaDataLoaderMaterial(Collections.emptyList(), "foo_ds", dataSource, new MySQLDatabaseType(), "sharding_db")));
     }
     
@@ -66,14 +71,19 @@ class MySQLMetaDataLoaderTest {
     void assertLoadWithTables() throws SQLException {
         DataSource dataSource = mockDataSource();
         ResultSet resultSet = mockTableMetaDataResultSet();
-        when(dataSource.getConnection().prepareStatement("SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA, COLLATION_NAME, ORDINAL_POSITION, COLUMN_TYPE, IS_NULLABLE "
+        // SPEX CHANGED: BEGIN
+        when(dataSource.getConnection().prepareStatement("SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA, COLLATION_NAME, ORDINAL_POSITION, COLUMN_TYPE, IS_NULLABLE, CHARACTER_SET_NAME "
                 + "FROM information_schema.columns WHERE TABLE_SCHEMA=? AND TABLE_NAME IN ('tbl') ORDER BY ORDINAL_POSITION")
                 .executeQuery()).thenReturn(resultSet);
+        // SPEX CHANGED: END
         ResultSet indexResultSet = mockIndexMetaDataResultSet();
         when(dataSource.getConnection().prepareStatement("SELECT TABLE_NAME, INDEX_NAME, NON_UNIQUE, COLUMN_NAME FROM information_schema.statistics WHERE TABLE_SCHEMA=? and TABLE_NAME IN ('tbl') "
                 + "ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX")
                 .executeQuery()).thenReturn(indexResultSet);
         DataTypeRegistry.load(dataSource, "MySQL");
+        // SPEX ADDED: BEGIN
+        when(dataSource.getConnection().getMetaData().getURL()).thenReturn("jdbc:mysql://127.0.0.1/foo_ds");
+        // SPEX ADDED: END
         assertTableMetaDataMap(dialectMetaDataLoader.load(new MetaDataLoaderMaterial(Collections.singletonList("tbl"), "foo_ds", dataSource, new MySQLDatabaseType(), "sharding_db")));
     }
     
@@ -101,7 +111,9 @@ class MySQLMetaDataLoaderTest {
         when(result.getString("COLUMN_KEY")).thenReturn("PRI", "", "", "", "", "", "", "", "");
         when(result.getString("EXTRA")).thenReturn("auto_increment", "INVISIBLE", "", "", "", "", "", "", "");
         when(result.getString("COLLATION_NAME")).thenReturn("utf8", "utf8_general_ci");
-        when(result.getString("COLUMN_TYPE")).thenReturn("int", "varchar");
+        // SPEX CHANGED: BEGIN
+        when(result.getString("COLUMN_TYPE")).thenReturn("int", "varchar(32)");
+        // SPEX CHANGED: END
         when(result.getString("IS_NULLABLE")).thenReturn("NO", "YES", "YES", "YES", "YES", "YES", "YES", "YES", "YES");
         return result;
     }
@@ -121,15 +133,17 @@ class MySQLMetaDataLoaderTest {
         TableMetaData actualTableMetaData = schemaMetaDataList.iterator().next().getTables().iterator().next();
         assertThat(actualTableMetaData.getColumns().size(), is(9));
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("doc", Types.LONGVARCHAR, false, false, false, true, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("geo", Types.BINARY, false, false, false, true, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("t_year", Types.DATE, false, false, false, true, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("pg", Types.BINARY, false, false, false, true, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("mpg", Types.BINARY, false, false, false, true, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("pt", Types.BINARY, false, false, false, true, false, true));
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("mpt", Types.BINARY, false, false, false, true, false, true));
+        // SPEX CHANGED: BEGIN
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("doc", Types.LONGVARCHAR, false, false, false, true, false, true, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("geo", Types.BINARY, false, false, false, true, false, true, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("t_year", Types.DATE, false, false, false, true, false, true, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("pg", Types.BINARY, false, false, false, true, false, true, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("mpg", Types.BINARY, false, false, false, true, false, true, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("pt", Types.BINARY, false, false, false, true, false, true, "varchar(32)"));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("mpt", Types.BINARY, false, false, false, true, false, true, "varchar(32)"));
+        // SPEX CHANGED: END
         assertThat(actualTableMetaData.getIndexes().size(), is(1));
         Iterator<IndexMetaData> indexesIterator = actualTableMetaData.getIndexes().iterator();
         IndexMetaData expected = new IndexMetaData("id", Collections.singletonList("id"));

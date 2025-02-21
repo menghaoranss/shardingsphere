@@ -17,12 +17,14 @@
 
 package org.apache.shardingsphere.test.e2e.env;
 
+import com.sphereex.dbplusengine.infra.util.DatabaseTypeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeFactory;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
+import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.database.opengauss.type.OpenGaussDatabaseType;
 import org.apache.shardingsphere.infra.database.postgresql.type.PostgreSQLDatabaseType;
 import org.apache.shardingsphere.infra.datanode.DataNode;
@@ -53,6 +55,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Data set environment manager.
@@ -110,9 +113,11 @@ public final class DataSetEnvironmentManager {
         Map<DataNode, List<DataSetRow>> result = new LinkedHashMap<>(dataSet.getRows().size(), 1F);
         for (DataSetRow each : dataSet.getRows()) {
             // The data type of the current table is currently only used by mysql.
-            if (each.getDataNode().contains("t_product_extend") && !"MySQL".equals(databaseType.getType())) {
+            // SPEX CHANGED: BEGIN
+            if ((each.getDataNode().contains("t_product_extend") || each.getDataNode().contains("with_t_order_item")) && !"MySQL".equals(databaseType.getType())) {
                 continue;
             }
+            // SPEX CHANGED: END
             DataNode dataNode = new DataNode(each.getDataNode());
             if (!result.containsKey(dataNode)) {
                 result.put(dataNode, new LinkedList<>());
@@ -129,6 +134,14 @@ public final class DataSetEnvironmentManager {
             columnNames.add(each.getName());
             placeholders.add(generateProperPlaceholderExpression(databaseType, each));
         }
+        // SPEX ADDED: BEGIN
+        if (DatabaseTypeUtils.isOracleDatabase(databaseType) || databaseType instanceof MySQLDatabaseType) {
+            DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
+            List<String> quotedColumnNames = columnNames.stream().map(columnName -> dialectDatabaseMetaData.getQuoteCharacter().wrap(columnName.toUpperCase())).collect(Collectors.toList());
+            String quotedTableName = dialectDatabaseMetaData.getQuoteCharacter().wrap(tableName.toUpperCase());
+            return String.format("INSERT INTO %s (%s) VALUES (%s)", quotedTableName, String.join(",", quotedColumnNames), String.join(",", placeholders));
+        }
+        // SPEX ADDED: END
         return String.format("INSERT INTO %s (%s) VALUES (%s)", tableName, String.join(",", columnNames), String.join(",", placeholders));
     }
     

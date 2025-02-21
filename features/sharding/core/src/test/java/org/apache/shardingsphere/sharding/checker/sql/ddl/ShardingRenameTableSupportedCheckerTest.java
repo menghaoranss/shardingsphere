@@ -46,13 +46,17 @@ class ShardingRenameTableSupportedCheckerTest {
     void assertCheckShardingTable() {
         RenameTableStatementContext sqlStatementContext = createRenameTableStatementContext("t_order", "t_user_order");
         when(rule.containsShardingTable(argThat(tableNames -> tableNames.contains("t_order") || tableNames.contains("t_user_order")))).thenReturn(true);
-        assertThrows(UnsupportedShardingOperationException.class, () -> new ShardingRenameTableSupportedChecker().check(rule, mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertThrows(UnsupportedShardingOperationException.class, () -> new ShardingRenameTableSupportedChecker().check(rule, mock(), mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: END
     }
     
     @Test
     void assertCheckNormalCase() {
         RenameTableStatementContext sqlStatementContext = createRenameTableStatementContext("t_not_sharding_table", "t_not_sharding_table_new");
-        assertDoesNotThrow(() -> new ShardingRenameTableSupportedChecker().check(rule, mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: BEGIN
+        assertDoesNotThrow(() -> new ShardingRenameTableSupportedChecker().check(rule, mock(), mock(), mock(), sqlStatementContext));
+        // SPEX CHANGED: END
     }
     
     private RenameTableStatementContext createRenameTableStatementContext(final String originTableName, final String newTableName) {

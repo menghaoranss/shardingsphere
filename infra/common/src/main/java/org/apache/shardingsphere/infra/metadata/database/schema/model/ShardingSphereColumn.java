@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.metadata.database.schema.model;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -46,6 +47,18 @@ public final class ShardingSphereColumn {
     
     private final boolean nullable;
     
+    @SphereEx
+    private final String dataTypeContent;
+    
+    @SphereEx
+    private final String characterSetName;
+    
+    @SphereEx
+    public ShardingSphereColumn(final String name, final int dataType, final boolean primaryKey, final boolean generated, final boolean caseSensitive, final boolean visible, final boolean unsigned,
+                                final boolean nullable) {
+        this(name, dataType, primaryKey, generated, caseSensitive, visible, unsigned, nullable, null, null);
+    }
+    
     public ShardingSphereColumn(final ColumnMetaData columnMetaData) {
         name = columnMetaData.getName();
         dataType = columnMetaData.getDataType();
@@ -55,5 +68,9 @@ public final class ShardingSphereColumn {
         visible = columnMetaData.isVisible();
         unsigned = columnMetaData.isUnsigned();
         nullable = columnMetaData.isNullable();
+        // SPEX ADDED: BEGIN
+        dataTypeContent = columnMetaData.getDataTypeContent();
+        characterSetName = columnMetaData.getCharacterSetName();
+        // SPEX ADDED: END
     }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.ddl;
 
+import com.sphereex.dbplusengine.encrypt.rule.column.item.PlainColumnItem;
+import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptAlterTableToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptColumnToken;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
@@ -25,7 +27,10 @@ import org.apache.shardingsphere.encrypt.rule.column.item.CipherColumnItem;
 import org.apache.shardingsphere.encrypt.rule.column.item.LikeQueryColumnItem;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
+import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.AlterTableStatementContext;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.RemoveToken;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.ddl.column.ColumnDefinitionSegment;
@@ -35,12 +40,15 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.ddl.column.al
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.DataTypeSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
+import org.apache.shardingsphere.test.fixture.database.MockedDatabaseType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Optional;
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -57,6 +65,11 @@ class EncryptAlterTableTokenGeneratorTest {
     @BeforeEach
     void setup() {
         generator = new EncryptAlterTableTokenGenerator(mockEncryptRule());
+        // SPEX ADDED: BEGIN
+        generator.setDefaultSchema(new ShardingSphereSchema("default"));
+        generator.setSchemas(Collections.singletonMap("default", new ShardingSphereSchema("default")));
+        generator.setConfigurationProperties(new ConfigurationProperties(new Properties()));
+        // SPEX ADDED: END
     }
     
     private EncryptRule mockEncryptRule() {
@@ -77,9 +90,14 @@ class EncryptAlterTableTokenGeneratorTest {
     }
     
     private EncryptColumn mockEncryptColumn() {
-        EncryptColumn result = new EncryptColumn("certificate_number", new CipherColumnItem("cipher_certificate_number", mock(EncryptAlgorithm.class)));
-        result.setAssistedQuery(new AssistedQueryColumnItem("assisted_certificate_number", mock(EncryptAlgorithm.class)));
-        result.setLikeQuery(new LikeQueryColumnItem("like_certificate_number", mock(EncryptAlgorithm.class)));
+        // SPEX CHANGED: BEGIN
+        EncryptColumn result = new EncryptColumn("certificate_number", new CipherColumnItem("cipher_certificate_number", mock(EncryptAlgorithm.class, RETURNS_DEEP_STUBS)));
+        result.setAssistedQuery(new AssistedQueryColumnItem("assisted_certificate_number", mock(EncryptAlgorithm.class, RETURNS_DEEP_STUBS)));
+        result.setLikeQuery(new LikeQueryColumnItem("like_certificate_number", mock(EncryptAlgorithm.class, RETURNS_DEEP_STUBS)));
+        // SPEX CHANGED: END
+        // SPEX ADDED: BEGIN
+        result.setPlain(new PlainColumnItem("certificate_number_plain", false));
+        // SPEX ADDED: END
         return result;
     }
     
@@ -88,13 +106,18 @@ class EncryptAlterTableTokenGeneratorTest {
                 "certificate_number_new", new CipherColumnItem("cipher_certificate_number_new", mock(EncryptAlgorithm.class)));
         result.setAssistedQuery(new AssistedQueryColumnItem("assisted_certificate_number_new", mock(EncryptAlgorithm.class)));
         result.setLikeQuery(new LikeQueryColumnItem("like_certificate_number_new", mock(EncryptAlgorithm.class)));
+        // SPEX ADDED: BEGIN
+        result.setPlain(new PlainColumnItem("certificate_number_new_plain", false));
+        // SPEX ADDED: END
         return result;
     }
     
     @Test
     void assertAddColumnGenerateSQLTokens() {
         Collection<SQLToken> actual = generator.generateSQLTokens(mockAddColumnStatementContext());
-        assertThat(actual.size(), is(4));
+        // SPEX CHANGED: BEGIN
+        assertThat(actual.size(), is(5));
+        // SPEX CHANGED: END
         Iterator<SQLToken> actualIterator = actual.iterator();
         assertThat(actualIterator.next(), instanceOf(RemoveToken.class));
         EncryptColumnToken cipherToken = (EncryptColumnToken) actualIterator.next();
@@ -109,6 +132,12 @@ class EncryptAlterTableTokenGeneratorTest {
         assertThat(likeToken.toString(), is(", ADD COLUMN like_certificate_number VARCHAR(4000)"));
         assertThat(likeToken.getStartIndex(), is(68));
         assertThat(likeToken.getStopIndex(), is(67));
+        // SPEX ADDED: BEGIN
+        EncryptAlterTableToken plainToken = (EncryptAlterTableToken) actualIterator.next();
+        assertThat(plainToken.toString(), is(", ADD COLUMN certificate_number_plain"));
+        assertThat(plainToken.getStartIndex(), is(68));
+        assertThat(plainToken.getStopIndex(), is(50));
+        // SPEX ADDED: END
     }
     
     private AlterTableStatementContext mockAddColumnStatementContext() {
@@ -117,6 +146,11 @@ class EncryptAlterTableTokenGeneratorTest {
         ColumnDefinitionSegment columnDefinitionSegment = new ColumnDefinitionSegment(
                 33, 67, new ColumnSegment(33, 50, new IdentifierValue("certificate_number")), new DataTypeSegment(), false, false, "");
         when(result.getSqlStatement().getAddColumnDefinitions()).thenReturn(Collections.singleton(new AddColumnDefinitionSegment(22, 67, Collections.singleton(columnDefinitionSegment))));
+        // SPEX ADDED: BEGIN
+        when(result.getDatabaseType()).thenReturn(new MockedDatabaseType());
+        when(result.getTablesContext()).thenReturn(mock(TablesContext.class, RETURNS_DEEP_STUBS));
+        when(result.getTablesContext().getSchemaName()).thenReturn(Optional.of("default"));
+        // SPEX ADDED: END
         return result;
     }
     

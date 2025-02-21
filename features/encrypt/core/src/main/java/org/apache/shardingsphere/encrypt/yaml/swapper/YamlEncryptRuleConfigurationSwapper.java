@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.yaml.swapper;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.yaml.swapper.rule.YamlEncryptModeRuleConfigurationSwapper;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptTableRuleConfiguration;
 import org.apache.shardingsphere.encrypt.constant.EncryptOrder;
@@ -43,17 +45,31 @@ public final class YamlEncryptRuleConfigurationSwapper implements YamlRuleConfig
     
     private final YamlAlgorithmConfigurationSwapper algorithmSwapper = new YamlAlgorithmConfigurationSwapper();
     
+    @SphereEx
+    private final YamlEncryptModeRuleConfigurationSwapper encryptModeSwapper = new YamlEncryptModeRuleConfigurationSwapper();
+    
     @Override
     public YamlEncryptRuleConfiguration swapToYamlConfiguration(final EncryptRuleConfiguration data) {
         YamlEncryptRuleConfiguration result = new YamlEncryptRuleConfiguration();
         data.getTables().forEach(each -> result.getTables().put(each.getName(), tableSwapper.swapToYamlConfiguration(each)));
         data.getEncryptors().forEach((key, value) -> result.getEncryptors().put(key, algorithmSwapper.swapToYamlConfiguration(value)));
+        // SPEX ADDED: BEGIN
+        if (null != data.getEncryptMode()) {
+            result.setEncryptMode(encryptModeSwapper.swapToYamlConfiguration(data.getEncryptMode()));
+        }
+        // SPEX ADDED: END
         return result;
     }
     
     @Override
     public EncryptRuleConfiguration swapToObject(final YamlEncryptRuleConfiguration yamlConfig) {
-        return new EncryptRuleConfiguration(swapTables(yamlConfig), swapEncryptAlgorithm(yamlConfig));
+        EncryptRuleConfiguration result = new EncryptRuleConfiguration(swapTables(yamlConfig), swapEncryptAlgorithm(yamlConfig));
+        // SPEX ADDED: BEGIN
+        if (null != yamlConfig.getEncryptMode()) {
+            result.setEncryptMode(encryptModeSwapper.swapToObject(yamlConfig.getEncryptMode()));
+        }
+        // SPEX ADDED: END
+        return result;
     }
     
     private Collection<EncryptTableRuleConfiguration> swapTables(final YamlEncryptRuleConfiguration yamlConfig) {

@@ -17,11 +17,13 @@
 
 package org.apache.shardingsphere.test.e2e.container.config;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.adapter.config.AdaptorContainerConfiguration;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.constants.ProxyContainerConstants;
+import org.apache.shardingsphere.test.e2e.env.runtime.E2ETestEnvironment;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
@@ -49,7 +51,12 @@ public final class ProxyClusterContainerConfigurationFactory {
     
     private static Map<String, String> getMountedResources(final String scenario, final DatabaseType databaseType) {
         Map<String, String> result = new HashMap<>(3, 1F);
-        result.put("/env/common/cluster/proxy/conf/logback.xml", ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER + "logback.xml");
+        // SPEX CHANGED: BEGIN
+        // TODO remove mate global yaml config @jinchao
+        String governanceCenter = E2ETestEnvironment.getInstance().getGovernanceCenter().toLowerCase();
+        result.put("/env/common/cluster/proxy/conf/" + governanceCenter + "/logback.xml", ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER + "logback.xml");
+        result.put("/env/common/cluster/proxy/conf/" + governanceCenter + "/sphere-ex.license", ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER + "sphere-ex.license");
+        // SPEX CHANGED: END
         result.put("/env/scenario/" + scenario + "/proxy/conf/" + databaseType.getType().toLowerCase(), ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER);
         result.put(getGlobalYamlPath(scenario, databaseType), ProxyContainerConstants.CONFIG_PATH_IN_CONTAINER + "global.yaml");
         return result;
@@ -57,6 +64,13 @@ public final class ProxyClusterContainerConfigurationFactory {
     
     @NotNull
     private static String getGlobalYamlPath(final String scenario, final DatabaseType databaseType) {
+        // SPEX ADD: BEGIN
+        // TODO remove mate global yaml config @jinchao
+        if (isGovernanceCenterGlobalYamlExists(scenario)) {
+            String governanceCenter = E2ETestEnvironment.getInstance().getGovernanceCenter().toLowerCase();
+            return String.format("/env/scenario/%s/proxy/mode/cluster/%s/global.yaml", scenario, governanceCenter);
+        }
+        // SPEX ADD: END
         if (isDialectScenarioGlobalYamlExists(scenario, databaseType)) {
             return "/env/scenario/" + scenario + "/proxy/mode/cluster/" + databaseType.getType().toLowerCase() + "/global.yaml";
         }
@@ -64,6 +78,13 @@ public final class ProxyClusterContainerConfigurationFactory {
             return "/env/scenario/" + scenario + "/proxy/mode/cluster/global.yaml";
         }
         return "/env/common/cluster/proxy/conf/global.yaml";
+    }
+    
+    @SphereEx
+    private static boolean isGovernanceCenterGlobalYamlExists(final String scenario) {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(String.format("env/scenario/%s/proxy/mode/cluster/%s/global.yaml", scenario,
+                E2ETestEnvironment.getInstance().getGovernanceCenter().toLowerCase()));
+        return null != url;
     }
     
     private static boolean isDialectScenarioGlobalYamlExists(final String scenario, final DatabaseType databaseType) {

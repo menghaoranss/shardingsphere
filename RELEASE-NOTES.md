@@ -1,4 +1,4 @@
-## Release 5.5.2
+## Release 5.5.2-SNAPSHOT
 
 ### API Changes
 

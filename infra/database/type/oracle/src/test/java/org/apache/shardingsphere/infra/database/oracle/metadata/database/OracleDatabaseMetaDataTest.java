@@ -46,14 +46,18 @@ class OracleDatabaseMetaDataTest {
     @Test
     void assertGetSchema() throws SQLException {
         Connection connection = mock(Connection.class, RETURNS_DEEP_STUBS);
-        when(connection.getMetaData().getUserName()).thenReturn("scott");
+        // SPEX CHANGED: BEGIN
+        when(connection.getSchema()).thenReturn("SCOTT");
+        // SPEX CHANGED: END
         assertThat(dialectDatabaseMetaData.getSchema(connection), is("SCOTT"));
     }
     
     @Test
     void assertGetSchemaIfExceptionThrown() throws SQLException {
         Connection connection = mock(Connection.class, RETURNS_DEEP_STUBS);
-        when(connection.getMetaData().getUserName()).thenThrow(SQLException.class);
+        // SPEX CHANGED: BEGIN
+        when(connection.getSchema()).thenThrow(SQLException.class);
+        // SPEX CHANGED: END
         assertNull(dialectDatabaseMetaData.getSchema(connection));
     }
     

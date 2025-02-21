@@ -17,7 +17,9 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql.orderby;
 
-import org.apache.shardingsphere.encrypt.exception.syntax.UnsupportedEncryptSQLException;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import org.apache.shardingsphere.encrypt.exception.metadata.MissingMatchedEncryptQueryAlgorithmException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
@@ -27,6 +29,7 @@ import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementCont
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.NullsOrderType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.sql.parser.statement.core.enums.OrderDirection;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
@@ -92,14 +95,18 @@ class EncryptOrderByItemSupportedCheckerTest {
         assertTrue(new EncryptOrderByItemSupportedChecker().isCheck(sqlStatementContext));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckFailed() {
-        assertThrows(UnsupportedEncryptSQLException.class, () -> new EncryptOrderByItemSupportedChecker().check(mockEncryptRule(), mock(), mock(), mockSelectStatementContext("foo_tbl")));
+        assertThrows(MissingMatchedEncryptQueryAlgorithmException.class, () -> new EncryptOrderByItemSupportedChecker()
+                .check(mockEncryptRule(), mock(ShardingSphereMetaData.class), mock(), mock(), mockSelectStatementContext("foo_tbl")));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckSuccess() {
-        assertDoesNotThrow(() -> new EncryptOrderByItemSupportedChecker().check(mockEncryptRule(), mock(), mock(), mockSelectStatementContext("bar_tbl")));
+        assertDoesNotThrow(() -> new EncryptOrderByItemSupportedChecker()
+                .check(mockEncryptRule(), mock(ShardingSphereMetaData.class), mock(), mock(), mockSelectStatementContext("bar_tbl")));
     }
     
     private EncryptRule mockEncryptRule() {

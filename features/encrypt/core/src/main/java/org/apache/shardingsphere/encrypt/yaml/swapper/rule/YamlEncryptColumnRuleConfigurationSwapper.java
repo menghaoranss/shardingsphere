@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.yaml.swapper.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.yaml.swapper.rule.YamlPlainColumnItemRuleConfigurationSwapper;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
 import org.apache.shardingsphere.encrypt.yaml.config.rule.YamlEncryptColumnRuleConfiguration;
 import org.apache.shardingsphere.infra.util.yaml.swapper.YamlConfigurationSwapper;
@@ -28,10 +30,18 @@ public final class YamlEncryptColumnRuleConfigurationSwapper implements YamlConf
     
     private final YamlEncryptColumnItemRuleConfigurationSwapper encryptColumnItemSwapper = new YamlEncryptColumnItemRuleConfigurationSwapper();
     
+    @SphereEx
+    private final YamlPlainColumnItemRuleConfigurationSwapper plainColumnItemSwapper = new YamlPlainColumnItemRuleConfigurationSwapper();
+    
     @Override
     public YamlEncryptColumnRuleConfiguration swapToYamlConfiguration(final EncryptColumnRuleConfiguration data) {
         YamlEncryptColumnRuleConfiguration result = new YamlEncryptColumnRuleConfiguration();
         result.setName(data.getName());
+        // SPEX ADDED: BEGIN
+        data.getDataType().ifPresent(result::setDataType);
+        data.getPlain().ifPresent(optional -> result.setPlain(plainColumnItemSwapper.swapToYamlConfiguration(optional)));
+        data.getOrderQuery().ifPresent(optional -> result.setOrderQuery(encryptColumnItemSwapper.swapToYamlConfiguration(optional)));
+        // SPEX ADDED: END
         result.setCipher(encryptColumnItemSwapper.swapToYamlConfiguration(data.getCipher()));
         data.getLikeQuery().ifPresent(optional -> result.setLikeQuery(encryptColumnItemSwapper.swapToYamlConfiguration(optional)));
         data.getAssistedQuery().ifPresent(optional -> result.setAssistedQuery(encryptColumnItemSwapper.swapToYamlConfiguration(optional)));
@@ -47,6 +57,15 @@ public final class YamlEncryptColumnRuleConfigurationSwapper implements YamlConf
         if (null != yamlConfig.getLikeQuery()) {
             result.setLikeQuery(encryptColumnItemSwapper.swapToObject(yamlConfig.getLikeQuery()));
         }
+        // SPEX ADDED: BEGIN
+        if (null != yamlConfig.getOrderQuery()) {
+            result.setOrderQuery(encryptColumnItemSwapper.swapToObject(yamlConfig.getOrderQuery()));
+        }
+        if (null != yamlConfig.getPlain()) {
+            result.setPlain(plainColumnItemSwapper.swapToObject(yamlConfig.getPlain()));
+        }
+        result.setDataType(yamlConfig.getDataType());
+        // SPEX ADDED: END
         return result;
     }
 }

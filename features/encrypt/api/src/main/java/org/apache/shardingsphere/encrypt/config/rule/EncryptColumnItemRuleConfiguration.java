@@ -17,8 +17,11 @@
 
 package org.apache.shardingsphere.encrypt.config.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 
 /**
  * Encrypt column item rule configuration.
@@ -30,4 +33,22 @@ public final class EncryptColumnItemRuleConfiguration {
     private final String name;
     
     private final String encryptorName;
+    
+    @SphereEx
+    private final String dataType;
+    
+    @SphereEx
+    public EncryptColumnItemRuleConfiguration(final String name, final String encryptorName) {
+        this(name, encryptorName, null);
+    }
+    
+    /**
+     * Get data type.
+     *
+     * @return data type
+     */
+    @SphereEx
+    public Optional<String> getDataType() {
+        return Optional.ofNullable(dataType);
+    }
 }

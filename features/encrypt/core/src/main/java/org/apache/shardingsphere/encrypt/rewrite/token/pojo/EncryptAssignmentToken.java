@@ -17,16 +17,18 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.pojo;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.infra.rewrite.token.pojo.AssignmentToken;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
-import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.Substitutable;
 
 /**
  * Assignment token for encrypt.
  */
 @Getter
-public abstract class EncryptAssignmentToken extends SQLToken implements Substitutable {
+public abstract class EncryptAssignmentToken extends @SphereEx(Type.MODIFY) AssignmentToken implements Substitutable {
     
     private final int stopIndex;
     

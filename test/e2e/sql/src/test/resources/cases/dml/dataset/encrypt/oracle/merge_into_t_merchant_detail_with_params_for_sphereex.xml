@@ -1,0 +1,35 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<dataset update-count="1">
+    <metadata data-nodes="encrypt.t_merchant_detail">
+        <column name="merchant_id" type="numeric" />
+        <column name="business_code_cipher" type="varchar" />
+        <column name="business_code_like" type="varchar" />
+        <column name="business_code_plain" type="varchar" />
+        <column name="merchant_telephone_cipher" type="varchar" />
+        <column name="merchant_telephone_like" type="varchar" />
+        <column name="merchant_telephone_plain" type="varchar" />
+        <column name="status" type="varchar" />
+        <column name="address" type="varchar" />
+        <column name="creation_date" type="datetime" />
+    </metadata>
+    <row data-node="encrypt.t_merchant_detail" values="1, k/LC4zsaZ+N6RgluwW+8BQ==, 8+-----,, 86000001, 9SCFkitrhrqandvIXg2U5Q==, 8+,-------/, 86100000002, ok, shenzheng, 2017-08-08" />
+    <row data-node="encrypt.t_merchant_detail" values="50, 0rKMwuTg90RwupFubsDvww==, 8+----(-, 86000050, JwfUft5Ufz7yAym6i42wkA==, 8+,------(-, 86100000050, ok, shenzheng, 2017-08-08" />
+</dataset>
+<!-- SPEX ADDED: END -->

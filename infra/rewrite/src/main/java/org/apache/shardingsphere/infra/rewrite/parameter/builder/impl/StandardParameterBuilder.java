@@ -41,6 +41,9 @@ public final class StandardParameterBuilder implements ParameterBuilder {
     @Getter
     private final Map<Integer, Collection<Object>> addedIndexAndParameters = new HashMap<>();
     
+    // SPEX ADDED: BEGIN
+    @Getter
+    // SPEX ADDED: END
     private final Map<Integer, Object> replacedIndexAndParameters = new LinkedHashMap<>();
     
     private int addedParameterCount;

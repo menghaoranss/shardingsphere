@@ -87,6 +87,14 @@ public final class EncryptInsertOnDuplicateKeyUpdateValueParameterRewriter imple
         if (encryptColumn.getLikeQuery().isPresent()) {
             result.add(encryptColumn.getLikeQuery().get().encrypt(databaseName, schemaName, tableName, logicColumnName, plainValue));
         }
+        // SPEX ADDED: BEGIN
+        if (encryptColumn.getOrderQuery().isPresent()) {
+            result.add(encryptColumn.getOrderQuery().get().encrypt(databaseName, schemaName, tableName, logicColumnName, plainValue));
+        }
+        if (encryptColumn.getPlain().isPresent()) {
+            result.add(plainValue);
+        }
+        // SPEX ADDED: END
         return result;
     }
 }

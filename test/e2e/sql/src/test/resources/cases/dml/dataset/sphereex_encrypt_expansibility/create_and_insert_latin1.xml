@@ -1,0 +1,42 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dataset update-count="1">
+    <metadata table-name="t_user" data-nodes="encrypt.t_user">
+        <column name="user_id" type="numeric" />
+        <column name="user_name_cipher" type="varchar" />
+        <column name="user_name_assisted_query" type="varchar" />
+        <column name="user_name_like" type="varchar" />
+        <column name="user_name_plain" type="varchar" />
+        <column name="password_cipher" type="varchar" />
+        <column name="password_assisted_query" type="varchar" />
+        <column name="password_like" type="varchar" />
+        <column name="password_plain" type="varchar" />
+        <column name="email_cipher" type="varchar" />
+        <column name="email_plain" type="varchar" />
+        <column name="address_cipher" type="varchar" />
+        <column name="address_plain" type="varchar" />
+        <column name="city_cipher" type="varchar" />
+        <column name="city_plain" type="varchar" />
+        <column name="country_cipher" type="varchar" />
+        <column name="country_plain" type="varchar" />
+        <column name="province_cipher" type="varchar" />
+        <column name="province_plain" type="varchar" />
+        <column name="creation_date" type="datetime" />
+    </metadata>
+    <row data-node="encrypt.t_user" values="3, UoFVpDCizfruVDmkwcOSq+M4M0Q5V6oHGyihUKaBPmM=, EnWs/yslql/rUkKc/D+x7f5AtxgLpTAZIb0rSuUEPVQ=, nK^K_dCD@K__kDKFSY^_, Data_Ninja__Analyst_, 7X277CQiej5idQ+VMFvc1g==, 34819d7beeabb9260a5c854bc85b3e44, lxq`ttxpqe, mypassword, uRwT/RaGTcz2bHItQGktvQ==, my_email12, E1L8V5WJv/HO0nnGXivEP7HCSbpV4ks5Wd/mEVybCg8FdYXL3JuZsDOcaYKd23VroMxe5SLoS0kXHPvpXswp9VGk//ARrOxsfrhYfo/PaXBKsFsYFR6p8bO1Tau4ssj8Q9+Yz8NIscqN2ZOgYnTqtOyM9WKOEJO7HADchHU3/c58sTX1nHxdNMMg4QzNSfqCqq5MoLyxstK6n3jgYLEzcBVT4s2OKgGvjZD2TpkjcRf7lmYjlXrqzLXHyarljz25/Hwo9cG+sPo1r+UNpanfnWsdLgHBZwYop/Gs3KXLmhaKCB7AbZdiVV4qKm25lU6tA/RUGV17e1zCV+i5vswTmA==, address_12, 9Djsk/VT7rngKQ==, address_12, 9Djsk/VT7rngKQ==, address_12, ea8de01c98ac49e505c18d60a232a360, address_12, 2024-08-09" />
+</dataset>

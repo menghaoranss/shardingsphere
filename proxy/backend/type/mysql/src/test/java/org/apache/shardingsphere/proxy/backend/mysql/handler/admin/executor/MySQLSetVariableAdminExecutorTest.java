@@ -70,6 +70,9 @@ class MySQLSetVariableAdminExecutorTest {
         ConnectionContext connectionContext = mockConnectionContext();
         when(connectionSession.getConnectionContext()).thenReturn(connectionContext);
         ProxyDatabaseConnectionManager databaseConnectionManager = mock(ProxyDatabaseConnectionManager.class);
+        // SPEX ADDED: BEGIN
+        when(databaseConnectionManager.getConnectionSession()).thenReturn(connectionSession);
+        // SPEX ADDED: END
         when(connectionSession.getDatabaseConnectionManager()).thenReturn(databaseConnectionManager);
         ContextManager contextManager = mockContextManager();
         when(ProxyContext.getInstance().getContextManager()).thenReturn(contextManager);

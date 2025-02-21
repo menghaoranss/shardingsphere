@@ -1,0 +1,441 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- TODO It was splited to other files in https://github.com/apache/shardingsphere/pull/24137 , need to relocate these commercial cases into other files too -->
+<e2e-test-cases>
+    <!-- SPEX ADDED: BEGIN -->
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '%1'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match number in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '86%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match number in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '86%1%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match number in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '__000001'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match number in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '8600000_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match number in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '_1_0001_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match number in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '_1%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match number in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '%san'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match letter in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE 'j%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match letter in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE 'j%r%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match letter in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '_ack'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match letter in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE 'jorda_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match letter in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE 'li__'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match letter in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '%li_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match letter in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '%靖'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match chinese character in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '王%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match chinese character in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '王%民%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match chinese character in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '_莽'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match chinese character in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '王善_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match chinese character in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '王__'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match chinese character in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_name LIKE '%安_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match chinese character in simple select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '%1')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match number in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '86%')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match number in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '86%1%')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match number in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '__000001')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match number in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '8600000_')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match number in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '_1_0001_')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match number in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '_1%')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match number in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '%san')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match letter in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE 'j%')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match letter in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE 'j%r%')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match letter in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '_ack')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match letter in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE 'jorda_')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match letter in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE 'li__')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match letter in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '%li_')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match letter in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '%靖')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match chinese character in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '王%')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match chinese character in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '王%民%')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match chinese character in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '_莽')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match chinese character in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '王善_')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match chinese character in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '王__')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match chinese character in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user WHERE user_id IN (SELECT user_id FROM t_user WHERE user_name LIKE '%安_')" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match chinese character in subquery select statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '%1'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match number in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '86%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match number in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '86%1%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match number in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '__000001'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match number in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '8600000_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match number in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '_1_0001_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match number in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '_1%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match number in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '%san'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match letter in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE 'j%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match letter in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE 'j%r%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match letter in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '_ack'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match letter in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE 'jorda_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match letter in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE 'li__'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match letter in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '%li_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match letter in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '%靖'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match chinese character in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '王%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match chinese character in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '王%民%'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match chinese character in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '_莽'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match chinese character in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '王善_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match chinese character in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '王__'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match chinese character in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT * FROM t_user u1 INNER JOIN t_user u2 ON u1.user_id = u2.user_id WHERE u2.user_name LIKE '%安_'" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match chinese character in select join statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '%1' GROUP BY country_id ORDER BY country_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match number in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '86%' GROUP BY country_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match number in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '86%1%' GROUP BY country_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match number in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '__000001' GROUP BY country_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match number in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '8600000_' GROUP BY country_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match number in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '_1_0001_' GROUP BY country_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match number in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '_1%' GROUP BY country_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match number in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+<!--    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '%san' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"-->
+<!--               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match letter in select group by statement when use encrypt feature.">-->
+<!--        <assertion expected-data-source-name="read_dataset" />-->
+<!--    </test-case>-->
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE 'j%' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match letter in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+<!--    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE 'j%r%' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"-->
+<!--               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match letter in select group by statement when use encrypt feature.">-->
+<!--        <assertion expected-data-source-name="read_dataset" />-->
+<!--    </test-case>-->
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '_ack' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match letter in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE 'jorda_' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match letter in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE 'li__' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match letter in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '%li_' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match letter in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '%靖' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for left match chinese character in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '王%' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for right match chinese character in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '王%民%' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage wildcard for mixed match chinese character in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '_莽' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for left match chinese character in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '王善_' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for right match chinese character in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+
+<!--    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '王__' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"-->
+<!--               scenario-comments="Test encrypt table's LIKE operator underscore wildcard for mixed match chinese character in select group by statement when use encrypt feature.">-->
+<!--        <assertion expected-data-source-name="read_dataset" />-->
+<!--    </test-case>-->
+
+    <test-case sql="SELECT user_id, COUNT(1) FROM t_user WHERE user_name LIKE '%安_' GROUP BY user_id" db-types="MySQL,PostgreSQL,openGauss" scenario-types="encrypt"
+               scenario-comments="Test encrypt table's LIKE operator percentage and underscore wildcard for mixed match chinese character in select group by statement when use encrypt feature.">
+        <assertion expected-data-source-name="read_dataset" />
+    </test-case>
+    <!-- SPEX ADDED: END -->
+</e2e-test-cases>

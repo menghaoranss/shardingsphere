@@ -17,27 +17,38 @@
 
 package org.apache.shardingsphere.test.it.rewrite.fixture.encrypt;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
 import lombok.Getter;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithmMetaData;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
 
+import java.util.Collections;
+import java.util.Map;
+
 import java.util.Properties;
 
 @Getter
 public final class RewriteQueryLikeEncryptAlgorithmFixture implements EncryptAlgorithm {
     
-    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(false, true, true);
+    private final EncryptAlgorithmMetaData metaData = new EncryptAlgorithmMetaData(false, true, true, false, (plainCharLength, charToByteRatio) -> plainCharLength);
     
     @Override
-    public String encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public String encrypt(final Object plainValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         return null == plainValue ? null : "like_query_" + plainValue;
     }
     
     @Override
-    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext) {
+    public Object decrypt(final Object cipherValue, final AlgorithmSQLContext algorithmSQLContext, @SphereEx final EncryptContext encryptContext) {
         throw new UnsupportedOperationException(String.format("Algorithm `%s` is unsupported to decrypt", getType()));
+    }
+    
+    @SphereEx
+    @Override
+    public Map<String, Object> getUdfDataModel() {
+        return Collections.emptyMap();
     }
     
     @Override

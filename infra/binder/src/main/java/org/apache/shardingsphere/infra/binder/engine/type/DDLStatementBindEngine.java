@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.binder.engine.type;
 
+import com.sphereex.dbplusengine.infra.binder.engine.statement.ddl.OracleCreateProcedureStatementBinder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.binder.engine.statement.SQLStatementBinderContext;
 import org.apache.shardingsphere.infra.binder.engine.statement.ddl.AlterIndexStatementBinder;
@@ -46,6 +47,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.statement.ddl.DropTab
 import org.apache.shardingsphere.sql.parser.statement.core.statement.ddl.DropViewStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.ddl.RenameTableStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.ddl.TruncateStatement;
+import org.apache.shardingsphere.sql.parser.statement.oracle.ddl.OracleCreateProcedureStatement;
 
 /**
  * DDL statement bind engine.
@@ -103,6 +105,11 @@ public final class DDLStatementBindEngine {
         if (statement instanceof TruncateStatement) {
             return new TruncateStatementBinder().bind((TruncateStatement) statement, binderContext);
         }
+        // SPEX ADDED: BEGIN
+        if (statement instanceof OracleCreateProcedureStatement) {
+            return new OracleCreateProcedureStatementBinder().bind((OracleCreateProcedureStatement) statement, binderContext);
+        }
+        // SPEX ADDED: END
         return statement;
     }
 }

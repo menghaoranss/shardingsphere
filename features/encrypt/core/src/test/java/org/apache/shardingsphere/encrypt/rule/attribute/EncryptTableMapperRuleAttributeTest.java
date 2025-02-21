@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.rule.attribute;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -27,7 +29,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 class EncryptTableMapperRuleAttributeTest {
     
-    private final EncryptTableMapperRuleAttribute ruleAttribute = new EncryptTableMapperRuleAttribute(Collections.singleton("foo_tbl"));
+    @SphereEx(Type.MODIFY)
+    private final EncryptTableMapperRuleAttribute ruleAttribute = new EncryptTableMapperRuleAttribute(Collections.singleton("foo_tbl"), Collections.emptyList());
     
     @Test
     void assertGetLogicTableMapper() {

@@ -20,6 +20,9 @@ package org.apache.shardingsphere.infra.hint;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
+import com.sphereex.dbplusengine.infra.hint.NoneUniqueKeyScenario;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,6 +54,12 @@ public final class HintValueContext {
     private boolean skipMetadataValidate;
     
     private boolean shadow;
+    
+    @SphereEx
+    private NoneUniqueKeyScenario noneUniqueKeyScenario;
+    
+    @SphereEx
+    private EncryptColumnItemType encryptColumnItemType;
     
     /**
      * Find hint data source name.
@@ -117,5 +126,25 @@ public final class HintValueContext {
         return shardingDatabaseValues.containsKey(key)
                 ? shardingDatabaseValues.get(key)
                 : shardingDatabaseValues.get(SQLHintPropertiesKey.SHARDING_DATABASE_VALUE_KEY.getKey());
+    }
+    
+    /**
+     * Get none unique key scenario.
+     *
+     * @return none unique key scenario
+     */
+    @SphereEx
+    public NoneUniqueKeyScenario getNoneUniqueKeyScenario() {
+        return null == noneUniqueKeyScenario ? NoneUniqueKeyScenario.NONE : noneUniqueKeyScenario;
+    }
+    
+    /**
+     * Get encrypt column item type.
+     *
+     * @return encrypt column item type
+     */
+    @SphereEx
+    public EncryptColumnItemType getEncryptColumnItemType() {
+        return null == encryptColumnItemType ? EncryptColumnItemType.CIPHER : encryptColumnItemType;
     }
 }

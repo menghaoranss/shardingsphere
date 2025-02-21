@@ -17,16 +17,23 @@
 
 package org.apache.shardingsphere.encrypt.rule.table;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
+import com.sphereex.dbplusengine.encrypt.rule.mode.EncryptMode;
+import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptTableRuleConfiguration;
 import org.apache.shardingsphere.encrypt.exception.metadata.EncryptLogicColumnNotFoundException;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class EncryptTableTest {
     
@@ -47,8 +55,14 @@ class EncryptTableTest {
         EncryptColumnRuleConfiguration fooColumnRuleConfig = new EncryptColumnRuleConfiguration("foo_col", new EncryptColumnItemRuleConfiguration("foo_col_cipher", "foo_algo"));
         fooColumnRuleConfig.setAssistedQuery(new EncryptColumnItemRuleConfiguration("foo_col_assisted_query", "foo_assist_query_algo"));
         fooColumnRuleConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("foo_col_like", "foo_like_algo"));
+        // SPEX ADDED: BEGIN
+        fooColumnRuleConfig.setPlain(new PlainColumnItemRuleConfiguration("foo_col_plain"));
+        // SPEX ADDED: END
         EncryptColumnRuleConfiguration barColumnRuleConfig = new EncryptColumnRuleConfiguration("bar_col", new EncryptColumnItemRuleConfiguration("bar_col_cipher", "bar_algo"));
-        encryptTable = new EncryptTable(new EncryptTableRuleConfiguration("foo_tbl", Arrays.asList(fooColumnRuleConfig, barColumnRuleConfig)), createEncryptors());
+        // SPEX CHANGED: BEGIN
+        encryptTable = new EncryptTable(new EncryptTableRuleConfiguration("foo_tbl", Arrays.asList(fooColumnRuleConfig, barColumnRuleConfig)), createEncryptors(),
+                mock(DatabaseType.class), mockEncryptMode());
+        // SPEX CHANGED: END
     }
     
     private Map<String, EncryptAlgorithm> createEncryptors() {
@@ -56,6 +70,14 @@ class EncryptTableTest {
         result.put("foo_algo", mock(EncryptAlgorithm.class));
         result.put("foo_assist_query_algo", mock(EncryptAlgorithm.class));
         result.put("foo_like_algo", mock(EncryptAlgorithm.class));
+        return result;
+    }
+    
+    @SphereEx
+    private EncryptMode mockEncryptMode() {
+        EncryptMode result = mock(EncryptMode.class);
+        when(result.getType()).thenReturn(EncryptModeType.BACKEND);
+        when(result.getRenameTablePrefix()).thenReturn(Optional.of("SPEX_"));
         return result;
     }
     
@@ -128,5 +150,63 @@ class EncryptTableTest {
     @Test
     void assertFindQueryEncryptorWithoutEncryptColumn() {
         assertThat(encryptTable.findQueryEncryptor("no_col"), is(Optional.empty()));
+    }
+    
+    @SphereEx
+    @Test
+    void assertGetLogicColumnByPlainColumn() {
+        assertThat(encryptTable.getLogicColumnByPlainColumn("foo_col_plain"), is("foo_col"));
+    }
+    
+    @SphereEx
+    @Test
+    void assertGetLogicColumnByPlainColumnWhenNotFind() {
+        assertThrows(EncryptLogicColumnNotFoundException.class, () -> encryptTable.getLogicColumnByPlainColumn("invalidColumn"));
+    }
+    
+    @SphereEx
+    @Test
+    void assertIsQueryWithPlain() {
+        boolean actual = encryptTable.isQueryWithPlain("foo_col");
+        assertFalse(actual);
+        EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("foo_col", new EncryptColumnItemRuleConfiguration("foo_col_cipher", "foo_algo"));
+        columnRuleConfig.setAssistedQuery(new EncryptColumnItemRuleConfiguration("foo_col_assisted_query", "foo_assist_query_algo"));
+        columnRuleConfig.setLikeQuery(new EncryptColumnItemRuleConfiguration("foo_col_like", "foo_like_algo"));
+        PlainColumnItemRuleConfiguration plainConfig = new PlainColumnItemRuleConfiguration("foo_col_plain");
+        plainConfig.setQueryWithPlain(true);
+        columnRuleConfig.setPlain(plainConfig);
+        EncryptTableRuleConfiguration encryptTableRuleConfig = new EncryptTableRuleConfiguration("foo_tbl", Collections.singleton(columnRuleConfig));
+        encryptTable = new EncryptTable(encryptTableRuleConfig, Collections.singletonMap("foo_algo", mock(EncryptAlgorithm.class)), mock(DatabaseType.class), mock(EncryptMode.class));
+        actual = encryptTable.isQueryWithPlain("foo_col");
+        assertTrue(actual);
+    }
+    
+    @SphereEx
+    @Test
+    void assertGetLogicColumns() {
+        assertThat(encryptTable.getLogicColumns(), is(new HashSet<>(Arrays.asList("foo_col", "bar_col"))));
+    }
+    
+    @SphereEx
+    @Test
+    void assertGetRenameTableWithNotConfig() {
+        assertTrue(encryptTable.getRenameTable().isPresent());
+        assertThat(encryptTable.getRenameTable().get(), is("SPEX_foo_tbl"));
+    }
+    
+    @SphereEx
+    @Test
+    void assertIsAllCipherColumnConfigPlain() {
+        EncryptColumnRuleConfiguration columnRuleConfig = new EncryptColumnRuleConfiguration("foo_col", new EncryptColumnItemRuleConfiguration("foo_col_cipher", "foo_algo"));
+        columnRuleConfig.setPlain(new PlainColumnItemRuleConfiguration("foo_col_plain"));
+        EncryptTable encryptTable = new EncryptTable(new EncryptTableRuleConfiguration("foo_tbl", Collections.singleton(columnRuleConfig)), createEncryptors(),
+                mock(DatabaseType.class), mockEncryptMode());
+        assertTrue(encryptTable.isAllCipherColumnConfigPlain());
+    }
+    
+    @SphereEx
+    @Test
+    void assertIsNotAllCipherColumnConfigPlain() {
+        assertFalse(encryptTable.isAllCipherColumnConfigPlain());
     }
 }

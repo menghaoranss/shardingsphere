@@ -17,14 +17,16 @@
 
 package org.apache.shardingsphere.infra.checker;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 
 /**
  * Supported SQL checker.
- * 
+ *
  * @param <T> type of SQL statement context
  * @param <R> type of ShardingSphere rule
  */
@@ -42,9 +44,10 @@ public interface SupportedSQLChecker<T extends SQLStatementContext, R extends Sh
      * Check SQL.
      *
      * @param rule rule
+     * @param metaData meta data
      * @param database database
      * @param currentSchema current schema
      * @param sqlStatementContext to be checked SQL statement context
      */
-    void check(R rule, ShardingSphereDatabase database, ShardingSphereSchema currentSchema, T sqlStatementContext);
+    void check(R rule, @SphereEx ShardingSphereMetaData metaData, ShardingSphereDatabase database, ShardingSphereSchema currentSchema, T sqlStatementContext);
 }

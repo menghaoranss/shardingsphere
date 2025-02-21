@@ -17,12 +17,15 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql.projection;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.InsertStatementContext;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
 
 /**
@@ -36,8 +39,10 @@ public final class EncryptInsertSelectProjectionSupportedChecker implements Supp
         return sqlStatementContext instanceof InsertStatementContext && null != ((InsertStatementContext) sqlStatementContext).getInsertSelectContext();
     }
     
+    @SphereEx(Type.MODIFY)
     @Override
-    public void check(final EncryptRule rule, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema, final InsertStatementContext sqlStatementContext) {
-        new EncryptSelectProjectionSupportedChecker().check(rule, database, currentSchema, sqlStatementContext.getInsertSelectContext().getSelectStatementContext());
+    public void check(final EncryptRule rule, @SphereEx final ShardingSphereMetaData metaData, final ShardingSphereDatabase database, final ShardingSphereSchema currentSchema,
+                      final InsertStatementContext sqlStatementContext) {
+        new EncryptSelectProjectionSupportedChecker().check(rule, metaData, database, currentSchema, sqlStatementContext.getInsertSelectContext().getSelectStatementContext());
     }
 }

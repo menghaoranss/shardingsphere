@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.algorithm.messagedigest.md5;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.expansibility.ExpansibilityProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.shardingsphere.infra.algorithm.messagedigest.core.MessageDigestAlgorithm;
 
@@ -25,7 +27,7 @@ import java.util.Properties;
 /**
  * MD5 message digest algorithm.
  */
-public final class MD5MessageDigestAlgorithm implements MessageDigestAlgorithm {
+public final class MD5MessageDigestAlgorithm implements MessageDigestAlgorithm, @SphereEx ExpansibilityProvider {
     
     private static final String SALT_KEY = "salt";
     
@@ -44,5 +46,11 @@ public final class MD5MessageDigestAlgorithm implements MessageDigestAlgorithm {
     @Override
     public String getType() {
         return "MD5";
+    }
+    
+    @SphereEx
+    @Override
+    public int calculate(final int dataCharLength, final int charToByteRatio) {
+        return 16 << 1;
     }
 }

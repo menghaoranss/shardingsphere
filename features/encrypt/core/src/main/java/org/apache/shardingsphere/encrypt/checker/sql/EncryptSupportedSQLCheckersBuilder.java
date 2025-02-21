@@ -17,13 +17,10 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql;
 
-import org.apache.shardingsphere.encrypt.checker.sql.combine.EncryptCombineClauseSupportedChecker;
-import org.apache.shardingsphere.encrypt.checker.sql.insert.EncryptInsertSelectSupportedChecker;
 import org.apache.shardingsphere.encrypt.checker.sql.orderby.EncryptOrderByItemSupportedChecker;
 import org.apache.shardingsphere.encrypt.checker.sql.predicate.EncryptPredicateColumnSupportedChecker;
 import org.apache.shardingsphere.encrypt.checker.sql.projection.EncryptInsertSelectProjectionSupportedChecker;
 import org.apache.shardingsphere.encrypt.checker.sql.projection.EncryptSelectProjectionSupportedChecker;
-import org.apache.shardingsphere.encrypt.checker.sql.with.EncryptWithClauseSupportedChecker;
 import org.apache.shardingsphere.encrypt.constant.EncryptOrder;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
@@ -43,10 +40,13 @@ public final class EncryptSupportedSQLCheckersBuilder implements SupportedSQLChe
                 new EncryptSelectProjectionSupportedChecker(),
                 new EncryptInsertSelectProjectionSupportedChecker(),
                 new EncryptPredicateColumnSupportedChecker(),
-                new EncryptOrderByItemSupportedChecker(),
-                new EncryptWithClauseSupportedChecker(),
-                new EncryptCombineClauseSupportedChecker(),
-                new EncryptInsertSelectSupportedChecker());
+                new EncryptOrderByItemSupportedChecker()
+        // SPEX DELETE: BEGIN
+        // new EncryptWithClauseSupportedChecker(),
+        // new EncryptCombineClauseSupportedChecker(),
+        // new EncryptInsertSelectSupportedChecker()
+        // SPEX DELETE: END
+        );
     }
     
     @Override

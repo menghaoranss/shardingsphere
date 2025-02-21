@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.select;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -30,6 +31,8 @@ import org.apache.shardingsphere.infra.binder.context.type.IndexAvailable;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.SubstitutableColumnNameToken;
@@ -50,6 +53,12 @@ import java.util.Optional;
 public final class EncryptIndexColumnTokenGenerator implements CollectionSQLTokenGenerator<SQLStatementContext> {
     
     private final EncryptRule rule;
+    
+    @SphereEx
+    private final ShardingSphereDatabase database;
+    
+    @SphereEx
+    private final ShardingSphereMetaData metaData;
     
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
@@ -76,13 +85,20 @@ public final class EncryptIndexColumnTokenGenerator implements CollectionSQLToke
         int stopIndex = columnSegment.getStopIndex();
         String columnName = columnSegment.getIdentifier().getValue();
         EncryptColumn encryptColumn = encryptTable.getEncryptColumn(columnName);
+        // SPEX ADDED: BEGIN
+        if (encryptColumn.getPlain().isPresent() && rule.isQueryWithPlain(encryptTable.getTable(), columnName)) {
+            return getQueryColumnToken(startIndex, stopIndex, encryptColumn.getPlain().get().getName(), quoteCharacter, databaseType);
+        }
+        // SPEX ADDED: END
         String queryColumnName = encryptColumn.getAssistedQuery().isPresent() ? encryptColumn.getAssistedQuery().get().getName() : encryptColumn.getCipher().getName();
         return getQueryColumnToken(startIndex, stopIndex, queryColumnName, quoteCharacter, databaseType);
     }
     
     private Optional<SQLToken> getQueryColumnToken(final int startIndex, final int stopIndex, final String queryColumnName, final QuoteCharacter quoteCharacter, final DatabaseType databaseType) {
         Collection<Projection> columnProjections = getColumnProjections(queryColumnName, quoteCharacter, databaseType);
-        return Optional.of(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType));
+        // SPEX CHANGED: BEGIN
+        return Optional.of(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType, database, metaData));
+        // SPEX CHANGED: END
     }
     
     private Collection<Projection> getColumnProjections(final String columnName, final QuoteCharacter quoteCharacter, final DatabaseType databaseType) {

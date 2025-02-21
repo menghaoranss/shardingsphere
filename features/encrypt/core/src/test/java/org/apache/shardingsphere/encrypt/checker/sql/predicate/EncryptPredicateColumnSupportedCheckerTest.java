@@ -17,11 +17,14 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql.predicate;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.exception.metadata.MissingMatchedEncryptQueryAlgorithmException;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.fixture.EncryptGeneratorFixtureBuilder;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
@@ -59,10 +62,11 @@ class EncryptPredicateColumnSupportedCheckerTest {
         assertTrue(new EncryptPredicateColumnSupportedChecker().isCheck(sqlStatementContext));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithDifferentEncryptorsInJoinCondition() {
         assertThrows(UnsupportedSQLOperationException.class, () -> new EncryptPredicateColumnSupportedChecker()
-                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), null, null, mockSelectStatementContextWithDifferentEncryptorsInJoinCondition()));
+                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), mock(ShardingSphereMetaData.class), null, null, mockSelectStatementContextWithDifferentEncryptorsInJoinCondition()));
     }
     
     private SQLStatementContext mockSelectStatementContextWithDifferentEncryptorsInJoinCondition() {
@@ -77,10 +81,11 @@ class EncryptPredicateColumnSupportedCheckerTest {
         return result;
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckWithNotMatchedLikeQueryEncryptor() {
         assertThrows(MissingMatchedEncryptQueryAlgorithmException.class, () -> new EncryptPredicateColumnSupportedChecker()
-                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), null, null, mockSelectStatementContextWithLike()));
+                .check(EncryptGeneratorFixtureBuilder.createEncryptRule(), mock(ShardingSphereMetaData.class), null, null, mockSelectStatementContextWithLike()));
     }
     
     private SQLStatementContext mockSelectStatementContextWithLike() {
@@ -95,9 +100,11 @@ class EncryptPredicateColumnSupportedCheckerTest {
         return result;
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckSuccess() {
-        assertDoesNotThrow(() -> new EncryptPredicateColumnSupportedChecker().check(EncryptGeneratorFixtureBuilder.createEncryptRule(), null, null, mockSelectStatementContextWithEqual()));
+        assertDoesNotThrow(() -> new EncryptPredicateColumnSupportedChecker().check(EncryptGeneratorFixtureBuilder.createEncryptRule(), mock(ShardingSphereMetaData.class), null, null,
+                mockSelectStatementContextWithEqual()));
     }
     
     private SQLStatementContext mockSelectStatementContextWithEqual() {

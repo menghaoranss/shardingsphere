@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.comparator;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -25,6 +26,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.Bina
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Join conditions encryptor comparator.
@@ -36,17 +38,20 @@ public final class JoinConditionsEncryptorComparator {
      * Compare whether same encryptor.
      *
      * @param joinConditions join conditions
-     * @param encryptRule encrypt rule
+     * @param rule encrypt rule
+     * @param databaseEncryptRules database encrypt rules
      * @return same encryptors or not
      */
-    public static boolean isSame(final Collection<BinaryOperationExpression> joinConditions, final EncryptRule encryptRule) {
+    public static boolean isSame(final Collection<BinaryOperationExpression> joinConditions, final EncryptRule rule, @SphereEx final Map<String, EncryptRule> databaseEncryptRules) {
         for (BinaryOperationExpression each : joinConditions) {
             if (!(each.getLeft() instanceof ColumnSegment) || !(each.getRight() instanceof ColumnSegment)) {
                 continue;
             }
             ColumnSegmentBoundInfo leftColumnInfo = ((ColumnSegment) each.getLeft()).getColumnBoundInfo();
             ColumnSegmentBoundInfo rightColumnInfo = ((ColumnSegment) each.getRight()).getColumnBoundInfo();
-            if (!EncryptorComparator.isSame(encryptRule, leftColumnInfo, rightColumnInfo)) {
+            // SPEX CHANGED: BEGIN
+            if (!EncryptorComparator.isSame(rule, leftColumnInfo, rightColumnInfo, databaseEncryptRules)) {
+                // SPEX CHANGED: END
                 return false;
             }
         }

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.yaml.swapper.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.yaml.config.rule.YamlEncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.infra.util.yaml.swapper.YamlConfigurationSwapper;
@@ -31,11 +33,15 @@ public final class YamlEncryptColumnItemRuleConfigurationSwapper implements Yaml
         YamlEncryptColumnItemRuleConfiguration result = new YamlEncryptColumnItemRuleConfiguration();
         result.setName(data.getName());
         result.setEncryptorName(data.getEncryptorName());
+        // SPEX ADDED: BEGIN
+        data.getDataType().ifPresent(result::setDataType);
+        // SPEX ADDED: END
         return result;
     }
     
+    @SphereEx(Type.MODIFY)
     @Override
     public EncryptColumnItemRuleConfiguration swapToObject(final YamlEncryptColumnItemRuleConfiguration yamlConfig) {
-        return new EncryptColumnItemRuleConfiguration(yamlConfig.getName(), yamlConfig.getEncryptorName());
+        return new EncryptColumnItemRuleConfiguration(yamlConfig.getName(), yamlConfig.getEncryptorName(), yamlConfig.getDataType());
     }
 }

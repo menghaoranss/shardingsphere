@@ -37,7 +37,9 @@ class EncryptRuleNodePathProviderTest {
         assertThat(actual.getNamedItems().size(), is(2));
         assertTrue(actual.getNamedItems().containsKey(EncryptRuleNodePathProvider.ENCRYPTORS));
         assertTrue(actual.getNamedItems().containsKey(EncryptRuleNodePathProvider.TABLES));
-        assertTrue(actual.getUniqueItems().isEmpty());
+        // SPEX CHANGED: BEGIN
+        assertThat(actual.getUniqueItems().size(), is(1));
+        // SPEX CHANGED: END
         assertThat(actual.getRoot().getRuleType(), is(EncryptRuleNodePathProvider.RULE_TYPE));
     }
 }

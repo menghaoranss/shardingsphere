@@ -21,6 +21,7 @@ import com.cedarsoftware.util.CaseInsensitiveMap.CaseInsensitiveString;
 import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.groovy.util.Maps;
@@ -33,8 +34,12 @@ import org.apache.shardingsphere.infra.exception.core.ShardingSpherePrecondition
 import org.apache.shardingsphere.infra.exception.kernel.metadata.ColumnNotFoundException;
 import org.apache.shardingsphere.infra.exception.kernel.syntax.AmbiguousColumnException;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ColumnProjectionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.SubqueryProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.TableSegmentBoundInfo;
@@ -60,7 +65,8 @@ public final class ColumnSegmentBinder {
             "ROWNUM", "ROW_NUMBER", "ROWNUM_", "ROWID", "SYSDATE", "SYSTIMESTAMP", "CURRENT_TIMESTAMP", "LOCALTIMESTAMP", "UID", "USER", "NEXTVAL", "LEVEL"));
     
     private static final Map<SegmentType, String> SEGMENT_TYPE_MESSAGES = Maps.of(SegmentType.PROJECTION, "field list", SegmentType.JOIN_ON, "on clause", SegmentType.JOIN_USING, "from clause",
-            SegmentType.PREDICATE, "where clause", SegmentType.ORDER_BY, "order clause", SegmentType.GROUP_BY, "group statement", SegmentType.INSERT_COLUMNS, "field list");
+            SegmentType.PREDICATE, "where clause", SegmentType.HAVING, "having clause", SegmentType.ORDER_BY, "order clause", SegmentType.GROUP_BY, "group statement", SegmentType.INSERT_COLUMNS,
+            "field list");
     
     private static final String UNKNOWN_SEGMENT_TYPE_MESSAGE = "unknown clause";
     
@@ -91,6 +97,8 @@ public final class ColumnSegmentBinder {
     
     private static ColumnSegment copy(final ColumnSegment segment) {
         ColumnSegment result = new ColumnSegment(segment.getStartIndex(), segment.getStopIndex(), segment.getIdentifier());
+        result.setNestedObjectAttributes(segment.getNestedObjectAttributes());
+        result.setVariable(segment.isVariable());
         segment.getLeftParentheses().ifPresent(result::setLeftParentheses);
         segment.getRightParentheses().ifPresent(result::setRightParentheses);
         return result;
@@ -156,6 +164,9 @@ public final class ColumnSegmentBinder {
             }
             result = getColumnSegment(projectionSegment.get());
             isFindInputColumn = true;
+            if (each instanceof SimpleTableSegmentBinderContext && ((SimpleTableSegmentBinderContext) each).isFromWithSegment()) {
+                break;
+            }
         }
         if (!isFindInputColumn) {
             Optional<ProjectionSegment> projectionSegment = findInputColumnSegmentFromOuterTable(segment, outerTableBinderContexts);
@@ -179,8 +190,10 @@ public final class ColumnSegmentBinder {
             result = findInputColumnSegmentByPivotColumns(segment, binderContext.getPivotColumnNames()).orElse(null);
             isFindInputColumn = null != result;
         }
-        ShardingSpherePreconditions.checkState(isFindInputColumn || containsFunctionTable(tableBinderContexts, outerTableBinderContexts.values()),
+        // SPEX CHANGED: BEGIN
+        ShardingSpherePreconditions.checkState(isFindInputColumn || isSkipColumnBind(tableBinderContexts, outerTableBinderContexts.values()),
                 () -> new ColumnNotFoundException(segment.getExpression(), SEGMENT_TYPE_MESSAGES.getOrDefault(parentSegmentType, UNKNOWN_SEGMENT_TYPE_MESSAGE)));
+        // SPEX CHANGED: END
         return Optional.ofNullable(result);
     }
     
@@ -188,7 +201,37 @@ public final class ColumnSegmentBinder {
         if (projectionSegment instanceof ColumnProjectionSegment) {
             return ((ColumnProjectionSegment) projectionSegment).getColumn();
         }
+        // SPEX ADDED: BEGIN
+        if (projectionSegment instanceof ExpressionProjectionSegment
+                && ((ExpressionProjectionSegment) projectionSegment).getExpr() instanceof FunctionSegment) {
+            Optional<ColumnSegment> columnSegment = getFirstColumnParameter(((FunctionSegment) ((ExpressionProjectionSegment) projectionSegment).getExpr()).getParameters());
+            if (columnSegment.isPresent()) {
+                return columnSegment.get();
+            }
+        }
+        if (projectionSegment instanceof SubqueryProjectionSegment && 1 == ((SubqueryProjectionSegment) projectionSegment).getSubquery().getSelect().getProjections().getProjections().size()) {
+            return getColumnSegment(((SubqueryProjectionSegment) projectionSegment).getSubquery().getSelect().getProjections().getProjections().iterator().next());
+        }
+        // SPEX ADDED: END
         return null;
+    }
+    
+    @SphereEx
+    private static Optional<ColumnSegment> getFirstColumnParameter(final Collection<ExpressionSegment> parameters) {
+        int count = 0;
+        ColumnSegment columnSegment = null;
+        // TODO consider how to bind multi parameters
+        for (ExpressionSegment each : parameters) {
+            if (each instanceof ColumnSegment) {
+                count++;
+                columnSegment = (ColumnSegment) each;
+            }
+        }
+        if (1 == count) {
+            return Optional.of(columnSegment);
+        } else {
+            return Optional.empty();
+        }
     }
     
     private static Optional<ColumnSegment> findInputColumnSegmentByPivotColumns(final ColumnSegment segment, final Collection<String> pivotColumnNames) {
@@ -237,16 +280,28 @@ public final class ColumnSegmentBinder {
         return Optional.empty();
     }
     
-    private static boolean containsFunctionTable(final Collection<TableSegmentBinderContext> tableBinderContexts, final Collection<TableSegmentBinderContext> outerBinderContexts) {
+    // SPEX CHANGED: BEGIN
+    private static boolean isSkipColumnBind(final Collection<TableSegmentBinderContext> tableBinderContexts, final Collection<TableSegmentBinderContext> outerBinderContexts) {
+        // SPEX CHANGED: END
         for (TableSegmentBinderContext each : tableBinderContexts) {
             if (each instanceof FunctionTableSegmentBinderContext) {
                 return true;
             }
+            // SPEX ADDED: BEGIN
+            if (each instanceof SimpleTableSegmentBinderContext) {
+                return ((SimpleTableSegmentBinderContext) each).isContainsDBLink();
+            }
+            // SPEX ADDED: END
         }
         for (TableSegmentBinderContext each : outerBinderContexts) {
             if (each instanceof FunctionTableSegmentBinderContext) {
                 return true;
             }
+            // SPEX ADDED: BEGIN
+            if (each instanceof SimpleTableSegmentBinderContext) {
+                return ((SimpleTableSegmentBinderContext) each).isContainsDBLink();
+            }
+            // SPEX ADDED: END
         }
         return false;
     }

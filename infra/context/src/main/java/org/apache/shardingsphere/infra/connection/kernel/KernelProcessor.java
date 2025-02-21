@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.connection.kernel;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.checker.SupportedSQLCheckEngine;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
@@ -60,7 +62,9 @@ public final class KernelProcessor {
             return;
         }
         ShardingSphereDatabase database = queryContext.getUsedDatabase();
-        new SupportedSQLCheckEngine().checkSQL(database.getRuleMetaData().getRules(), queryContext.getSqlStatementContext(), database);
+        // SPEX CHANGED: BEGIN
+        new SupportedSQLCheckEngine().checkSQL(database.getRuleMetaData().getRules(), queryContext.getSqlStatementContext(), database, queryContext.getMetaData());
+        // SPEX CHANGED: END
     }
     
     private RouteContext route(final QueryContext queryContext, final RuleMetaData globalRuleMetaData, final ConfigurationProperties props) {
@@ -69,7 +73,8 @@ public final class KernelProcessor {
     }
     
     private SQLRewriteResult rewrite(final QueryContext queryContext, final RuleMetaData globalRuleMetaData, final ConfigurationProperties props, final RouteContext routeContext) {
-        SQLRewriteEntry sqlRewriteEntry = new SQLRewriteEntry(queryContext.getUsedDatabase(), globalRuleMetaData, props);
+        @SphereEx(Type.MODIFY)
+        SQLRewriteEntry sqlRewriteEntry = new SQLRewriteEntry(queryContext.getUsedDatabases(), globalRuleMetaData, props);
         return sqlRewriteEntry.rewrite(queryContext, routeContext);
     }
     

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.single.decider;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
@@ -52,7 +54,8 @@ public final class SingleSQLFederationDecider implements SQLFederationDecider<Si
         if (!includedDataNodes.isEmpty() && !isInnerCommaJoin(selectStatementContext.getSqlStatement())) {
             return true;
         }
-        boolean result = rule.isAllTablesInSameComputeNode(includedDataNodes, singleTables);
+        @SphereEx(Type.MODIFY)
+        boolean result = rule.isAllTablesInSameComputeNode(includedDataNodes, singleTables, database.getResourceMetaData().getStorageUnits());
         includedDataNodes.addAll(getTableDataNodes(rule, singleTables));
         return !result;
     }

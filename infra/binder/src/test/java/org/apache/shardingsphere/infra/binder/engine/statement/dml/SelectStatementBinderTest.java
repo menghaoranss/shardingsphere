@@ -17,11 +17,21 @@
 
 package org.apache.shardingsphere.infra.binder.engine.statement.dml;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.binder.engine.statement.SQLStatementBinderContext;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
+import org.apache.shardingsphere.infra.metadata.database.rule.RuleMetaData;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereColumn;
 import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereSchema;
+import org.apache.shardingsphere.infra.metadata.database.schema.model.ShardingSphereTable;
+import org.apache.shardingsphere.infra.parser.sql.SQLStatementParserEngine;
+import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
+import org.apache.shardingsphere.sql.parser.api.CacheOption;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
@@ -35,12 +45,17 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 import org.apache.shardingsphere.sql.parser.statement.mysql.dml.MySQLSelectStatement;
+import org.apache.shardingsphere.sql.parser.statement.oracle.dml.OracleSelectStatement;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -116,5 +131,99 @@ class SelectStatementBinderTest {
         when(result.getDatabase("foo_db").containsSchema("foo_db")).thenReturn(true);
         when(result.getDatabase("foo_db").getSchema("foo_db").containsTable("t_order")).thenReturn(true);
         return result;
+    }
+    
+    @SphereEx
+    @Test
+    void assertBindOracleWithClause() {
+        String sql = "WITH user_temp AS (SELECT t.id, t.user_id, t.user_sn, t.user_no FROM t_user t), "
+                + "product1_temp AS (SELECT * FROM (SELECT t.name, t.detail FROM t_order_product1 t, user_temp WHERE t.user_sn = user_temp.user_sn) WHERE ROWNUM = 1), "
+                + "product2_temp AS (SELECT * FROM (SELECT t.sub_product_url FROM t_order_product2 t, user_temp WHERE t.user_no = user_temp.user_no) WHERE ROWNUM = 1), "
+                + "item_temp AS (SELECT COUNT(item.id) n FROM t_order_item item, user_temp WHERE item.user_id = user_temp.user_id), "
+                + "item_ext_temp AS (SELECT * FROM (SELECT c.item_order_url FROM t_order_item_ext c, t_store r, user_temp WHERE c.item_no = r.item_no AND c.status = 1 "
+                + "OR ((SELECT * FROM item_temp) >= 1) AND r.user_rn = user_temp.id AND r.store_no = 's1234') WHERE ROWNUM = 1) "
+                + "SELECT product1_temp.name, product1_temp.detail, product2_temp.sub_product_url, item_ext_temp.item_order_url FROM product1_temp, product2_temp, item_ext_temp";
+        ResourceMetaData resourceMetaData = new ResourceMetaData(Collections.emptyMap());
+        RuleMetaData ruleMetaData = new RuleMetaData(Collections.emptyList());
+        DatabaseType databaseType = TypedSPILoader.getService(DatabaseType.class, "Oracle");
+        ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db", databaseType, resourceMetaData, ruleMetaData, buildSchemas());
+        SQLStatementParserEngine parserEngine = new SQLStatementParserEngine(databaseType, new CacheOption(2000, 65535L), new CacheOption(128, 1024L));
+        ShardingSphereMetaData metaData = new ShardingSphereMetaData(Collections.singleton(database), resourceMetaData, ruleMetaData, new ConfigurationProperties(new Properties()));
+        SelectStatement selectStatement = (SelectStatement) parserEngine.parse(sql, false);
+        SelectStatement actual = new SelectStatementBinder().bind(selectStatement, new SQLStatementBinderContext(metaData, "foo_db", new HintValueContext(), selectStatement));
+        assertThat(actual, not(selectStatement));
+        assertThat(actual, instanceOf(OracleSelectStatement.class));
+        assertTrue(actual.getWithSegment().isPresent());
+        assertThat(actual.getWithSegment().get().getCommonTableExpressions().size(), is(5));
+    }
+    
+    @SphereEx
+    @Test
+    void assertBindOracleWithClauseWhenSelectContainsUnionAll() {
+        String sql = "WITH cte AS \n"
+                + "    (SELECT * FROM t_order o LEFT JOIN t_order_item i ON o.order_id = i.order_id\n"
+                + "    WHERE o.order_id = ?\n"
+                + "    UNION ALL \n"
+                + "    SELECT * FROM \n"
+                + "        (SELECT *\n"
+                + "        FROM t_order o\n"
+                + "        INNER JOIN t_order_item i ON o.order_id = i.order_id\n"
+                + "        ) tt\n"
+                + "        WHERE ROWNUM = 1)\n"
+                + "SELECT * FROM cte\n"
+                + "UNION ALL SELECT * FROM cte\n"
+                + "UNION ALL SELECT * FROM cte WHERE cte.order_id = ?";
+        ResourceMetaData resourceMetaData = new ResourceMetaData(Collections.emptyMap());
+        RuleMetaData ruleMetaData = new RuleMetaData(Collections.emptyList());
+        DatabaseType databaseType = TypedSPILoader.getService(DatabaseType.class, "Oracle");
+        ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db", databaseType, resourceMetaData, ruleMetaData, buildSchemas());
+        SQLStatementParserEngine parserEngine = new SQLStatementParserEngine(databaseType, new CacheOption(2000, 65535L), new CacheOption(128, 1024L));
+        ShardingSphereMetaData metaData = new ShardingSphereMetaData(Collections.singleton(database), resourceMetaData, ruleMetaData, new ConfigurationProperties(new Properties()));
+        SelectStatement selectStatement = (SelectStatement) parserEngine.parse(sql, false);
+        SelectStatement actual = new SelectStatementBinder().bind(selectStatement, new SQLStatementBinderContext(metaData, "foo_db", new HintValueContext(), selectStatement));
+        assertThat(actual, not(selectStatement));
+        assertThat(actual, instanceOf(OracleSelectStatement.class));
+        assertTrue(actual.getWithSegment().isPresent());
+        assertThat(actual.getWithSegment().get().getCommonTableExpressions().size(), is(1));
+    }
+    
+    @SphereEx
+    private Collection<ShardingSphereSchema> buildSchemas() {
+        Collection<ShardingSphereTable> tables = new LinkedList<>();
+        tables.add(new ShardingSphereTable("t_order", Arrays.asList(
+                new ShardingSphereColumn("order_id", Types.INTEGER, true, false, false, true, false, false),
+                new ShardingSphereColumn("user_id", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("status", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("merchant_id", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("remark", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("creation_date", Types.DATE, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_order_item", Arrays.asList(
+                new ShardingSphereColumn("item_id", Types.BIGINT, true, false, false, true, false, false),
+                new ShardingSphereColumn("order_id", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("user_id", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("product_id", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("quantity", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("creation_date", Types.DATE, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_user", Arrays.asList(
+                new ShardingSphereColumn("id", Types.INTEGER, true, false, false, true, false, false),
+                new ShardingSphereColumn("user_id", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("user_sn", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("user_no", Types.VARCHAR, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_order_product1", Arrays.asList(
+                new ShardingSphereColumn("name", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("detail", Types.INTEGER, false, false, false, true, false, false),
+                new ShardingSphereColumn("user_sn", Types.INTEGER, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_order_product2", Arrays.asList(
+                new ShardingSphereColumn("user_no", Types.VARCHAR, true, false, false, true, false, false),
+                new ShardingSphereColumn("sub_product_url", Types.VARCHAR, true, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_order_item_ext", Arrays.asList(
+                new ShardingSphereColumn("item_order_url", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("item_no", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("status", Types.INTEGER, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        tables.add(new ShardingSphereTable("t_store", Arrays.asList(
+                new ShardingSphereColumn("item_no", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("user_rn", Types.VARCHAR, false, false, false, true, false, false),
+                new ShardingSphereColumn("store_no", Types.VARCHAR, false, false, false, true, false, false)), Collections.emptyList(), Collections.emptyList()));
+        return Collections.singleton(new ShardingSphereSchema("foo_db", tables, Collections.emptyList()));
     }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.storage.config.impl.mysql;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.util.ConfigPlaceholderReplacer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -32,6 +34,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * MySQL container configuration factory.
@@ -46,7 +49,9 @@ public final class MySQLContainerConfigurationFactory {
      * @return created instance
      */
     public static StorageContainerConfiguration newInstance(final String scenario) {
-        return new StorageContainerConfiguration(getCommand(), getContainerEnvironments(), getMountedResources(scenario),
+        // SPEX CHANGED: BEGIN
+        return new StorageContainerConfiguration(getCommand(), getContainerEnvironments(), getReplacedMountedResources(getMountedResources(scenario)),
+                // SPEX CHANGED: END
                 DatabaseEnvironmentManager.getDatabaseTypes(scenario, TypedSPILoader.getService(DatabaseType.class, "MySQL")),
                 DatabaseEnvironmentManager.getExpectedDatabaseTypes(scenario, TypedSPILoader.getService(DatabaseType.class, "MySQL")));
     }
@@ -98,6 +103,9 @@ public final class MySQLContainerConfigurationFactory {
         if (majorVersion > 5) {
             result.put("/env/mysql/mysql8/02-initdb.sql", "/docker-entrypoint-initdb.d/02-initdb.sql");
         }
+        // SPEX ADDED: BEGIN
+        result.put("/env/mysql/03-initdb.sql", "/docker-entrypoint-initdb.d/03-initdb.sql");
+        // SPEX ADDED: END
         return result;
     }
     
@@ -109,5 +117,11 @@ public final class MySQLContainerConfigurationFactory {
                 "/docker-entrypoint-initdb.d/01-expected-init.sql");
         result.put("/env/mysql/my.cnf", MySQLContainer.MYSQL_CONF_IN_CONTAINER);
         return result;
+    }
+    
+    @SphereEx
+    private static Map<String, String> getReplacedMountedResources(final Map<String, String> mountedResources) {
+        Map<String, String> replacedResources = ConfigPlaceholderReplacer.getReplacedResources(mountedResources.keySet());
+        return mountedResources.entrySet().stream().collect(Collectors.toMap(each -> replacedResources.get(each.getKey()), Map.Entry::getValue));
     }
 }

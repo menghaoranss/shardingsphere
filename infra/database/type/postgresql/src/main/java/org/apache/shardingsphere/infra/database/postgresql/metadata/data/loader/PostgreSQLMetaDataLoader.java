@@ -19,6 +19,8 @@ package org.apache.shardingsphere.infra.database.postgresql.metadata.data.loader
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderMaterial;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.type.SchemaMetaDataLoader;
@@ -52,7 +54,13 @@ import java.util.stream.Collectors;
  */
 public final class PostgreSQLMetaDataLoader implements DialectMetaDataLoader {
     
-    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, ordinal_position, data_type, udt_name, column_default, table_schema, is_nullable"
+    @SphereEx(Type.MODIFY)
+    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, ordinal_position, data_type, udt_name, column_default, table_schema, is_nullable,"
+            + " CASE"
+            + " WHEN data_type IN ('character varying', 'varchar', 'character', 'char') AND character_maximum_length IS NOT NULL THEN"
+            + " udt_name || '(' || character_maximum_length || ')'"
+            + " ELSE udt_name"
+            + " END AS column_type"
             + " FROM information_schema.columns WHERE table_schema IN (%s)";
     
     private static final String TABLE_META_DATA_SQL_WITHOUT_TABLES = BASIC_TABLE_META_DATA_SQL + " ORDER BY ordinal_position";
@@ -86,7 +94,8 @@ public final class PostgreSQLMetaDataLoader implements DialectMetaDataLoader {
         try (Connection connection = material.getDataSource().getConnection()) {
             Collection<String> schemaNames = SchemaMetaDataLoader.loadSchemaNames(connection, TypedSPILoader.getService(DatabaseType.class, "PostgreSQL"));
             Map<String, Multimap<String, IndexMetaData>> schemaIndexMetaDataMap = loadIndexMetaDataMap(connection, schemaNames);
-            Map<String, Multimap<String, ColumnMetaData>> schemaColumnMetaDataMap = loadColumnMetaDataMap(connection, material.getActualTableNames(), schemaNames);
+            Map<String, Multimap<String, ColumnMetaData>> schemaColumnMetaDataMap =
+                    loadColumnMetaDataMap(connection, material.getActualTableNames(), schemaNames);
             Map<String, Multimap<String, ConstraintMetaData>> schemaConstraintMetaDataMap = loadConstraintMetaDataMap(connection, schemaNames);
             Map<String, Collection<String>> schemaViewNames = loadViewNames(connection, schemaNames, material.getActualTableNames());
             Collection<SchemaMetaData> result = new LinkedList<>();
@@ -219,7 +228,12 @@ public final class PostgreSQLMetaDataLoader implements DialectMetaDataLoader {
         // TODO user defined collation which deterministic is false
         boolean caseSensitive = true;
         boolean isNullable = "YES".equals(resultSet.getString("is_nullable"));
-        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), isPrimaryKey, generated, caseSensitive, true, false, isNullable);
+        @SphereEx
+        String dataTypeContent = resultSet.getString("column_type");
+        // SPEX CHANGED: BEGIN
+        return new ColumnMetaData(columnName, DataTypeRegistry.getDataType(getDatabaseType(), dataType).orElse(Types.OTHER), isPrimaryKey, generated, caseSensitive, true, false, isNullable,
+                dataTypeContent);
+        // SPEX CHANGED: END
     }
     
     private Map<String, Multimap<String, ConstraintMetaData>> loadConstraintMetaDataMap(final Connection connection, final Collection<String> schemaNames) throws SQLException {
@@ -270,7 +284,7 @@ public final class PostgreSQLMetaDataLoader implements DialectMetaDataLoader {
             Collection<ColumnMetaData> columnMetaDataList = tableColumnMetaDataMap.get(each);
             Collection<IndexMetaData> indexMetaDataList = tableIndexMetaDataMap.get(each);
             Collection<ConstraintMetaData> constraintMetaDataList = tableConstraintMetaDataMap.get(each);
-            result.add(new TableMetaData(each, columnMetaDataList, indexMetaDataList, constraintMetaDataList, viewNames.contains(each) ? TableType.VIEW : TableType.TABLE));
+            result.add(new TableMetaData(each, columnMetaDataList, indexMetaDataList, constraintMetaDataList, viewNames.contains(each) ? TableType.VIEW : TableType.TABLE, null));
         }
         return result;
     }

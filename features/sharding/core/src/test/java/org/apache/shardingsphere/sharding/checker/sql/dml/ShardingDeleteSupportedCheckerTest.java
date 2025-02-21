@@ -84,6 +84,8 @@ class ShardingDeleteSupportedCheckerTest {
         when(rule.isAllShardingTables(tableNames)).thenReturn(false);
         when(rule.containsShardingTable(tableNames)).thenReturn(true);
         DeleteStatementContext sqlStatementContext = new DeleteStatementContext(sqlStatement);
-        new ShardingDeleteSupportedChecker().check(rule, mock(), mock(), sqlStatementContext);
+        // SPEX CHANGED: BEGIN
+        new ShardingDeleteSupportedChecker().check(rule, mock(), mock(), mock(), sqlStatementContext);
+        // SPEX CHANGED: END
     }
 }

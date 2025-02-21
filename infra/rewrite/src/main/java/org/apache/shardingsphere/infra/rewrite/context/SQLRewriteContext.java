@@ -17,10 +17,13 @@
 
 package org.apache.shardingsphere.infra.rewrite.context;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.InsertStatementContext;
+import org.apache.shardingsphere.infra.hint.HintValueContext;
+import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.ParameterBuilder;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.impl.GroupedParameterBuilder;
@@ -59,12 +62,22 @@ public final class SQLRewriteContext {
     
     private final ConnectionContext connectionContext;
     
+    @SphereEx
+    private final ShardingSphereMetaData metaData;
+    
+    @SphereEx
+    private final HintValueContext hintValueContext;
+    
     public SQLRewriteContext(final ShardingSphereDatabase database, final QueryContext queryContext) {
         this.database = database;
         sqlStatementContext = queryContext.getSqlStatementContext();
         sql = queryContext.getSql();
         parameters = queryContext.getParameters();
         connectionContext = queryContext.getConnectionContext();
+        // SPEX ADDED: BEGIN
+        metaData = queryContext.getMetaData();
+        hintValueContext = queryContext.getHintValueContext();
+        // SPEX ADDED: END
         if (!queryContext.getHintValueContext().isSkipSQLRewrite()) {
             addSQLTokenGenerators(new DefaultTokenGeneratorBuilder(sqlStatementContext).getSQLTokenGenerators());
         }
@@ -77,6 +90,11 @@ public final class SQLRewriteContext {
         if (!(sqlStatementContext instanceof InsertStatementContext)) {
             return false;
         }
+        // SPEX ADDED: BEGIN
+        if (!((InsertStatementContext) sqlStatementContext).getMultiInsertStatementContexts().isEmpty()) {
+            return true;
+        }
+        // SPEX ADDED: END
         return null == ((InsertStatementContext) sqlStatementContext).getInsertSelectContext();
     }
     

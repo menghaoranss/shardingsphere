@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.encrypt.checker.sql.projection;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.infra.binder.context.segment.insert.values.InsertSelectContext;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.InsertStatementContext;
@@ -50,8 +52,9 @@ class EncryptInsertSelectProjectionSupportedCheckerTest {
         assertTrue(new EncryptInsertSelectProjectionSupportedChecker().isCheck(sqlStatementContext));
     }
     
+    @SphereEx(Type.MODIFY)
     @Test
     void assertCheckSuccess() {
-        assertDoesNotThrow(() -> new EncryptInsertSelectProjectionSupportedChecker().check(mock(), mock(), mock(), mock(InsertStatementContext.class, RETURNS_DEEP_STUBS)));
+        assertDoesNotThrow(() -> new EncryptInsertSelectProjectionSupportedChecker().check(mock(), mock(), mock(), mock(), mock(InsertStatementContext.class, RETURNS_DEEP_STUBS)));
     }
 }
