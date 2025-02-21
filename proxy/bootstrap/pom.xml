@@ -152,6 +152,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
         </dependency>
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>com.oceanbase</groupId>
+            <artifactId>oceanbase-client</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- SPEX ADDED: END -->
     </dependencies>
     <build>
         <plugins>

@@ -112,6 +112,19 @@
             <scope>test</scope>
         </dependency>
         
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>com.sphere-ex</groupId>
+            <artifactId>dbplusengine-infra-database-oceanbase-oracle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sphere-ex</groupId>
+            <artifactId>dbplusengine-infra-database-oceanbase-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- SPEX ADDED: END -->
+        
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>

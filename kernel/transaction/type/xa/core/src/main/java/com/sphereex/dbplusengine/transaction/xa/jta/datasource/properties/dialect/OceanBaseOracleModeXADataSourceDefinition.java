@@ -15,33 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.test.e2e.env.container.atomic.adapter.config;
+package com.sphereex.dbplusengine.transaction.xa.jta.datasource.properties.dialect;
 
-import com.sphereex.dbplusengine.SphereEx;
-import com.sphereex.dbplusengine.SphereEx.Type;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import org.apache.shardingsphere.transaction.xa.jta.datasource.properties.XADataSourceDefinition;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
- * Adaptor container configuration.
+ * XA data source definition for OceanBase Oracle mode.
  */
-@AllArgsConstructor
-@Getter
-public final class AdaptorContainerConfiguration {
+public final class OceanBaseOracleModeXADataSourceDefinition implements XADataSourceDefinition {
     
-    private final String proxyDataSourceName;
+    @Override
+    public Collection<String> getXADriverClassNames() {
+        return Collections.singletonList("com.oceanbase.jdbc.OceanBasePoolDataSource");
+    }
     
-    private final List<String> portBindings;
-    
-    @SphereEx(Type.MODIFY)
-    @Setter
-    private Map<String, String> mountedResources;
-    
-    private final String adapterContainerImage;
-    
-    private final String containerCommand;
+    @Override
+    public String getDatabaseType() {
+        return "OceanBase_Oracle";
+    }
 }
