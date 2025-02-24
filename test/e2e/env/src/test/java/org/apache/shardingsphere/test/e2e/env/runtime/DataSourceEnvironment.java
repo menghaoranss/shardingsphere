@@ -43,6 +43,10 @@ public final class DataSourceEnvironment {
                 return "org.postgresql.Driver";
             case "openGauss":
                 return "org.opengauss.Driver";
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return "oracle.jdbc.driver.OracleDriver";
+            // SPEX ADDED: END
             default:
                 throw new UnsupportedOperationException(databaseType.getType());
         }
@@ -71,6 +75,10 @@ public final class DataSourceEnvironment {
                 return String.format("jdbc:postgresql://%s:%s/?ssl=on&sslmode=prefer", host, port);
             case "openGauss":
                 return String.format("jdbc:opengauss://%s:%s/", host, port);
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return String.format("jdbc:oracle:thin:@%s:%s", host, port);
+            // SPEX ADDED: END
             default:
                 throw new UnsupportedOperationException(databaseType.getType());
         }
@@ -102,6 +110,10 @@ public final class DataSourceEnvironment {
                 return String.format("jdbc:postgresql://%s:%s/%s?ssl=on&sslmode=prefer", host, port, dataSourceName);
             case "openGauss":
                 return String.format("jdbc:opengauss://%s:%s/%s?batchMode=OFF", host, port, dataSourceName);
+            // SPEX ADDED: BEGIN
+            case "Oracle":
+                return String.format("jdbc:oracle:thin:@%s:%s:XE", host, port);
+            // SPEX ADDED: END
             default:
                 throw new UnsupportedOperationException(databaseType.getType());
         }
