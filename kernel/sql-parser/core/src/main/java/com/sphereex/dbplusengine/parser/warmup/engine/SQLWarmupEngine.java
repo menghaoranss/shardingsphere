@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.warmup.engine;
+package com.sphereex.dbplusengine.parser.warmup.engine;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.parser.warmup.api.yaml.YamlSQLWarmupConfiguration;
+import com.sphereex.dbplusengine.parser.warmup.config.SQLWarmupConfiguration;
+import com.sphereex.dbplusengine.parser.warmup.config.SQLWarmupConfiguration.ContentPlaceholderConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +31,6 @@ import org.apache.shardingsphere.infra.parser.SQLParserEngine;
 import org.apache.shardingsphere.infra.url.core.ShardingSphereURL;
 import org.apache.shardingsphere.infra.url.core.ShardingSphereURLLoadEngine;
 import org.apache.shardingsphere.infra.util.yaml.YamlEngine;
-import org.apache.shardingsphere.warmup.api.yaml.YamlSQLWarmupConfiguration;
-import org.apache.shardingsphere.warmup.config.SQLWarmupConfiguration;
-import org.apache.shardingsphere.warmup.config.SQLWarmupConfiguration.ContentPlaceholderConfiguration;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -91,8 +91,8 @@ public final class SQLWarmupEngine {
         return result;
     }
     
-    private String generateSQL(final String sql, final int formatCount, final int limit, final Collection<SQLWarmupConfiguration.ContentPlaceholderConfiguration> contents) {
-        List<SQLWarmupConfiguration.ContentPlaceholderConfiguration> contentPlaceholderConfigs = new LinkedList<>(contents);
+    private String generateSQL(final String sql, final int formatCount, final int limit, final Collection<ContentPlaceholderConfiguration> contents) {
+        List<ContentPlaceholderConfiguration> contentPlaceholderConfigs = new LinkedList<>(contents);
         String[] placeholders = new String[formatCount];
         for (int i = 0; i < formatCount; i++) {
             placeholders[i] = generatePlaceholderSQL(limit, contentPlaceholderConfigs.get(i));

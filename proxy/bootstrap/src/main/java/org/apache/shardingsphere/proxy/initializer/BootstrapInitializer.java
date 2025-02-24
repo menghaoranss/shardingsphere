@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.proxy.initializer;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.parser.warmup.engine.SQLWarmupEngine;
 import org.apache.shardingsphere.infra.config.mode.ModeConfiguration;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.instance.metadata.InstanceMetaData;
@@ -33,7 +35,6 @@ import org.apache.shardingsphere.proxy.backend.config.YamlProxyConfiguration;
 import org.apache.shardingsphere.proxy.backend.config.yaml.swapper.YamlProxyConfigurationSwapper;
 import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
 import org.apache.shardingsphere.proxy.version.ShardingSphereProxyVersion;
-import org.apache.shardingsphere.warmup.engine.SQLWarmupEngine;
 
 import java.sql.SQLException;
 
@@ -54,7 +55,9 @@ public final class BootstrapInitializer {
         ProxyConfiguration proxyConfig = new YamlProxyConfigurationSwapper().swap(yamlConfig);
         ContextManager contextManager = createContextManager(proxyConfig, modeConfig, port);
         ProxyContext.init(contextManager);
+        // SPEX ADDED: BEGIN
         warmupSQL(contextManager);
+        // SPEX ADDED: END
         ShardingSphereProxyVersion.setVersion(contextManager);
     }
     
@@ -65,6 +68,7 @@ public final class BootstrapInitializer {
         return TypedSPILoader.getService(ContextManagerBuilder.class, null == modeConfig ? null : modeConfig.getType()).build(param, new EventBusContext());
     }
     
+    @SphereEx
     private void warmupSQL(final ContextManager contextManager) {
         SQLParserRule sqlParserRule = contextManager.getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(SQLParserRule.class);
         DatabaseType protocolType = contextManager.getMetaDataContexts().getMetaData().getAllDatabases().iterator().next().getProtocolType();

@@ -15,21 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.warmup.api.yaml;
+package com.sphereex.dbplusengine.parser.warmup.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.shardingsphere.infra.util.yaml.YamlConfiguration;
-import org.apache.shardingsphere.warmup.config.SQLWarmupConfiguration;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 /**
- * Yaml SQL warmup configuration.
+ * SQL warmup configuration.
  */
 @Getter
 @Setter
-public final class YamlSQLWarmupConfiguration implements YamlConfiguration {
+public final class SQLWarmupConfiguration {
     
-    private Collection<SQLWarmupConfiguration> sqlWarmup;
+    private String sql;
+    
+    private Integer limit;
+    
+    private Collection<ContentPlaceholderConfiguration> contents = new LinkedList<>();
+    
+    @Getter
+    @Setter
+    public static final class ContentPlaceholderConfiguration {
+        
+        private String before = "";
+        
+        private String after = "";
+    }
 }

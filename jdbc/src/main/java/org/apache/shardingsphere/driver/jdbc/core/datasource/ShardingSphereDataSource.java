@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.driver.jdbc.core.datasource;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.parser.warmup.engine.SQLWarmupEngine;
 import org.apache.shardingsphere.driver.jdbc.adapter.AbstractDataSourceAdapter;
 import org.apache.shardingsphere.driver.state.DriverStateContext;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
@@ -34,7 +36,6 @@ import org.apache.shardingsphere.mode.manager.ContextManager;
 import org.apache.shardingsphere.mode.manager.ContextManagerBuilder;
 import org.apache.shardingsphere.mode.manager.ContextManagerBuilderParameter;
 import org.apache.shardingsphere.parser.rule.SQLParserRule;
-import org.apache.shardingsphere.warmup.engine.SQLWarmupEngine;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -64,7 +65,9 @@ public final class ShardingSphereDataSource extends AbstractDataSourceAdapter im
                                     final Collection<RuleConfiguration> ruleConfigs, final Properties props) throws SQLException {
         this.databaseName = databaseName;
         contextManager = createContextManager(modeConfig, dataSourceMap, ruleConfigs, null == props ? new Properties() : props);
+        // SPEX ADDED: BEGIN
         warmupSQL();
+        // SPEX ADDED: END
     }
     
     private ContextManager createContextManager(final ModeConfiguration modeConfig, final Map<String, DataSource> dataSourceMap,
@@ -78,6 +81,7 @@ public final class ShardingSphereDataSource extends AbstractDataSourceAdapter im
         return TypedSPILoader.getService(ContextManagerBuilder.class, null == modeConfig ? null : modeConfig.getType()).build(param, new EventBusContext());
     }
     
+    @SphereEx
     private void warmupSQL() {
         SQLParserRule sqlParserRule = contextManager.getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(SQLParserRule.class);
         DatabaseType protocolType = contextManager.getMetaDataContexts().getMetaData().getAllDatabases().iterator().next().getProtocolType();
