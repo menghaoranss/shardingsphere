@@ -53,6 +53,7 @@ public final class InsertSelectColumnsEncryptorChecker {
      * @param insertColumns insert columns
      * @param projections projections
      * @param encryptRule encrypt rule
+     * @param databaseEncryptRules database encrypt rules
      */
     public static void checkIsSame(final Collection<ColumnSegment> insertColumns, final Collection<Projection> projections, final EncryptRule encryptRule,
                                    @SphereEx final Map<String, EncryptRule> databaseEncryptRules) {

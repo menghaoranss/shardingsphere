@@ -36,6 +36,12 @@ import java.util.stream.Collectors;
 public enum ConfigurationPropertyKey implements TypedPropertyKey {
     
     /**
+     * Warmup SQL URL.
+     */
+    @SphereEx
+    WARMUP_SQL_URL("warmup-sql-url", "", String.class, false),
+    
+    /**
      * The system log level.
      */
     SYSTEM_LOG_LEVEL("system-log-level", Level.INFO.toString(), Level.class, false),

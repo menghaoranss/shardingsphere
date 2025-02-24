@@ -17,7 +17,10 @@
 
 package org.apache.shardingsphere.proxy.initializer;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.parser.warmup.engine.SQLWarmupEngine;
 import org.apache.shardingsphere.infra.config.mode.ModeConfiguration;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.instance.metadata.InstanceMetaData;
 import org.apache.shardingsphere.infra.instance.metadata.InstanceMetaDataBuilder;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
@@ -26,6 +29,7 @@ import org.apache.shardingsphere.infra.yaml.config.swapper.mode.YamlModeConfigur
 import org.apache.shardingsphere.mode.manager.ContextManager;
 import org.apache.shardingsphere.mode.manager.ContextManagerBuilder;
 import org.apache.shardingsphere.mode.manager.ContextManagerBuilderParameter;
+import org.apache.shardingsphere.parser.rule.SQLParserRule;
 import org.apache.shardingsphere.proxy.backend.config.ProxyConfiguration;
 import org.apache.shardingsphere.proxy.backend.config.YamlProxyConfiguration;
 import org.apache.shardingsphere.proxy.backend.config.yaml.swapper.YamlProxyConfigurationSwapper;
@@ -51,6 +55,9 @@ public final class BootstrapInitializer {
         ProxyConfiguration proxyConfig = new YamlProxyConfigurationSwapper().swap(yamlConfig);
         ContextManager contextManager = createContextManager(proxyConfig, modeConfig, port);
         ProxyContext.init(contextManager);
+        // SPEX ADDED: BEGIN
+        warmupSQL(contextManager);
+        // SPEX ADDED: END
         ShardingSphereProxyVersion.setVersion(contextManager);
     }
     
@@ -59,5 +66,12 @@ public final class BootstrapInitializer {
         ContextManagerBuilderParameter param = new ContextManagerBuilderParameter(modeConfig, proxyConfig.getDatabaseConfigurations(), proxyConfig.getGlobalConfiguration().getDataSources(),
                 proxyConfig.getGlobalConfiguration().getRules(), proxyConfig.getGlobalConfiguration().getProperties(), proxyConfig.getGlobalConfiguration().getLabels(), instanceMetaData);
         return TypedSPILoader.getService(ContextManagerBuilder.class, null == modeConfig ? null : modeConfig.getType()).build(param, new EventBusContext());
+    }
+    
+    @SphereEx
+    private void warmupSQL(final ContextManager contextManager) {
+        SQLParserRule sqlParserRule = contextManager.getMetaDataContexts().getMetaData().getGlobalRuleMetaData().getSingleRule(SQLParserRule.class);
+        DatabaseType protocolType = contextManager.getMetaDataContexts().getMetaData().getAllDatabases().iterator().next().getProtocolType();
+        new SQLWarmupEngine(sqlParserRule.getSQLParserEngine(protocolType), contextManager.getMetaDataContexts().getMetaData().getProps()).warmupInitSQL();
     }
 }
