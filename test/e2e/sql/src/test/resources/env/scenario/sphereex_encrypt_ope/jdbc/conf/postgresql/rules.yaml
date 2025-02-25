@@ -34,7 +34,7 @@ rules:
 - !SINGLE
   tables:
     - "*.*"
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     ope_encryptor:
       props:

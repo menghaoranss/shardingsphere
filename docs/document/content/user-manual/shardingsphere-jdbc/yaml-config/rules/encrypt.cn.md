@@ -11,7 +11,7 @@ weight = 5
 
 ```yaml
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     <table_name> (+): # 加密表名称
       columns:
@@ -55,7 +55,7 @@ dataSources:
     password:
 
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_user:
       columns:

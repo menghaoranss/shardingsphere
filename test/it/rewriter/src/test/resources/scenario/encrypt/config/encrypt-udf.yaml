@@ -21,7 +21,7 @@ dataSources:
     dataSourceClassName: org.apache.shardingsphere.test.fixture.jdbc.MockedDataSource
 
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     TEST1:
       columns:

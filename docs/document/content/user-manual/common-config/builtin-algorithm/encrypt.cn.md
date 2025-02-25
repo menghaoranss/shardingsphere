@@ -42,7 +42,7 @@ weight = 5
 ## 配置示例
 ```yaml
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_user:
       columns:

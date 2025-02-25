@@ -37,6 +37,8 @@ public final class YamlProxyDatabaseConfiguration implements YamlConfiguration {
     
     private String databaseName;
     
+    private String schemaName;
+    
     private Map<String, YamlProxyDataSourceConfiguration> dataSources = new HashMap<>();
     
     private Collection<YamlRuleConfiguration> rules = new LinkedList<>();

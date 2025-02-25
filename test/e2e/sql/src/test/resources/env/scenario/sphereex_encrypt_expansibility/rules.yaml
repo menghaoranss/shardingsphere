@@ -19,7 +19,7 @@ rules:
   - !SINGLE
     tables:
       - "*.*"
-  - !ENCRYPT
+  - !NEW_ENCRYPT
     encryptors:
       aes_encryptor:
         type: AES

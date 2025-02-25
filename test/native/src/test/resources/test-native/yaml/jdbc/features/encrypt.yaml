@@ -24,7 +24,7 @@ dataSources:
     password:
 
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_order:
       columns:

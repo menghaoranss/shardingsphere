@@ -97,7 +97,7 @@ public final class YamlEncryptRuleConfigurationSwapper implements YamlRuleConfig
     
     @Override
     public String getRuleTagName() {
-        return "ENCRYPT";
+        return "NEW_ENCRYPT";
     }
     
     @Override

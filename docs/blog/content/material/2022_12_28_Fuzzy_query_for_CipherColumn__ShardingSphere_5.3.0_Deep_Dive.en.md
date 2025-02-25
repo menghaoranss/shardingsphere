@@ -315,7 +315,7 @@ dataSources:
     password: root
     
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     like_encryptor:
       type: CHAR_DIGEST_LIKE

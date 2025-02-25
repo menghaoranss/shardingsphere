@@ -217,7 +217,7 @@ rules:
       - t_country
       - t_product_category
 
-  - !ENCRYPT
+  - !NEW_ENCRYPT
     encryptors:
       aes_encryptor:
         type: AES

@@ -59,7 +59,7 @@ Business scenario analysis: the newly launched business is relatively simple bec
 Solution description: after selecting the appropriate encryption algorithm, such as AES, you only need to configure the logical column (write SQL for users) and the ciphertext column (the data table stores the ciphertext data). The logical columns and ciphertext columns can also be different. The following configurations are recommended (in YAML format): 
 
 ```yaml
--!ENCRYPT
+-!NEW_ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES

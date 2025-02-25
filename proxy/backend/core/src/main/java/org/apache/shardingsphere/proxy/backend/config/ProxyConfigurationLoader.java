@@ -149,6 +149,9 @@ public final class ProxyConfigurationLoader {
         if (result.isEmpty()) {
             return Optional.empty();
         }
+        if (null == result.getDatabaseName()) {
+            result.setDatabaseName(result.getSchemaName());
+        }
         Preconditions.checkNotNull(result.getDatabaseName(), "Property `databaseName` in file `%s` is required.", yamlFile.getName());
         checkDuplicateRule(result.getRules(), yamlFile);
         return Optional.of(result);

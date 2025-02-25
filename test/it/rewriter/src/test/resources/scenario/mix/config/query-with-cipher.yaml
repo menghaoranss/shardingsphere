@@ -77,7 +77,7 @@ rules:
     rewrite_keygen_fixture:
       type: REWRITE.FIXTURE
 
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_account:
       columns:
