@@ -17,12 +17,13 @@
 
 package org.apache.shardingsphere.sharding.yaml.config;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.algorithm.core.yaml.YamlAlgorithmConfiguration;
 import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlRuleConfiguration;
-import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleField;
 import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleEntity;
+import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleField;
 import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleField.Type;
 import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleKeyListNameGenerator;
 import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
@@ -34,6 +35,7 @@ import org.apache.shardingsphere.sharding.yaml.config.strategy.keygen.YamlKeyGen
 import org.apache.shardingsphere.sharding.yaml.config.strategy.sharding.YamlShardingStrategyConfiguration;
 import org.apache.shardingsphere.sharding.yaml.swapper.ShardingBindingTableRepositoryTupleKeyListNameGenerator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -56,6 +58,9 @@ public final class YamlShardingRuleConfiguration implements YamlRuleConfiguratio
     @RepositoryTupleField(type = Type.TABLE)
     @RepositoryTupleKeyListNameGenerator(ShardingBindingTableRepositoryTupleKeyListNameGenerator.class)
     private Collection<String> bindingTables = new LinkedList<>();
+    
+    @SphereEx
+    private Collection<String> broadcastTables = new ArrayList<>();
     
     @RepositoryTupleField(type = Type.DEFAULT_STRATEGY)
     private YamlShardingStrategyConfiguration defaultDatabaseStrategy;

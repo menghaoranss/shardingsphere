@@ -16,7 +16,7 @@
 #
 
 # SPEX ADDED: BEGIN
-databaseName: sphereex_encrypt_data_type
+schemaName: sphereex_encrypt_data_type
 
 dataSources:
   sphereex_encrypt_data_type:

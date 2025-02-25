@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.api.config;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
@@ -47,6 +48,9 @@ public final class ShardingRuleConfiguration implements DatabaseRuleConfiguratio
     private Collection<ShardingAutoTableRuleConfiguration> autoTables = new LinkedList<>();
     
     private Collection<ShardingTableReferenceRuleConfiguration> bindingTableGroups = new LinkedList<>();
+    
+    @SphereEx
+    private Collection<String> broadcastTables = new LinkedList<>();
     
     private ShardingStrategyConfiguration defaultDatabaseShardingStrategy;
     

@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: encrypt_and_readwrite_splitting
+schemaName: encrypt_and_readwrite_splitting
 
 dataSources:
   encrypt_write_ds:

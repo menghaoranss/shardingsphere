@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: readwrite_splitting_and_shadow
+schemaName: readwrite_splitting_and_shadow
 
 dataSources:
   write_db:

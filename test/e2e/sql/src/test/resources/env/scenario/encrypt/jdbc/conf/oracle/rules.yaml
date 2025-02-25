@@ -16,7 +16,7 @@
 #
 
 # SPEX ADDED: BEGIN
-databaseName: encrypt
+schemaName: encrypt
 
 dataSources:
   encrypt:

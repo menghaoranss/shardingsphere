@@ -16,7 +16,7 @@
 #
 
 # SPEX ADDED: BEGIN
-databaseName: sphereex_encrypt_failover
+schemaName: sphereex_encrypt_failover
 
 dataSources:
   sphereex_encrypt_failover:

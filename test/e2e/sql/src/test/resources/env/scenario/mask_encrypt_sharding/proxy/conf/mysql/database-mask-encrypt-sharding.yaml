@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: mask_encrypt_sharding
+schemaName: mask_encrypt_sharding
 
 dataSources:
   mask_encrypt_ds_0:

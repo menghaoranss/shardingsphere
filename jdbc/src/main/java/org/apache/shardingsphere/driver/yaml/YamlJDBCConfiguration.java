@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.driver.yaml;
 
+import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.authority.yaml.config.YamlAuthorityRuleConfiguration;
@@ -45,6 +46,8 @@ import java.util.Properties;
 public final class YamlJDBCConfiguration implements YamlConfiguration {
     
     private String databaseName;
+    
+    private String schemaName;
     
     private Map<String, Map<String, Object>> dataSources = new HashMap<>();
     
@@ -94,5 +97,14 @@ public final class YamlJDBCConfiguration implements YamlConfiguration {
         if (null != logging) {
             rules.add(logging);
         }
+    }
+    
+    /**
+     * Get database name.
+     *
+     * @return database name
+     */
+    public String getDatabaseName() {
+        return Strings.isNullOrEmpty(databaseName) ? schemaName : databaseName;
     }
 }
