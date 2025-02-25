@@ -17,6 +17,7 @@
 
 package com.sphereex.dbplusengine.encrypt.yaml.config.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.util.yaml.YamlConfiguration;
@@ -49,4 +50,22 @@ public final class YamlCompatibleEncryptColumnRuleConfiguration implements YamlC
     private String orderQueryEncryptorName;
     
     private Boolean queryWithCipherColumn;
+    
+    @SphereEx
+    private String dataType;
+    
+    @SphereEx
+    private String cipherDataType;
+    
+    @SphereEx
+    private String assistedQueryDataType;
+    
+    @SphereEx
+    private String likeQueryDataType;
+    
+    @SphereEx
+    private String orderQueryDataType;
+    
+    @SphereEx
+    private String plainDataType;
 }

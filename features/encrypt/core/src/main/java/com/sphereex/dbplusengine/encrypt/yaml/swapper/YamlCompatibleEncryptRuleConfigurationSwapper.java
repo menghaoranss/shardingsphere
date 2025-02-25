@@ -22,6 +22,7 @@ import com.sphereex.dbplusengine.encrypt.config.rule.compatible.CompatibleEncryp
 import com.sphereex.dbplusengine.encrypt.yaml.config.YamlCompatibleEncryptRuleConfiguration;
 import com.sphereex.dbplusengine.encrypt.yaml.config.rule.YamlCompatibleEncryptTableRuleConfiguration;
 import com.sphereex.dbplusengine.encrypt.yaml.swapper.rule.YamlCompatibleEncryptTableRuleConfigurationSwapper;
+import com.sphereex.dbplusengine.encrypt.yaml.swapper.rule.YamlEncryptModeRuleConfigurationSwapper;
 import org.apache.shardingsphere.encrypt.constant.EncryptOrder;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.core.yaml.YamlAlgorithmConfiguration;
@@ -43,18 +44,27 @@ public final class YamlCompatibleEncryptRuleConfigurationSwapper implements Yaml
     
     private final YamlAlgorithmConfigurationSwapper algorithmSwapper = new YamlAlgorithmConfigurationSwapper();
     
+    private final YamlEncryptModeRuleConfigurationSwapper encryptModeSwapper = new YamlEncryptModeRuleConfigurationSwapper();
+    
     @Override
     public YamlCompatibleEncryptRuleConfiguration swapToYamlConfiguration(final CompatibleEncryptRuleConfiguration data) {
         YamlCompatibleEncryptRuleConfiguration result = new YamlCompatibleEncryptRuleConfiguration();
         data.getTables().forEach(each -> result.getTables().put(each.getName(), tableSwapper.swapToYamlConfiguration(each)));
         data.getEncryptors().forEach((key, value) -> result.getEncryptors().put(key, algorithmSwapper.swapToYamlConfiguration(value)));
+        if (null != data.getEncryptMode()) {
+            result.setEncryptMode(encryptModeSwapper.swapToYamlConfiguration(data.getEncryptMode()));
+        }
         result.setQueryWithCipherColumn(data.isQueryWithCipherColumn());
         return result;
     }
     
     @Override
     public CompatibleEncryptRuleConfiguration swapToObject(final YamlCompatibleEncryptRuleConfiguration yamlConfig) {
-        return new CompatibleEncryptRuleConfiguration(swapTables(yamlConfig), swapEncryptAlgorithm(yamlConfig), yamlConfig.isQueryWithCipherColumn());
+        CompatibleEncryptRuleConfiguration result = new CompatibleEncryptRuleConfiguration(swapTables(yamlConfig), swapEncryptAlgorithm(yamlConfig), yamlConfig.isQueryWithCipherColumn());
+        if (null != yamlConfig.getEncryptMode()) {
+            result.setEncryptMode(encryptModeSwapper.swapToObject(yamlConfig.getEncryptMode()));
+        }
+        return result;
     }
     
     private Collection<CompatibleEncryptTableRuleConfiguration> swapTables(final YamlCompatibleEncryptRuleConfiguration yamlConfig) {

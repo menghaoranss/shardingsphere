@@ -19,6 +19,7 @@ package com.sphereex.dbplusengine.encrypt.yaml.config;
 
 import com.sphereex.dbplusengine.encrypt.config.rule.compatible.CompatibleEncryptRuleConfiguration;
 import com.sphereex.dbplusengine.encrypt.yaml.config.rule.YamlCompatibleEncryptTableRuleConfiguration;
+import com.sphereex.dbplusengine.encrypt.yaml.config.rule.YamlEncryptModeRuleConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.algorithm.core.yaml.YamlAlgorithmConfiguration;
@@ -37,6 +38,8 @@ public final class YamlCompatibleEncryptRuleConfiguration implements YamlRuleCon
     private Map<String, YamlCompatibleEncryptTableRuleConfiguration> tables = new LinkedHashMap<>();
     
     private Map<String, YamlAlgorithmConfiguration> encryptors = new LinkedHashMap<>();
+    
+    private YamlEncryptModeRuleConfiguration encryptMode;
     
     private boolean queryWithCipherColumn = true;
     

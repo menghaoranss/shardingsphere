@@ -20,6 +20,7 @@ package com.sphereex.dbplusengine.encrypt.config.rule.compatible;
 import com.sphereex.dbplusengine.encrypt.config.rule.PlainColumnItemRuleConfiguration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnItemRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
 
@@ -52,6 +53,24 @@ public final class CompatibleEncryptColumnRuleConfiguration {
     
     private final Boolean queryWithCipherColumn;
     
+    @Setter
+    private String logicDataType;
+    
+    @Setter
+    private String cipherDataType;
+    
+    @Setter
+    private String assistedQueryDataType;
+    
+    @Setter
+    private String likeQueryDataType;
+    
+    @Setter
+    private String orderQueryDataType;
+    
+    @Setter
+    private String plainDataType;
+    
     /**
      * Convert to encrypt column rule configuration.
      *
@@ -59,15 +78,16 @@ public final class CompatibleEncryptColumnRuleConfiguration {
      * @return encrypt column rule configuration
      */
     public EncryptColumnRuleConfiguration toEncryptColumnRuleConfig(final boolean tableQueryWithCipherColumn) {
-        EncryptColumnRuleConfiguration result = new EncryptColumnRuleConfiguration(logicColumn, new EncryptColumnItemRuleConfiguration(cipherColumn, encryptorName));
+        EncryptColumnRuleConfiguration result = new EncryptColumnRuleConfiguration(logicColumn, new EncryptColumnItemRuleConfiguration(cipherColumn, encryptorName, cipherDataType));
+        result.setDataType(logicDataType);
         if (null != assistedQueryColumn && null != assistedQueryEncryptorName) {
-            result.setAssistedQuery(new EncryptColumnItemRuleConfiguration(assistedQueryColumn, assistedQueryEncryptorName));
+            result.setAssistedQuery(new EncryptColumnItemRuleConfiguration(assistedQueryColumn, assistedQueryEncryptorName, assistedQueryDataType));
         }
         if (null != likeQueryColumn && null != likeQueryEncryptorName) {
-            result.setLikeQuery(new EncryptColumnItemRuleConfiguration(likeQueryColumn, likeQueryEncryptorName));
+            result.setLikeQuery(new EncryptColumnItemRuleConfiguration(likeQueryColumn, likeQueryEncryptorName, likeQueryDataType));
         }
         if (null != orderQueryColumn && null != orderQueryEncryptorName) {
-            result.setOrderQuery(new EncryptColumnItemRuleConfiguration(orderQueryColumn, orderQueryEncryptorName));
+            result.setOrderQuery(new EncryptColumnItemRuleConfiguration(orderQueryColumn, orderQueryEncryptorName, orderQueryDataType));
         }
         if (null != plainColumn) {
             boolean columnQueryWithCipherColumn = null == queryWithCipherColumn ? tableQueryWithCipherColumn : queryWithCipherColumn;

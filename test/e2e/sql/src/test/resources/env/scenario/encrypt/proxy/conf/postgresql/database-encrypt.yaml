@@ -29,10 +29,7 @@ dataSources:
     minPoolSize: 2
 
 rules:
-- !SINGLE
-  tables:
-    - "*.*.*"
-- !NEW_ENCRYPT
+- !ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES
@@ -50,100 +47,78 @@ rules:
       columns:
         user_name:
           # SPEX ADDED: BEGIN
-          plain:
-            name: user_name_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: user_name_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: user_name_cipher
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: user_name_like
-            encryptorName: like_encryptor
+          cipherColumn: user_name_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: user_name_like
+          likeQueryEncryptorName: like_encryptor
         password:
           # SPEX ADDED: BEGIN
-          plain:
-            name: password_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: password_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: password_cipher
-            encryptorName: aes_encryptor
+          cipherColumn: password_cipher
+          encryptorName: aes_encryptor
         email:
           # SPEX ADDED: BEGIN
-          plain:
-            name: email_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: email_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: email_cipher
-            encryptorName: aes_encryptor
+          cipherColumn: email_cipher
+          encryptorName: aes_encryptor
         telephone:
           # SPEX ADDED: BEGIN
-          plain:
-            name: user_telephone_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: user_telephone_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: user_telephone_cipher
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: user_telephone_like
-            encryptorName: like_encryptor
+          cipherColumn: user_telephone_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: user_telephone_like
+          likeQueryEncryptorName: like_encryptor
     t_user_details:
       columns:
         number:
           # SPEX ADDED: BEGIN
-          plain:
-            name: number_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: number_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: number_cipher
-            encryptorName: aes_encryptor
+          cipherColumn: number_cipher
+          encryptorName: aes_encryptor
         number_new:
           # SPEX ADDED: BEGIN
-          plain:
-            name: number_new_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: number_new_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: number_new_cipher
-            encryptorName: aes_encryptor
+          cipherColumn: number_new_cipher
+          encryptorName: aes_encryptor
     t_merchant:
       columns:
         business_code:
           # SPEX ADDED: BEGIN
-          plain:
-            name: business_code_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: business_code_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: business_code_cipher
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: business_code_like
-            encryptorName: like_encryptor
+          cipherColumn: business_code_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: business_code_like
+          likeQueryEncryptorName: like_encryptor
         telephone:
           # SPEX ADDED: BEGIN
-          plain:
-            name: merchant_telephone_plain
-            queryWithPlain: ${query_with_plain}
+          plainColumn: merchant_telephone_plain
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: merchant_telephone_cipher
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: merchant_telephone_like
-            encryptorName: like_encryptor
+          cipherColumn: merchant_telephone_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: merchant_telephone_like
+          likeQueryEncryptorName: like_encryptor
     # SPEX ADDED: BEGIN
     t_product_extend:
       columns:
         manual:
-          plain:
-            name: manual_plain
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: manual_cipher
-            encryptorName: aes_encryptor
+          plainColumn: manual_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: manual_cipher
+          encryptorName: aes_encryptor
     # SPEX ADDED: END

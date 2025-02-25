@@ -30,10 +30,7 @@ dataSources:
     minPoolSize: 2
 
 rules:
-- !SINGLE
-  tables:
-    - "*.*"
-- !NEW_ENCRYPT
+- !ENCRYPT
   encryptors:
     ope_encryptor:
       props:
@@ -51,41 +48,33 @@ rules:
       columns:
         user_name:
           dataType: VARCHAR(50)
-          plain:
-            name: user_name_plain
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: user_name_cipher
-            dataType: VARCHAR(100)
-            encryptorName: ope_encryptor
+          plainColumn: user_name_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: user_name_cipher
+          cipherDataType: VARCHAR(100)
+          cipherEncryptorName: ope_encryptor
     t_order_item:
       columns:
         quantity:
           dataType: INTEGER
-          plain:
-            name: quantity_plain
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: quantity_cipher
-            dataType: VARCHAR(100)
-            encryptorName: aes_encryptor
-          orderQuery:
-            name: quantity_order
-            dataType: VARCHAR(100)
-            encryptorName: ope_encryptor
+          plainColumn: quantity_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: quantity_cipher
+          cipherDataType: VARCHAR(100)
+          cipherEncryptorName: aes_encryptor
+          orderQueryColumn: quantity_order
+          orderQueryDataType: VARCHAR(100)
+          orderQueryEncryptorName: ope_encryptor
     t_product_extend:
       columns:
         product_desc:
           dataType: VARCHAR(50)
-          plain:
-            name: product_desc_plain
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: product_desc_cipher
-            dataType: VARCHAR(400)
-            encryptorName: aes_encryptor
-          orderQuery:
-            name: product_desc_order
-            dataType: VARCHAR(400)
-            encryptorName: ope_encryptor
+          plainColumn: product_desc_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: product_desc_cipher
+          cipherDataType: VARCHAR(400)
+          cipherEncryptorName: aes_encryptor
+          orderQueryColumn: product_desc_order
+          orderQueryDataType: VARCHAR(400)
+          orderQueryEncryptorName: ope_encryptor
 # SPEX ADDED: END

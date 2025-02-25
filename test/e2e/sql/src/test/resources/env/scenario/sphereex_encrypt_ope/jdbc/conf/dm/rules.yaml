@@ -31,10 +31,7 @@ dataSources:
     minPoolSize: 2
 
 rules:
-- !SINGLE
-  tables:
-    - "*.*"
-- !NEW_ENCRYPT
+- !ENCRYPT
   encryptors:
     ope_encryptor:
       props:
@@ -53,43 +50,35 @@ rules:
       columns:
         USER_NAME:
           dataType: VARCHAR(50)
-          plain:
-            name: USER_NAME_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: USER_NAME_CIPHER
-            dataType: VARCHAR(100)
-            encryptorName: ope_encryptor
+          plainColumn: USER_NAME_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: USER_NAME_CIPHER
+          cipherDataType: VARCHAR(100)
+          encryptorName: ope_encryptor
     T_ORDER_ITEM:
       columns:
         QUANTITY:
           dataType: INTEGER
-          plain:
-            name: QUANTITY_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: QUANTITY_CIPHER
-            dataType: VARCHAR(100)
-            encryptorName: aes_encryptor
-          orderQuery:
-            name: QUANTITY_ORDER
-            dataType: VARCHAR(100)
-            encryptorName: ope_encryptor
+          plainColumn: QUANTITY_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: QUANTITY_CIPHER
+          cipherDataType: VARCHAR(100)
+          encryptorName: aes_encryptor
+          orderQueryColumn: QUANTITY_ORDER
+          orderQueryDataType: VARCHAR(100)
+          orderQueryEncryptorName: ope_encryptor
     T_PRODUCT_EXTEND:
       columns:
         PRODUCT_DESC:
           dataType: VARCHAR(50)
-          plain:
-            name: PRODUCT_DESC_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: PRODUCT_DESC_CIPHER
-            dataType: VARCHAR(400)
-            encryptorName: aes_encryptor
-          orderQuery:
-            name: PRODUCT_DESC_ORDER
-            dataType: VARCHAR(400)
-            encryptorName: ope_encryptor
+          plainColumn: PRODUCT_DESC_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: PRODUCT_DESC_CIPHER
+          cipherDataType: VARCHAR(400)
+          encryptorName: aes_encryptor
+          orderQueryColumn: PRODUCT_DESC_ORDER
+          orderQueryDataType: VARCHAR(400)
+          orderQueryEncryptorName: ope_encryptor
 
 props:
   sql-show: true

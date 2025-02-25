@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.single.rule.builder;
 
+import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
+import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
@@ -24,6 +26,7 @@ import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.infra.rule.builder.database.DatabaseRuleBuilder;
 import org.apache.shardingsphere.single.config.SingleRuleConfiguration;
 import org.apache.shardingsphere.single.constant.SingleOrder;
+import org.apache.shardingsphere.single.constant.SingleTableConstants;
 import org.apache.shardingsphere.single.rule.SingleRule;
 
 import java.util.Collection;
@@ -36,6 +39,11 @@ public final class SingleRuleBuilder implements DatabaseRuleBuilder<SingleRuleCo
     @Override
     public SingleRule build(final SingleRuleConfiguration ruleConfig, final String databaseName, final DatabaseType protocolType,
                             final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
+        if (ruleConfig.getTables().isEmpty()) {
+            String loadAllTables = DatabaseTypedSPILoader.getService(DialectDatabaseMetaData.class, protocolType).getDefaultSchema().isPresent() ? SingleTableConstants.ALL_SCHEMA_TABLES
+                    : SingleTableConstants.ALL_TABLES;
+            ruleConfig.getTables().add(loadAllTables);
+        }
         return new SingleRule(ruleConfig, databaseName, protocolType, resourceMetaData.getDataSourceMap(), builtRules);
     }
     
