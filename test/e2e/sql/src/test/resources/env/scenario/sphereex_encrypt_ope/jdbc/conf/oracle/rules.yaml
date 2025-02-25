@@ -53,7 +53,7 @@ rules:
           queryWithCipherColumn: ${query_with_cipher}
           cipherColumn: USER_NAME_CIPHER
           cipherDataType: VARCHAR(100)
-          cipherEncryptorName: ope_encryptor
+          encryptorName: ope_encryptor
     T_ORDER_ITEM:
       columns:
         QUANTITY:
@@ -63,7 +63,7 @@ rules:
 #          queryWithCipherColumn: ${query_with_cipher}
           cipherColumn: QUANTITY_CIPHER
           cipherDataType: VARCHAR(100)
-          cipherEncryptorName: aes_encryptor
+          encryptorName: aes_encryptor
           orderQueryColumn: QUANTITY_ORDER
           orderQueryDataType: VARCHAR(100)
           orderQueryEncryptorName: ope_encryptor
@@ -75,7 +75,7 @@ rules:
           queryWithCipherColumn: ${query_with_cipher}
           cipherColumn: PRODUCT_DESC_CIPHER
           cipherDataType: VARCHAR(400)
-          cipherEncryptorName: aes_encryptor
+          encryptorName: aes_encryptor
           orderQueryColumn: PRODUCT_DESC_ORDER
           orderQueryDataType: VARCHAR(400)
           orderQueryEncryptorName: ope_encryptor
