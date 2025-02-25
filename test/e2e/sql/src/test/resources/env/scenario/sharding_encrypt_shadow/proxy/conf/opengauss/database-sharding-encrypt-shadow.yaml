@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: sharding_encrypt_shadow
+schemaName: sharding_encrypt_shadow
 
 dataSources:
   db_0:

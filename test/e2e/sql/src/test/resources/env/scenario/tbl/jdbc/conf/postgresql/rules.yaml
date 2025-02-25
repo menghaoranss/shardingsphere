@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: tbl
+schemaName: tbl
 
 dataSources:
   tbl:
@@ -30,70 +30,67 @@ dataSources:
     minPoolSize: 2
 
 rules:
-  - !SINGLE
-    tables:
-      - "*.*.*"
-  - !SHARDING
-    tables:
-      t_order:
-        actualDataNodes: tbl.t_order_${0..9}
-        tableStrategy:
-          standard:
-            shardingColumn: order_id
-            shardingAlgorithmName: it_standard_fixture
-      t_order_item:
-        actualDataNodes: tbl.t_order_item_${0..9}
-        tableStrategy:
-          standard:
-            shardingColumn: order_id
-            shardingAlgorithmName: it_standard_fixture
-        keyGenerateStrategy:
-          column: item_id
-          keyGeneratorName: auto_increment
-        auditStrategy:
-          auditorNames:
-            - auditor_constant
-          allowHintDisable: true
-      t_order_sharding_view:
-        actualDataNodes: tbl.t_order_sharding_view_${0..9}
-        tableStrategy:
-          standard:
-            shardingColumn: order_id
-            shardingAlgorithmName: it_standard_fixture
-      t_order_details:
-        actualDataNodes: tbl.t_order_details_${0..9}
-        tableStrategy:
-          standard:
-            shardingColumn: order_id
-            shardingAlgorithmName: it_standard_fixture
-      t_product:
-        actualDataNodes: tbl.t_product_${0..9}
-        tableStrategy:
-          hint:
-            shardingAlgorithmName: t_product_hint_inline
-    bindingTables:
-      - ref_0:t_order,t_order_item,t_order_sharding_view,t_order_details
+- !SHARDING
+  tables:
+    t_order:
+      actualDataNodes: tbl.t_order_${0..9}
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: it_standard_fixture
+    t_order_item:
+      actualDataNodes: tbl.t_order_item_${0..9}
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: it_standard_fixture
+      keyGenerateStrategy:
+        column: item_id
+        keyGeneratorName: auto_increment
+      auditStrategy:
+        auditorNames:
+          - auditor_constant
+        allowHintDisable: true
+    t_order_sharding_view:
+      actualDataNodes: tbl.t_order_sharding_view_${0..9}
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: it_standard_fixture
+    t_order_details:
+      actualDataNodes: tbl.t_order_details_${0..9}
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: it_standard_fixture
+    t_product:
+      actualDataNodes: tbl.t_product_${0..9}
+      tableStrategy:
+        hint:
+          shardingAlgorithmName: t_product_hint_inline
+  bindingTables:
+    - ref_0:t_order,t_order_item,t_order_sharding_view,t_order_details
 
-    shardingAlgorithms:
-      it_standard_fixture:
-        type: IT.STANDARD.FIXTURE
-      t_product_hint_inline:
-        type: HINT_INLINE
-        props:
-          algorithm-expression: t_product_${value}
+  shardingAlgorithms:
+    it_standard_fixture:
+      type: IT.STANDARD.FIXTURE
+    t_product_hint_inline:
+      type: HINT_INLINE
+      props:
+        algorithm-expression: t_product_${value}
 
-    keyGenerators:
-      auto_increment:
-        type: IT.AUTO_INCREMENT.FIXTURE
+  keyGenerators:
+    auto_increment:
+      type: IT.AUTO_INCREMENT.FIXTURE
 
-    auditors:
-      auditor_constant:
-        type: IT.AUDITOR.FIXTURE
+  auditors:
+    auditor_constant:
+      type: IT.AUDITOR.FIXTURE
 
-  - !BROADCAST
-    tables:
-      - t_broadcast_table
-      - t_broadcast_table_for_ddl
+- !BROADCAST
+  tables:
+    - t_broadcast_table
+    - t_broadcast_table_for_ddl
 # SPEX ADDED: BEGIN
 
 # SPEX ADDED: END

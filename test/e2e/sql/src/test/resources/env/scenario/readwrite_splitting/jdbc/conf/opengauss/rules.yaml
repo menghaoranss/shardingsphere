@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: readwrite_splitting
+schemaName: readwrite_splitting
 
 dataSources:
   write_ds:

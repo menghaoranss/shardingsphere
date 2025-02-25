@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: encrypt
+schemaName: encrypt
 
 dataSources:
   encrypt:

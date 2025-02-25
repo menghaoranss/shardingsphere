@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-databaseName: distsql_rdl
+schemaName: distsql_rdl
 
 dataSources:
   ds_0:
