@@ -321,7 +321,7 @@ rules:
         props:
           foo: bar
 
-  - !ENCRYPT
+  - !NEW_ENCRYPT
     encryptors:
       aes_encryptor:
         type: AES

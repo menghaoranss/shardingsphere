@@ -40,7 +40,7 @@ rules:
     <key_generate_algorithm_name> (+): # Distributed sequence algorithm name
       type: # Distributed sequence algorithm type
       props: # Property configuration of distributed sequence algorithm
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     <encrypt_algorithm_name> (+): # Encryption and decryption algorithm name
       type: # Encryption and decryption algorithm type
@@ -97,7 +97,7 @@ rules:
   keyGenerators:
     snowflake:
       type: SNOWFLAKE
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES

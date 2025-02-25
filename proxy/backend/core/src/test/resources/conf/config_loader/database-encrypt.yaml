@@ -29,7 +29,7 @@ dataSources:
     minPoolSize: 1
 
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_encrypt:
       columns:

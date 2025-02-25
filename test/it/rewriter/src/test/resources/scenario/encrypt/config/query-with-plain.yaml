@@ -24,7 +24,7 @@ props:
   schema-rewrite-enabled: true
 
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_account:
       columns:

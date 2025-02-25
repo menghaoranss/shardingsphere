@@ -66,7 +66,7 @@ Apache ShardingSphere 接收到该 SQL，通过用户提供的加密配置，发
 解决方案说明：选择合适的加密算法，如 AES 后，只需配置逻辑列（面向用户编写 SQL ）和密文列（数据表存密文数据）即可，**逻辑列和密文列可以相同也可以不同**。建议配置如下（YAML 格式展示）：
 
 ```yaml
--!ENCRYPT
+-!NEW_ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES

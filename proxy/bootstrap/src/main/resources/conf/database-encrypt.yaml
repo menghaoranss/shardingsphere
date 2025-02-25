@@ -45,7 +45,7 @@
 #    minPoolSize: 1
 #
 #rules:
-#- !ENCRYPT
+#- !NEW_ENCRYPT
 #  encryptors:
 #    aes_encryptor:
 #      type: AES
@@ -93,7 +93,7 @@
 #    minPoolSize: 1
 #
 #rules:
-#- !ENCRYPT
+#- !NEW_ENCRYPT
 #  encryptors:
 #    aes_encryptor:
 #      type: AES

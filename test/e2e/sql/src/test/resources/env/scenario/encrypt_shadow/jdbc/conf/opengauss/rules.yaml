@@ -120,7 +120,7 @@ rules:
           operation: select
           column: merchant_id
           value: 0
-  - !ENCRYPT
+  - !NEW_ENCRYPT
     encryptors:
       aes_encryptor:
         type: AES

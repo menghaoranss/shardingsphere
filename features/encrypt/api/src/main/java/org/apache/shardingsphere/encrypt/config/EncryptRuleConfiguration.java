@@ -19,7 +19,6 @@ package org.apache.shardingsphere.encrypt.config;
 
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeRuleConfiguration;
-import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -49,23 +48,4 @@ public final class EncryptRuleConfiguration implements DatabaseRuleConfiguration
     @SphereEx
     @Setter
     private EncryptModeRuleConfiguration encryptMode;
-    
-    /**
-     * Judge whether UDF routine is enabled.
-     *
-     * @return UDF routine is enabled or not
-     */
-    // TODO move this method to encrypt rule when distsql and pipeline job can use encrypt rule
-    @SphereEx
-    public boolean isUDFEnabled() {
-        if (null == encryptMode) {
-            return false;
-        }
-        if (EncryptModeType.BACKEND == encryptMode.getType()) {
-            return true;
-        }
-        return Boolean.parseBoolean(encryptMode.getProps().getProperty("udf-sql-enabled", Boolean.FALSE.toString()))
-                || Boolean.parseBoolean(encryptMode.getProps().getProperty("udf-routine-enabled", Boolean.FALSE.toString()))
-                || Boolean.parseBoolean(encryptMode.getProps().getProperty("udf-view-enabled", Boolean.FALSE.toString()));
-    }
 }

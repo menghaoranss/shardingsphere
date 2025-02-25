@@ -39,7 +39,7 @@ rules:
     <key_generate_algorithm_name> (+): # 分布式序列算法名称
       type: # 分布式序列算法类型
       props: # 分布式序列算法属性配置
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     <encrypt_algorithm_name> (+): # 加解密算法名称
       type: # 加解密算法类型
@@ -96,7 +96,7 @@ rules:
   keyGenerators:
     snowflake:
       type: SNOWFLAKE
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES

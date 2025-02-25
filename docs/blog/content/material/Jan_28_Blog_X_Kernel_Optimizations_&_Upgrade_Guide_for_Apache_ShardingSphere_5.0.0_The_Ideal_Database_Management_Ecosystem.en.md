@@ -306,7 +306,7 @@ Additionally, the High Availability function developed in the pluggable architec
 There are no changes in the 5.0.0 version API.
 
 ```
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES
@@ -578,7 +578,7 @@ rules:
         - ds_1_slave_1
       loadBalancerName: ROUND_ROBIN
 
-- !ENCRYPT
+- !NEW_ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES

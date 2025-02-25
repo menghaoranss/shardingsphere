@@ -54,7 +54,7 @@ rules:
       roundRobin:
         type: ROUND_ROBIN
 
-  - !ENCRYPT
+  - !NEW_ENCRYPT
     encryptors:
       aes_encryptor:
         type: AES

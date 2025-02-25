@@ -42,7 +42,7 @@ Attributes:
 ## Configuration Examples
 ```yaml
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_user:
       columns:

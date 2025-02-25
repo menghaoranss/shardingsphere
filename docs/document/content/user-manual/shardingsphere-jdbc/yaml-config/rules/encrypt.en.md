@@ -12,7 +12,7 @@ Based on the YAML configuration, ShardingSphere automatically completes the crea
 
 ```yaml
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     <table_name> (+): # Encrypt table name
       columns:
@@ -56,7 +56,7 @@ dataSources:
     password:
 
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_user:
       columns:

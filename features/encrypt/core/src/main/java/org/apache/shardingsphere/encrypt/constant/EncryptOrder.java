@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.constant;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,10 @@ public final class EncryptOrder {
      * Encrypt order.
      */
     public static final int ORDER = 10;
+    
+    /**
+     * Compatible encrypt order.
+     */
+    @SphereEx
+    public static final int COMPATIBLE_ORDER = ORDER + 1;
 }

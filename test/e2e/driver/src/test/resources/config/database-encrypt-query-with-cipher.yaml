@@ -21,7 +21,7 @@ rules:
 - !SINGLE
   tables:
     - "*.*"
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_encrypt:
       columns:

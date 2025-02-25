@@ -16,7 +16,7 @@
 #
 
 rules:
-- !ENCRYPT
+- !NEW_ENCRYPT
   tables:
     t_user:
       # SPEX ADDED: BEGIN
