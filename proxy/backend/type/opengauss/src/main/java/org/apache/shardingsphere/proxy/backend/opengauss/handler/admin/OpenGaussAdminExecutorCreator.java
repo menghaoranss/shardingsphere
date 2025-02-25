@@ -24,11 +24,8 @@ import org.apache.shardingsphere.proxy.backend.handler.admin.executor.AbstractDa
 import org.apache.shardingsphere.proxy.backend.handler.admin.executor.DatabaseAdminExecutor;
 import org.apache.shardingsphere.proxy.backend.handler.admin.executor.DatabaseAdminExecutorCreator;
 import org.apache.shardingsphere.proxy.backend.postgresql.handler.admin.PostgreSQLAdminExecutorCreator;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.SQLStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dal.ShowStatement;
-import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -77,28 +74,10 @@ public final class OpenGaussAdminExecutorCreator implements DatabaseAdminExecuto
     
     @Override
     public Optional<DatabaseAdminExecutor> create(final SQLStatementContext sqlStatementContext, final String sql, final String databaseName, final List<Object> parameters) {
-        if (isSQLFederationSystemCatalogQuery(sqlStatementContext) || isSQLFederationSystemCatalogQueryExpressions(sqlStatementContext)) {
-            return Optional.of(new OpenGaussSystemCatalogAdminQueryExecutor(sqlStatementContext, sql, databaseName, parameters));
-        }
         if (isPassThroughSystemCatalogQuery(sqlStatementContext)) {
             return Optional.of(new DefaultDatabaseMetaDataExecutor(sql, parameters));
         }
         return delegated.create(sqlStatementContext, sql, databaseName, parameters);
-    }
-    
-    private boolean isSQLFederationSystemCatalogQuery(final SQLStatementContext sqlStatementContext) {
-        Collection<String> tableNames = sqlStatementContext instanceof TableAvailable ? ((TableAvailable) sqlStatementContext).getTablesContext().getTableNames() : Collections.emptyList();
-        return !tableNames.isEmpty() && SYSTEM_CATALOG_TABLES.containsAll(tableNames);
-    }
-    
-    private boolean isSQLFederationSystemCatalogQueryExpressions(final SQLStatementContext sqlStatementContext) {
-        if (!(sqlStatementContext.getSqlStatement() instanceof SelectStatement)) {
-            return false;
-        }
-        SelectStatement selectStatement = (SelectStatement) sqlStatementContext.getSqlStatement();
-        Collection<ProjectionSegment> projections = selectStatement.getProjections().getProjections();
-        return 1 == projections.size() && projections.iterator().next() instanceof ExpressionProjectionSegment
-                && SYSTEM_CATALOG_QUERY_EXPRESSIONS.contains(((ExpressionProjectionSegment) projections.iterator().next()).getText());
     }
     
     private boolean isPassThroughSystemCatalogQuery(final SQLStatementContext sqlStatementContext) {

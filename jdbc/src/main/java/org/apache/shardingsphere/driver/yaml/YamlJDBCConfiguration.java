@@ -28,7 +28,6 @@ import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlGlobalRuleConfi
 import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlRuleConfiguration;
 import org.apache.shardingsphere.logging.yaml.config.YamlLoggingRuleConfiguration;
 import org.apache.shardingsphere.parser.yaml.config.YamlSQLParserRuleConfiguration;
-import org.apache.shardingsphere.sqlfederation.yaml.config.YamlSQLFederationRuleConfiguration;
 import org.apache.shardingsphere.sqltranslator.yaml.config.YamlSQLTranslatorRuleConfiguration;
 import org.apache.shardingsphere.transaction.yaml.config.YamlTransactionRuleConfiguration;
 
@@ -63,8 +62,6 @@ public final class YamlJDBCConfiguration implements YamlConfiguration {
     
     private YamlGlobalClockRuleConfiguration globalClock;
     
-    private YamlSQLFederationRuleConfiguration sqlFederation;
-    
     private YamlSQLTranslatorRuleConfiguration sqlTranslator;
     
     private YamlLoggingRuleConfiguration logging;
@@ -87,9 +84,6 @@ public final class YamlJDBCConfiguration implements YamlConfiguration {
         }
         if (null != globalClock) {
             rules.add(globalClock);
-        }
-        if (null != sqlFederation) {
-            rules.add(sqlFederation);
         }
         if (null != sqlTranslator) {
             rules.add(sqlTranslator);
