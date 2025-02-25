@@ -33,7 +33,6 @@
         
         <module>it</module>
         <module>e2e</module>
-        <module>native</module>
     </modules>
     
     <properties>

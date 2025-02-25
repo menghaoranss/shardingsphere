@@ -26,7 +26,6 @@ import org.apache.shardingsphere.infra.yaml.config.pojo.mode.YamlModeConfigurati
 import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlRuleConfiguration;
 import org.apache.shardingsphere.logging.yaml.config.YamlLoggingRuleConfiguration;
 import org.apache.shardingsphere.parser.yaml.config.YamlSQLParserRuleConfiguration;
-import org.apache.shardingsphere.sqlfederation.yaml.config.YamlSQLFederationRuleConfiguration;
 import org.apache.shardingsphere.sqltranslator.yaml.config.YamlSQLTranslatorRuleConfiguration;
 import org.apache.shardingsphere.transaction.yaml.config.YamlTransactionRuleConfiguration;
 
@@ -56,8 +55,6 @@ public final class YamlProxyServerConfiguration implements YamlConfiguration {
     private YamlLoggingRuleConfiguration logging;
     
     private YamlGlobalClockRuleConfiguration globalClock;
-    
-    private YamlSQLFederationRuleConfiguration sqlFederation;
     
     private Map<String, YamlProxyDataSourceConfiguration> dataSources = new HashMap<>();
     
