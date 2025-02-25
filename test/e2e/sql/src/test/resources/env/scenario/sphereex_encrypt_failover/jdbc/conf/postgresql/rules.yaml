@@ -31,10 +31,7 @@ dataSources:
     minPoolSize: 2
 
 rules:
-- !SINGLE
-  tables:
-    - "*.*.*"
-- !NEW_ENCRYPT
+- !ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES
@@ -53,23 +50,17 @@ rules:
     t_merchant:
       columns:
         business_code:
-          plain:
-            name: business_code
-          cipher:
-            name: business_code_cipher
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: business_code_like
-            encryptorName: like_encryptor
+          plainColumn: business_code
+          cipherColumn: business_code_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: business_code_like
+          likeQueryEncryptorName: like_encryptor
         telephone:
-          plain:
-            name: telephone
-          cipher:
-            name: merchant_telephone_cipher
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: merchant_telephone_like
-            encryptorName: like_encryptor
+          plainColumn: telephone
+          cipherColumn: merchant_telephone_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: merchant_telephone_like
+          likeQueryEncryptorName: like_encryptor
 
 
 # SPEX ADDED: END

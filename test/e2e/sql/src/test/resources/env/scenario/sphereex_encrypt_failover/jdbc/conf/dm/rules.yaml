@@ -31,10 +31,7 @@ dataSources:
     minPoolSize: 2
 
 rules:
-- !SINGLE
-  tables:
-    - "*.*"
-- !NEW_ENCRYPT
+- !ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES
@@ -55,23 +52,17 @@ rules:
     T_MERCHANT:
       columns:
         BUSINESS_CODE:
-          plain:
-            name: BUSINESS_CODE
-          cipher:
-            name: BUSINESS_CODE_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: BUSINESS_CODE_LIKE
-            encryptorName: like_encryptor
+          plainColumn: BUSINESS_CODE
+          cipherColumn: BUSINESS_CODE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: BUSINESS_CODE_LIKE
+          likeQueryEncryptorName: like_encryptor
         TELEPHONE:
-          plain:
-            name: TELEPHONE
-          cipher:
-            name: MERCHANT_TELEPHONE_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: MERCHANT_TELEPHONE_LIKE
-            encryptorName: like_encryptor
+          plainColumn: TELEPHONE
+          cipherColumn: MERCHANT_TELEPHONE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: MERCHANT_TELEPHONE_LIKE
+          likeQueryEncryptorName: like_encryptor
 
 props:
   sql-show: true

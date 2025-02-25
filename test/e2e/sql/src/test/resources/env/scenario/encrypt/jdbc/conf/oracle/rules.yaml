@@ -31,10 +31,7 @@ dataSources:
     minPoolSize: 2
 
 rules:
-- !SINGLE
-  tables:
-    - "*.*"
-- !NEW_ENCRYPT
+- !ENCRYPT
   encryptors:
     aes_encryptor:
       type: AES
@@ -51,121 +48,91 @@ rules:
     T_USER:
       columns:
         USER_NAME:
-          plain:
-            name: USER_NAME_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: USER_NAME_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: USER_NAME_LIKE
-            encryptorName: like_encryptor
+          plainColumn: USER_NAME_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: USER_NAME_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: USER_NAME_LIKE
+          likeQueryEncryptorName: like_encryptor
         PASSWORD:
-          plain:
-            name: PASSWORD_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: PASSWORD_CIPHER
-            encryptorName: aes_encryptor
+          plainColumn: PASSWORD_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: PASSWORD_CIPHER
+          encryptorName: aes_encryptor
         EMAIL:
           # SPEX ADDED: BEGIN
-          plain:
-            name: EMAIL_PLAIN
-            queryWithPlain: ${query_with_plain}
+          plainColumn: EMAIL_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
           # SPEX ADDED: END
-          cipher:
-            name: EMAIL_CIPHER
-            encryptorName: aes_encryptor
+          cipherColumn: EMAIL_CIPHER
+          encryptorName: aes_encryptor
         TELEPHONE:
-          plain:
-            name: USER_TELEPHONE_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: USER_TELEPHONE_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: USER_TELEPHONE_LIKE
-            encryptorName: like_encryptor
+          plainColumn: USER_TELEPHONE_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: USER_TELEPHONE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: USER_TELEPHONE_LIKE
+          likeQueryEncryptorName: like_encryptor
     T_MERCHANT:
       columns:
         BUSINESS_CODE:
-          plain:
-            name: BUSINESS_CODE_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: BUSINESS_CODE_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: BUSINESS_CODE_LIKE
-            encryptorName: like_encryptor
+          plainColumn: BUSINESS_CODE_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: BUSINESS_CODE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: BUSINESS_CODE_LIKE
+          likeQueryEncryptorName: like_encryptor
         TELEPHONE:
-          plain:
-            name: MERCHANT_TELEPHONE_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: MERCHANT_TELEPHONE_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: MERCHANT_TELEPHONE_LIKE
-            encryptorName: like_encryptor
+          plainColumn: MERCHANT_TELEPHONE_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: MERCHANT_TELEPHONE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: MERCHANT_TELEPHONE_LIKE
+          likeQueryEncryptorName: like_encryptor
     T_MERCHANT_DETAIL:
       columns:
         BUSINESS_CODE:
-          plain:
-            name: BUSINESS_CODE_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: BUSINESS_CODE_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: BUSINESS_CODE_LIKE
-            encryptorName: like_encryptor
+          plainColumn: BUSINESS_CODE_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: BUSINESS_CODE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: BUSINESS_CODE_LIKE
+          likeQueryEncryptorName: like_encryptor
         TELEPHONE:
-          plain:
-            name: MERCHANT_TELEPHONE_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: MERCHANT_TELEPHONE_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: MERCHANT_TELEPHONE_LIKE
-            encryptorName: like_encryptor
+          plainColumn: MERCHANT_TELEPHONE_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: MERCHANT_TELEPHONE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: MERCHANT_TELEPHONE_LIKE
+          likeQueryEncryptorName: like_encryptor
     SYS_USR_SYS_R:
       columns:
         RL_NAME:
-          cipher:
-            name: RL_NAME_CIPHER
-            encryptorName: aes_encryptor
-          likeQuery:
-            name: RL_NAME_FOR_QRY
-            encryptorName: char_digest_like_encryptor
+          cipherColumn: RL_NAME_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: RL_NAME_FOR_QRY
+          likeQueryEncryptorName: char_digest_like_encryptor
         CERT_NO:
-          cipher:
-            name: CERT_NO_CIPHER
-            encryptorName: aes_encryptor
+          cipherColumn: CERT_NO_CIPHER
+          encryptorName: aes_encryptor
         REF_MP:
-          cipher:
-            name: REF_MP_CIPHER
-            encryptorName: aes_encryptor
+          cipherColumn: REF_MP_CIPHER
+          encryptorName: aes_encryptor
     SYS_USR:
       columns:
         MP:
-          cipher:
-            name: MP_CIPHER
-            encryptorName: aes_encryptor
+          cipherColumn: MP_CIPHER
+          encryptorName: aes_encryptor
         E_MAIL:
-          cipher:
-            name: E_MAIL_CIPHER
-            encryptorName: aes_encryptor
+          cipherColumn: E_MAIL_CIPHER
+          encryptorName: aes_encryptor
     T_PRODUCT_EXTEND:
       columns:
         MANUAL:
-          plain:
-            name: MANUAL_PLAIN
-            queryWithPlain: ${query_with_plain}
-          cipher:
-            name: MANUAL_CIPHER
-            encryptorName: aes_encryptor
+          plainColumn: MANUAL_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: MANUAL_CIPHER
+          encryptorName: aes_encryptor
 
 props:
   sql-show: true

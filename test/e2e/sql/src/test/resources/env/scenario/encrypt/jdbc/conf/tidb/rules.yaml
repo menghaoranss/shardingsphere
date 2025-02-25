@@ -31,106 +31,81 @@ dataSources:
     minPoolSize: 2
 
 rules:
-  - !SINGLE
-    tables:
-      - "*.*"
-  - !NEW_ENCRYPT
-    encryptors:
-      aes_encryptor:
-        type: AES
-        props:
-          aes-key-value: 123456abc
-          digest-algorithm-name: SHA-1
-      like_encryptor:
-        type: SphereEx:CHAR_TRANSFORM_LIKE
-        props:
-          transform-indexes: 1,2,3,5,7,14
-      char_digest_like_encryptor:
-        type: CHAR_DIGEST_LIKE
-    tables:
-      t_user:
-        columns:
-          user_name:
-            plain:
-              name: user_name_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: user_name_cipher
-              encryptorName: aes_encryptor
-            likeQuery:
-              name: user_name_like
-              encryptorName: like_encryptor
-          password:
-            plain:
-              name: password_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: password_cipher
-              encryptorName: aes_encryptor
-          email:
-            plain:
-              name: email_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: email_cipher
-              encryptorName: aes_encryptor
-          telephone:
-            plain:
-              name: user_telephone_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: user_telephone_cipher
-              encryptorName: aes_encryptor
-            likeQuery:
-              name: user_telephone_like
-              encryptorName: like_encryptor
-      t_user_details:
-        columns:
-          number:
-            plain:
-              name: number_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: number_cipher
-              encryptorName: aes_encryptor
-          number_new:
-            plain:
-              name: number_new_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: number_new_cipher
-              encryptorName: aes_encryptor
-      t_merchant:
-        columns:
-          business_code:
-            plain:
-              name: business_code_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: business_code_cipher
-              encryptorName: aes_encryptor
-            likeQuery:
-              name: business_code_like
-              encryptorName: like_encryptor
-          telephone:
-            plain:
-              name: merchant_telephone_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: merchant_telephone_cipher
-              encryptorName: aes_encryptor
-            likeQuery:
-              name: merchant_telephone_like
-              encryptorName: like_encryptor
-      t_product_extend:
-        columns:
-          manual:
-            plain:
-              name: manual_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: manual_cipher
-              encryptorName: aes_encryptor
+- !ENCRYPT
+  encryptors:
+    aes_encryptor:
+      type: AES
+      props:
+        aes-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+    like_encryptor:
+      type: SphereEx:CHAR_TRANSFORM_LIKE
+      props:
+        transform-indexes: 1,2,3,5,7,14
+    char_digest_like_encryptor:
+      type: CHAR_DIGEST_LIKE
+  tables:
+    t_user:
+      columns:
+        user_name:
+          plainColumn: user_name_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: user_name_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: user_name_like
+          likeQueryEncryptorName: like_encryptor
+        password:
+          plainColumn: password_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: password_cipher
+          encryptorName: aes_encryptor
+        email:
+          plainColumn: email_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: email_cipher
+          encryptorName: aes_encryptor
+        telephone:
+          plainColumn: user_telephone_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: user_telephone_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: user_telephone_like
+          likeQueryEncryptorName: like_encryptor
+    t_user_details:
+      columns:
+        number:
+          plainColumn: number_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: number_cipher
+          encryptorName: aes_encryptor
+        number_new:
+          plainColumn: number_new_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: number_new_cipher
+          encryptorName: aes_encryptor
+    t_merchant:
+      columns:
+        business_code:
+          plainColumn: business_code_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: business_code_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: business_code_like
+          likeQueryEncryptorName: like_encryptor
+        telephone:
+          plainColumn: merchant_telephone_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: merchant_telephone_cipher
+          encryptorName: aes_encryptor
+          likeQueryColumn: merchant_telephone_like
+          likeQueryEncryptorName: like_encryptor
+    t_product_extend:
+      columns:
+        manual:
+          plainColumn: manual_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: manual_cipher
+          encryptorName: aes_encryptor
 
 props:
   sql-show: true

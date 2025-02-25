@@ -31,179 +31,150 @@ dataSources:
     minPoolSize: 2
 
 rules:
-  - !SINGLE
-    tables:
-      - "*.*"
-  - !NEW_ENCRYPT
-    encryptors:
-      aes_encryptor:
-        type: AES
-        props:
-          aes-key-value: 123456abc
-          digest-algorithm-name: SHA-1
-      des_encryptor:
-        type: SphereEx:DES
-        props:
-          des-key-value: 123456abc
-          digest-algorithm-name: SHA-1
-      like_encryptor:
-        type: CHAR_DIGEST_LIKE
-      md5_encryptor:
-        type: MD5
-    tables:
-      T_NUMBER_ORACLE:
-        columns:
-          A_NUMBER:
-            dataType: number
-            cipher:
-              name: A_NUMBER_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_NUMBER_P:
-            dataType: NUMBER(20)
-            cipher:
-              name: A_NUMBER_P_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_NUMBER_PS:
-            dataType: NUMBER(20, 6)
-            cipher:
-              name: A_NUMBER_PS_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_NUMBER_PS_LE:
-            dataType: NUMBER(4, 6)
-            cipher:
-              name: A_NUMBER_PS_LE_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_FLOAT:
-            dataType: float
-            cipher:
-              name: A_FLOAT_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_FLOAT_P:
-            dataType: FLOAT(100)
-            cipher:
-              name: A_FLOAT_P_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_BINARY_FLOAT:
-            dataType: binary_float
-            cipher:
-              name: A_BINARY_FLOAT_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_BINARY_DOUBLE:
-            dataType: binary_double
-            cipher:
-              name: A_BINARY_DOUBLE_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(100)
-          A_NUMERIC:
-            dataType: NUMERIC
-            cipher:
-              name: A_NUMERIC_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_NUMERIC_P:
-            dataType: NUMERIC(10)
-            cipher:
-              name: A_NUMERIC_P_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_NUMERIC_PS:
-            dataType: NUMERIC(20,5)
-            cipher:
-              name: A_NUMERIC_PS_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_DECIMAL:
-            dataType: decimal
-            cipher:
-              name: A_DECIMAL_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_DECIMAL_P:
-            dataType: DECIMAL(20)
-            cipher:
-              name: A_DECIMAL_P_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_DECIMAL_PS:
-            dataType: DECIMAL(20,6)
-            cipher:
-              name: A_DECIMAL_PS_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_DEC:
-            dataType: dec
-            cipher:
-              name: A_DEC_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_DEC_P:
-            dataType: dec(20)
-            cipher:
-              name: A_DEC_P_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_DEC_PS:
-            dataType: dec(20,6)
-            cipher:
-              name: A_DEC_PS_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_INTEGER:
-            dataType: integer
-            cipher:
-              name: A_INTEGER_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_INT:
-            dataType: int
-            cipher:
-              name: A_INT_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_SMALLINT:
-            dataType: smallint
-            cipher:
-              name: A_SMALLINT_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_DOUBLE_PRECISION:
-            dataType: double precision
-            cipher:
-              name: A_DOUBLE_PRECISION_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-          A_REAL:
-            dataType: real
-            cipher:
-              name: A_REAL_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar(100)
-      T_INSERT_DATA_TYPE:
-        columns:
-          PASSWORD:
-            dataType: varchar2(100)
-            plain:
-              name: PASSWORD_PLAIN
-            cipher:
-              name: PASSWORD_CIPHER
-              encryptorName: aes_encryptor
-              dataType: varchar2(250)
-      T_SELECT_DATA_TYPE:
-        columns:
-          PASSWORD:
-            dataType: varchar2(100)
-            plain:
-              name: PASSWORD_PLAIN
-            cipher:
-              name: PASSWORD_CIPHER
-              encryptorName: des_encryptor
-              dataType: varchar2(250)
+- !ENCRYPT
+  encryptors:
+    aes_encryptor:
+      type: AES
+      props:
+        aes-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+    des_encryptor:
+      type: SphereEx:DES
+      props:
+        des-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+    like_encryptor:
+      type: CHAR_DIGEST_LIKE
+    md5_encryptor:
+      type: MD5
+  tables:
+    T_NUMBER_ORACLE:
+      columns:
+        A_NUMBER:
+          dataType: number
+          cipherColumn: A_NUMBER_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_NUMBER_P:
+          dataType: NUMBER(20)
+          cipherColumn: A_NUMBER_P_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_NUMBER_PS:
+          dataType: NUMBER(20, 6)
+          cipherColumn: A_NUMBER_PS_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_NUMBER_PS_LE:
+          dataType: NUMBER(4, 6)
+          cipherColumn: A_NUMBER_PS_LE_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_FLOAT:
+          dataType: float
+          cipherColumn: A_FLOAT_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_FLOAT_P:
+          dataType: FLOAT(100)
+          cipherColumn: A_FLOAT_P_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_BINARY_FLOAT:
+          dataType: binary_float
+          cipherColumn: A_BINARY_FLOAT_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_BINARY_DOUBLE:
+          dataType: binary_double
+          cipherColumn: A_BINARY_DOUBLE_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(100)
+        A_NUMERIC:
+          dataType: NUMERIC
+          cipherColumn: A_NUMERIC_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_NUMERIC_P:
+          dataType: NUMERIC(10)
+          cipherColumn: A_NUMERIC_P_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_NUMERIC_PS:
+          dataType: NUMERIC(20,5)
+          cipherColumn: A_NUMERIC_PS_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_DECIMAL:
+          dataType: decimal
+          cipherColumn: A_DECIMAL_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_DECIMAL_P:
+          dataType: DECIMAL(20)
+          cipherColumn: A_DECIMAL_P_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_DECIMAL_PS:
+          dataType: DECIMAL(20,6)
+          cipherColumn: A_DECIMAL_PS_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_DEC:
+          dataType: dec
+          cipherColumn: A_DEC_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_DEC_P:
+          dataType: dec(20)
+          cipherColumn: A_DEC_P_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_DEC_PS:
+          dataType: dec(20,6)
+          cipherColumn: A_DEC_PS_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_INTEGER:
+          dataType: integer
+          cipherColumn: A_INTEGER_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_INT:
+          dataType: int
+          cipherColumn: A_INT_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_SMALLINT:
+          dataType: smallint
+          cipherColumn: A_SMALLINT_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_DOUBLE_PRECISION:
+          dataType: double precision
+          cipherColumn: A_DOUBLE_PRECISION_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+        A_REAL:
+          dataType: real
+          cipherColumn: A_REAL_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(100)
+    T_INSERT_DATA_TYPE:
+      columns:
+        PASSWORD:
+          dataType: varchar2(100)
+          plainColumn: PASSWORD_PLAIN
+          cipherColumn: PASSWORD_CIPHER
+          encryptorName: aes_encryptor
+          cipherDataType: varchar2(250)
+    T_SELECT_DATA_TYPE:
+      columns:
+        PASSWORD:
+          dataType: varchar2(100)
+          plainColumn: PASSWORD_PLAIN
+          cipherColumn: PASSWORD_CIPHER
+          encryptorName: des_encryptor
+          cipherDataType: varchar2(250)
 
 # SPEX ADDED: END

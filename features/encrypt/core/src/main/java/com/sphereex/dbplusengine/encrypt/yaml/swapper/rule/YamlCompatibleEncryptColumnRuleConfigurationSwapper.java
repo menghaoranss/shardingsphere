@@ -40,15 +40,28 @@ public final class YamlCompatibleEncryptColumnRuleConfigurationSwapper implement
         result.setLikeQueryEncryptorName(data.getLikeQueryEncryptorName());
         result.setOrderQueryEncryptorName(data.getOrderQueryEncryptorName());
         result.setQueryWithCipherColumn(data.getQueryWithCipherColumn());
+        result.setDataType(data.getLogicDataType());
+        result.setCipherDataType(data.getCipherDataType());
+        result.setPlainDataType(data.getPlainDataType());
+        result.setAssistedQueryDataType(data.getAssistedQueryDataType());
+        result.setLikeQueryDataType(data.getLikeQueryDataType());
+        result.setOrderQueryDataType(data.getLikeQueryDataType());
         return result;
     }
     
     @Override
     public CompatibleEncryptColumnRuleConfiguration swapToObject(final YamlCompatibleEncryptColumnRuleConfiguration yamlConfig) {
-        return new CompatibleEncryptColumnRuleConfiguration(
+        CompatibleEncryptColumnRuleConfiguration result = new CompatibleEncryptColumnRuleConfiguration(
                 yamlConfig.getLogicColumn(), yamlConfig.getCipherColumn(), yamlConfig.getAssistedQueryColumn(), yamlConfig.getLikeQueryColumn(), yamlConfig.getOrderQueryColumn(),
                 yamlConfig.getPlainColumn(),
                 yamlConfig.getEncryptorName(), yamlConfig.getAssistedQueryEncryptorName(), yamlConfig.getLikeQueryEncryptorName(), yamlConfig.getOrderQueryEncryptorName(),
                 yamlConfig.getQueryWithCipherColumn());
+        result.setLogicDataType(yamlConfig.getDataType());
+        result.setCipherDataType(yamlConfig.getCipherDataType());
+        result.setPlainDataType(yamlConfig.getPlainDataType());
+        result.setAssistedQueryDataType(yamlConfig.getAssistedQueryDataType());
+        result.setLikeQueryDataType(yamlConfig.getLikeQueryDataType());
+        result.setOrderQueryDataType(yamlConfig.getLikeQueryDataType());
+        return result;
     }
 }

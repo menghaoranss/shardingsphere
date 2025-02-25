@@ -31,155 +31,127 @@ dataSources:
     minPoolSize: 2
 
 rules:
-  - !SINGLE
-    tables:
-      - "*.*"
-  - !NEW_ENCRYPT
-    encryptors:
-      aes_encryptor:
-        type: AES
-        props:
-          aes-key-value: 123456abc
-          digest-algorithm-name: SHA-1
-      like_encryptor:
-        type: CHAR_DIGEST_LIKE
-      md5_encryptor:
-        type: MD5
-    tables:
-      t_product:
-        columns:
-          price:
-            dataType: DECIMAL
-            plain:
-              name: price_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: price_cipher
-              dataType: varchar(200) not null default ''
-              encryptorName: aes_encryptor
-            assistedQuery:
-              name: price_assisted
-              encryptorName: md5_encryptor
-              dataType: varchar(100) not null default ''
-            likeQuery:
-              name: price_like
-              encryptorName: like_encryptor
-              dataType: varchar(50) not null default ''
-      t_user:
-        columns:
-          age:
-            dataType: int not null
-            plain:
-              name: age_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: age_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200) not null
-      t_number:
-        columns:
-          asmallint:
-            dataType: SMALLINT(100)
-            cipher:
-              name: asmallint_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          aMEDIUMINT:
-            dataType: MEDIUMINT(100) UNSIGNED
-            cipher:
-              name: aMEDIUMINT_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          aintunsigned:
-            dataType: INT(100) UNSIGNED
-            cipher:
-              name: aintunsigned_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          aint:
-            dataType: INT
-            cipher:
-              name: aint_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          ainteger:
-            dataType: INTEGER
-            cipher:
-              name: ainteger_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          aintegerunsigned:
-            dataType: INTEGER UNSIGNED
-            cipher:
-              name: aintegerunsigned_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          abigint:
-            dataType: BIGINT
-            cipher:
-              name: abigint_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          abigintunsigned:
-            dataType: BIGINT UNSIGNED
-            cipher:
-              name: abigintunsigned_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          adecimal:
-            dataType: DECIMAL(10,5)
-            cipher:
-              name: adecimal_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          anumeric:
-            dataType: NUMERIC(10,6)
-            cipher:
-              name: anumeric_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          afixed:
-            dataType: FIXED(10,6)
-            cipher:
-              name: afixed_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          afloat:
-            dataType: FLOAT(11)
-            cipher:
-              name: afloat_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          afloatbig:
-            dataType: FLOAT(53)
-            cipher:
-              name: afloatbig_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          afloutdouble:
-            dataType: FLOAT(10,4)
-            cipher:
-              name: afloutdouble_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          adouble:
-            dataType: DOUBLE(10,6)
-            cipher:
-              name: adouble_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          adoubleprecision:
-            dataType: DOUBLE PRECISION(10,6)
-            cipher:
-              name: adoubleprecision_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-          areal:
-            dataType: REAL
-            cipher:
-              name: areal_cipher
-              encryptorName: aes_encryptor
-              dataType: varchar(200)
-
-
+- !ENCRYPT
+  encryptors:
+    aes_encryptor:
+      type: AES
+      props:
+        aes-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+    like_encryptor:
+      type: CHAR_DIGEST_LIKE
+    md5_encryptor:
+      type: MD5
+  tables:
+    t_product:
+      columns:
+        price:
+          dataType: DECIMAL
+          plainColumn: price_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: price_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200) not null default ''
+          assistedQueryColumn: price_assisted
+          assistedQueryEncryptorName: md5_encryptor
+          assistedQueryDataType: varchar(100) not null default ''
+          likeQueryColumn: price_like
+          likeQueryEncryptorName: like_encryptor
+          likeQueryDataType: varchar(50) not null default ''
+    t_user:
+      columns:
+        age:
+          dataType: int not null
+          plainColumn: age_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: age_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200) not null
+    t_number:
+      columns:
+        asmallint:
+          dataType: SMALLINT(100)
+          cipherColumn: asmallint_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        aMEDIUMINT:
+          dataType: MEDIUMINT(100) UNSIGNED
+          cipherColumn: aMEDIUMINT_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        aintunsigned:
+          dataType: INT(100) UNSIGNED
+          cipherColumn: aintunsigned_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        aint:
+          dataType: INT
+          cipherColumn: aint_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        ainteger:
+          dataType: INTEGER
+          cipherColumn: ainteger_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        aintegerunsigned:
+          dataType: INTEGER UNSIGNED
+          cipherColumn: aintegerunsigned_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        abigint:
+          dataType: BIGINT
+          cipherColumn: abigint_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        abigintunsigned:
+          dataType: BIGINT UNSIGNED
+          cipherColumn: abigintunsigned_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        adecimal:
+          dataType: DECIMAL(10,5)
+          cipherColumn: adecimal_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        anumeric:
+          dataType: NUMERIC(10,6)
+          cipherColumn: anumeric_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        afixed:
+          dataType: FIXED(10,6)
+          cipherColumn: afixed_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        afloat:
+          dataType: FLOAT(11)
+          cipherColumn: afloat_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        afloatbig:
+          dataType: FLOAT(53)
+          cipherColumn: afloatbig_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        afloutdouble:
+          dataType: FLOAT(10,4)
+          cipherColumn: afloutdouble_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        adouble:
+          dataType: DOUBLE(10,6)
+          cipherColumn: adouble_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        adoubleprecision:
+          dataType: DOUBLE PRECISION(10,6)
+          cipherColumn: adoubleprecision_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
+        areal:
+          dataType: REAL
+          cipherColumn: areal_cipher
+          encryptorName: aes_encryptor
+          cipherDataType: varchar(200)
 # SPEX ADDED: END

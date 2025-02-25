@@ -19,7 +19,7 @@ rules:
   - !SINGLE
     tables:
       - "*.*"
-  - !NEW_ENCRYPT
+  - !ENCRYPT
     encryptors:
       aes_encryptor:
         type: AES
@@ -74,82 +74,62 @@ rules:
       t_user:
         columns:
           user_name:
-            plain:
-              name: user_name_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: user_name_cipher
-              encryptorName: aes_encryptor
-            likeQuery:
-              name: user_name_like
-              encryptorName: char_transform_like_encryptor
+            plainColumn: user_name_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: user_name_cipher
+            encryptorName: aes_encryptor
+            likeQueryColumn: user_name_like
+            likeQueryEncryptorName: char_transform_like_encryptor
             assistedQuery:
               name: user_name_assisted_query
               encryptorName: sha_assisted_encryptor
           password:
-            plain:
-              name: password_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: password_cipher
-              encryptorName: des_encryptor
-            likeQuery:
-              name: password_like
-              encryptorName: char_digest_like_encryptor
+            plainColumn: password_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: password_cipher
+            encryptorName: des_encryptor
+            likeQueryColumn: password_like
+            likeQueryEncryptorName: char_digest_like_encryptor
             assistedQuery:
               name: password_assisted_query
               encryptorName: md5_assisted_encryptor
           email:
-            plain:
-              name: email_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: email_cipher
-              encryptorName: desede_encryptor
+            plainColumn: email_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: email_cipher
+            encryptorName: desede_encryptor
           address:
-            plain:
-              name: address_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: address_cipher
-              encryptorName: rsa_encryptor
+            plainColumn: address_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: address_cipher
+            encryptorName: rsa_encryptor
           city:
-            plain:
-              name: city_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: city_cipher
-              encryptorName: rc4_encryptor
+            plainColumn: city_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: city_cipher
+            encryptorName: rc4_encryptor
           country:
-            plain:
-              name: country_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: country_cipher
-              encryptorName: rc4_encryptor
+            plainColumn: country_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: country_cipher
+            encryptorName: rc4_encryptor
           province:
-            plain:
-              name: province_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: province_cipher
-              encryptorName: sm4_encryptor
+            plainColumn: province_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: province_cipher
+            encryptorName: sm4_encryptor
       t_user_details:
         columns:
           number:
-            plain:
-              name: number_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: number_cipher
-              encryptorName: aes_encryptor
+            plainColumn: number_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: number_cipher
+            encryptorName: aes_encryptor
           number_new:
-            plain:
-              name: number_new_plain
-              queryWithPlain: ${query_with_plain}
-            cipher:
-              name: number_new_cipher
-              encryptorName: aes_encryptor
+            plainColumn: number_new_plain
+            queryWithCipherColumn: ${query_with_cipher}
+            cipherColumn: number_new_cipher
+            encryptorName: aes_encryptor
 props:
   sql-show: true
 
