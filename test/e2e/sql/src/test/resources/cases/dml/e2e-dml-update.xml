@@ -30,7 +30,7 @@
     
     <!-- SPEX CHANGED: BEGIN -->
     <!-- fixme dm Unknown column 'o.status' in 'unknown clause'. -->
-    <test-case sql="UPDATE t_order AS o SET o.status = ? WHERE o.order_id = ? AND o.user_id = ?" db-types="H2,MySQL,SQLServer,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="UPDATE t_order AS o SET o.status = ? WHERE o.order_id = ? AND o.user_id = ?" db-types="H2,MySQL,SQLServer,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
     <!-- SPEX CHANGED: END -->
         <assertion parameters="update:String, 1000:int, 10:int" expected-data-file="update.xml" />
     </test-case>

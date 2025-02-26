@@ -19,7 +19,7 @@
 <e2e-test-cases>
     <!-- fixme dm 创建索引名重复 -->
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="CREATE INDEX t_order_details_index ON t_order_details (id)" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="CREATE INDEX t_details_idx ON t_order_details (id)" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
     <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="create_index.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
@@ -27,7 +27,7 @@
         </assertion>
     </test-case>
 
-    <test-case sql="CREATE INDEX t_broadcast_table_for_ddl_index ON t_broadcast_table_for_ddl (id)" scenario-types="db,tbl,dbtbl_with_readwrite_splitting">
+    <test-case sql="CREATE INDEX t_broadcast_table_for_ddl_idx ON t_broadcast_table_for_ddl (id)" scenario-types="db,tbl,dbtbl_with_readwrite_splitting">
         <assertion expected-data-file="create_broadcast_index.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
@@ -43,7 +43,7 @@
     </test-case>
     <!-- SPEX CHANGED: END -->
 
-    <test-case sql="CREATE UNIQUE INDEX t_broadcast_table_for_ddl_index ON t_broadcast_table_for_ddl (id)" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="CREATE UNIQUE INDEX t_broadcast_table_for_ddl_idx ON t_broadcast_table_for_ddl (id)" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-file="create_broadcast_unique_index.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
@@ -52,7 +52,7 @@
     
     <!-- fixme dm 创建索引名重复 -->
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="CREATE UNIQUE INDEX t_order_details_index ON t_order_details (id)" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="CREATE UNIQUE INDEX t_details_idx ON t_order_details (id)" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
     <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="create_unique_index.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />

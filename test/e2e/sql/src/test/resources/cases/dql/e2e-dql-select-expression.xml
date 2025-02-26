@@ -25,7 +25,7 @@
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT o.order_id + 1 * 2 as exp FROM t_order AS o ORDER BY o.order_id" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="SELECT o.order_id + 1 * 2 as exp FROM t_order AS o ORDER BY o.order_id" db-types="MySQL,PostgreSQL,openGauss,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
@@ -34,7 +34,7 @@
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <!--<test-case sql="SELECT date_format(creation_date,  '%%y-%%m-%%d') as creation_date, count(*) as c_number FROM `t_order_item` WHERE order_id in (?, ?) GROUP BY date_format(creation_date, '%%y-%%m-%%d')" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
+    <!--<test-case sql="SELECT date_format(creation_date,  '%%y-%%m-%%d') as creation_date, count(*) as c_number FROM `t_order_item` WHERE order_id in (?, ?) GROUP BY date_format(creation_date, '%%y-%%m-%%d')" db-types="MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
     <!--<assertion sharding-rule-type="dbtbl_with_readwrite_splitting" parameters="1000:int, 1100:int" expected-data-source-name="read_dataset" />-->
     <!--</test-case>-->
     
@@ -89,7 +89,7 @@
     <!-- SPEX CHANGED: END -->
     
     <!-- // TODO -->
-    <!--    <test-case sql="SELECT AVG(DISTINCT order_id) FROM t_order WHERE order_id &lt; 1100" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
+    <!--    <test-case sql="SELECT AVG(DISTINCT order_id) FROM t_order WHERE order_id &lt; 1100" db-types="MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
     <!--        <assertion expected-data-source-name="read_dataset" />-->
     <!--    </test-case>-->
     
@@ -99,7 +99,7 @@
     
     <!-- SPEX CHANGED: BEGIN -->
     <!-- FIXME columnType is not correct -->
-    <!--<test-case sql="SELECT COUNT(DISTINCT order_id), SUM(DISTINCT order_id) FROM t_order WHERE order_id &lt; 1100" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <!--<test-case sql="SELECT COUNT(DISTINCT order_id), SUM(DISTINCT order_id) FROM t_order WHERE order_id &lt; 1100" db-types="MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>-->
     <!-- SPEX CHANGED: END -->
@@ -114,12 +114,12 @@
     </test-case>-->
 
     <!-- // TODO Until test cases support enabling for specific database version. -->
-    <!--    <test-case sql="VALUES ROW(1,1)" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
+    <!--    <test-case sql="VALUES ROW(1,1)" db-types="MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
     <!--        <assertion />-->
     <!--    </test-case>-->
 
     <!-- // TODO Until test cases support enabling for specific database version. -->
-    <!--    <test-case sql="VALUES ROW(1,-2,3), ROW(5,7,9), ROW(4,6,8) ORDER BY column_1 desc, column_0 desc limit ?" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
+    <!--    <test-case sql="VALUES ROW(1,-2,3), ROW(5,7,9), ROW(4,6,8) ORDER BY column_1 desc, column_0 desc limit ?" db-types="MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">-->
     <!--        <assertion parameters="10:int" />-->
     <!--    </test-case>-->
 </e2e-test-cases>

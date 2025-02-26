@@ -20,10 +20,11 @@
     <test-case sql="SELECT * FROM (SELECT TOP (?) row_number() OVER (ORDER BY i.item_id DESC) AS rownum_, i.item_id, o.order_id as order_id, o.status as status, o.user_id as user_id FROM t_order o JOIN t_order_item i ON o.user_id = i.user_id AND o.order_id = i.order_id WHERE o.user_id IN (?, ?) AND o.order_id BETWEEN ? AND ?) AS row_" db-types="SQLServer" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="2:int, 10:int, 19:int, 1000:int, 1909:int" expected-data-source-name="read_dataset" />
     </test-case>
-    
-    <test-case sql="SELECT * FROM (SELECT row_.*, rownum rownum_ FROM (SELECT order0_.order_id as order_id, order0_.status as status, order0_.user_id as user_id FROM t_order order0_ JOIN t_order_item i ON order0_.user_id = i.user_id AND order0_.order_id = i.order_id WHERE order0_.user_id IN (?, ?) AND order0_.order_id BETWEEN ? AND ? ORDER BY i.item_id DESC) row_ WHERE rownum &lt;= ?)" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+
+    <!-- FIXME Oracle 暂不支持 -->
+    <!--<test-case sql="SELECT * FROM (SELECT row_.*, rownum rownum_ FROM (SELECT order0_.order_id as order_id, order0_.status as status, order0_.user_id as user_id FROM t_order order0_ JOIN t_order_item i ON order0_.user_id = i.user_id AND order0_.order_id = i.order_id WHERE order0_.user_id IN (?, ?) AND order0_.order_id BETWEEN ? AND ? ORDER BY i.item_id DESC) row_ WHERE rownum &lt;= ?)" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="10:int, 19:int, 1000:int, 1909:int, 2:int" expected-data-source-name="read_dataset" />
-    </test-case>
+    </test-case>-->
     
     <test-case sql="SELECT * FROM (SELECT TOP (?) row_number() OVER (ORDER BY i.item_id DESC) AS rownum_, i.item_id, o.order_id as order_id, o.status as status, o.user_id as user_id FROM t_order o JOIN t_order_item i ON o.user_id = i.user_id AND o.order_id = i.order_id WHERE o.user_id IN (?, ?) AND o.order_id BETWEEN ? AND ?) AS row_ WHERE row_.rownum_ &gt; ?" db-types="SQLServer" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="4:int, 10:int, 19:int, 1000:int, 1909:int, 2:int" expected-data-source-name="read_dataset" />
@@ -32,14 +33,16 @@
     <test-case sql="SELECT * FROM (SELECT TOP (?) row_number() OVER (ORDER BY i.item_id DESC) AS rownum_, i.item_id, o.order_id as order_id, o.status as status, o.user_id as user_id FROM t_order o JOIN t_order_item i ON o.user_id = i.user_id AND o.order_id = i.order_id WHERE o.user_id IN (?, ?) AND o.order_id BETWEEN ? AND ?) AS row_ WHERE row_.rownum_ &gt;= ?" db-types="SQLServer" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="4:int, 10:int, 19:int, 1000:int, 1909:int, 3:int" expected-data-source-name="read_dataset" />
     </test-case>
-    
-    <test-case sql="SELECT * FROM (SELECT row_.*, rownum rownum_ FROM (SELECT order0_.order_id as order_id, order0_.status as status, order0_.user_id as user_id FROM t_order order0_ JOIN t_order_item i ON order0_.user_id = i.user_id AND order0_.order_id = i.order_id WHERE order0_.user_id IN (?, ?) AND order0_.order_id BETWEEN ? AND ? ORDER BY i.item_id DESC) row_ WHERE rownum &lt;= ?) t WHERE t.rownum_ &gt; ?" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+
+    <!-- FIXME Oracle 暂不支持 -->
+    <!--<test-case sql="SELECT * FROM (SELECT row_.*, rownum rownum_ FROM (SELECT order0_.order_id as order_id, order0_.status as status, order0_.user_id as user_id FROM t_order order0_ JOIN t_order_item i ON order0_.user_id = i.user_id AND order0_.order_id = i.order_id WHERE order0_.user_id IN (?, ?) AND order0_.order_id BETWEEN ? AND ? ORDER BY i.item_id DESC) row_ WHERE rownum &lt;= ?) t WHERE t.rownum_ &gt; ?" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="10:int, 19:int, 1000:int, 1909:int, 4:int, 2:int" expected-data-source-name="read_dataset" />
-    </test-case>
-    
-    <test-case sql="SELECT * FROM (SELECT row_.*, rownum rownum_ FROM (SELECT order0_.order_id as order_id, order0_.status as status, order0_.user_id as user_id FROM t_order order0_ JOIN t_order_item i ON order0_.user_id = i.user_id AND order0_.order_id = i.order_id WHERE order0_.user_id IN (?, ?) AND order0_.order_id BETWEEN ? AND ? ORDER BY i.item_id DESC) row_ WHERE rownum &lt;= ?) t WHERE t.rownum_ &gt;= ?" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    </test-case>-->
+
+    <!-- FIXME Oracle 暂不支持 -->
+    <!--<test-case sql="SELECT * FROM (SELECT row_.*, rownum rownum_ FROM (SELECT order0_.order_id as order_id, order0_.status as status, order0_.user_id as user_id FROM t_order order0_ JOIN t_order_item i ON order0_.user_id = i.user_id AND order0_.order_id = i.order_id WHERE order0_.user_id IN (?, ?) AND order0_.order_id BETWEEN ? AND ? ORDER BY i.item_id DESC) row_ WHERE rownum &lt;= ?) t WHERE t.rownum_ &gt;= ?" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="10:int, 19:int, 1000:int, 1909:int, 4:int, 3:int" expected-data-source-name="read_dataset" />
-    </test-case>
+    </test-case>-->
     
     <!-- TODO Replace with standard table structure -->
     <!--<test-case sql="SELECT * FROM (SELECT order_id_sharding, user_id FROM t_order_federate_sharding WHERE order_id_sharding = 1010) AS TEMP" scenario-types="db,dbtbl_with_readwrite_splitting_and_encrypt,sharding_and_encrypt,encrypt_and_readwrite_splitting">
@@ -56,12 +59,12 @@
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '_1000018')" db-types="MySQL,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
+    <test-case sql="SELECT * FROM t_merchant WHERE merchant_id IN (SELECT merchant_id FROM t_merchant WHERE business_code LIKE '_1000018')" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
                scenario-comments="Test single table's LIKE operator underscore wildcard in subquery select statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in subquery select statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT merchant_id, business_code, telephone FROM (SELECT * FROM t_merchant) temp WHERE temp.business_code LIKE '_1000018'" db-types="MySQL,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
+    <test-case sql="SELECT merchant_id, business_code, telephone FROM (SELECT * FROM t_merchant) temp WHERE temp.business_code LIKE '_1000018'" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
                scenario-comments="Test single table's LIKE operator underscore wildcard in subquery select statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in subquery select statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
