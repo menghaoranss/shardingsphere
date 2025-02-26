@@ -20,19 +20,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
-        <artifactId>shardingsphere-features</artifactId>
+        <artifactId>shardingsphere-encrypt</artifactId>
         <version>5.5.2-PINGAN-SNAPSHOT</version>
     </parent>
-    <artifactId>shardingsphere-encrypt</artifactId>
+    <groupId>com.sphere-ex</groupId>
+    <artifactId>dbplusengine-encrypt-plugin</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     
     <modules>
-        <module>api</module>
-        <module>core</module>
-        <module>distsql</module>
-        <!-- SPEX ADDED: BEGIN -->
-        <module>plugin</module>
-        <!-- SPEX ADDED: END -->
+        <module>encryptor</module>
     </modules>
 </project>

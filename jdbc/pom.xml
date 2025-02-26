@@ -215,5 +215,13 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
+        
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>com.sphere-ex</groupId>
+            <artifactId>dbplusengine-encrypt-plugin-encryptor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- SPEX ADDED: END -->
     </dependencies>
 </project>
