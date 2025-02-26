@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.broadcast.route.engine.type.unicast;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.ddl.AlterViewStatementContext;
@@ -54,9 +56,10 @@ class BroadcastUnicastRouteEngineTest {
     @Mock
     private ConnectionContext connectionContext;
     
+    @SphereEx(Type.MODIFY)
     @BeforeEach
     void setUp() {
-        when(rule.getDataSourceNames()).thenReturn(Arrays.asList("ds_0", "ds_1"));
+        when(rule.getAvailableDataSourceNames(true)).thenReturn(Arrays.asList("ds_0", "ds_1"));
     }
     
     @Test

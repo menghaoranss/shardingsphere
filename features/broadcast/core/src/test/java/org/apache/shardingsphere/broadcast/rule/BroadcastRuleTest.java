@@ -17,7 +17,11 @@
 
 package org.apache.shardingsphere.broadcast.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.broadcast.config.BroadcastRuleConfiguration;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.infra.rule.attribute.RuleAttributes;
 import org.apache.shardingsphere.infra.rule.attribute.datasource.DataSourceMapperRuleAttribute;
@@ -41,8 +45,10 @@ class BroadcastRuleTest {
     
     @Test
     void assertGetDataSourceNames() {
+        @SphereEx(Type.MODIFY)
         BroadcastRule rule = new BroadcastRule(
-                new BroadcastRuleConfiguration(Collections.emptyList()), mockDataSourceMap(), Arrays.asList(mockBuiltRule(), mock(ShardingSphereRule.class, RETURNS_DEEP_STUBS)));
+                new BroadcastRuleConfiguration(Collections.emptyList()), mockDataSourceMap(), Arrays.asList(mockBuiltRule(), mock(ShardingSphereRule.class, RETURNS_DEEP_STUBS)),
+                "", mock(DatabaseType.class), mock(ComputeNodeInstanceContext.class));
         assertThat(rule.getDataSourceNames(), is(Collections.singleton("foo_ds")));
     }
     
@@ -66,7 +72,9 @@ class BroadcastRuleTest {
     
     @Test
     void assertGetBroadcastTableNames() {
-        BroadcastRule rule = new BroadcastRule(new BroadcastRuleConfiguration(Collections.singleton("foo_tbl")), Collections.emptyMap(), Collections.emptyList());
+        @SphereEx(Type.MODIFY)
+        BroadcastRule rule = new BroadcastRule(new BroadcastRuleConfiguration(Collections.singleton("foo_tbl")), Collections.emptyMap(), Collections.emptyList(),
+                "", mock(DatabaseType.class), mock(ComputeNodeInstanceContext.class));
         assertThat(rule.getBroadcastTableNames(Arrays.asList("foo_tbl", "bar_tbl")), is(Collections.singleton("foo_tbl")));
     }
 }

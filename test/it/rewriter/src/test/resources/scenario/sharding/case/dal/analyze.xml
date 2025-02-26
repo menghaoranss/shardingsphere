@@ -109,7 +109,7 @@
     </rewrite-assertion>
     <rewrite-assertion id="analyze_broadcast_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_config" />
-        <output sql="ANALYZE TABLE t_config" />
+        <output sql="ANALYZE TABLE `db`.t_config" />
     </rewrite-assertion>
     <rewrite-assertion id="analyze_single_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_single" />
@@ -135,12 +135,12 @@
     </rewrite-assertion>
     <rewrite-assertion id="analyze_single_data_node_and_broadcast_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_order, t_config" />
-        <output sql="ANALYZE TABLE t_order_0, t_config" />
+        <output sql="ANALYZE TABLE t_order_0, `db`.t_config" />
     </rewrite-assertion>
     <rewrite-assertion id="analyze_multi_data_node_and_broadcast_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_account, t_config" />
-        <output sql="ANALYZE TABLE t_account_0, t_config" />
-        <output sql="ANALYZE TABLE t_account_1, t_config" />
+        <output sql="ANALYZE TABLE t_account_0, `db`.t_config" />
+        <output sql="ANALYZE TABLE t_account_1, `db`.t_config" />
     </rewrite-assertion>
     <rewrite-assertion id="analyze_single_data_node_and_single_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_order, t_single" />
@@ -153,15 +153,15 @@
     </rewrite-assertion>
     <rewrite-assertion id="analyze_broadcast_and_single_data_node_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_config, t_order" />
-        <output sql="ANALYZE TABLE t_config, t_order_0" />
+        <output sql="ANALYZE TABLE `db`.t_config, t_order_0" />
     </rewrite-assertion>
     <rewrite-assertion id="analyze_broadcast_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_config, t_order_type" />
-        <output sql="ANALYZE TABLE t_config, t_order_type" />
+        <output sql="ANALYZE TABLE `db`.t_config, `db`.t_order_type" />
     </rewrite-assertion>
     <rewrite-assertion id="analyze_broadcast_and_single_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_config, t_single" />
-        <output sql="ANALYZE TABLE t_config, `db`.t_single" />
+        <output sql="ANALYZE TABLE `db`.t_config, `db`.t_single" />
     </rewrite-assertion>
     <rewrite-assertion id="analyze_single_and_single_data_node_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_single, t_order" />
@@ -169,7 +169,7 @@
     </rewrite-assertion>
     <rewrite-assertion id="analyze_single_and_broadcast_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_single, t_config" />
-        <output sql="ANALYZE TABLE `db`.t_single, t_config" />
+        <output sql="ANALYZE TABLE `db`.t_single, `db`.t_config" />
     </rewrite-assertion>
     <rewrite-assertion id="analyze_single_table_for_mysql" db-types="MySQL">
         <input sql="ANALYZE TABLE t_single, t_single_extend" />

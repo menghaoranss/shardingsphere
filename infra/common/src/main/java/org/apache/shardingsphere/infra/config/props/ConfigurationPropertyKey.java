@@ -141,7 +141,13 @@ public enum ConfigurationPropertyKey implements TypedPropertyKey {
      * Default character set name.
      */
     @SphereEx
-    DEFAULT_CHARACTER_SET_NAME("default-character-set-name", "utf8mb4", String.class, false);
+    DEFAULT_CHARACTER_SET_NAME("default-character-set-name", "utf8mb4", String.class, false),
+    
+    /**
+     * Schema rewrite enabled.
+     */
+    @SphereEx
+    SCHEMA_REWRITE_ENABLED("schema-rewrite-enabled", String.valueOf(Boolean.TRUE), boolean.class, false);
     
     private final String key;
     

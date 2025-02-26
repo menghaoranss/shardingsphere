@@ -17,26 +17,52 @@
 
 package org.apache.shardingsphere.broadcast.yaml.swapper;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.broadcast.yaml.config.keygen.YamlBroadcastKeyGenerateStrategyConfiguration;
+import com.sphereex.dbplusengine.broadcast.yaml.swapper.keygen.YamlBroadcastKeyGenerateStrategyConfigurationSwapper;
 import org.apache.shardingsphere.broadcast.config.BroadcastRuleConfiguration;
 import org.apache.shardingsphere.broadcast.constant.BroadcastOrder;
 import org.apache.shardingsphere.broadcast.yaml.config.YamlBroadcastRuleConfiguration;
+import org.apache.shardingsphere.infra.algorithm.core.yaml.YamlAlgorithmConfigurationSwapper;
 import org.apache.shardingsphere.infra.yaml.config.swapper.rule.YamlRuleConfigurationSwapper;
+
+import java.util.Map.Entry;
 
 /**
  * YAML broadcast rule configuration swapper.
  */
 public final class YamlBroadcastRuleConfigurationSwapper implements YamlRuleConfigurationSwapper<YamlBroadcastRuleConfiguration, BroadcastRuleConfiguration> {
     
+    @SphereEx
+    private final YamlBroadcastKeyGenerateStrategyConfigurationSwapper keyGenerateStrategySwapper = new YamlBroadcastKeyGenerateStrategyConfigurationSwapper();
+    
+    @SphereEx
+    private final YamlAlgorithmConfigurationSwapper algorithmSwapper = new YamlAlgorithmConfigurationSwapper();
+    
     @Override
     public YamlBroadcastRuleConfiguration swapToYamlConfiguration(final BroadcastRuleConfiguration data) {
         YamlBroadcastRuleConfiguration result = new YamlBroadcastRuleConfiguration();
         data.getTables().forEach(each -> result.getTables().add(each));
+        // SPEX ADDED: BEGIN
+        data.getActualDataSourceNames().forEach(each -> result.getActualDataSourceNames().add(each));
+        data.getKeyGenerateStrategies().forEach((key, value) -> result.getKeyGenerateStrategies().put(key, keyGenerateStrategySwapper.swapToYamlConfiguration(value)));
+        data.getKeyGenerators().forEach((key, value) -> result.getKeyGenerators().put(key, algorithmSwapper.swapToYamlConfiguration(value)));
+        // SPEX ADDED: END
         return result;
     }
     
+    @SphereEx(Type.MODIFY)
     @Override
     public BroadcastRuleConfiguration swapToObject(final YamlBroadcastRuleConfiguration yamlConfig) {
-        return new BroadcastRuleConfiguration(yamlConfig.getTables());
+        BroadcastRuleConfiguration result = new BroadcastRuleConfiguration(yamlConfig.getTables(), yamlConfig.getActualDataSourceNames());
+        for (Entry<String, YamlBroadcastKeyGenerateStrategyConfiguration> entry : yamlConfig.getKeyGenerateStrategies().entrySet()) {
+            YamlBroadcastKeyGenerateStrategyConfiguration keyGenerateStrategyConfig = entry.getValue();
+            keyGenerateStrategyConfig.setLogicTable(entry.getKey());
+            result.getKeyGenerateStrategies().put(entry.getKey(), keyGenerateStrategySwapper.swapToObject(keyGenerateStrategyConfig));
+        }
+        yamlConfig.getKeyGenerators().forEach((key, value) -> result.getKeyGenerators().put(key, algorithmSwapper.swapToObject(value)));
+        return result;
     }
     
     @Override

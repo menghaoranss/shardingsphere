@@ -510,7 +510,7 @@
     
     <rewrite-assertion id="select_with_broadcast_table_and_single_table" db-types="MySQL">
         <input sql="SELECT * FROM t_single s INNER JOIN t_config c ON s.account_id = c.account_id" />
-        <output sql="SELECT * FROM `db`.t_single s INNER JOIN t_config c ON s.account_id = c.account_id" />
+        <output sql="SELECT * FROM `db`.t_single s INNER JOIN `db`.t_config c ON s.account_id = c.account_id" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_binding_table_with_uppercase_table_name">

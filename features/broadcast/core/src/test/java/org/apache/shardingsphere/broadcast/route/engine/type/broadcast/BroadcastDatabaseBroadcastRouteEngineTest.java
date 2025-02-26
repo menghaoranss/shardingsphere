@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.broadcast.route.engine.type.broadcast;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
 import org.apache.shardingsphere.infra.route.context.RouteUnit;
@@ -36,7 +38,11 @@ class BroadcastDatabaseBroadcastRouteEngineTest {
     void assertRoute() {
         BroadcastRule rule = mock(BroadcastRule.class);
         when(rule.getDataSourceNames()).thenReturn(Arrays.asList("ds_0", "ds_1"));
-        BroadcastDatabaseBroadcastRouteEngine engine = new BroadcastDatabaseBroadcastRouteEngine();
+        // SPEX ADDED: BEGIN
+        when(rule.getAvailableDataSourceNames(false)).thenReturn(Arrays.asList("ds_0", "ds_1"));
+        // SPEX ADDED: END
+        @SphereEx(Type.MODIFY)
+        BroadcastDatabaseBroadcastRouteEngine engine = new BroadcastDatabaseBroadcastRouteEngine(false);
         RouteContext routeContext = engine.route(rule);
         assertThat(routeContext.getRouteUnits().size(), is(2));
         Iterator<RouteUnit> iterator = routeContext.getRouteUnits().iterator();

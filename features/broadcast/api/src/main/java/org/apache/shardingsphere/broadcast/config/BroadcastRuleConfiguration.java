@@ -17,12 +17,18 @@
 
 package org.apache.shardingsphere.broadcast.config;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.broadcast.config.keygen.BroadcastKeyGenerateStrategyConfiguration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.config.rule.function.DistributedRuleConfiguration;
 import org.apache.shardingsphere.infra.config.rule.scope.DatabaseRuleConfiguration;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * Broadcast rule configuration.
@@ -32,4 +38,18 @@ import java.util.Collection;
 public final class BroadcastRuleConfiguration implements DatabaseRuleConfiguration, DistributedRuleConfiguration {
     
     private final Collection<String> tables;
+    
+    @SphereEx
+    private final Collection<String> actualDataSourceNames;
+    
+    @SphereEx
+    private final Map<String, BroadcastKeyGenerateStrategyConfiguration> keyGenerateStrategies = new LinkedHashMap<>();
+    
+    @SphereEx
+    private final Map<String, AlgorithmConfiguration> keyGenerators = new LinkedHashMap<>();
+    
+    @SphereEx
+    public BroadcastRuleConfiguration(final Collection<String> tables) {
+        this(tables, new LinkedHashSet<>());
+    }
 }

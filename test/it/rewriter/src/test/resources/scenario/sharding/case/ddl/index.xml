@@ -84,7 +84,7 @@
     
     <rewrite-assertion id="drop_index_with_broadcast_table_for_table_uniqueness_level_db" db-types="MySQL">
         <input sql="DROP INDEX broadcast_id_idx ON t_config" />
-        <output sql="DROP INDEX broadcast_id_idx ON t_config" />
+        <output sql="DROP INDEX broadcast_id_idx ON `db`.t_config" />
     </rewrite-assertion>
     
     <rewrite-assertion id="drop_index_for_schema_uniqueness_level_db" db-types="PostgreSQL,openGauss">

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.broadcast.route.engine.type.broadcast;
 
+import com.sphereex.dbplusengine.SphereEx;
+import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.broadcast.route.engine.type.BroadcastRouteEngine;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
@@ -30,12 +32,20 @@ import java.util.Collections;
  * Broadcast route engine for database.
  */
 @HighFrequencyInvocation
+// SPEX ADDED: BEGIN
+@RequiredArgsConstructor
+// SPEX ADDED: END
 public final class BroadcastDatabaseBroadcastRouteEngine implements BroadcastRouteEngine {
+    
+    @SphereEx
+    private final boolean routingToActualDataSources;
     
     @Override
     public RouteContext route(final BroadcastRule rule) {
         RouteContext result = new RouteContext();
-        for (String each : rule.getDataSourceNames()) {
+        // SPEX CHANGED: BEGIN
+        for (String each : rule.getAvailableDataSourceNames(routingToActualDataSources)) {
+            // SPEX CHANGED: END
             result.getRouteUnits().add(new RouteUnit(new RouteMapper(each, each), Collections.emptyList()));
         }
         return result;

@@ -30,25 +30,25 @@
         <output sql="DROP TABLE IF EXISTS t_account_detail_0, t_account_detail_0" />
         <output sql="DROP TABLE IF EXISTS t_account_detail_1, t_account_detail_1" />
     </rewrite-assertion>
-    <rewrite-assertion id="drop_table_with_single_data_node_and_broadcast_table" db-types="MySQL,PostgreSQL,openGauss">
+    <rewrite-assertion id="drop_table_with_single_data_node_and_broadcast_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_order, t_config" />
-        <output sql="DROP TABLE IF EXISTS t_order_0, t_config" />
+        <output sql="DROP TABLE IF EXISTS t_order_0, `db`.t_config" />
     </rewrite-assertion>
     <rewrite-assertion id="drop_table_with_single_data_node_and_single_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_order, t_single" />
         <output sql="DROP TABLE IF EXISTS t_order_0, `db`.t_single" />
     </rewrite-assertion>
-    <rewrite-assertion id="drop_table_with_broadcast_and_single_data_node_table" db-types="MySQL,PostgreSQL,openGauss">
+    <rewrite-assertion id="drop_table_with_broadcast_and_single_data_node_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_config, t_order" />
-        <output sql="DROP TABLE IF EXISTS t_config, t_order_0" />
+        <output sql="DROP TABLE IF EXISTS `db`.t_config, t_order_0" />
     </rewrite-assertion>
-    <rewrite-assertion id="drop_table_with_broadcast_table" db-types="MySQL,PostgreSQL,openGauss">
+    <rewrite-assertion id="drop_table_with_broadcast_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_config, t_order_type" />
-        <output sql="DROP TABLE IF EXISTS t_config, t_order_type" />
+        <output sql="DROP TABLE IF EXISTS `db`.t_config, `db`.t_order_type" />
     </rewrite-assertion>
     <rewrite-assertion id="drop_table_with_broadcast_and_single_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_config, t_single" />
-        <output sql="DROP TABLE IF EXISTS t_config, `db`.t_single" />
+        <output sql="DROP TABLE IF EXISTS `db`.t_config, `db`.t_single" />
     </rewrite-assertion>
     <rewrite-assertion id="drop_table_with_single_and_single_data_node_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_single, t_order" />
@@ -56,7 +56,7 @@
     </rewrite-assertion>
     <rewrite-assertion id="drop_table_with_single_and_broadcast_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_single, t_config" />
-        <output sql="DROP TABLE IF EXISTS `db`.t_single, t_config" />
+        <output sql="DROP TABLE IF EXISTS `db`.t_single, `db`.t_config" />
     </rewrite-assertion>
     <rewrite-assertion id="drop_table_with_single_table" db-types="MySQL">
         <input sql="DROP TABLE IF EXISTS t_single, t_single_extend" />
