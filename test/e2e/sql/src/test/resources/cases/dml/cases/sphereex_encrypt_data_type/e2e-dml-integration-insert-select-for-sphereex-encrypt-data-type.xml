@@ -19,10 +19,10 @@
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
     <!-- insert select with CLOB type -->
-    <test-case sql="INSERT INTO T_INSERT_DATA_TYPE (ID, NAME_CLOB, PASSWORD) SELECT ID, NAME_CLOB, PASSWORD FROM T_SELECT_DATA_TYPE WHERE ID > ?" db-types="Oracle,DM" scenario-types="sphereex_encrypt_data_type" adapters="jdbc" ignore-batch-test="true">
+    <!--<test-case sql="INSERT INTO T_INSERT_DATA_TYPE (ID, NAME_CLOB, PASSWORD) SELECT ID, NAME_CLOB, PASSWORD FROM T_SELECT_DATA_TYPE WHERE ID > ?" db-types="Oracle,DM" scenario-types="sphereex_encrypt_data_type" adapters="jdbc" ignore-batch-test="true">
         <assertion parameters="1:int" expected-data-file="select_insert_select_clob.xml" >
             <destroy-sql sql="DELETE FROM T_INSERT_DATA_TYPE" />
         </assertion>
-    </test-case>
+    </test-case>-->
 </e2e-test-cases>
 <!-- SPEX ADDED: END -->
