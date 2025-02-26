@@ -78,7 +78,6 @@ class DatabaseConnectorFactoryTest {
     
     @Test
     void assertNewDatabaseConnectorWithParameters() {
-        ProxyDatabaseConnectionManager databaseConnectionManager = mock(ProxyDatabaseConnectionManager.class, RETURNS_DEEP_STUBS);
         SQLStatementContext sqlStatementContext = mock(SQLStatementContext.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.getDatabaseType()).thenReturn(databaseType);
         ShardingSphereDatabase database = mockDatabase();
@@ -87,6 +86,7 @@ class DatabaseConnectorFactoryTest {
         when(metaData.getDatabase("foo_db")).thenReturn(database);
         ContextManager contextManager = mockContextManager(database);
         when(ProxyContext.getInstance().getContextManager()).thenReturn(contextManager);
+        ProxyDatabaseConnectionManager databaseConnectionManager = mock(ProxyDatabaseConnectionManager.class, RETURNS_DEEP_STUBS);
         assertThat(DatabaseConnectorFactory.getInstance().newInstance(
                 new QueryContext(sqlStatementContext, "schemaName", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), metaData), databaseConnectionManager, false),
                 instanceOf(DatabaseConnector.class));

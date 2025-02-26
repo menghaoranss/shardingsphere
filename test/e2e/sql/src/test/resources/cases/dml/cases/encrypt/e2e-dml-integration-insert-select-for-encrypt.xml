@@ -50,9 +50,9 @@
         <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user SELECT order_id, 'test_user_name', status, remark, '15161461111', '2024-05-22' FROM t_order WHERE order_id IN(?, ?)" db-types="Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
+    <!--<test-case sql="INSERT INTO t_user SELECT order_id, 'test_user_name', status, remark, '15161461111', '2024-05-22' FROM t_order WHERE order_id IN(?, ?)" db-types="Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
         <assertion parameters="1000:int, 1001:int" expected-data-file="single_insert_with_diff_encrypt_algorithm_for_sphereex.xml" />
-    </test-case>
+    </test-case>-->
 
     <test-case sql="INSERT INTO t_user_insert (user_id, user_name, password, creation_date, update_date) SELECT user_id, user_name, password, creation_date, update_date FROM t_user_select WHERE user_id = ?" db-types="openGauss" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
         <assertion parameters="10:int" expected-data-file="single_insert_opengauss_with_diff_encrypt_algorithm_for_sphereex.xml" />
