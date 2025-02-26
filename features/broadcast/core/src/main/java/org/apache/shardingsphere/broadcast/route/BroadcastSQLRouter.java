@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.broadcast.route;
 
+import com.sphereex.dbplusengine.broadcast.route.engine.keygen.BroadcastKeyGenerateEngine;
 import org.apache.shardingsphere.broadcast.constant.BroadcastOrder;
 import org.apache.shardingsphere.broadcast.route.engine.BroadcastRouteEngineFactory;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
@@ -43,6 +44,9 @@ public final class BroadcastSQLRouter implements EntranceSQLRouter<BroadcastRule
         if (broadcastTableNames.isEmpty()) {
             return new RouteContext();
         }
+        // SPEX ADDED: BEGIN
+        BroadcastKeyGenerateEngine.generateKeys(queryContext.getSqlStatementContext(), rule, database.getName());
+        // SPEX ADDED: END
         return BroadcastRouteEngineFactory.newInstance(queryContext, broadcastTableNames).route(rule);
     }
     

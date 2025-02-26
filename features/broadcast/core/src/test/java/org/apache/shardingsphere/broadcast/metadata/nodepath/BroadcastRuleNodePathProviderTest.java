@@ -32,11 +32,15 @@ class BroadcastRuleNodePathProviderTest {
     private final RuleNodePathProvider pathProvider = TypedSPILoader.getService(RuleNodePathProvider.class, BroadcastRuleConfiguration.class);
     
     @Test
-    void assertGetRuleNodePath() {
+    void assertNew() {
         RuleNodePath actual = pathProvider.getRuleNodePath();
-        assertTrue(actual.getNamedItems().isEmpty());
-        assertThat(actual.getUniqueItems().size(), is(1));
+        // SPEX CHANGED: BEGIN
+        assertThat(actual.getUniqueItems().size(), is(2));
+        // SPEX CHANGED: END
         assertTrue(actual.getUniqueItems().containsKey(BroadcastRuleNodePathProvider.TABLES));
+        // SPEX ADDED: BEGIN
+        assertTrue(actual.getUniqueItems().containsKey(BroadcastRuleNodePathProvider.ACTUAL_DATA_SOURCE_NAMES));
+        // SPEX ADDED: END
         assertThat(actual.getRoot().getRuleType(), is(BroadcastRuleNodePathProvider.RULE_TYPE));
     }
 }

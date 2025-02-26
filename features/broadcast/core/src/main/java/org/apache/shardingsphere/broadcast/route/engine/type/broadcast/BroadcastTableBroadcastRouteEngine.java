@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.broadcast.route.engine.type.broadcast;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.broadcast.route.engine.type.BroadcastRouteEngine;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
@@ -38,6 +39,14 @@ public final class BroadcastTableBroadcastRouteEngine implements BroadcastRouteE
     
     private final Collection<String> broadcastTableNames;
     
+    @SphereEx
+    private final boolean routingToActualDataSources;
+    
+    @SphereEx
+    public BroadcastTableBroadcastRouteEngine(final Collection<String> broadcastRuleTableNames) {
+        this(broadcastRuleTableNames, false);
+    }
+    
     @Override
     public RouteContext route(final BroadcastRule rule) {
         RouteContext result = new RouteContext();
@@ -49,7 +58,9 @@ public final class BroadcastTableBroadcastRouteEngine implements BroadcastRouteE
     
     private RouteContext getRouteContext(final BroadcastRule rule) {
         RouteContext result = new RouteContext();
-        for (String each : rule.getDataSourceNames()) {
+        // SPEX CHANGED: BEGIN
+        for (String each : rule.getAvailableDataSourceNames(routingToActualDataSources)) {
+            // SPEX CHANGED: END
             result.getRouteUnits().add(new RouteUnit(new RouteMapper(each, each), Collections.singletonList(new RouteMapper("", ""))));
         }
         return result;
@@ -58,7 +69,9 @@ public final class BroadcastTableBroadcastRouteEngine implements BroadcastRouteE
     private RouteContext getRouteContext(final BroadcastRule rule, final Collection<String> logicTableNames) {
         RouteContext result = new RouteContext();
         Collection<RouteMapper> tableRouteMappers = getTableRouteMappers(logicTableNames);
-        for (String each : rule.getDataSourceNames()) {
+        // SPEX CHANGED: BEGIN
+        for (String each : rule.getAvailableDataSourceNames(routingToActualDataSources)) {
+            // SPEX CHANGED: END
             RouteMapper dataSourceMapper = new RouteMapper(each, each);
             result.getRouteUnits().add(new RouteUnit(dataSourceMapper, tableRouteMappers));
         }

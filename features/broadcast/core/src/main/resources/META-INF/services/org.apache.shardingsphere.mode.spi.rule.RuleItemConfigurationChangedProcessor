@@ -16,3 +16,7 @@
 #
 
 org.apache.shardingsphere.broadcast.rule.changed.BroadcastTableChangedProcessor
+
+com.sphereex.dbplusengine.broadcast.rule.changed.BroadcastActualDataSourceNamesChangedProcessor
+com.sphereex.dbplusengine.broadcast.rule.changed.BroadcastKeyGenerateStrategiesChangedProcessor
+com.sphereex.dbplusengine.broadcast.rule.changed.BroadcastKeyGeneratorsChangedProcessor

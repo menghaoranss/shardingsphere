@@ -18,5 +18,17 @@
 rules:
 - !BROADCAST
   tables:
-  - foo_tbl
-  - bar_tbl
+    - foo_tbl
+    - bar_tbl
+  # SPEX ADDED: BEGIN
+  actualDataSourceNames:
+  - ds_0
+  - ds_1
+  keyGenerateStrategies:
+    foo_tbl:
+      keyGenerateColumn: id
+      keyGeneratorName: fixture
+  keyGenerators:
+    fixture:
+      type: FIXTURE
+  # SPEX ADDED: END

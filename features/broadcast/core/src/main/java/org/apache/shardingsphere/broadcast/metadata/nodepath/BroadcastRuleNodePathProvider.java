@@ -17,12 +17,14 @@
 
 package org.apache.shardingsphere.broadcast.metadata.nodepath;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.broadcast.config.BroadcastRuleConfiguration;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.mode.node.path.rule.RuleNodePath;
 import org.apache.shardingsphere.mode.node.spi.RuleNodePathProvider;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * Broadcast rule node path provider.
@@ -33,7 +35,18 @@ public final class BroadcastRuleNodePathProvider implements RuleNodePathProvider
     
     public static final String TABLES = "tables";
     
-    private static final RuleNodePath INSTANCE = new RuleNodePath(RULE_TYPE, Collections.emptyList(), Collections.singleton(TABLES));
+    @SphereEx
+    public static final String ACTUAL_DATA_SOURCE_NAMES = "actual_data_source_names";
+    
+    @SphereEx
+    public static final String KEY_GENERATE_STRATEGIES = "key_generate_strategies";
+    
+    @SphereEx
+    public static final String KEY_GENERATORS = "key_generators";
+    
+    @SphereEx(Type.MODIFY)
+    private static final RuleNodePath INSTANCE = new RuleNodePath(RULE_TYPE, Arrays.asList(KEY_GENERATE_STRATEGIES, KEY_GENERATORS),
+            Arrays.asList(TABLES, ACTUAL_DATA_SOURCE_NAMES));
     
     @Override
     public RuleNodePath getRuleNodePath() {

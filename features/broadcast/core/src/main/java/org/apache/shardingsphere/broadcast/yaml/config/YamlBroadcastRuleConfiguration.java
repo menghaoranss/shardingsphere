@@ -17,9 +17,12 @@
 
 package org.apache.shardingsphere.broadcast.yaml.config;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.broadcast.yaml.config.keygen.YamlBroadcastKeyGenerateStrategyConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.broadcast.config.BroadcastRuleConfiguration;
+import org.apache.shardingsphere.infra.algorithm.core.yaml.YamlAlgorithmConfiguration;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.yaml.config.pojo.rule.YamlRuleConfiguration;
 import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleEntity;
@@ -27,7 +30,9 @@ import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleField
 import org.apache.shardingsphere.mode.node.tuple.annotation.RepositoryTupleField.Type;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Broadcast rule configuration for YAML.
@@ -39,6 +44,18 @@ public final class YamlBroadcastRuleConfiguration implements YamlRuleConfigurati
     
     @RepositoryTupleField(type = Type.TABLE)
     private Collection<String> tables = new LinkedList<>();
+    
+    @SphereEx
+    @RepositoryTupleField(type = Type.DATA_SOURCE)
+    private Collection<String> actualDataSourceNames = new LinkedList<>();
+    
+    @SphereEx
+    @RepositoryTupleField(type = Type.STRATEGY)
+    private Map<String, YamlBroadcastKeyGenerateStrategyConfiguration> keyGenerateStrategies = new LinkedHashMap<>();
+    
+    @SphereEx
+    @RepositoryTupleField(type = Type.ALGORITHM)
+    private Map<String, YamlAlgorithmConfiguration> keyGenerators = new LinkedHashMap<>();
     
     @Override
     public Class<? extends RuleConfiguration> getRuleConfigurationType() {

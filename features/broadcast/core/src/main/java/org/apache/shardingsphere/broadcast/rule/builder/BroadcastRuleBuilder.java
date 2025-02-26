@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.broadcast.rule.builder;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.broadcast.config.BroadcastRuleConfiguration;
 import org.apache.shardingsphere.broadcast.constant.BroadcastOrder;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
@@ -33,10 +35,11 @@ import java.util.Collection;
  */
 public final class BroadcastRuleBuilder implements DatabaseRuleBuilder<BroadcastRuleConfiguration> {
     
+    @SphereEx(Type.MODIFY)
     @Override
     public BroadcastRule build(final BroadcastRuleConfiguration ruleConfig, final String databaseName, final DatabaseType protocolType,
                                final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
-        return new BroadcastRule(ruleConfig, resourceMetaData.getDataSourceMap(), builtRules);
+        return new BroadcastRule(ruleConfig, resourceMetaData.getDataSourceMap(), builtRules, databaseName, protocolType, computeNodeInstanceContext);
     }
     
     @Override

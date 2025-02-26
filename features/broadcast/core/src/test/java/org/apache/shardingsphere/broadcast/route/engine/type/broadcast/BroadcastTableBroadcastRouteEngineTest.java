@@ -42,6 +42,9 @@ class BroadcastTableBroadcastRouteEngineTest {
         BroadcastTableBroadcastRouteEngine engine = new BroadcastTableBroadcastRouteEngine(broadcastRuleTableNames);
         BroadcastRule rule = mock(BroadcastRule.class);
         when(rule.getDataSourceNames()).thenReturn(Arrays.asList("ds_0", "ds_1"));
+        // SPEX ADDED: BEGIN
+        when(rule.getAvailableDataSourceNames(false)).thenReturn(Arrays.asList("ds_0", "ds_1"));
+        // SPEX ADDED: END
         when(rule.getBroadcastTableNames(any())).thenReturn(Collections.singleton("t_address"));
         RouteContext routeContext = engine.route(rule);
         assertThat(routeContext.getRouteUnits().size(), is(2));
@@ -56,6 +59,9 @@ class BroadcastTableBroadcastRouteEngineTest {
         BroadcastTableBroadcastRouteEngine engine = new BroadcastTableBroadcastRouteEngine(broadcastRuleTableNames);
         BroadcastRule rule = mock(BroadcastRule.class);
         when(rule.getDataSourceNames()).thenReturn(Arrays.asList("ds_0", "ds_1"));
+        // SPEX ADDED: BEGIN
+        when(rule.getAvailableDataSourceNames(false)).thenReturn(Arrays.asList("ds_0", "ds_1"));
+        // SPEX ADDED: END
         when(rule.getBroadcastTableNames(any())).thenReturn(Collections.emptyList());
         RouteContext routeContext = engine.route(rule);
         assertThat(routeContext.getRouteUnits().size(), is(2));

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.broadcast.route.engine.type.unicast;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.broadcast.route.engine.type.BroadcastRouteEngine;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
@@ -53,7 +55,9 @@ public final class BroadcastUnicastRouteEngine implements BroadcastRouteEngine {
     @Override
     public RouteContext route(final BroadcastRule rule) {
         RouteContext result = new RouteContext();
-        result.getRouteUnits().add(new RouteUnit(createDataSourceRouteMapper(rule.getDataSourceNames()), createTableRouteMappers()));
+        @SphereEx(Type.MODIFY)
+        RouteMapper dataSourceMapper = createDataSourceRouteMapper(rule.getAvailableDataSourceNames(true));
+        result.getRouteUnits().add(new RouteUnit(dataSourceMapper, createTableRouteMappers()));
         return result;
     }
     

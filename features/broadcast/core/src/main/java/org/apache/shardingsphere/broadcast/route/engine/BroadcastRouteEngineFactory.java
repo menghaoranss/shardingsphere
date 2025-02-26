@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.broadcast.route.engine;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.broadcast.route.engine.type.BroadcastRouteEngine;
@@ -25,6 +27,7 @@ import org.apache.shardingsphere.broadcast.route.engine.type.broadcast.Broadcast
 import org.apache.shardingsphere.broadcast.route.engine.type.unicast.BroadcastUnicastRouteEngine;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
+import org.apache.shardingsphere.infra.binder.context.statement.ddl.CreateTableStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.CursorAvailable;
 import org.apache.shardingsphere.infra.session.connection.ConnectionContext;
 import org.apache.shardingsphere.infra.session.query.QueryContext;
@@ -68,11 +71,14 @@ public final class BroadcastRouteEngineFactory {
     private static BroadcastRouteEngine getDDLRouteEngine(final QueryContext queryContext, final Collection<String> broadcastTableNames, final SQLStatementContext sqlStatementContext) {
         return sqlStatementContext instanceof CursorAvailable
                 ? new BroadcastUnicastRouteEngine(sqlStatementContext, broadcastTableNames, queryContext.getConnectionContext())
-                : new BroadcastTableBroadcastRouteEngine(broadcastTableNames);
+                // SPEX CHANGED: BEGIN
+                : new BroadcastTableBroadcastRouteEngine(broadcastTableNames, !(sqlStatementContext instanceof CreateTableStatementContext));
+        // SPEX CHANGED: END
     }
     
+    @SphereEx(Type.MODIFY)
     private static BroadcastRouteEngine getDALRouteEngine(final Collection<String> broadcastTableNames) {
-        return new BroadcastTableBroadcastRouteEngine(broadcastTableNames);
+        return new BroadcastTableBroadcastRouteEngine(broadcastTableNames, true);
     }
     
     private static BroadcastRouteEngine getDCLRouteEngine(final Collection<String> broadcastTableNames) {
@@ -82,6 +88,8 @@ public final class BroadcastRouteEngineFactory {
     private static BroadcastRouteEngine getDMLRouteEngine(final SQLStatementContext sqlStatementContext, final ConnectionContext connectionContext, final Collection<String> broadcastTableNames) {
         return sqlStatementContext.getSqlStatement() instanceof SelectStatement
                 ? new BroadcastUnicastRouteEngine(sqlStatementContext, broadcastTableNames, connectionContext)
-                : new BroadcastDatabaseBroadcastRouteEngine();
+                // SPEX CHANGED: BEGIN
+                : new BroadcastDatabaseBroadcastRouteEngine(true);
+        // SPEX CHANGED: END
     }
 }
