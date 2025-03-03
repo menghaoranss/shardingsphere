@@ -64,6 +64,9 @@ public final class ShardingSQLRouter implements EntranceSQLRouter<ShardingRule> 
                                              final Collection<String> tableNames, final ConfigurationProperties props) {
         Collection<String> logicTableNames = rule.getShardingLogicTableNames(tableNames);
         if (logicTableNames.isEmpty()) {
+            // SPEX ADDED: BEGIN
+            queryContext.setDefaultDataSourceName(rule.getDefaultDataSourceName());
+            // SPEX ADDED: END
             return new RouteContext();
         }
         SQLStatement sqlStatement = queryContext.getSqlStatementContext().getSqlStatement();

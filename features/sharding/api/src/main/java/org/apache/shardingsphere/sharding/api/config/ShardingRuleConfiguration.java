@@ -49,9 +49,6 @@ public final class ShardingRuleConfiguration implements DatabaseRuleConfiguratio
     
     private Collection<ShardingTableReferenceRuleConfiguration> bindingTableGroups = new LinkedList<>();
     
-    @SphereEx
-    private Collection<String> broadcastTables = new LinkedList<>();
-    
     private ShardingStrategyConfiguration defaultDatabaseShardingStrategy;
     
     private ShardingStrategyConfiguration defaultTableShardingStrategy;
@@ -61,6 +58,9 @@ public final class ShardingRuleConfiguration implements DatabaseRuleConfiguratio
     private ShardingAuditStrategyConfiguration defaultAuditStrategy;
     
     private String defaultShardingColumn;
+    
+    @SphereEx
+    private String defaultDataSourceName;
     
     private Map<String, AlgorithmConfiguration> shardingAlgorithms = new LinkedHashMap<>();
     

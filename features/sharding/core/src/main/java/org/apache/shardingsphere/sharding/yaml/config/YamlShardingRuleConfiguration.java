@@ -35,7 +35,6 @@ import org.apache.shardingsphere.sharding.yaml.config.strategy.keygen.YamlKeyGen
 import org.apache.shardingsphere.sharding.yaml.config.strategy.sharding.YamlShardingStrategyConfiguration;
 import org.apache.shardingsphere.sharding.yaml.swapper.ShardingBindingTableRepositoryTupleKeyListNameGenerator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -58,9 +57,6 @@ public final class YamlShardingRuleConfiguration implements YamlRuleConfiguratio
     @RepositoryTupleField(type = Type.TABLE)
     @RepositoryTupleKeyListNameGenerator(ShardingBindingTableRepositoryTupleKeyListNameGenerator.class)
     private Collection<String> bindingTables = new LinkedList<>();
-    
-    @SphereEx
-    private Collection<String> broadcastTables = new ArrayList<>();
     
     @RepositoryTupleField(type = Type.DEFAULT_STRATEGY)
     private YamlShardingStrategyConfiguration defaultDatabaseStrategy;
@@ -85,6 +81,10 @@ public final class YamlShardingRuleConfiguration implements YamlRuleConfiguratio
     
     @RepositoryTupleField(type = Type.OTHER)
     private String defaultShardingColumn;
+    
+    @SphereEx
+    @RepositoryTupleField(type = Type.OTHER)
+    private String defaultDataSourceName;
     
     @RepositoryTupleField(type = Type.OTHER)
     private YamlShardingCacheConfiguration shardingCache;

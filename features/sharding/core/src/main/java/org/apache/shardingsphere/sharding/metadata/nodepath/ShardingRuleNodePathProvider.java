@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.metadata.nodepath;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.mode.node.path.rule.RuleNodePath;
 import org.apache.shardingsphere.mode.node.spi.RuleNodePathProvider;
@@ -53,6 +54,9 @@ public final class ShardingRuleNodePathProvider implements RuleNodePathProvider 
     
     public static final String DEFAULT_SHARDING_COLUMN = "default_sharding_column";
     
+    @SphereEx
+    public static final String DEFAULT_DATA_SOURCE_NAME = "default_data_source_name";
+    
     public static final String SHARDING_CACHE = "sharding_cache";
     
     private static final String DEFAULT_STRATEGIES_PREFIX = "default_strategies.";
@@ -61,6 +65,9 @@ public final class ShardingRuleNodePathProvider implements RuleNodePathProvider 
             Arrays.asList(TABLES, AUTO_TABLES, BINDING_TABLES, SHARDING_ALGORITHMS, KEY_GENERATORS, AUDITORS),
             Arrays.asList(DEFAULT_STRATEGIES_PREFIX + DEFAULT_DATABASE_STRATEGY, DEFAULT_STRATEGIES_PREFIX + DEFAULT_TABLE_STRATEGY,
                     DEFAULT_STRATEGIES_PREFIX + DEFAULT_KEY_GENERATE_STRATEGY, DEFAULT_STRATEGIES_PREFIX + DEFAULT_AUDIT_STRATEGY, DEFAULT_STRATEGIES_PREFIX + DEFAULT_SHARDING_COLUMN,
+                    // SPEX ADDED: BEGIN
+                    DEFAULT_STRATEGIES_PREFIX + DEFAULT_DATA_SOURCE_NAME,
+                    // SPEX ADDED: END
                     SHARDING_CACHE));
     
     @Override

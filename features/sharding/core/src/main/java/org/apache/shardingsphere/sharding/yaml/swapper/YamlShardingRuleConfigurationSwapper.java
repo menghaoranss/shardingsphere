@@ -60,10 +60,12 @@ public final class YamlShardingRuleConfigurationSwapper implements YamlRuleConfi
         data.getTables().forEach(each -> result.getTables().put(each.getLogicTable(), tableSwapper.swapToYamlConfiguration(each)));
         data.getAutoTables().forEach(each -> result.getAutoTables().put(each.getLogicTable(), autoTableSwapper.swapToYamlConfiguration(each)));
         result.getBindingTables().addAll(data.getBindingTableGroups().stream().map(YamlShardingTableReferenceRuleConfigurationConverter::convertToYamlString).collect(Collectors.toList()));
-        result.getBroadcastTables().addAll(data.getBroadcastTables());
         setYamlStrategies(data, result);
         setYamlAlgorithms(data, result);
         result.setDefaultShardingColumn(data.getDefaultShardingColumn());
+        // SPEX ADDED: BEGIN
+        result.setDefaultDataSourceName(data.getDefaultDataSourceName());
+        // SPEX ADDED: END
         if (null != data.getShardingCache()) {
             result.setShardingCache(shardingCacheSwapper.swapToYamlConfiguration(data.getShardingCache()));
         }
@@ -111,10 +113,12 @@ public final class YamlShardingRuleConfigurationSwapper implements YamlRuleConfi
             result.getAutoTables().add(autoTableSwapper.swapToObject(tableRuleConfig));
         }
         result.getBindingTableGroups().addAll(yamlConfig.getBindingTables().stream().map(YamlShardingTableReferenceRuleConfigurationConverter::convertToObject).collect(Collectors.toList()));
-        result.getBroadcastTables().addAll(yamlConfig.getBroadcastTables());
         setStrategies(yamlConfig, result);
         setAlgorithms(yamlConfig, result);
         result.setDefaultShardingColumn(yamlConfig.getDefaultShardingColumn());
+        // SPEX ADDED: BEGIN
+        result.setDefaultDataSourceName(yamlConfig.getDefaultDataSourceName());
+        // SPEX ADDED: END
         if (null != yamlConfig.getShardingCache()) {
             result.setShardingCache(shardingCacheSwapper.swapToObject(yamlConfig.getShardingCache()));
         }

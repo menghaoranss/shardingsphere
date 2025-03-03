@@ -155,6 +155,9 @@ rules:
           shardingAlgorithmName: it_standard_fixture
   bindingTables:
     - ref_0:t_order,t_order_item,t_order_sharding_view,t_order_details
+  # SPEX ADDED: BEGIN
+  defaultDataSourceName: ds_0
+  # SPEX ADDED: END
   shardingAlgorithms:
     it_standard_fixture:
       type: IT.STANDARD.FIXTURE

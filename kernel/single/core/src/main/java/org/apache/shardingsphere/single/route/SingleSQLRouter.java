@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.single.route;
 
 import com.cedarsoftware.util.CaseInsensitiveSet;
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
@@ -50,8 +51,13 @@ public final class SingleSQLRouter implements EntranceSQLRouter<SingleRule>, Dec
     @Override
     public RouteContext createRouteContext(final QueryContext queryContext, final RuleMetaData globalRuleMetaData, final ShardingSphereDatabase database,
                                            final SingleRule rule, final Collection<String> tableNames, final ConfigurationProperties props) {
-        if (1 == database.getResourceMetaData().getStorageUnits().size()) {
-            return createSingleDataSourceRouteContext(rule, database, queryContext);
+        if (1 == database.getResourceMetaData().getStorageUnits().size() || null != queryContext.getDefaultDataSourceName()) {
+            // SPEX CHANGED: BEGIN
+            String logicDataSource = rule.getDataSourceNames().iterator().next();
+            String actualDataSource =
+                    null == queryContext.getDefaultDataSourceName() ? database.getResourceMetaData().getStorageUnits().keySet().iterator().next() : queryContext.getDefaultDataSourceName();
+            return createSingleDataSourceRouteContext(logicDataSource, actualDataSource, queryContext);
+            // SPEX CHANGED: END
         }
         SQLStatementContext sqlStatementContext = queryContext.getSqlStatementContext();
         RouteContext routeContext = new RouteContext();
@@ -73,9 +79,8 @@ public final class SingleSQLRouter implements EntranceSQLRouter<SingleRule>, Dec
         new SingleRouteEngine(singleTables, sqlStatementContext.getSqlStatement(), queryContext.getHintValueContext()).route(routeContext, rule);
     }
     
-    private RouteContext createSingleDataSourceRouteContext(final SingleRule rule, final ShardingSphereDatabase database, final QueryContext queryContext) {
-        String logicDataSource = rule.getDataSourceNames().iterator().next();
-        String actualDataSource = database.getResourceMetaData().getStorageUnits().keySet().iterator().next();
+    @SphereEx(SphereEx.Type.MODIFY)
+    private RouteContext createSingleDataSourceRouteContext(final String logicDataSource, final String actualDataSource, final QueryContext queryContext) {
         RouteContext result = new RouteContext();
         Collection<String> tableNames = queryContext.getSqlStatementContext() instanceof TableAvailable
                 ? ((TableAvailable) queryContext.getSqlStatementContext()).getTablesContext().getTableNames()

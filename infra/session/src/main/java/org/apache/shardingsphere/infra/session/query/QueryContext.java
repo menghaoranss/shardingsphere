@@ -19,6 +19,7 @@ package org.apache.shardingsphere.infra.session.query;
 
 import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
@@ -55,6 +56,10 @@ public final class QueryContext {
     private final Collection<String> usedDatabaseNames;
     
     private final boolean useCache;
+    
+    @SphereEx
+    @Setter
+    private String defaultDataSourceName;
     
     public QueryContext(final SQLStatementContext sqlStatementContext, final String sql, final List<Object> params, final HintValueContext hintValueContext, final ConnectionContext connectionContext,
                         final ShardingSphereMetaData metaData) {

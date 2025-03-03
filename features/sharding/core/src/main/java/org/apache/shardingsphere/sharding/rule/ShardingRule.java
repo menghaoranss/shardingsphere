@@ -21,6 +21,7 @@ import com.cedarsoftware.util.CaseInsensitiveMap;
 import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
 import org.apache.shardingsphere.infra.algorithm.core.exception.AlgorithmInitializationException;
@@ -52,6 +53,7 @@ import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardS
 import org.apache.shardingsphere.sharding.api.sharding.ShardingAutoTableAlgorithm;
 import org.apache.shardingsphere.sharding.cache.ShardingCache;
 import org.apache.shardingsphere.sharding.constant.ShardingOrder;
+import org.apache.shardingsphere.sharding.exception.metadata.MissingRequiredShardingConfigurationException;
 import org.apache.shardingsphere.sharding.exception.metadata.ShardingTableRuleNotFoundException;
 import org.apache.shardingsphere.sharding.rule.attribute.ShardingDataNodeRuleAttribute;
 import org.apache.shardingsphere.sharding.rule.attribute.ShardingTableNamesRuleAttribute;
@@ -110,6 +112,9 @@ public final class ShardingRule implements DatabaseRule {
     
     private final String defaultShardingColumn;
     
+    @SphereEx
+    private final String defaultDataSourceName;
+    
     private final ShardingCache shardingCache;
     
     private final RuleAttributes attributes;
@@ -133,6 +138,11 @@ public final class ShardingRule implements DatabaseRule {
                 ? TypedSPILoader.getService(KeyGenerateAlgorithm.class, null)
                 : keyGenerators.get(ruleConfig.getDefaultKeyGenerateStrategy().getKeyGeneratorName());
         defaultShardingColumn = ruleConfig.getDefaultShardingColumn();
+        // SPEX ADDED: BEGIN
+        ShardingSpherePreconditions.checkState(null == ruleConfig.getDefaultDataSourceName() || dataSources.containsKey(ruleConfig.getDefaultDataSourceName()),
+                () -> new MissingRequiredShardingConfigurationException("defaultDataSourceName"));
+        defaultDataSourceName = ruleConfig.getDefaultDataSourceName();
+        // SPEX ADDED: END
         keyGenerators.values().stream().filter(ComputeNodeInstanceContextAware.class::isInstance)
                 .forEach(each -> ((ComputeNodeInstanceContextAware) each).setComputeNodeInstanceContext(computeNodeInstanceContext));
         if (defaultKeyGenerateAlgorithm instanceof ComputeNodeInstanceContextAware && -1 == computeNodeInstanceContext.getWorkerId()) {
