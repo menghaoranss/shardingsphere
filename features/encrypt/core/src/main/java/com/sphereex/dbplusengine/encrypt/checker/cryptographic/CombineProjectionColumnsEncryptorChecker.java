@@ -17,20 +17,29 @@
 
 package com.sphereex.dbplusengine.encrypt.checker.cryptographic;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.encrypt.rewrite.token.comparator.EncryptorComparator;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.infra.binder.context.segment.select.projection.Projection;
 import org.apache.shardingsphere.infra.binder.context.segment.select.projection.impl.ColumnProjection;
+import org.apache.shardingsphere.infra.binder.context.segment.select.projection.impl.ExpressionProjection;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
+import org.apache.shardingsphere.sql.parser.statement.core.extractor.ColumnExtractor;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.combine.CombineSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.CaseWhenExpression;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.TableSegmentBoundInfo;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +65,11 @@ public final class CombineProjectionColumnsEncryptorChecker {
         List<Projection> rightProjections = selectStatementContext.getSubqueryContexts().get(combineSegment.getRight().getStartIndex()).getProjectionsContext().getExpandProjections();
         ShardingSpherePreconditions.checkState(leftProjections.size() == rightProjections.size(), () -> new UnsupportedSQLOperationException("Column projections must be same for combine statement"));
         for (int i = 0; i < leftProjections.size(); i++) {
+            // SPEX ADDED: BEGIN
+            if (isLiteralExpressionProjection(leftProjections.get(i)) || isLiteralExpressionProjection(rightProjections.get(i))) {
+                continue;
+            }
+            // SPEX ADDED: END
             ColumnSegmentBoundInfo leftColumnInfo = getColumnSegmentBoundInfo(leftProjections.get(i));
             ColumnSegmentBoundInfo rightColumnInfo = getColumnSegmentBoundInfo(rightProjections.get(i));
             ShardingSpherePreconditions.checkState(EncryptorComparator.isSame(rule, leftColumnInfo, rightColumnInfo, databaseEncryptRules),
@@ -63,11 +77,39 @@ public final class CombineProjectionColumnsEncryptorChecker {
         }
     }
     
+    @SphereEx
+    private static boolean isLiteralExpressionProjection(final Projection projection) {
+        return projection instanceof ExpressionProjection && ((ExpressionProjection) projection).getExpressionSegment().getExpr() instanceof LiteralExpressionSegment;
+    }
+    
+    @SphereEx(Type.MODIFY)
     private static ColumnSegmentBoundInfo getColumnSegmentBoundInfo(final Projection projection) {
-        return projection instanceof ColumnProjection
-                ? new ColumnSegmentBoundInfo(
-                        new TableSegmentBoundInfo(((ColumnProjection) projection).getColumnBoundInfo().getOriginalDatabase(), ((ColumnProjection) projection).getColumnBoundInfo().getOriginalSchema()),
-                        ((ColumnProjection) projection).getOriginalTable(), ((ColumnProjection) projection).getOriginalColumn())
-                : new ColumnSegmentBoundInfo(new IdentifierValue(projection.getColumnLabel()));
+        ColumnSegmentBoundInfo result = null;
+        if (projection instanceof ColumnProjection) {
+            ColumnSegmentBoundInfo columnBoundInfo = ((ColumnProjection) projection).getColumnBoundInfo();
+            result = new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(columnBoundInfo.getOriginalDatabase(),
+                    columnBoundInfo.getOriginalSchema()), columnBoundInfo.getOriginalTable(), columnBoundInfo.getOriginalColumn(), columnBoundInfo.getTableSourceType());
+        }
+        if (projection instanceof ExpressionProjection) {
+            ExpressionSegment expressionSegment = ((ExpressionProjection) projection).getExpressionSegment().getExpr();
+            if (expressionSegment instanceof CaseWhenExpression) {
+                result = getCaseWhenColumnSegmentBoundInfo((CaseWhenExpression) expressionSegment);
+            }
+        }
+        if (null == result) {
+            result = new ColumnSegmentBoundInfo(new IdentifierValue(projection.getColumnLabel()));
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private static ColumnSegmentBoundInfo getCaseWhenColumnSegmentBoundInfo(final CaseWhenExpression expressionSegment) {
+        Collection<ColumnSegment> extract = ColumnExtractor.extractReturnedColumnsInCaseWhenExpression(expressionSegment);
+        if (extract.isEmpty()) {
+            return null;
+        }
+        ColumnSegmentBoundInfo columnBoundInfo = extract.iterator().next().getColumnBoundInfo();
+        TableSegmentBoundInfo tableSegmentBoundInfo = new TableSegmentBoundInfo(columnBoundInfo.getOriginalDatabase(), columnBoundInfo.getOriginalSchema());
+        return new ColumnSegmentBoundInfo(tableSegmentBoundInfo, columnBoundInfo.getOriginalTable(), columnBoundInfo.getOriginalColumn(), columnBoundInfo.getTableSourceType());
     }
 }

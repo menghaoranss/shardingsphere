@@ -17,7 +17,7 @@
 
 package com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.insert;
 
-import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.pojo.EncryptInsertSelectValueToken;
+import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.pojo.EncryptSelectValueToken;
 import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -114,7 +114,7 @@ public final class EncryptInsertSelectValueTokenGenerator implements CollectionS
                 continue;
             }
             ProjectionSegment projectionSegment = projectionSegments.get(columnIndex);
-            EncryptInsertSelectValueToken literalToken = new EncryptInsertSelectValueToken(projectionSegment.getStartIndex(), projectionSegment.getStopIndex());
+            EncryptSelectValueToken literalToken = new EncryptSelectValueToken(projectionSegment.getStartIndex(), projectionSegment.getStopIndex());
             encryptToken(literalToken, schemaName, encryptTable, insertColumnNames, projectionSegment, columnIndex++);
             sqlTokens.removeIf(sqlToken -> sqlToken.getStartIndex() == literalToken.getStartIndex());
             sqlTokens.add(literalToken);
@@ -128,7 +128,7 @@ public final class EncryptInsertSelectValueTokenGenerator implements CollectionS
         }
     }
     
-    private void encryptToken(final EncryptInsertSelectValueToken literalToken, final String schemaName, final EncryptTable encryptTable,
+    private void encryptToken(final EncryptSelectValueToken literalToken, final String schemaName, final EncryptTable encryptTable,
                               final List<String> insertColumnNames, final ProjectionSegment projectionSegment, final int columnIndex) {
         String tableName = encryptTable.getTable();
         String columnName = insertColumnNames.get(columnIndex);
@@ -143,7 +143,7 @@ public final class EncryptInsertSelectValueTokenGenerator implements CollectionS
         encryptColumn.getPlain().ifPresent(optional -> addPlainColumn(literalToken, projectionSegment));
     }
     
-    private void addCipherColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptInsertSelectValueToken literalToken,
+    private void addCipherColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptSelectValueToken literalToken,
                                  final ProjectionSegment projectionSegment) {
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
@@ -153,7 +153,7 @@ public final class EncryptInsertSelectValueTokenGenerator implements CollectionS
         }
     }
     
-    private void addAssistedQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptInsertSelectValueToken literalToken,
+    private void addAssistedQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptSelectValueToken literalToken,
                                         final ProjectionSegment projectionSegment) {
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
@@ -166,7 +166,7 @@ public final class EncryptInsertSelectValueTokenGenerator implements CollectionS
         }
     }
     
-    private void addLikeQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptInsertSelectValueToken literalToken,
+    private void addLikeQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptSelectValueToken literalToken,
                                     final ProjectionSegment projectionSegment) {
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
@@ -178,7 +178,7 @@ public final class EncryptInsertSelectValueTokenGenerator implements CollectionS
         }
     }
     
-    private void addOrderQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptInsertSelectValueToken literalToken,
+    private void addOrderQueryColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptSelectValueToken literalToken,
                                      final ProjectionSegment projectionSegment) {
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
@@ -190,7 +190,7 @@ public final class EncryptInsertSelectValueTokenGenerator implements CollectionS
         }
     }
     
-    private void addPlainColumn(final EncryptInsertSelectValueToken literalToken, final ProjectionSegment projectionSegment) {
+    private void addPlainColumn(final EncryptSelectValueToken literalToken, final ProjectionSegment projectionSegment) {
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
             literalToken.addValue(((LiteralExpressionSegment) expressionSegment).getLiterals());

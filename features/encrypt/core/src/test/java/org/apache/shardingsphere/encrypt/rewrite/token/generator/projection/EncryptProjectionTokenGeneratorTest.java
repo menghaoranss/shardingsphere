@@ -33,6 +33,7 @@ import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
+import org.apache.shardingsphere.sql.parser.statement.core.enums.TableSourceType;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.combine.CombineSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ColumnProjectionSegment;
@@ -117,10 +118,10 @@ class EncryptProjectionTokenGeneratorTest {
         doctorTable.setAlias(new AliasSegment(0, 0, new IdentifierValue("a")));
         ColumnSegment column = new ColumnSegment(0, 0, new IdentifierValue("mobile"));
         column.setColumnBoundInfo(new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue("foo_db"), new IdentifierValue("foo_db")), new IdentifierValue("doctor"),
-                new IdentifierValue("mobile")));
+                new IdentifierValue("mobile"), TableSourceType.PHYSICAL_TABLE));
         column.setOwner(new OwnerSegment(0, 0, new IdentifierValue("a")));
         ProjectionsSegment projections = mock(ProjectionsSegment.class);
-        when(projections.getProjections()).thenReturn(Collections.singleton(new ColumnProjectionSegment(column)));
+        when(projections.getProjections()).thenReturn(Collections.singletonList(new ColumnProjectionSegment(column)));
         SelectStatementContext sqlStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.getSubqueryType()).thenReturn(null);
         when(sqlStatementContext.getDatabaseType()).thenReturn(databaseType);
@@ -139,10 +140,10 @@ class EncryptProjectionTokenGeneratorTest {
         doctorTable.setAlias(new AliasSegment(0, 0, new IdentifierValue("a")));
         ColumnSegment column = new ColumnSegment(0, 0, new IdentifierValue("mobile"));
         column.setColumnBoundInfo(new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue("foo_db"), new IdentifierValue("foo_db")), new IdentifierValue("doctor"),
-                new IdentifierValue("mobile")));
+                new IdentifierValue("mobile"), TableSourceType.PHYSICAL_TABLE));
         column.setOwner(new OwnerSegment(0, 0, new IdentifierValue("a")));
         ProjectionsSegment projections = mock(ProjectionsSegment.class);
-        when(projections.getProjections()).thenReturn(Collections.singleton(new ColumnProjectionSegment(column)));
+        when(projections.getProjections()).thenReturn(Collections.singletonList(new ColumnProjectionSegment(column)));
         SelectStatementContext sqlStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.getSubqueryType()).thenReturn(null);
         when(sqlStatementContext.getDatabaseType()).thenReturn(databaseType);
@@ -160,7 +161,7 @@ class EncryptProjectionTokenGeneratorTest {
         ColumnSegment column = new ColumnSegment(0, 0, new IdentifierValue("mobile"));
         column.setOwner(new OwnerSegment(0, 0, new IdentifierValue("doctor")));
         ProjectionsSegment projections = mock(ProjectionsSegment.class);
-        when(projections.getProjections()).thenReturn(Collections.singleton(new ColumnProjectionSegment(column)));
+        when(projections.getProjections()).thenReturn(Collections.singletonList(new ColumnProjectionSegment(column)));
         SelectStatementContext sqlStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.getSubqueryType()).thenReturn(null);
         when(sqlStatementContext.getDatabaseType()).thenReturn(databaseType);
@@ -174,19 +175,18 @@ class EncryptProjectionTokenGeneratorTest {
         assertThat(actual.size(), is(1));
     }
     
+    @SphereEx
     @Test
     void assertGenerateSQLTokensWhenShorthandExpandContainsSubqueryTable() {
         SelectStatementContext sqlStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.containsTableSubquery()).thenReturn(true);
-        when(sqlStatementContext.getSqlStatement().getProjections().getProjections()).thenReturn(Collections.singleton(new ShorthandProjectionSegment(0, 0)));
-        // SPEX CHANGED: BEGIN
+        when(sqlStatementContext.getSqlStatement().getProjections().getProjections()).thenReturn(Collections.singletonList(new ShorthandProjectionSegment(0, 0)));
         when(sqlStatementContext.getDatabaseType()).thenReturn(databaseType);
         ColumnProjection columnProjection = new ColumnProjection(null, new IdentifierValue("order_id"), null, databaseType,
                 null, null, new ColumnSegmentBoundInfo(new IdentifierValue("order_id")));
         when(sqlStatementContext.getProjectionsContext().getProjections()).thenReturn(Collections.singleton(new ShorthandProjection(null, Collections.singleton(columnProjection))));
         Collection<SQLToken> actual = generator.generateSQLTokens(sqlStatementContext);
         assertThat(actual.size(), is(1));
-        // SPEX CHANGED: END
     }
     
     @SphereEx
@@ -198,15 +198,19 @@ class EncryptProjectionTokenGeneratorTest {
         CombineSegment combineSegment = mock(CombineSegment.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.getSqlStatement().getCombine().get()).thenReturn(combineSegment);
         ColumnProjection orderIdColumn = new ColumnProjection(new IdentifierValue("o"), new IdentifierValue("order_id"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("order_id")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("order_id"),
+                        TableSourceType.PHYSICAL_TABLE));
         ColumnProjection userIdColumn = new ColumnProjection(new IdentifierValue("o"), new IdentifierValue("user_id"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("user_id")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("user_id"),
+                        TableSourceType.PHYSICAL_TABLE));
         SelectStatementContext leftSelectStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(leftSelectStatementContext.getProjectionsContext().getExpandProjections()).thenReturn(Arrays.asList(orderIdColumn, userIdColumn));
         ColumnProjection merchantIdColumn = new ColumnProjection(new IdentifierValue("m"), new IdentifierValue("merchant_id"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_id")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_id"),
+                        TableSourceType.PHYSICAL_TABLE));
         ColumnProjection merchantNameColumn = new ColumnProjection(new IdentifierValue("m"), new IdentifierValue("merchant_name"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_name")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_name"),
+                        TableSourceType.PHYSICAL_TABLE));
         SelectStatementContext rightSelectStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(rightSelectStatementContext.getProjectionsContext().getExpandProjections()).thenReturn(Arrays.asList(merchantIdColumn, merchantNameColumn));
         Map<Integer, SelectStatementContext> subqueryContexts = new LinkedHashMap<>();
@@ -227,15 +231,19 @@ class EncryptProjectionTokenGeneratorTest {
         CombineSegment combineSegment = mock(CombineSegment.class, RETURNS_DEEP_STUBS);
         when(sqlStatementContext.getSqlStatement().getCombine().get()).thenReturn(combineSegment);
         ColumnProjection orderIdColumn = new ColumnProjection(new IdentifierValue("o"), new IdentifierValue("order_id"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("order_id")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("order_id"),
+                        TableSourceType.PHYSICAL_TABLE));
         ColumnProjection userIdColumn = new ColumnProjection(new IdentifierValue("o"), new IdentifierValue("user_id"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("user_id")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_order"), new IdentifierValue("user_id"),
+                        TableSourceType.PHYSICAL_TABLE));
         SelectStatementContext leftSelectStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(leftSelectStatementContext.getProjectionsContext().getExpandProjections()).thenReturn(Arrays.asList(orderIdColumn, userIdColumn));
         ColumnProjection merchantIdColumn = new ColumnProjection(new IdentifierValue("m"), new IdentifierValue("merchant_id"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_id")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_id"),
+                        TableSourceType.PHYSICAL_TABLE));
         ColumnProjection merchantNameColumn = new ColumnProjection(new IdentifierValue("m"), new IdentifierValue("merchant_name"), null, new MySQLDatabaseType(), null, null,
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_name")));
+                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("t_merchant"), new IdentifierValue("merchant_name"),
+                        TableSourceType.PHYSICAL_TABLE));
         SelectStatementContext rightSelectStatementContext = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(rightSelectStatementContext.getProjectionsContext().getExpandProjections()).thenReturn(Arrays.asList(merchantIdColumn, merchantNameColumn));
         Map<Integer, SelectStatementContext> subqueryContexts = new LinkedHashMap<>(2, 1F);

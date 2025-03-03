@@ -31,6 +31,7 @@ import org.apache.shardingsphere.infra.binder.engine.statement.dml.DeleteStateme
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.InsertStatementBinder;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.SelectStatementBinder;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.UpdateStatementBinder;
+import org.apache.shardingsphere.sql.parser.statement.core.enums.TableSourceType;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ColumnProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
@@ -86,7 +87,8 @@ public final class OracleCreateProcedureStatementBinder implements SQLStatementB
                                                                                                      final SQLStatementBinderContext binderContext) {
         Multimap<CaseInsensitiveString, TableSegmentBinderContext> result = LinkedHashMultimap.create();
         result.put(new CaseInsensitiveString(cursorRecord),
-                new SimpleTableSegmentBinderContext(createCursorProjections(new SelectStatementBinder().bind(sqlStatement, binderContext).getProjections().getProjections(), cursorRecord)));
+                new SimpleTableSegmentBinderContext(createCursorProjections(new SelectStatementBinder().bind(sqlStatement, binderContext).getProjections().getProjections(), cursorRecord),
+                        TableSourceType.TEMPORARY_TABLE));
         return result;
     }
     
@@ -111,7 +113,7 @@ public final class OracleCreateProcedureStatementBinder implements SQLStatementB
         }
         ColumnSegmentBoundInfo columnBoundInfo = originalColumn.getColumn().getColumnBoundInfo();
         newColumnSegment.setColumnBoundInfo(new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(columnBoundInfo.getOriginalDatabase(), columnBoundInfo.getOriginalSchema()),
-                columnBoundInfo.getOriginalTable(), columnBoundInfo.getOriginalColumn()));
+                columnBoundInfo.getOriginalTable(), columnBoundInfo.getOriginalColumn(), columnBoundInfo.getTableSourceType()));
         ColumnProjectionSegment result = new ColumnProjectionSegment(newColumnSegment);
         result.setVisible(originalColumn.isVisible());
         return result;
