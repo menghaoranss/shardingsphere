@@ -52,10 +52,11 @@ class EncryptPredicateColumnTokenGeneratorTest {
     }
     
     @Test
-    @SphereEx(Type.MODIFY)
     void assertGenerateSQLTokenFromGenerateNewSQLToken() {
         Collection<SQLToken> substitutableColumnNameTokens = generator.generateSQLTokens(EncryptGeneratorFixtureBuilder.createUpdateStatementContext());
         assertThat(substitutableColumnNameTokens.size(), is(1));
-        assertThat(((SubstitutableColumnNameToken) substitutableColumnNameTokens.iterator().next()).toString(null), is("pwd_plain"));
+        // SPEX CHANGED: BEGIN
+        assertThat(((SubstitutableColumnNameToken) substitutableColumnNameTokens.iterator().next()).toString(null), is("`pwd_PLAIN`"));
+        // SPEX CHANGED: END
     }
 }
