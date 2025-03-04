@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.checker.sql;
 
+import com.sphereex.dbplusengine.sharding.checker.sql.dml.ShardingMultiInsertSupportedChecker;
 import org.apache.shardingsphere.infra.checker.SupportedSQLChecker;
 import org.apache.shardingsphere.infra.checker.SupportedSQLCheckersBuilder;
 import org.apache.shardingsphere.sharding.checker.sql.ddl.ShardingAlterIndexSupportedChecker;
@@ -64,6 +65,9 @@ public final class ShardingSupportedSQLCheckersBuilder implements SupportedSQLCh
                 new ShardingCopySupportedChecker(),
                 new ShardingDeleteSupportedChecker(),
                 new ShardingInsertSupportedChecker(),
+                // SPEX ADDED: BEGIN
+                new ShardingMultiInsertSupportedChecker(),
+                // SPEX ADDED: END
                 new ShardingLoadDataSupportedChecker(),
                 new ShardingLoadXmlSupportedChecker(),
                 new ShardingUpdateSupportedChecker());

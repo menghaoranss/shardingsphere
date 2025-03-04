@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.sharding.rewrite.token.pojo;
+package com.sphereex.dbplusengine.sharding.rewrite.token.pojo;
 
+import com.google.common.base.Joiner;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.RouteUnitAware;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.InsertValue;
@@ -24,11 +25,11 @@ import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.Ins
 import org.apache.shardingsphere.infra.route.context.RouteUnit;
 
 /**
- * Insert values token for sharding.
+ * Multi insert column values token for sharding.
  */
-public final class ShardingInsertValuesToken extends InsertValuesToken implements RouteUnitAware {
+public final class ShardingMultiInsertColumnValuesToken extends InsertValuesToken implements RouteUnitAware {
     
-    public ShardingInsertValuesToken(final int startIndex, final int stopIndex) {
+    public ShardingMultiInsertColumnValuesToken(final int startIndex, final int stopIndex) {
         super(startIndex, stopIndex);
     }
     
@@ -36,7 +37,6 @@ public final class ShardingInsertValuesToken extends InsertValuesToken implement
     public String toString(final RouteUnit routeUnit) {
         StringBuilder result = new StringBuilder();
         appendInsertValue(routeUnit, result);
-        result.delete(Math.max(0, result.length() - 2), result.length());
         return result.toString();
     }
     
@@ -45,15 +45,20 @@ public final class ShardingInsertValuesToken extends InsertValuesToken implement
         return toString(null);
     }
     
-    private void appendInsertValue(final RouteUnit routeUnit, final StringBuilder stringBuilder) {
+    private void appendInsertValue(final RouteUnit routeUnit, final StringBuilder builder) {
         for (InsertValue each : getInsertValues()) {
-            if (isAppend(routeUnit, (ShardingInsertValue) each)) {
-                stringBuilder.append(each).append(", ");
+            if (!(each instanceof ShardingMultiInsertColumnValue)) {
+                continue;
+            }
+            ShardingMultiInsertColumnValue multiInsertColumnValue = (ShardingMultiInsertColumnValue) each;
+            if (isAppend(routeUnit, multiInsertColumnValue)) {
+                builder.append(" INTO ").append(multiInsertColumnValue.getTableName().getIdentifier().getValueWithQuoteCharacters()).append(" (")
+                        .append(Joiner.on(", ").join(multiInsertColumnValue.getColumnNames())).append(") VALUES ").append(each);
             }
         }
     }
     
-    private boolean isAppend(final RouteUnit routeUnit, final ShardingInsertValue insertValueToken) {
+    private boolean isAppend(final RouteUnit routeUnit, final ShardingMultiInsertColumnValue insertValueToken) {
         if (insertValueToken.getDataNodes().isEmpty() || null == routeUnit) {
             return true;
         }

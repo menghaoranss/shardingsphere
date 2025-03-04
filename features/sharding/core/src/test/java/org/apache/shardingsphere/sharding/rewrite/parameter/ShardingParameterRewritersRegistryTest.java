@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.rewrite.parameter;
 
+import com.sphereex.dbplusengine.infra.rewrite.parameter.rewriter.keygen.GeneratedKeyMultiInsertValueParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.keygen.GeneratedKeyInsertValueParameterRewriter;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
@@ -36,8 +37,11 @@ class ShardingParameterRewritersRegistryTest {
     @Test
     void assertGetParameterRewriters() {
         List<ParameterRewriter> actual = new ArrayList<>(new ShardingParameterRewritersRegistry(mock(RouteContext.class)).getParameterRewriters());
-        assertThat(actual.size(), is(2));
+        // SPEX CHANGED: BEGIN
+        assertThat(actual.size(), is(3));
         assertThat(actual.get(0), instanceOf(GeneratedKeyInsertValueParameterRewriter.class));
         assertThat(actual.get(1), instanceOf(ShardingPaginationParameterRewriter.class));
+        assertThat(actual.get(2), instanceOf(GeneratedKeyMultiInsertValueParameterRewriter.class));
+        // SPEX CHANGED: END
     }
 }
