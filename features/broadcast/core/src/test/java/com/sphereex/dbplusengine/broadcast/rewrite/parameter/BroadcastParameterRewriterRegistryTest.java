@@ -17,6 +17,7 @@
 
 package com.sphereex.dbplusengine.broadcast.rewrite.parameter;
 
+import com.sphereex.dbplusengine.infra.rewrite.parameter.rewriter.keygen.GeneratedKeyMultiInsertValueParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.keygen.GeneratedKeyInsertValueParameterRewriter;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,10 @@ class BroadcastParameterRewriterRegistryTest {
     @Test
     void assertGetParameterRewriters() {
         List<ParameterRewriter> actual = new ArrayList<>(new BroadcastParameterRewriterRegistry().getParameterRewriters());
-        assertThat(actual.size(), is(1));
+        // SPEX CHANGED: BEGIN
+        assertThat(actual.size(), is(2));
         assertThat(actual.get(0), instanceOf(GeneratedKeyInsertValueParameterRewriter.class));
+        assertThat(actual.get(1), instanceOf(GeneratedKeyMultiInsertValueParameterRewriter.class));
+        // SPEX CHANGED: END
     }
 }

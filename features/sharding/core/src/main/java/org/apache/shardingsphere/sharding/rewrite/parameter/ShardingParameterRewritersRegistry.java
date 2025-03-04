@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.rewrite.parameter;
 
+import com.sphereex.dbplusengine.infra.rewrite.parameter.rewriter.keygen.GeneratedKeyMultiInsertValueParameterRewriter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewritersRegistry;
@@ -37,6 +38,10 @@ public final class ShardingParameterRewritersRegistry implements ParameterRewrit
     
     @Override
     public Collection<ParameterRewriter> getParameterRewriters() {
-        return Arrays.asList(new GeneratedKeyInsertValueParameterRewriter(), new ShardingPaginationParameterRewriter(routeContext));
+        return Arrays.asList(new GeneratedKeyInsertValueParameterRewriter(), new ShardingPaginationParameterRewriter(routeContext),
+                // SPEX ADDED: BEGIN
+                new GeneratedKeyMultiInsertValueParameterRewriter()
+        // SPEX ADDED: END
+        );
     }
 }
