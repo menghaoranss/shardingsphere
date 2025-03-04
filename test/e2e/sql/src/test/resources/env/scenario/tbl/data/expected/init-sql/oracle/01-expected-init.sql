@@ -24,6 +24,4 @@ CREATE TABLE expected_dataset.t_order(order_id NUMBER(19,0) PRIMARY KEY, user_id
 CREATE TABLE expected_dataset.t_order_item(item_id NUMBER(19,0) PRIMARY KEY, order_id NUMBER(19,0) NOT NULL, user_id INT NOT NULL, product_id INT NOT NULL, quantity INT NOT NULL, creation_date DATE NOT NULL);
 CREATE TABLE expected_dataset.t_single_table (single_id INT NOT NULL, id INT NOT NULL, status VARCHAR(45) NULL, PRIMARY KEY (single_id));
 CREATE TABLE expected_dataset.t_broadcast_table (id INT NOT NULL, status VARCHAR(45) NULL, PRIMARY KEY (id));
-
-CREATE INDEX order_index_t_order ON expected_dataset.t_order (order_id);
 -- SPEX CHANGED: END

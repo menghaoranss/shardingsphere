@@ -52,7 +52,7 @@
     
     <!-- fixme dm 创建索引名重复 -->
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="CREATE UNIQUE INDEX t_details_idx ON t_order_details (id)" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="CREATE UNIQUE INDEX t_details_idx ON t_order_details (id)" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,dbtbl_with_readwrite_splitting,readwrite_splitting">
     <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="create_unique_index.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
