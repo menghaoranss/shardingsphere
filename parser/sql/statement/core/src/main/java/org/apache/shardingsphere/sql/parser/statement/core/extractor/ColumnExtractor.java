@@ -17,11 +17,13 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.extractor;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BetweenExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.CaseWhenExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.InExpression;
@@ -81,6 +83,58 @@ public final class ColumnExtractor {
         if (expression instanceof FunctionSegment) {
             extractColumnsInFunctionSegment((FunctionSegment) expression, result);
         }
+        if (expression instanceof FunctionSegment) {
+            extractColumnsInFunctionSegment((FunctionSegment) expression, result);
+        }
+        // SPEX ADDED: BEGIN
+        if (expression instanceof CaseWhenExpression) {
+            extractColumnsInCaseWhenExpression((CaseWhenExpression) expression, result);
+        }
+        // SPEX ADDED: END
+        return result;
+    }
+    
+    /**
+     * Extract returned column segments from expression segment.
+     *
+     * @param expression to be extracted expression segment
+     * @return column segments
+     */
+    @SphereEx
+    public static Collection<ColumnSegment> extractReturnedColumnsInCaseWhenExpression(final CaseWhenExpression expression) {
+        Collection<ColumnSegment> result = new LinkedList<>();
+        if (null != expression.getThenExprs()) {
+            expression.getThenExprs().stream().map(ColumnExtractor::extractIncludeColumnSegment).forEach(result::addAll);
+        }
+        if (null != expression.getElseExpr()) {
+            result.addAll(extractIncludeColumnSegment(expression.getElseExpr()));
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private static void extractColumnsInCaseWhenExpression(final CaseWhenExpression expression, final Collection<ColumnSegment> result) {
+        if (null != expression.getCaseExpr()) {
+            result.addAll(extractIncludeColumnSegment(expression.getCaseExpr()));
+        }
+        if (null != expression.getWhenExprs()) {
+            expression.getWhenExprs().stream().map(ColumnExtractor::extractIncludeColumnSegment).forEach(result::addAll);
+        }
+        if (null != expression.getThenExprs()) {
+            expression.getThenExprs().stream().map(ColumnExtractor::extractIncludeColumnSegment).forEach(result::addAll);
+        }
+        if (null != expression.getElseExpr()) {
+            result.addAll(extractIncludeColumnSegment(expression.getElseExpr()));
+        }
+    }
+    
+    @SphereEx
+    private static Collection<ColumnSegment> extractIncludeColumnSegment(final ExpressionSegment expression) {
+        Collection<ColumnSegment> result = new LinkedList<>();
+        if (expression instanceof ColumnSegment) {
+            result.add((ColumnSegment) expression);
+        }
+        result.addAll(extract(expression));
         return result;
     }
     

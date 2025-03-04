@@ -17,12 +17,13 @@
 
 package com.sphereex.dbplusengine.broadcast.rewrite.parameter;
 
+import com.sphereex.dbplusengine.infra.rewrite.parameter.rewriter.keygen.GeneratedKeyMultiInsertValueParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewriter;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.ParameterRewritersRegistry;
 import org.apache.shardingsphere.infra.rewrite.parameter.rewriter.keygen.GeneratedKeyInsertValueParameterRewriter;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Parameter rewriter registry for broadcast.
@@ -31,6 +32,10 @@ public final class BroadcastParameterRewriterRegistry implements ParameterRewrit
     
     @Override
     public Collection<ParameterRewriter> getParameterRewriters() {
-        return Collections.singleton(new GeneratedKeyInsertValueParameterRewriter());
+        return Arrays.asList(new GeneratedKeyInsertValueParameterRewriter(),
+                // SPEX ADDED: BEGIN
+                new GeneratedKeyMultiInsertValueParameterRewriter()
+        // SPEX ADDED: END
+        );
     }
 }

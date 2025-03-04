@@ -28,16 +28,16 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 /**
- * Insert select value token for encrypt.
+ * Select value token for encrypt.
  */
 @Getter
-public final class EncryptInsertSelectValueToken extends SQLToken implements Substitutable {
+public final class EncryptSelectValueToken extends SQLToken implements Substitutable {
     
     private final int stopIndex;
     
-    private final Collection<InsertSelectValue> values = new LinkedList<>();
+    private final Collection<SelectValue> values = new LinkedList<>();
     
-    public EncryptInsertSelectValueToken(final int startIndex, final int stopIndex) {
+    public EncryptSelectValueToken(final int startIndex, final int stopIndex) {
         super(startIndex);
         this.stopIndex = stopIndex;
     }
@@ -48,7 +48,17 @@ public final class EncryptInsertSelectValueToken extends SQLToken implements Sub
      * @param value value
      */
     public void addValue(final Object value) {
-        values.add(new InsertSelectValue(value));
+        values.add(new SelectValue(value));
+    }
+    
+    /**
+     * Add value.
+     *
+     * @param value value
+     * @param alias alias
+     */
+    public void addValue(final Object value, final String alias) {
+        values.add(new SelectValue(value, alias));
     }
     
     @Override
@@ -57,13 +67,20 @@ public final class EncryptInsertSelectValueToken extends SQLToken implements Sub
     }
     
     @RequiredArgsConstructor
-    private static final class InsertSelectValue {
+    private static final class SelectValue {
         
         private final Object value;
         
+        private final String alias;
+        
+        SelectValue(final Object value) {
+            this.value = value;
+            this.alias = null;
+        }
+        
         @Override
         public String toString() {
-            return toString(value);
+            return toString(value) + (null == alias ? "" : " AS " + alias);
         }
         
         private String toString(final Object value) {

@@ -36,7 +36,7 @@ public final class ShardingInsertValuesToken extends InsertValuesToken implement
     public String toString(final RouteUnit routeUnit) {
         StringBuilder result = new StringBuilder();
         appendInsertValue(routeUnit, result);
-        result.delete(result.length() - 2, result.length());
+        result.delete(Math.max(0, result.length() - 2), result.length());
         return result.toString();
     }
     

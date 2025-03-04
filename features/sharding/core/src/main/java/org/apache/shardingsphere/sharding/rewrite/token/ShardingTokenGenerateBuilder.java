@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.rewrite.token;
 
+import com.sphereex.dbplusengine.sharding.rewrite.token.generator.impl.ShardingMultiInsertColumnValuesTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.SQLTokenGenerator;
@@ -78,6 +79,9 @@ public final class ShardingTokenGenerateBuilder implements SQLTokenGeneratorBuil
         addSQLTokenGenerator(result, new ShardingRemoveTokenGenerator());
         addSQLTokenGenerator(result, new ShardingCursorTokenGenerator(rule));
         addSQLTokenGenerator(result, new ShardingFetchDirectionTokenGenerator());
+        // SPEX ADDED: BEGIN
+        addSQLTokenGenerator(result, new ShardingMultiInsertColumnValuesTokenGenerator());
+        // SPEX ADDED: END
         return result;
     }
     

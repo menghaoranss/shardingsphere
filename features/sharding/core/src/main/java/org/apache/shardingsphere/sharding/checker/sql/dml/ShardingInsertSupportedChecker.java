@@ -45,7 +45,9 @@ public final class ShardingInsertSupportedChecker implements SupportedSQLChecker
     
     @Override
     public boolean isCheck(final SQLStatementContext sqlStatementContext) {
-        return sqlStatementContext instanceof InsertStatementContext;
+        // SPEX CHANGED: BEGIN
+        return sqlStatementContext instanceof InsertStatementContext && ((InsertStatementContext) sqlStatementContext).getMultiInsertStatementContexts().isEmpty();
+        // SPEX CHANGED: END
     }
     
     @Override

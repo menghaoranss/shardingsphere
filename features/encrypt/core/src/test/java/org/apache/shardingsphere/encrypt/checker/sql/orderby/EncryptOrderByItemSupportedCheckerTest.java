@@ -32,6 +32,7 @@ import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.sql.parser.statement.core.enums.OrderDirection;
+import org.apache.shardingsphere.sql.parser.statement.core.enums.TableSourceType;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.ColumnOrderByItemSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.AliasSegment;
@@ -125,8 +126,8 @@ class EncryptOrderByItemSupportedCheckerTest {
         simpleTableSegment.setAlias(new AliasSegment(0, 0, new IdentifierValue("a")));
         ColumnSegment columnSegment = new ColumnSegment(0, 0, new IdentifierValue("foo_col"));
         columnSegment.setOwner(new OwnerSegment(0, 0, new IdentifierValue("a")));
-        columnSegment.setColumnBoundInfo(
-                new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue("foo_db"), new IdentifierValue("foo_db")), new IdentifierValue(tableName), new IdentifierValue("foo_col")));
+        TableSegmentBoundInfo tableSegmentBoundInfo = new TableSegmentBoundInfo(new IdentifierValue("foo_db"), new IdentifierValue("foo_db"));
+        columnSegment.setColumnBoundInfo(new ColumnSegmentBoundInfo(tableSegmentBoundInfo, new IdentifierValue(tableName), new IdentifierValue("foo_col"), TableSourceType.TEMPORARY_TABLE));
         SelectStatementContext result = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(result.getDatabaseType()).thenReturn(databaseType);
         ColumnOrderByItemSegment columnOrderByItemSegment = new ColumnOrderByItemSegment(columnSegment, OrderDirection.ASC, NullsOrderType.FIRST);

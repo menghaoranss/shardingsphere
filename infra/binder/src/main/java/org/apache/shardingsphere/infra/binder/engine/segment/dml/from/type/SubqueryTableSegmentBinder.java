@@ -28,6 +28,7 @@ import org.apache.shardingsphere.infra.binder.engine.segment.dml.from.context.ty
 import org.apache.shardingsphere.infra.binder.engine.segment.util.SubqueryTableBindUtils;
 import org.apache.shardingsphere.infra.binder.engine.statement.SQLStatementBinderContext;
 import org.apache.shardingsphere.infra.binder.engine.statement.dml.SelectStatementBinder;
+import org.apache.shardingsphere.sql.parser.statement.core.enums.TableSourceType;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.subquery.SubquerySegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
@@ -75,9 +76,10 @@ public final class SubqueryTableSegmentBinder {
         // SPEX ADD: END
         SubqueryTableSegment result = new SubqueryTableSegment(segment.getStartIndex(), segment.getStopIndex(), boundSubquerySegment);
         segment.getAliasSegment().ifPresent(result::setAlias);
-        SimpleTableSegmentBinderContext tableBinderContext =
-                new SimpleTableSegmentBinderContext(
-                        SubqueryTableBindUtils.createSubqueryProjections(boundSubSelect.getProjections().getProjections(), subqueryTableName, binderContext.getSqlStatement().getDatabaseType()));
+        Collection<ProjectionSegment> subqueryProjections =
+                SubqueryTableBindUtils.createSubqueryProjections(boundSubSelect.getProjections().getProjections(), subqueryTableName, binderContext.getSqlStatement().getDatabaseType(),
+                        TableSourceType.TEMPORARY_TABLE);
+        SimpleTableSegmentBinderContext tableBinderContext = new SimpleTableSegmentBinderContext(subqueryProjections, TableSourceType.TEMPORARY_TABLE);
         tableBinderContext.setFromWithSegment(fromWithSegment);
         tableBinderContexts.put(new CaseInsensitiveString(subqueryTableName.getValue()), tableBinderContext);
         return result;
@@ -101,7 +103,7 @@ public final class SubqueryTableSegmentBinder {
             // TODO add database and schema in ColumnSegmentBoundInfo
             boundSelect.getProjections().getProjections().add(ParameterMarkerExpressionSegmentBinder.bind(parameterMarkerProjection, Collections.singletonMap(parameterMarkerProjection,
                     new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), subqueryTableName,
-                            parameterMarkerProjection.getAlias().orElseGet(() -> new IdentifierValue(""))))));
+                            parameterMarkerProjection.getAlias().orElseGet(() -> new IdentifierValue("")), TableSourceType.TEMPORARY_TABLE))));
         }
     }
 }

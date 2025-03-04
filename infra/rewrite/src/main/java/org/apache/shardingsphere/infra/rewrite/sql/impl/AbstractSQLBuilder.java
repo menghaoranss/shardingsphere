@@ -17,6 +17,9 @@
 
 package org.apache.shardingsphere.infra.rewrite.sql.impl;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.rewrite.token.pojo.generic.ComposableSQLToken;
+import com.sphereex.dbplusengine.infra.rewrite.token.pojo.generic.ComposableSQLTokenAvailable;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.rewrite.sql.SQLBuilder;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.Attachable;
@@ -61,8 +64,36 @@ public abstract class AbstractSQLBuilder implements SQLBuilder {
     }
     
     private void appendRewriteSQL(final SQLToken sqlToken, final StringBuilder builder) {
+        // SPEX ADDED: BEGIN
+        if (sqlToken instanceof ComposableSQLToken || sqlToken instanceof ComposableSQLTokenAvailable) {
+            appendComposableSQLToken(sqlToken, builder);
+            return;
+        }
+        // SPEX ADDED: END
         builder.append(getSQLTokenText(sqlToken));
         builder.append(getConjunctionText(sqlToken, sqlTokens, sql.length()));
+    }
+    
+    @SphereEx
+    private void appendComposableSQLToken(final SQLToken sqlToken, final StringBuilder builder) {
+        ComposableSQLToken composableSQLToken = sqlToken instanceof ComposableSQLTokenAvailable ? ((ComposableSQLTokenAvailable) sqlToken).getComposableSQLToken() : (ComposableSQLToken) sqlToken;
+        if (sqlToken instanceof ComposableSQLTokenAvailable) {
+            builder.append(", ");
+        }
+        builder.append(getComposableSQLTokenText(composableSQLToken));
+        builder.append(getConjunctionText(sqlToken, sqlTokens, sql.length()));
+    }
+    
+    @SphereEx
+    private String getComposableSQLTokenText(final ComposableSQLToken composableSQLToken) {
+        StringBuilder builder = new StringBuilder();
+        Collections.sort(composableSQLToken.getSqlTokens());
+        builder.append(sql, composableSQLToken.getStartIndex(), composableSQLToken.getSqlTokens().get(0).getStartIndex());
+        for (SQLToken each : composableSQLToken.getSqlTokens()) {
+            builder.append(getSQLTokenText(each));
+            builder.append(getConjunctionText(each, composableSQLToken.getSqlTokens(), composableSQLToken.getStopIndex() + 1));
+        }
+        return builder.toString();
     }
     
     protected abstract String getSQLTokenText(SQLToken sqlToken);

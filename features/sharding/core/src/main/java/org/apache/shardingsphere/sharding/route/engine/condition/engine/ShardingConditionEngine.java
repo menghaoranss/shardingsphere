@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.route.engine.condition.engine;
 
+import com.sphereex.dbplusengine.sharding.route.engine.condition.engine.MultiInsertClauseShardingConditionEngine;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.InsertStatementContext;
@@ -49,6 +50,11 @@ public final class ShardingConditionEngine {
      */
     public List<ShardingCondition> createShardingConditions(final SQLStatementContext sqlStatementContext, final List<Object> params) {
         TimestampServiceRule timestampServiceRule = globalRuleMetaData.getSingleRule(TimestampServiceRule.class);
+        // SPEX ADDED: BEGIN
+        if (sqlStatementContext instanceof InsertStatementContext && !((InsertStatementContext) sqlStatementContext).getMultiInsertStatementContexts().isEmpty()) {
+            return new MultiInsertClauseShardingConditionEngine(database, shardingRule, timestampServiceRule).createShardingConditions((InsertStatementContext) sqlStatementContext, params);
+        }
+        // SPEX ADDED: END
         return sqlStatementContext instanceof InsertStatementContext
                 ? new InsertClauseShardingConditionEngine(database, shardingRule, timestampServiceRule).createShardingConditions((InsertStatementContext) sqlStatementContext, params)
                 : new WhereClauseShardingConditionEngine(shardingRule, timestampServiceRule).createShardingConditions(sqlStatementContext, params);

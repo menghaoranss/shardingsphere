@@ -26,6 +26,7 @@ import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.util.Encryp
 import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.shardingsphere.encrypt.enums.EncryptDerivedColumnSuffix;
 import org.apache.shardingsphere.encrypt.exception.metadata.MissingMatchedEncryptQueryAlgorithmException;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
@@ -39,14 +40,16 @@ import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContex
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.WhereAvailable;
-import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
+import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.SubstitutableColumnNameToken;
+import org.apache.shardingsphere.sql.parser.statement.core.enums.TableSourceType;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ColumnExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ExpressionExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
@@ -141,8 +144,7 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
                 result.addAll(buildSubstitutableColumnNameTokens(encryptColumn, each, expression, sqlStatementContext.getDatabaseType(), encryptTable.get().getTable(), sqlStatementContext));
                 // SPEX CHANGED: END
                 // SPEX ADDED: BEGIN
-            } else if (needRewriteUsingNaturalJoin
-                    && EncryptTokenGeneratorUtils.containsUsingColumn(each, ((SelectStatementContext) sqlStatementContext).getSqlStatement().getFrom().orElse(null))) {
+            } else if (needRewriteUsingNaturalJoin && EncryptTokenGeneratorUtils.containsUsingColumn(each, ((SelectStatementContext) sqlStatementContext).getSqlStatement().getFrom().orElse(null))) {
                 result.add(buildSubstitutableColumnNameToken(((SelectStatementContext) sqlStatementContext).getTablesContext(), each, sqlStatementContext.getDatabaseType()));
                 // SPEX ADDED: END
             }
@@ -170,17 +172,17 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
         int stopIndex = columnSegment.getStopIndex();
         // SPEX ADDED: BEGIN
         if (encryptColumn.getPlain().isPresent() && getRule(columnSegment).isQueryWithPlain(tableName, encryptColumn.getName())) {
-            return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex,
-                    createColumnProjections(encryptColumn.getPlain().get().getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType, false), databaseType, database, metaData));
+            Collection<Projection> columnProjections = createColumnProjections(encryptColumn.getPlain().get().getName(), columnSegment, EncryptDerivedColumnSuffix.PLAIN, databaseType, false);
+            return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType, database, metaData));
         }
         // NOTE: 此场景中 columnSegment 由于是统一提取的，会出现 HAVING COUNT(LINK_WAY) > 1 中的列也被提取出来，此时如果该列也在 GROUP BY 中，改写结果 HAVING COUNT(MIN(LINK_WAY_CIPHER)) > 1 会导致语法异常
-        boolean encryptColumnContainsInGroupByItem = isNotIncludeInHavingFunctionExpression(columnSegment, sqlStatementContext)
+        boolean containsInGroupByItem = isNotIncludeInHavingFunctionExpression(columnSegment, sqlStatementContext)
                 && EncryptTokenGeneratorUtils.isEncryptColumnContainsInGroupByItem(columnSegment, encryptColumn, sqlStatementContext);
         if (isIncludeGreaterLessOrBetween(expression)) {
             ShardingSpherePreconditions.checkState(encryptColumn.getOrderQuery().isPresent() || encryptColumn.getCipher().getEncryptor().getMetaData().isSupportOrder(),
                     () -> new MissingMatchedEncryptQueryAlgorithmException(tableName, columnSegment.getIdentifier().getValue(), "ORDER"));
             Collection<Projection> columnProjections = createColumnProjections(encryptColumn.getOrderQuery().map(OrderQueryColumnItem::getName)
-                    .orElseGet(() -> encryptColumn.getCipher().getName()), columnSegment.getIdentifier().getQuoteCharacter(), databaseType, encryptColumnContainsInGroupByItem);
+                    .orElseGet(() -> encryptColumn.getCipher().getName()), columnSegment, EncryptDerivedColumnSuffix.ORDER_QUERY, databaseType, containsInGroupByItem);
             return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType, database, metaData));
         }
         if (isIncludeExpressionEvaluation(expression)) {
@@ -192,13 +194,12 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
             Optional<LikeQueryColumnItem> likeQueryColumnItem = encryptColumn.getLikeQuery();
             Preconditions.checkState(likeQueryColumnItem.isPresent());
             // SPEX CHANGED: BEGIN
-            Collection<Projection> columnProjections =
-                    createColumnProjections(likeQueryColumnItem.get().getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType, encryptColumnContainsInGroupByItem);
-            return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType, database, metaData));
+            return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex, createColumnProjections(
+                    likeQueryColumnItem.get().getName(), columnSegment, EncryptDerivedColumnSuffix.LIKE_QUERY, databaseType, containsInGroupByItem), databaseType, database, metaData));
         }
         Collection<Projection> columnProjections = encryptColumn.getAssistedQuery()
-                .map(optional -> createColumnProjections(optional.getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType, encryptColumnContainsInGroupByItem))
-                .orElseGet(() -> createColumnProjections(encryptColumn.getCipher().getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType, encryptColumnContainsInGroupByItem));
+                .map(optional -> createColumnProjections(optional.getName(), columnSegment, EncryptDerivedColumnSuffix.ASSISTED_QUERY, databaseType, containsInGroupByItem))
+                .orElseGet(() -> createColumnProjections(encryptColumn.getCipher().getName(), columnSegment, EncryptDerivedColumnSuffix.CIPHER, databaseType, containsInGroupByItem));
         return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType, database, metaData));
         // SPEX CHANGED: END
     }
@@ -208,8 +209,8 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
         int startIndex = columnSegment.getOwner().isPresent() ? columnSegment.getOwner().get().getStopIndex() + 2 : columnSegment.getStartIndex();
         int stopIndex = columnSegment.getStopIndex();
         IdentifierValue owner = tablesContext.getTableNameAliasMap().get(columnSegment.getColumnBoundInfo().getOriginalTable().getValue().toLowerCase());
-        return new SubstitutableColumnNameToken(startIndex, stopIndex, Collections.singleton(new ColumnProjection(owner, columnSegment.getIdentifier(), null, databaseType)), databaseType, database,
-                metaData);
+        return new SubstitutableColumnNameToken(
+                startIndex, stopIndex, Collections.singleton(new ColumnProjection(owner, columnSegment.getIdentifier(), null, databaseType)), databaseType, database, metaData);
     }
     
     @SphereEx
@@ -230,23 +231,20 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
     
     @SphereEx
     private boolean isIncludeGreaterLessOrBetween(final ExpressionSegment expression) {
-        if (!(expression instanceof BinaryOperationExpression) && !(expression instanceof BetweenExpression)) {
-            return false;
-        }
-        return isSupportedGreaterLessOrBetween(expression);
+        return (expression instanceof BinaryOperationExpression || expression instanceof BetweenExpression) && isSupportedGreaterLessOrBetween(expression);
     }
     
     @SphereEx
     private boolean isSupportedGreaterLessOrBetween(final ExpressionSegment expressionSegment) {
         if (expressionSegment instanceof BinaryOperationExpression) {
             BinaryOperationExpression expression = (BinaryOperationExpression) expressionSegment;
-            return GREATER_LESS_COMPARISON_OPERATORS.contains(expression.getOperator()) && isSupportedGreaterLessOrBetween(expression.getLeft())
-                    && isSupportedGreaterLessOrBetween(expression.getRight());
+            return GREATER_LESS_COMPARISON_OPERATORS.contains(expression.getOperator())
+                    && isSupportedGreaterLessOrBetween(expression.getLeft()) && isSupportedGreaterLessOrBetween(expression.getRight());
         }
         if (expressionSegment instanceof BetweenExpression) {
             BetweenExpression expression = (BetweenExpression) expressionSegment;
-            return isSupportedGreaterLessOrBetween(expression.getLeft()) && isSupportedGreaterLessOrBetween(expression.getBetweenExpr())
-                    && isSupportedGreaterLessOrBetween(expression.getAndExpr());
+            return isSupportedGreaterLessOrBetween(expression.getLeft())
+                    && isSupportedGreaterLessOrBetween(expression.getBetweenExpr()) && isSupportedGreaterLessOrBetween(expression.getAndExpr());
         }
         if (expressionSegment instanceof AggregationProjectionSegment && SUPPORTED_AGGREGATION_FUNCTIONS.contains(((AggregationProjectionSegment) expressionSegment).getType().name())) {
             return true;
@@ -257,8 +255,7 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
     @SphereEx
     private boolean isIncludeExpressionEvaluation(final ExpressionSegment expression) {
         if (expression instanceof BinaryOperationExpression) {
-            return isIncludeExpressionEvaluation(((BinaryOperationExpression) expression).getLeft())
-                    || isIncludeExpressionEvaluation(((BinaryOperationExpression) expression).getRight());
+            return isIncludeExpressionEvaluation(((BinaryOperationExpression) expression).getLeft()) || isIncludeExpressionEvaluation(((BinaryOperationExpression) expression).getRight());
         }
         return expression instanceof FunctionSegment;
     }
@@ -267,13 +264,18 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
         return expression instanceof BinaryOperationExpression && "LIKE".equalsIgnoreCase(((BinaryOperationExpression) expression).getOperator());
     }
     
+    @SphereEx
     private boolean isContainsColumnSegment(final ExpressionSegment expressionSegment, final ColumnSegment targetColumnSegment) {
         return expressionSegment.getStartIndex() <= targetColumnSegment.getStartIndex() && expressionSegment.getStopIndex() >= targetColumnSegment.getStopIndex();
     }
     
-    private Collection<Projection> createColumnProjections(final String columnName, final QuoteCharacter quoteCharacter, final DatabaseType databaseType,
-                                                           @SphereEx final boolean encryptColumnContainsInGroupByItem) {
-        ColumnProjection columnProjection = new ColumnProjection(null, new IdentifierValue(columnName, quoteCharacter), null, databaseType);
+    private Collection<Projection> createColumnProjections(final String actualColumnName, final ColumnSegment columnSegment, final EncryptDerivedColumnSuffix derivedColumnSuffix,
+                                                           final DatabaseType databaseType, @SphereEx final boolean encryptColumnContainsInGroupByItem) {
+        String columnName = TableSourceType.TEMPORARY_TABLE == columnSegment.getColumnBoundInfo().getTableSourceType()
+                ? derivedColumnSuffix.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType)
+                : actualColumnName;
+        DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
+        ColumnProjection columnProjection = new ColumnProjection(null, new IdentifierValue(columnName, dialectDatabaseMetaData.getQuoteCharacter()), null, databaseType);
         // SPEX ADDED: BEGIN
         columnProjection.setEncryptColumnContainsInGroupByItem(encryptColumnContainsInGroupByItem);
         // SPEX ADDED: END
