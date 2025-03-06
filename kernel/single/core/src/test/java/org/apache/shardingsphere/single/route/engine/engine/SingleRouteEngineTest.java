@@ -91,7 +91,7 @@ class SingleRouteEngineTest {
         // assertThat(tableMapper1.getLogicName(), is("t_order_item"));
         // SPEX DELETED: END
     }
-
+    
     @SphereEx
     private ConfigurationProperties mockProperties() {
         ConfigurationProperties result = mock(ConfigurationProperties.class);

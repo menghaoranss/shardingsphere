@@ -62,7 +62,7 @@ public final class MySQLDatabaseMetaData implements DialectDatabaseMetaData {
     @Override
     public Map<String, Integer> getExtraDataTypes() {
         @SphereEx(Type.MODIFY)
-        Map<String, Integer> result = new HashMap<>(11, 1F);
+        Map<String, Integer> result = new HashMap<>(19, 1F);
         result.putIfAbsent("JSON", Types.LONGVARCHAR);
         result.putIfAbsent("GEOMETRY", Types.BINARY);
         result.putIfAbsent("GEOMETRYCOLLECTION", Types.BINARY);
@@ -74,7 +74,15 @@ public final class MySQLDatabaseMetaData implements DialectDatabaseMetaData {
         result.putIfAbsent("LINESTRING", Types.BINARY);
         result.putIfAbsent("MULTILINESTRING", Types.BINARY);
         // SPEX ADDED: BEGIN
-        result.putIfAbsent("GEOMCOLLECTION", Types.OTHER);
+        result.putIfAbsent("GEOMCOLLECTION", Types.BINARY);
+        result.putIfAbsent("STRUCT", Types.STRUCT);
+        result.putIfAbsent("REF", Types.REF);
+        result.putIfAbsent("CLOB", Types.CLOB);
+        result.putIfAbsent("ARRAY", Types.ARRAY);
+        result.putIfAbsent("DISTINCT", Types.DISTINCT);
+        result.putIfAbsent("DATALINK", Types.DATALINK);
+        result.putIfAbsent("OTHER", Types.OTHER);
+        result.putIfAbsent("BOOLEAN", Types.BOOLEAN);
         // SPEX ADDED: END
         return result;
     }
