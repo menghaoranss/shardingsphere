@@ -56,7 +56,7 @@ class EncryptPredicateColumnTokenGeneratorTest {
         Collection<SQLToken> substitutableColumnNameTokens = generator.generateSQLTokens(EncryptGeneratorFixtureBuilder.createUpdateStatementContext());
         assertThat(substitutableColumnNameTokens.size(), is(1));
         // SPEX CHANGED: BEGIN
-        assertThat(((SubstitutableColumnNameToken) substitutableColumnNameTokens.iterator().next()).toString(null), is("`pwd_PLAIN`"));
+        assertThat(((SubstitutableColumnNameToken) substitutableColumnNameTokens.iterator().next()).toString(null), is("pwd_PLAIN"));
         // SPEX CHANGED: END
     }
 }

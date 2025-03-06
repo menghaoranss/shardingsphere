@@ -54,11 +54,15 @@ rules:
           encryptorName: aes_encryptor
           likeQueryColumn: USER_NAME_LIKE
           likeQueryEncryptorName: like_encryptor
+          aolianColumn: test
+          dbid: 123
         PASSWORD:
           plainColumn: PASSWORD_PLAIN
           queryWithCipherColumn: ${query_with_cipher}
           cipherColumn: PASSWORD_CIPHER
           encryptorName: aes_encryptor
+          aolianColumn: test
+          dbid: 123
         EMAIL:
           # SPEX ADDED: BEGIN
           plainColumn: EMAIL_PLAIN
@@ -66,6 +70,8 @@ rules:
           # SPEX ADDED: END
           cipherColumn: EMAIL_CIPHER
           encryptorName: aes_encryptor
+          aolianColumn: test
+          dbid: 123
         TELEPHONE:
           plainColumn: USER_TELEPHONE_PLAIN
           queryWithCipherColumn: ${query_with_cipher}
@@ -73,6 +79,8 @@ rules:
           encryptorName: aes_encryptor
           likeQueryColumn: USER_TELEPHONE_LIKE
           likeQueryEncryptorName: like_encryptor
+          aolianColumn: test
+          dbid: 123
     T_MERCHANT:
       columns:
         BUSINESS_CODE:

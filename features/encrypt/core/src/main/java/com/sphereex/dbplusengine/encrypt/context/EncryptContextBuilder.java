@@ -17,25 +17,29 @@
 
 package com.sphereex.dbplusengine.encrypt.context;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import com.sphereex.dbplusengine.SphereEx;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 
 /**
- * Encrypt context.
+ * Encrypt context builder.
  */
-@RequiredArgsConstructor
-@Getter
-public final class EncryptContext {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class EncryptContextBuilder {
     
-    private final EncryptColumnDataTypeContext columnDataType;
-    
-    private final DatabaseType databaseType;
-    
-    @Setter
-    private String aolianColumn;
-    
-    @Setter
-    private String dbid;
+    /**
+     * Build context.
+     *
+     * @param column encrypt column
+     * @param databaseType database type
+     * @return encrypt context
+     */
+    public static EncryptContext build(final EncryptColumn column, @SphereEx final DatabaseType databaseType) {
+        EncryptContext result = new EncryptContext(EncryptColumnDataTypeContextBuilder.build(column), databaseType);
+        column.getAolianColumn().ifPresent(result::setAolianColumn);
+        column.getDbid().ifPresent(result::setDbid);
+        return result;
+    }
 }
