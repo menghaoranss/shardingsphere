@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.mode.metadata.persist;
 
 import org.apache.shardingsphere.infra.config.database.DatabaseConfiguration;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.rule.decorator.RuleConfigurationDecorator;
 import org.apache.shardingsphere.infra.datasource.pool.config.DataSourceConfiguration;
@@ -106,7 +107,9 @@ class MetaDataPersistServiceTest {
     
     @Test
     void assertPersistConfigurationsWithEmptyDatabase() {
-        metaDataPersistService.persistConfigurations("foo_db", mock(DatabaseConfiguration.class), Collections.emptyMap(), Collections.emptyList());
+        // SPEX CHANGED: BEGIN
+        metaDataPersistService.persistConfigurations("foo_db", mock(DatabaseConfiguration.class), Collections.emptyMap(), Collections.emptyList(), mock(ConfigurationProperties.class));
+        // SPEX CHANGED: END
         verify(databaseMetaDataFacade.getDatabase()).add("foo_db");
     }
     
@@ -119,7 +122,9 @@ class MetaDataPersistServiceTest {
         RuleConfiguration ruleConfig = mock(RuleConfiguration.class);
         when(rule.getConfiguration()).thenReturn(ruleConfig);
         when(TypedSPILoader.findService(RuleConfigurationDecorator.class, ruleConfig.getClass())).thenReturn(Optional.of(mock(RuleConfigurationDecorator.class)));
-        metaDataPersistService.persistConfigurations("foo_db", databaseConfig, Collections.emptyMap(), Collections.singleton(rule));
+        // SPEX CHANGED: BEGIN
+        metaDataPersistService.persistConfigurations("foo_db", databaseConfig, Collections.emptyMap(), Collections.singleton(rule), mock(ConfigurationProperties.class));
+        // SPEX CHANGED: END
         verify(dataSourceUnitService).persist("foo_db", Collections.emptyMap());
         verify(databaseRulePersistService).persist(eq("foo_db"), any());
     }
@@ -128,7 +133,9 @@ class MetaDataPersistServiceTest {
     void assertPersistConfigurationsWithDataSourcePoolProperties() {
         DatabaseConfiguration databaseConfig = mock(DatabaseConfiguration.class, RETURNS_DEEP_STUBS);
         when(databaseConfig.getStorageUnits()).thenReturn(Collections.singletonMap("foo_ds", mock(StorageUnit.class, RETURNS_DEEP_STUBS)));
-        metaDataPersistService.persistConfigurations("foo_db", databaseConfig, Collections.emptyMap(), Collections.emptyList());
+        // SPEX CHANGED: BEGIN
+        metaDataPersistService.persistConfigurations("foo_db", databaseConfig, Collections.emptyMap(), Collections.emptyList(), mock(ConfigurationProperties.class));
+        // SPEX CHANGED: END
         verify(dataSourceUnitService).persist(eq("foo_db"), any());
         verify(databaseRulePersistService).persist("foo_db", Collections.emptyList());
     }

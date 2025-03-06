@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.single.datanode;
 
 import com.cedarsoftware.util.CaseInsensitiveMap;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.database.DatabaseTypeEngine;
@@ -54,15 +55,20 @@ public final class SingleTableDataNodeLoader {
      * @param dataSourceMap data source map
      * @param builtRules built rules
      * @param configuredTables configured tables
+     * @param loadMetadataIgnoreTables load metadata ignore tables
      * @return single table data node map
      */
     public static Map<String, Collection<DataNode>> load(final String databaseName, final DatabaseType protocolType, final Map<String, DataSource> dataSourceMap,
-                                                         final Collection<ShardingSphereRule> builtRules, final Collection<String> configuredTables) {
+                                                         final Collection<ShardingSphereRule> builtRules, final Collection<String> configuredTables,
+                                                         @SphereEx final Collection<String> loadMetadataIgnoreTables) {
         Collection<String> featureRequiredSingleTables = SingleTableLoadUtils.getFeatureRequiredSingleTables(builtRules);
         if (configuredTables.isEmpty() && featureRequiredSingleTables.isEmpty()) {
             return new LinkedHashMap<>();
         }
         Collection<String> excludedTables = SingleTableLoadUtils.getExcludedTables(builtRules);
+        // SPEX ADDED: BEGIN
+        excludedTables.addAll(loadMetadataIgnoreTables);
+        // SPEX ADDED: END
         Map<String, Collection<DataNode>> actualDataNodes = load(databaseName, dataSourceMap, excludedTables);
         Collection<String> splitTables = SingleTableLoadUtils.splitTableLines(configuredTables);
         if (splitTables.contains(SingleTableConstants.ALL_TABLES) || splitTables.contains(SingleTableConstants.ALL_SCHEMA_TABLES)) {

@@ -17,12 +17,16 @@
 
 package org.apache.shardingsphere.sharding.route.engine.fixture;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.groovy.util.Maps;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.database.h2.type.H2DatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
@@ -293,7 +297,12 @@ public final class ShardingRouteEngineFixtureBuilder {
      */
     public static SingleRule createSingleRule(final Collection<ShardingSphereRule> rules) {
         Map<String, DataSource> dataSourceMap = createDataSourceMap();
-        SingleRule result = new SingleRule(new SingleRuleConfiguration(), "foo_db", new H2DatabaseType(), dataSourceMap, rules);
+        // SPEX ADDED: BEGIN
+        ConfigurationProperties props = mock(ConfigurationProperties.class);
+        when(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES)).thenReturn("");
+        // SPEX ADDED: END
+        @SphereEx(Type.MODIFY)
+        SingleRule result = new SingleRule(new SingleRuleConfiguration(), "foo_db", new H2DatabaseType(), dataSourceMap, rules, props);
         result.getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).put(dataSourceMap.keySet().iterator().next(), "foo_db", "t_category");
         return result;
     }

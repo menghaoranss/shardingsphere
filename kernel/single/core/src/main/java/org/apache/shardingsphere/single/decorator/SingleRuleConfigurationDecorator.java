@@ -17,6 +17,10 @@
 
 package org.apache.shardingsphere.single.decorator;
 
+import com.google.common.base.Splitter;
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.config.rule.decorator.RuleConfigurationDecorator;
 import org.apache.shardingsphere.infra.database.DatabaseTypeEngine;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -50,11 +54,15 @@ public final class SingleRuleConfigurationDecorator implements RuleConfiguration
     
     @Override
     public SingleRuleConfiguration decorate(final String databaseName, final Map<String, DataSource> dataSources,
-                                            final Collection<ShardingSphereRule> builtRules, final SingleRuleConfiguration ruleConfig) {
-        return new SingleRuleConfiguration(decorateTables(databaseName, dataSources, new LinkedList<>(builtRules), ruleConfig.getTables()), ruleConfig.getDefaultDataSource().orElse(null));
+                                            final Collection<ShardingSphereRule> builtRules, final SingleRuleConfiguration ruleConfig, @SphereEx final ConfigurationProperties props) {
+        @SphereEx
+        Collection<String> loadMetadataIgnoreTables = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES));
+        return new SingleRuleConfiguration(decorateTables(databaseName, dataSources, new LinkedList<>(builtRules), ruleConfig.getTables(), loadMetadataIgnoreTables),
+                ruleConfig.getDefaultDataSource().orElse(null));
     }
     
-    private Collection<String> decorateTables(final String databaseName, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> builtRules, final Collection<String> tables) {
+    private Collection<String> decorateTables(final String databaseName, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> builtRules, final Collection<String> tables,
+                                              @SphereEx final Collection<String> loadMetadataIgnoreTables) {
         builtRules.removeIf(SingleRule.class::isInstance);
         if (tables.isEmpty() && builtRules.isEmpty()) {
             return Collections.emptyList();
@@ -68,6 +76,9 @@ public final class SingleRuleConfigurationDecorator implements RuleConfiguration
         DatabaseType databaseType = dataSources.isEmpty() ? DatabaseTypeEngine.getDefaultStorageType() : DatabaseTypeEngine.getStorageType(dataSources.values().iterator().next());
         // SPEX CHANGED: END
         Collection<String> excludedTables = SingleTableLoadUtils.getExcludedTables(builtRules);
+        // SPEX CHANGED: BEGIN
+        excludedTables.addAll(loadMetadataIgnoreTables);
+        // SPEX CHANGED: END
         Map<String, Collection<DataNode>> actualDataNodes = SingleTableDataNodeLoader.load(databaseName, aggregatedDataSources, excludedTables);
         boolean isSchemaSupportedDatabaseType = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData().getDefaultSchema().isPresent();
         if (splitTables.contains(SingleTableConstants.ALL_TABLES) || splitTables.contains(SingleTableConstants.ALL_SCHEMA_TABLES)) {

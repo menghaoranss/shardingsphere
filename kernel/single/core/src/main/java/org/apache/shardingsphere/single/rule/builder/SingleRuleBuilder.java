@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.single.rule.builder;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
 import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
@@ -38,13 +40,18 @@ public final class SingleRuleBuilder implements DatabaseRuleBuilder<SingleRuleCo
     
     @Override
     public SingleRule build(final SingleRuleConfiguration ruleConfig, final String databaseName, final DatabaseType protocolType,
-                            final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
+                            final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext,
+                            @SphereEx final ConfigurationProperties props) {
+        // SPEX ADDED: BEGIN
         if (ruleConfig.getTables().isEmpty()) {
-            String loadAllTables = DatabaseTypedSPILoader.getService(DialectDatabaseMetaData.class, protocolType).getDefaultSchema().isPresent() ? SingleTableConstants.ALL_SCHEMA_TABLES
-                    : SingleTableConstants.ALL_TABLES;
+            DialectDatabaseMetaData dialectDatabaseMetaData = DatabaseTypedSPILoader.getService(DialectDatabaseMetaData.class, protocolType);
+            String loadAllTables = dialectDatabaseMetaData.getDefaultSchema().isPresent() ? SingleTableConstants.ALL_SCHEMA_TABLES : SingleTableConstants.ALL_TABLES;
             ruleConfig.getTables().add(loadAllTables);
         }
-        return new SingleRule(ruleConfig, databaseName, protocolType, resourceMetaData.getDataSourceMap(), builtRules);
+        // SPEX ADDED: END
+        // SPEX CHANGED: BEGIN
+        return new SingleRule(ruleConfig, databaseName, protocolType, resourceMetaData.getDataSourceMap(), builtRules, props);
+        // SPEX CHANGED: END
     }
     
     @Override

@@ -151,7 +151,9 @@ public final class SchemaMetaDataManager {
     private void alterTable(final String databaseName, final String schemaName, final ShardingSphereTable beBoChangedTable) {
         ShardingSphereDatabase database = metaDataContexts.getMetaData().getDatabase(databaseName);
         if (TableRefreshUtils.isSingleTable(beBoChangedTable.getName(), database)) {
-            database.reloadRules();
+            // SPEX CHANGED: BEGIN
+            database.reloadRules(metaDataContexts.getMetaData().getProps());
+            // SPEX CHANGED: END
         }
         database.getSchema(schemaName).putTable(beBoChangedTable);
     }
@@ -159,7 +161,9 @@ public final class SchemaMetaDataManager {
     private void alterView(final String databaseName, final String schemaName, final ShardingSphereView beBoChangedView) {
         ShardingSphereDatabase database = metaDataContexts.getMetaData().getDatabase(databaseName);
         if (TableRefreshUtils.isSingleTable(beBoChangedView.getName(), database)) {
-            database.reloadRules();
+            // SPEX CHANGED: BEGIN
+            database.reloadRules(metaDataContexts.getMetaData().getProps());
+            // SPEX CHANGED: END
         }
         database.getSchema(schemaName).putView(beBoChangedView);
     }

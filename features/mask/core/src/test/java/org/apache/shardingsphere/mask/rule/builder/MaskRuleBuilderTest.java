@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.mask.rule.builder;
 
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
@@ -39,7 +40,9 @@ class MaskRuleBuilderTest {
     void assertBuild() {
         MaskRuleConfiguration ruleConfig = mock(MaskRuleConfiguration.class);
         DatabaseRuleBuilder<MaskRuleConfiguration> builder = OrderedSPILoader.getServices(DatabaseRuleBuilder.class, Collections.singleton(ruleConfig)).get(ruleConfig);
+        // SPEX CHANGED: BEGIN
         assertThat(builder.build(ruleConfig, "", new MySQLDatabaseType(), mock(ResourceMetaData.class), Collections.emptyList(),
-                mock(ComputeNodeInstanceContext.class)), instanceOf(MaskRule.class));
+                mock(ComputeNodeInstanceContext.class), mock(ConfigurationProperties.class)), instanceOf(MaskRule.class));
+        // SPEX CHANGED: END
     }
 }

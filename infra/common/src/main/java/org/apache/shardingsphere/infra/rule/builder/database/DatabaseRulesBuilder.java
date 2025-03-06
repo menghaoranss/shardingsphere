@@ -17,9 +17,11 @@
 
 package org.apache.shardingsphere.infra.rule.builder.database;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.config.database.DatabaseConfiguration;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.rule.checker.RuleConfigurationChecker;
 import org.apache.shardingsphere.infra.config.rule.function.DistributedRuleConfiguration;
@@ -53,12 +55,14 @@ public final class DatabaseRulesBuilder {
      * @param protocolType protocol type
      * @param databaseConfig database configuration
      * @param computeNodeInstanceContext compute node instance context
-     * @param resourceMetaData  resource meta data
+     * @param resourceMetaData resource meta data
+     * @param props configuration properties
      * @return built rules
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Collection<ShardingSphereRule> build(final String databaseName, final DatabaseType protocolType, final DatabaseConfiguration databaseConfig,
-                                                       final ComputeNodeInstanceContext computeNodeInstanceContext, final ResourceMetaData resourceMetaData) {
+                                                       final ComputeNodeInstanceContext computeNodeInstanceContext, final ResourceMetaData resourceMetaData,
+                                                       @SphereEx final ConfigurationProperties props) {
         Collection<ShardingSphereRule> result = new LinkedList<>();
         for (Entry<RuleConfiguration, DatabaseRuleBuilder> entry : getRuleBuilderMap(databaseConfig).entrySet()) {
             RuleConfigurationChecker configChecker = OrderedSPILoader.getServicesByClass(
@@ -66,7 +70,9 @@ public final class DatabaseRulesBuilder {
             if (null != configChecker) {
                 configChecker.check(databaseName, entry.getKey(), resourceMetaData.getDataSourceMap(), result);
             }
-            result.add(entry.getValue().build(entry.getKey(), databaseName, protocolType, resourceMetaData, result, computeNodeInstanceContext));
+            // SPEX CHANGED: BEGIN
+            result.add(entry.getValue().build(entry.getKey(), databaseName, protocolType, resourceMetaData, result, computeNodeInstanceContext, props));
+            // SPEX CHANGED: END
         }
         return result;
     }
@@ -79,12 +85,14 @@ public final class DatabaseRulesBuilder {
      * @param rules rules
      * @param ruleConfig rule configuration
      * @param computeNodeInstanceContext compute node instance context
-     * @param resourceMetaData  resource meta data
+     * @param resourceMetaData resource meta data
+     * @param props configuration properties
      * @return built rules
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Collection<ShardingSphereRule> build(final String databaseName, final DatabaseType protocolType, final Collection<ShardingSphereRule> rules, final RuleConfiguration ruleConfig,
-                                                       final ComputeNodeInstanceContext computeNodeInstanceContext, final ResourceMetaData resourceMetaData) {
+                                                       final ComputeNodeInstanceContext computeNodeInstanceContext, final ResourceMetaData resourceMetaData,
+                                                       @SphereEx final ConfigurationProperties props) {
         Collection<ShardingSphereRule> result = new LinkedList<>();
         for (Entry<RuleConfiguration, DatabaseRuleBuilder> entry : OrderedSPILoader.getServices(DatabaseRuleBuilder.class,
                 Collections.singletonList(ruleConfig), Comparator.reverseOrder()).entrySet()) {
@@ -93,7 +101,9 @@ public final class DatabaseRulesBuilder {
             if (null != configChecker) {
                 configChecker.check(databaseName, entry.getKey(), resourceMetaData.getDataSourceMap(), rules);
             }
-            result.add(entry.getValue().build(entry.getKey(), databaseName, protocolType, resourceMetaData, rules, computeNodeInstanceContext));
+            // SPEX CHANGED: BEGIN
+            result.add(entry.getValue().build(entry.getKey(), databaseName, protocolType, resourceMetaData, rules, computeNodeInstanceContext, props));
+            // SPEX CHANGED: END
         }
         return result;
     }

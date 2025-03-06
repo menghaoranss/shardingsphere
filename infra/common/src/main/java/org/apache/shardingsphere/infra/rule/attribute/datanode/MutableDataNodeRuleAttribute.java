@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.rule.attribute.datanode;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
@@ -73,7 +75,9 @@ public interface MutableDataNodeRuleAttribute extends RuleAttribute {
      * @param databaseName database name
      * @param dataSourceMap data source map
      * @param builtRules built rules
+     * @param props configuration properties
      * @return single rule
      */
-    ShardingSphereRule reloadRule(RuleConfiguration config, String databaseName, Map<String, DataSource> dataSourceMap, Collection<ShardingSphereRule> builtRules);
+    ShardingSphereRule reloadRule(RuleConfiguration config, String databaseName, Map<String, DataSource> dataSourceMap, Collection<ShardingSphereRule> builtRules,
+                                  @SphereEx ConfigurationProperties props);
 }

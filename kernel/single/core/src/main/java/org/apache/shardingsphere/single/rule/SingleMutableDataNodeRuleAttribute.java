@@ -17,7 +17,9 @@
 
 package org.apache.shardingsphere.single.rule;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.datanode.DataNode;
@@ -112,7 +114,9 @@ public final class SingleMutableDataNodeRuleAttribute implements MutableDataNode
     
     @Override
     public ShardingSphereRule reloadRule(final RuleConfiguration config, final String databaseName, final Map<String, DataSource> dataSourceMap,
-                                         final Collection<ShardingSphereRule> builtRules) {
-        return new SingleRule((SingleRuleConfiguration) config, databaseName, protocolType, dataSourceMap, builtRules);
+                                         final Collection<ShardingSphereRule> builtRules, final @SphereEx ConfigurationProperties props) {
+        // SPEX CHANGED: BEGIN
+        return new SingleRule((SingleRuleConfiguration) config, databaseName, protocolType, dataSourceMap, builtRules, props);
+        // SPEX CHANGED: END
     }
 }

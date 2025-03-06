@@ -17,10 +17,13 @@
 
 package com.sphereex.dbplusengine.broadcast.decorator;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import com.sphereex.dbplusengine.broadcast.config.keygen.BroadcastKeyGenerateStrategyConfiguration;
 import org.apache.shardingsphere.broadcast.config.BroadcastRuleConfiguration;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -40,7 +43,8 @@ class BroadcastRuleConfigurationDecoratorTest {
         BroadcastRuleConfigurationDecorator decorator = new BroadcastRuleConfigurationDecorator();
         BroadcastRule broadcastRule = mock(BroadcastRule.class);
         when(broadcastRule.getActualDataSourceNames()).thenReturn(Arrays.asList("ds_0", "ds_1"));
-        BroadcastRuleConfiguration actual = decorator.decorate("foo_db", Collections.emptyMap(), Collections.singleton(broadcastRule), createRuleConfiguration());
+        @SphereEx(Type.MODIFY)
+        BroadcastRuleConfiguration actual = decorator.decorate("foo_db", Collections.emptyMap(), Collections.singleton(broadcastRule), createRuleConfiguration(), mock(ConfigurationProperties.class));
         assertThat(actual.getTables(), is(Collections.singleton("t_config")));
         assertThat(actual.getActualDataSourceNames(), is(new LinkedHashSet<>(Arrays.asList("ds_0", "ds_1"))));
         assertThat(actual.getKeyGenerateStrategies().size(), is(1));
@@ -57,7 +61,8 @@ class BroadcastRuleConfigurationDecoratorTest {
         BroadcastRuleConfigurationDecorator decorator = new BroadcastRuleConfigurationDecorator();
         BroadcastRuleConfiguration ruleConfig = createRuleConfiguration();
         ruleConfig.getActualDataSourceNames().addAll(Arrays.asList("ds_0", "ds_1"));
-        BroadcastRuleConfiguration actual = decorator.decorate("foo_db", Collections.emptyMap(), Collections.singleton(mock(BroadcastRule.class)), ruleConfig);
+        @SphereEx(Type.MODIFY)
+        BroadcastRuleConfiguration actual = decorator.decorate("foo_db", Collections.emptyMap(), Collections.singleton(mock(BroadcastRule.class)), ruleConfig, mock(ConfigurationProperties.class));
         assertThat(actual.getTables(), is(Collections.singleton("t_config")));
         assertThat(actual.getActualDataSourceNames(), is(new LinkedHashSet<>(Arrays.asList("ds_0", "ds_1"))));
         assertThat(actual.getKeyGenerateStrategies().size(), is(1));

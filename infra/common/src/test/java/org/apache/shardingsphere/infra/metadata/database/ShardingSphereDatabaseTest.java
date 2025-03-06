@@ -147,7 +147,9 @@ class ShardingSphereDatabaseTest {
         RuleMetaData ruleMetaData = new RuleMetaData(rules);
         ResourceMetaData resourceMetaData = new ResourceMetaData(Collections.singletonMap("ds", new MockedDataSource()));
         ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db", mock(DatabaseType.class), resourceMetaData, ruleMetaData, Collections.emptyList());
-        database.reloadRules();
+        // SPEX CHANGED: BEGIN
+        database.reloadRules(mock(ConfigurationProperties.class));
+        // SPEX CHANGED: END
         assertThat(database.getRuleMetaData().getRules().size(), is(2));
     }
     

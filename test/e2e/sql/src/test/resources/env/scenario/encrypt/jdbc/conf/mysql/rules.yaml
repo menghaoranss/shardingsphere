@@ -135,6 +135,6 @@ rules:
 
 props:
   sql-show: true
-
+  load-metadata-ignore-tables: test, test2
 
 # SPEX ADDED: END

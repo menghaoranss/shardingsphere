@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.single.distsql.handler.update;
 
 import org.apache.shardingsphere.distsql.handler.engine.update.DistSQLUpdateExecuteEngine;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.exception.dialect.exception.syntax.table.TableExistsException;
@@ -93,6 +94,9 @@ class LoadSingleTableExecutorTest {
             when(rule.getAttributes()).thenReturn(new RuleAttributes());
             when(database.getRuleMetaData()).thenReturn(new RuleMetaData(Collections.singleton(rule)));
         }
+        // SPEX ADDED: BEGIN
+        when(result.getMetaDataContexts().getMetaData().getProps().getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES)).thenReturn("");
+        // SPEX ADDED: END
         return result;
     }
     
