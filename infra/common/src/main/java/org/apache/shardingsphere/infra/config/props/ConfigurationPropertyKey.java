@@ -147,7 +147,13 @@ public enum ConfigurationPropertyKey implements TypedPropertyKey {
      * Schema rewrite enabled.
      */
     @SphereEx
-    SCHEMA_REWRITE_ENABLED("schema-rewrite-enabled", String.valueOf(Boolean.TRUE), boolean.class, false);
+    SCHEMA_REWRITE_ENABLED("schema-rewrite-enabled", String.valueOf(Boolean.TRUE), boolean.class, false),
+    
+    /**
+     * Load metadata ignore tables.
+     */
+    @SphereEx
+    LOAD_METADATA_IGNORE_TABLES("load-metadata-ignore-tables", "", String.class, true);
     
     private final String key;
     

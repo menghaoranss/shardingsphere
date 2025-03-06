@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.sharding.rule.builder;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
@@ -37,7 +39,8 @@ public final class ShardingRuleBuilder implements DatabaseRuleBuilder<ShardingRu
     
     @Override
     public ShardingRule build(final ShardingRuleConfiguration ruleConfig, final String databaseName, final DatabaseType protocolType,
-                              final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
+                              final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext,
+                              @SphereEx final ConfigurationProperties props) {
         ShardingSpherePreconditions.checkNotEmpty(resourceMetaData.getDataSourceMap(), () -> new MissingRequiredShardingConfigurationException("Data source", databaseName));
         return new ShardingRule(ruleConfig, resourceMetaData.getDataSourceMap(), computeNodeInstanceContext, builtRules);
     }

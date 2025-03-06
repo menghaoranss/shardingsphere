@@ -17,6 +17,10 @@
 
 package org.apache.shardingsphere.single.metadata.reviser;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.single.config.SingleRuleConfiguration;
 import org.apache.shardingsphere.single.metadata.reviser.constraint.SingleConstraintReviser;
 import org.apache.shardingsphere.single.rule.SingleRule;
@@ -29,6 +33,8 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class SingleMetaDataReviseEntryTest {
     
@@ -37,7 +43,12 @@ class SingleMetaDataReviseEntryTest {
     @Test
     void assertGetConstraintReviser() {
         SingleRuleConfiguration ruleConfig = new SingleRuleConfiguration();
-        SingleRule rule = new SingleRule(ruleConfig, "test_database", null, new HashMap<>(), Collections.emptyList());
+        // SPEX ADDED: BEGIN
+        ConfigurationProperties props = mock(ConfigurationProperties.class);
+        when(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES)).thenReturn("");
+        // SPEX ADDED: END
+        @SphereEx(Type.MODIFY)
+        SingleRule rule = new SingleRule(ruleConfig, "test_database", null, new HashMap<>(), Collections.emptyList(), props);
         String tableName = "test_table";
         Optional<SingleConstraintReviser> constraintReviser = reviseEntry.getConstraintReviser(rule, tableName);
         assertTrue(constraintReviser.isPresent());

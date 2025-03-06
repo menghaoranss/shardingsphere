@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.shadow.rule.builder;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
@@ -35,7 +37,8 @@ public final class ShadowRuleBuilder implements DatabaseRuleBuilder<ShadowRuleCo
     
     @Override
     public ShadowRule build(final ShadowRuleConfiguration ruleConfig, final String databaseName, final DatabaseType protocolType,
-                            final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
+                            final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext,
+                            @SphereEx final ConfigurationProperties props) {
         return new ShadowRule(ruleConfig);
     }
     

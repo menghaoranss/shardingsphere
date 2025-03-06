@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.rule.builder.database;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
@@ -45,8 +47,9 @@ public interface DatabaseRuleBuilder<T extends RuleConfiguration> extends RuleBu
      * @param resourceMetaData resource meta data
      * @param builtRules built rules
      * @param computeNodeInstanceContext compute node instance context
+     * @param props configuration properties
      * @return built database rule
      */
     DatabaseRule build(T ruleConfig, String databaseName, DatabaseType protocolType,
-                       ResourceMetaData resourceMetaData, Collection<ShardingSphereRule> builtRules, ComputeNodeInstanceContext computeNodeInstanceContext);
+                       ResourceMetaData resourceMetaData, Collection<ShardingSphereRule> builtRules, ComputeNodeInstanceContext computeNodeInstanceContext, @SphereEx ConfigurationProperties props);
 }

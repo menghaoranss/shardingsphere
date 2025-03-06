@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.rule.builder.fixture;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.fixture.FixtureRule;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
@@ -30,7 +32,8 @@ public final class FixtureDatabaseRuleBuilder implements DatabaseRuleBuilder<Fix
     
     @Override
     public FixtureRule build(final FixtureDatabaseRuleConfiguration ruleConfig, final String databaseName, final DatabaseType protocolType,
-                             final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
+                             final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext,
+                             @SphereEx final ConfigurationProperties props) {
         return new FixtureRule();
     }
     

@@ -147,7 +147,10 @@ public final class YamlDatabaseConfigurationImportExecutor {
     private ShardingSphereRule buildRule(final RuleConfiguration ruleConfig, final ShardingSphereDatabase database) {
         DatabaseRuleBuilder ruleBuilder = OrderedSPILoader.getServices(DatabaseRuleBuilder.class, Collections.singleton(ruleConfig)).get(ruleConfig);
         ComputeNodeInstanceContext computeNodeInstanceContext = contextManager.getComputeNodeInstanceContext();
-        return ruleBuilder.build(ruleConfig, database.getName(), database.getProtocolType(), database.getResourceMetaData(), database.getRuleMetaData().getRules(), computeNodeInstanceContext);
+        // SPEX CHANGED: BEGIN
+        return ruleBuilder.build(ruleConfig, database.getName(), database.getProtocolType(), database.getResourceMetaData(), database.getRuleMetaData().getRules(), computeNodeInstanceContext,
+                contextManager.getMetaDataContexts().getMetaData().getProps());
+        // SPEX CHANGED: END
     }
     
     @SuppressWarnings({"rawtypes", "unchecked"})

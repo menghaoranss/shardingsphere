@@ -17,6 +17,10 @@
 
 package org.apache.shardingsphere.single.rule.builder;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
@@ -45,8 +49,10 @@ class SingleRuleBuilderTest {
         DatabaseRuleBuilder builder = OrderedSPILoader.getServices(DatabaseRuleBuilder.class).iterator().next();
         SingleRuleConfiguration ruleConfig = mock(SingleRuleConfiguration.class);
         when(ruleConfig.getTables()).thenReturn(Collections.singleton(SingleTableConstants.ALL_TABLES));
+        @SphereEx(Type.MODIFY)
         DatabaseRule actual = builder.build(ruleConfig, "",
-                new MySQLDatabaseType(), mock(ResourceMetaData.class), Collections.singleton(mock(ShardingSphereRule.class, RETURNS_DEEP_STUBS)), mock(ComputeNodeInstanceContext.class));
+                new MySQLDatabaseType(), mock(ResourceMetaData.class), Collections.singleton(mock(ShardingSphereRule.class, RETURNS_DEEP_STUBS)), mock(ComputeNodeInstanceContext.class),
+                mockProperties());
         assertThat(actual, instanceOf(SingleRule.class));
     }
     
@@ -54,8 +60,16 @@ class SingleRuleBuilderTest {
     @Test
     void assertBuildWithDefaultDataSource() {
         DatabaseRuleBuilder builder = OrderedSPILoader.getServices(DatabaseRuleBuilder.class).iterator().next();
+        @SphereEx(Type.MODIFY)
         DatabaseRule actual = builder.build(new SingleRuleConfiguration(Collections.singleton(SingleTableConstants.ALL_TABLES), "foo_ds"), "", new MySQLDatabaseType(), mock(ResourceMetaData.class),
-                Collections.singleton(mock(ShardingSphereRule.class, RETURNS_DEEP_STUBS)), mock(ComputeNodeInstanceContext.class));
+                Collections.singleton(mock(ShardingSphereRule.class, RETURNS_DEEP_STUBS)), mock(ComputeNodeInstanceContext.class), mockProperties());
         assertThat(actual, instanceOf(SingleRule.class));
+    }
+    
+    @SphereEx
+    private ConfigurationProperties mockProperties() {
+        ConfigurationProperties result = mock(ConfigurationProperties.class);
+        when(result.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES)).thenReturn("");
+        return result;
     }
 }

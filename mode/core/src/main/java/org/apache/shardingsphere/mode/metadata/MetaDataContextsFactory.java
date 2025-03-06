@@ -137,10 +137,12 @@ public final class MetaDataContextsFactory {
         persistService.persistGlobalRuleConfiguration(globalRuleConfigs, param.getProps());
         for (Entry<String, ? extends DatabaseConfiguration> entry : param.getDatabaseConfigs().entrySet()) {
             String databaseName = entry.getKey();
+            // SPEX CHANGED: BEGIN
             persistService.persistConfigurations(entry.getKey(), entry.getValue(),
                     metadataContexts.getMetaData().getDatabase(databaseName).getResourceMetaData().getStorageUnits().entrySet().stream()
                             .collect(Collectors.toMap(Entry::getKey, each -> each.getValue().getDataSource(), (oldValue, currentValue) -> oldValue, LinkedHashMap::new)),
-                    metadataContexts.getMetaData().getDatabase(databaseName).getRuleMetaData().getRules());
+                    metadataContexts.getMetaData().getDatabase(databaseName).getRuleMetaData().getRules(), metadataContexts.getMetaData().getProps());
+            // SPEX CHANGED: END
         }
     }
     

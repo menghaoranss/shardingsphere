@@ -17,8 +17,10 @@
 
 package com.sphereex.dbplusengine.broadcast.decorator;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.broadcast.config.BroadcastRuleConfiguration;
 import org.apache.shardingsphere.broadcast.rule.BroadcastRule;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.decorator.RuleConfigurationDecorator;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 
@@ -33,7 +35,7 @@ public final class BroadcastRuleConfigurationDecorator implements RuleConfigurat
     
     @Override
     public BroadcastRuleConfiguration decorate(final String databaseName, final Map<String, DataSource> dataSources,
-                                               final Collection<ShardingSphereRule> builtRules, final BroadcastRuleConfiguration ruleConfig) {
+                                               final Collection<ShardingSphereRule> builtRules, final BroadcastRuleConfiguration ruleConfig, @SphereEx final ConfigurationProperties props) {
         if (!ruleConfig.getActualDataSourceNames().isEmpty()) {
             return ruleConfig;
         }

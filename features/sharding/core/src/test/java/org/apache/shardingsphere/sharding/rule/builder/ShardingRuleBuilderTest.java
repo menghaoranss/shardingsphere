@@ -17,6 +17,9 @@
 
 package org.apache.shardingsphere.sharding.rule.builder;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
@@ -49,17 +52,21 @@ class ShardingRuleBuilderTest {
         builder = OrderedSPILoader.getServices(DatabaseRuleBuilder.class, Collections.singleton(ruleConfig)).get(ruleConfig);
     }
     
+    @SphereEx(Type.MODIFY)
     @SuppressWarnings("unchecked")
     @Test
     void assertBuild() {
         assertThat(builder.build(ruleConfig, "sharding_db", new MySQLDatabaseType(),
-                mock(ResourceMetaData.class, RETURNS_DEEP_STUBS), Collections.emptyList(), mock(ComputeNodeInstanceContext.class)), instanceOf(ShardingRule.class));
+                mock(ResourceMetaData.class, RETURNS_DEEP_STUBS), Collections.emptyList(), mock(ComputeNodeInstanceContext.class), mock(ConfigurationProperties.class)),
+                instanceOf(ShardingRule.class));
     }
     
+    @SphereEx(Type.MODIFY)
     @SuppressWarnings("unchecked")
     @Test
     void assertBuildWithEmptyDataSourceMap() {
         assertThrows(MissingRequiredShardingConfigurationException.class,
-                () -> builder.build(ruleConfig, "sharding_db", new MySQLDatabaseType(), mock(ResourceMetaData.class), Collections.emptyList(), mock(ComputeNodeInstanceContext.class)));
+                () -> builder.build(ruleConfig, "sharding_db", new MySQLDatabaseType(), mock(ResourceMetaData.class), Collections.emptyList(), mock(ComputeNodeInstanceContext.class),
+                        mock(ConfigurationProperties.class)));
     }
 }
