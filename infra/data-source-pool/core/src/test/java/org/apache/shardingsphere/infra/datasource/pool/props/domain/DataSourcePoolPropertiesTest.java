@@ -54,7 +54,9 @@ class DataSourcePoolPropertiesTest {
         assertThat(actual.getAllLocalProperties().get("url").toString(), is("jdbc:mock://127.0.0.1/foo_ds"));
         assertThat(actual.getAllLocalProperties().get("username").toString(), is("root"));
         assertThat(actual.getAllLocalProperties().get("password").toString(), is("root"));
-        assertNull(actual.getAllLocalProperties().get("loginTimeout"));
+        // SPEX CHANGED: BEGIN
+        assertThat(actual.getAllLocalProperties().get("loginTimeout"), is(0));
+        // SPEX CHANGED: END
         assertThat(actual.getAllLocalProperties().get("connectionInitSqls"), instanceOf(List.class));
         List<String> actualConnectionInitSql = (List<String>) actual.getAllLocalProperties().get("connectionInitSqls");
         assertThat(actualConnectionInitSql, hasItem("set names utf8mb4;"));
