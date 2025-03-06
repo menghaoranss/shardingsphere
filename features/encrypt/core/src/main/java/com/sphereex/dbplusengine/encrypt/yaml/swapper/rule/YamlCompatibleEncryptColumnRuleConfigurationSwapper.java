@@ -39,6 +39,8 @@ public final class YamlCompatibleEncryptColumnRuleConfigurationSwapper implement
         result.setAssistedQueryEncryptorName(data.getAssistedQueryEncryptorName());
         result.setLikeQueryEncryptorName(data.getLikeQueryEncryptorName());
         result.setOrderQueryEncryptorName(data.getOrderQueryEncryptorName());
+        result.setAolianColumn(data.getAolianColumn());
+        result.setDbid(data.getDbid());
         result.setQueryWithCipherColumn(data.getQueryWithCipherColumn());
         result.setDataType(data.getLogicDataType());
         result.setCipherDataType(data.getCipherDataType());
@@ -62,6 +64,8 @@ public final class YamlCompatibleEncryptColumnRuleConfigurationSwapper implement
         result.setAssistedQueryDataType(yamlConfig.getAssistedQueryDataType());
         result.setLikeQueryDataType(yamlConfig.getLikeQueryDataType());
         result.setOrderQueryDataType(yamlConfig.getLikeQueryDataType());
+        result.setAolianColumn(yamlConfig.getAolianColumn());
+        result.setDbid(yamlConfig.getDbid());
         return result;
     }
 }

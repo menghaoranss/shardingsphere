@@ -49,6 +49,10 @@ public final class YamlCompatibleEncryptColumnRuleConfiguration implements YamlC
     
     private String orderQueryEncryptorName;
     
+    private String aolianColumn;
+    
+    private String dbid;
+    
     private Boolean queryWithCipherColumn;
     
     @SphereEx

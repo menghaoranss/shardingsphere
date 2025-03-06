@@ -21,10 +21,10 @@ import com.cedarsoftware.util.CaseInsensitiveMap;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
 import com.sphereex.dbplusengine.encrypt.rule.column.item.OrderQueryColumnItem;
 import com.sphereex.dbplusengine.encrypt.rule.column.item.PlainColumnItem;
 import com.sphereex.dbplusengine.encrypt.rule.mode.EncryptMode;
-import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
 import lombok.Getter;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptColumnRuleConfiguration;
 import org.apache.shardingsphere.encrypt.config.rule.EncryptTableRuleConfiguration;
@@ -133,6 +133,8 @@ public final class EncryptTable {
             result.setPlain(new PlainColumnItem(config.getPlain().get().getName(), config.getPlain().get().isQueryWithPlain()));
         }
         config.getDataType().ifPresent(result::setDataType);
+        config.getAolianColumn().ifPresent(result::setAolianColumn);
+        config.getDbid().ifPresent(result::setDbid);
         // SPEX ADDED: END
         return result;
     }

@@ -55,6 +55,12 @@ public final class EncryptColumn {
     @SphereEx
     private String dataType;
     
+    @SphereEx
+    private String aolianColumn;
+    
+    @SphereEx
+    private String dbid;
+    
     /**
      * Get assisted query column item.
      *
@@ -100,5 +106,25 @@ public final class EncryptColumn {
     @SphereEx
     public Optional<PlainColumnItem> getPlain() {
         return Optional.ofNullable(plain);
+    }
+    
+    /**
+     * Get aoilan column.
+     *
+     * @return aoilan column
+     */
+    @SphereEx
+    public Optional<String> getAolianColumn() {
+        return Optional.ofNullable(aolianColumn);
+    }
+    
+    /**
+     * Get dbid.
+     *
+     * @return dbid
+     */
+    @SphereEx
+    public Optional<String> getDbid() {
+        return Optional.ofNullable(dbid);
     }
 }

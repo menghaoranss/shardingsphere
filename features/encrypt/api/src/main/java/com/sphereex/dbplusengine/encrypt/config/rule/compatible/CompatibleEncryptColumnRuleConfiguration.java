@@ -71,6 +71,12 @@ public final class CompatibleEncryptColumnRuleConfiguration {
     @Setter
     private String plainDataType;
     
+    @Setter
+    private String aolianColumn;
+    
+    @Setter
+    private String dbid;
+    
     /**
      * Convert to encrypt column rule configuration.
      *
@@ -95,6 +101,8 @@ public final class CompatibleEncryptColumnRuleConfiguration {
             plain.setQueryWithPlain(!columnQueryWithCipherColumn);
             result.setPlain(plain);
         }
+        result.setAolianColumn(aolianColumn);
+        result.setDbid(dbid);
         return result;
     }
 }
