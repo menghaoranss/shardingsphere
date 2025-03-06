@@ -58,7 +58,7 @@ class ShowDistVariablesExecutorTest {
                 mock(DatabaseType.class), mock(DatabaseConnectionManager.class), mock(ExecutorStatementManager.class)));
         Collection<LocalDataQueryResultRow> actual = executor.getRows(mock(ShowDistVariablesStatement.class), contextManager);
         // SPEX CHANGED: BEGIN
-        assertThat(actual.size(), is(25));
+        assertThat(actual.size(), is(26));
         // SPEX CHANGED: END
         LocalDataQueryResultRow row = actual.iterator().next();
         assertThat(row.getCell(1), is("agent_plugins_enabled"));

@@ -47,6 +47,10 @@ public final class OracleDatabaseMetaData implements DialectDatabaseMetaData {
             "SMALLINT", "SQLBUF", "SUCCESSFUL", "SYNONYM", "SYSDATE", "TABLE", "THEN", "TO", "TRIGGER", "UID", "UNION", "UNIQUE", "UPDATE", "USER", "VALIDATE", "VALUES", "VARCHAR", "VARCHAR2",
             "VIEW", "WHENEVER", "WHERE", "WITH"));
     
+    private static final int BINARY_FLOAT = 100;
+    
+    private static final int BINARY_DOUBLE = 101;
+    
     @Override
     public QuoteCharacter getQuoteCharacter() {
         return QuoteCharacter.QUOTE;
@@ -103,7 +107,7 @@ public final class OracleDatabaseMetaData implements DialectDatabaseMetaData {
     
     @Override
     public Map<String, Integer> getExtraDataTypes() {
-        Map<String, Integer> result = new HashMap<>(8);
+        Map<String, Integer> result = new HashMap<>(13, 1F);
         result.put("SMALLINT", Types.SMALLINT);
         result.put("TINYINT", Types.TINYINT);
         result.put("INT", Types.INTEGER);
@@ -112,9 +116,13 @@ public final class OracleDatabaseMetaData implements DialectDatabaseMetaData {
         result.put("VARCHAR2", Types.VARCHAR);
         result.put("DATETIME", Types.TIMESTAMP);
         result.put("ROWID", Types.ROWID);
-        result.put("BINARY_DOUBLE", Types.DOUBLE);
-        result.put("BINARY_FLOAT", Types.FLOAT);
+        result.put("UROWID", Types.ROWID);
+        // NOTE OracleTypes 映射为 100
+        result.put("BINARY_FLOAT", BINARY_FLOAT);
+        // NOTE OracleTypes 映射为 101
+        result.put("BINARY_DOUBLE", BINARY_DOUBLE);
         result.put("NUMBER", Types.NUMERIC);
+        result.put("OTHER", Types.OTHER);
         return result;
     }
 }
