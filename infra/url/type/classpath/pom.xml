@@ -32,5 +32,13 @@
             <artifactId>shardingsphere-infra-url-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <!-- SPEX ADDED: BEGIN -->
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-infra-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- SPEX ADDED: END -->
     </dependencies>
 </project>

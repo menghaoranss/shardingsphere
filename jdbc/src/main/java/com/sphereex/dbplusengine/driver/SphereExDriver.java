@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.driver;
+package com.sphereex.dbplusengine.driver;
 
 import com.sphereex.dbplusengine.driver.jdbc.core.driver.ConnectionPropertiesAwareDriverDataSourceCache;
 import org.apache.shardingsphere.driver.exception.DriverRegisterException;
-import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -30,28 +29,26 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
- * ShardingSphere driver.
+ * SphereEx driver.
  */
-@SuppressWarnings("UseOfJDBCDriverClass")
-public final class ShardingSphereDriver implements Driver {
+public final class SphereExDriver implements Driver {
     
-    private static final String DRIVER_URL_PREFIX = "jdbc:shardingsphere:";
+    private static final String DRIVER_URL_PREFIX = "jdbc:sphereex:";
     
-    private static final int MAJOR_DRIVER_VERSION = 5;
+    private static final int MAJOR_DRIVER_VERSION = 1;
     
-    private static final int MINOR_DRIVER_VERSION = 5;
-    
+    private static final int MINOR_DRIVER_VERSION = 7;
+
     private final ConnectionPropertiesAwareDriverDataSourceCache dataSourceCache = new ConnectionPropertiesAwareDriverDataSourceCache();
     
     static {
         try {
-            DriverManager.registerDriver(new ShardingSphereDriver());
+            DriverManager.registerDriver(new SphereExDriver());
         } catch (final SQLException ex) {
             throw new DriverRegisterException(ex);
         }
     }
     
-    @HighFrequencyInvocation(canBeCached = true)
     @Override
     public Connection connect(final String url, final Properties info) throws SQLException {
         return acceptsURL(url) ? dataSourceCache.get(url, DRIVER_URL_PREFIX, info).getConnection() : null;
