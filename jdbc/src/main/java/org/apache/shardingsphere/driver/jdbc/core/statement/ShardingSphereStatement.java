@@ -264,11 +264,11 @@ public final class ShardingSphereStatement extends AbstractStatementAdapter {
     
     private void prepareExecute(final QueryContext queryContext) throws SQLException {
         handleAutoCommit(queryContext.getSqlStatementContext().getSqlStatement());
+        sqlStatementContext = queryContext.getSqlStatementContext();
         usedDatabaseName = sqlStatementContext instanceof TableAvailable
                 ? ((TableAvailable) sqlStatementContext).getTablesContext().getDatabaseName().orElse(connection.getCurrentDatabaseName())
                 : connection.getCurrentDatabaseName();
         connection.getDatabaseConnectionManager().getConnectionContext().setCurrentDatabaseName(connection.getCurrentDatabaseName());
-        sqlStatementContext = queryContext.getSqlStatementContext();
         clearStatements();
     }
     
