@@ -23,6 +23,7 @@ import com.sphereex.dbplusengine.encrypt.context.EncryptColumnDataTypeContext;
 import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
 import com.sphereex.dbplusengine.encrypt.context.EncryptContextBuilder;
 import com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype.DataValueConverter;
+import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -77,7 +78,7 @@ public final class CipherColumnItem {
         }
         return encryptor.encrypt(originalValue, new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName),
                 // SPEX CHANGED: BEGIN
-                EncryptContextBuilder.build(encryptColumn, databaseType));
+                EncryptContextBuilder.build(encryptColumn, databaseType, EncryptColumnItemType.CIPHER));
         // SPEX CHANGED: END
     }
     
@@ -94,7 +95,7 @@ public final class CipherColumnItem {
     public List<Object> encrypt(final String databaseName, final String schemaName, final String tableName, final String logicColumnName, final List<Object> originalValues) {
         AlgorithmSQLContext algorithmSQLContext = new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName);
         @SphereEx(Type.MODIFY)
-        EncryptContext encryptContext = EncryptContextBuilder.build(encryptColumn, databaseType);
+        EncryptContext encryptContext = EncryptContextBuilder.build(encryptColumn, databaseType, EncryptColumnItemType.CIPHER);
         List<Object> result = new LinkedList<>();
         for (Object each : originalValues) {
             result.add(null == each ? null : encryptor.encrypt(each, algorithmSQLContext, encryptContext));
@@ -119,7 +120,7 @@ public final class CipherColumnItem {
             return null;
         }
         // SPEX CHANGED: BEGIN
-        EncryptContext encryptContext = EncryptContextBuilder.build(encryptColumn, databaseType);
+        EncryptContext encryptContext = EncryptContextBuilder.build(encryptColumn, databaseType, EncryptColumnItemType.CIPHER);
         // TODO if some algorithm need to handle original Clob, this should be changed
         Object convertedCipherValue = convertClobValueToString(cipherValue);
         return convertToOriginTypeIfNecessary(
