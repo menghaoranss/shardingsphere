@@ -19,7 +19,8 @@ package org.apache.shardingsphere.encrypt.rule.column.item;
 
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
-import com.sphereex.dbplusengine.encrypt.context.EncryptColumnDataTypeContextBuilder;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContextBuilder;
+import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -74,7 +75,7 @@ public final class LikeQueryColumnItem {
         }
         return encryptor.encrypt(originalValue, new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName),
                 // SPEX CHANGED: BEGIN
-                new EncryptContext(EncryptColumnDataTypeContextBuilder.build(encryptColumn), databaseType));
+                EncryptContextBuilder.build(encryptColumn, databaseType, EncryptColumnItemType.LIKE_QUERY));
         // SPEX CHANGED: END
     }
     
@@ -91,7 +92,7 @@ public final class LikeQueryColumnItem {
     public List<Object> encrypt(final String databaseName, final String schemaName, final String tableName, final String logicColumnName, final List<Object> originalValues) {
         AlgorithmSQLContext algorithmSQLContext = new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName);
         // SPEX ADDED: BEGIN
-        EncryptContext encryptContext = new EncryptContext(EncryptColumnDataTypeContextBuilder.build(encryptColumn), databaseType);
+        EncryptContext encryptContext = EncryptContextBuilder.build(encryptColumn, databaseType, EncryptColumnItemType.LIKE_QUERY);
         // SPEX ADDED: END
         List<Object> result = new LinkedList<>();
         for (Object each : originalValues) {

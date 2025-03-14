@@ -17,6 +17,10 @@
 
 package org.apache.shardingsphere.single.route.engine.engine;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.exception.dialect.exception.syntax.table.TableExistsException;
@@ -65,7 +69,8 @@ class SingleRouteEngineTest {
     @Test
     void assertRouteInSameDataSource() throws SQLException {
         SingleRouteEngine engine = new SingleRouteEngine(mockQualifiedTables(), null, mock(HintValueContext.class));
-        SingleRule singleRule = new SingleRule(new SingleRuleConfiguration(), "foo_db", new MySQLDatabaseType(), createDataSourceMap(), Collections.emptyList());
+        @SphereEx(Type.MODIFY)
+        SingleRule singleRule = new SingleRule(new SingleRuleConfiguration(), "foo_db", new MySQLDatabaseType(), createDataSourceMap(), Collections.emptyList(), mockProperties());
         singleRule.getAttributes().getAttribute(DataNodeRuleAttribute.class).getAllDataNodes().put("t_order", Collections.singleton(mockDataNode("t_order")));
         singleRule.getAttributes().getAttribute(DataNodeRuleAttribute.class).getAllDataNodes().put("t_order_item", Collections.singleton(mockDataNode("t_order_item")));
         RouteContext routeContext = new RouteContext();
@@ -87,6 +92,13 @@ class SingleRouteEngineTest {
         // SPEX DELETED: END
     }
     
+    @SphereEx
+    private ConfigurationProperties mockProperties() {
+        ConfigurationProperties result = mock(ConfigurationProperties.class);
+        when(result.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES)).thenReturn("");
+        return result;
+    }
+    
     private DataNode mockDataNode(final String tableName) {
         DataNode result = new DataNode("ds_0", tableName);
         result.setSchemaName("foo_db");
@@ -102,7 +114,8 @@ class SingleRouteEngineTest {
         MySQLCreateTableStatement sqlStatement = new MySQLCreateTableStatement();
         sqlStatement.setIfNotExists(false);
         SingleRouteEngine engine = new SingleRouteEngine(mockQualifiedTables(), sqlStatement, mock(HintValueContext.class));
-        SingleRule singleRule = new SingleRule(new SingleRuleConfiguration(), "foo_db", new MySQLDatabaseType(), createDataSourceMap(), Collections.emptyList());
+        @SphereEx(Type.MODIFY)
+        SingleRule singleRule = new SingleRule(new SingleRuleConfiguration(), "foo_db", new MySQLDatabaseType(), createDataSourceMap(), Collections.emptyList(), mockProperties());
         RouteContext routeContext = new RouteContext();
         engine.route(routeContext, singleRule);
         List<RouteUnit> routeUnits = new ArrayList<>(routeContext.getRouteUnits());
@@ -119,8 +132,10 @@ class SingleRouteEngineTest {
         MySQLCreateTableStatement sqlStatement = new MySQLCreateTableStatement();
         sqlStatement.setIfNotExists(false);
         SingleRouteEngine engine = new SingleRouteEngine(mockQualifiedTables(), sqlStatement, mock(HintValueContext.class));
+        @SphereEx(Type.MODIFY)
         SingleRule singleRule =
-                new SingleRule(new SingleRuleConfiguration(Collections.emptyList(), "ds_0"), "foo_db", new MySQLDatabaseType(), createDataSourceMap(), Collections.emptyList());
+                new SingleRule(new SingleRuleConfiguration(Collections.emptyList(), "ds_0"), "foo_db", new MySQLDatabaseType(), createDataSourceMap(), Collections.emptyList(),
+                        mockProperties());
         RouteContext routeContext = new RouteContext();
         engine.route(routeContext, singleRule);
         List<RouteUnit> routeUnits = new ArrayList<>(routeContext.getRouteUnits());

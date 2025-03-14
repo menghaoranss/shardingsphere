@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.distsql.handler.engine.update.rdl.rule.engine.database.type;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.distsql.handler.engine.update.rdl.rule.engine.database.DatabaseRuleOperator;
 import org.apache.shardingsphere.distsql.handler.engine.update.rdl.rule.spi.database.DatabaseRuleCreateExecutor;
@@ -52,11 +54,12 @@ public final class CreateDatabaseRuleOperator implements DatabaseRuleOperator {
         metaDataManagerPersistService.alterRuleConfiguration(database.getName(), decorateRuleConfiguration(database, toBeCreatedRuleConfig));
     }
     
+    @SphereEx(Type.MODIFY)
     @SuppressWarnings("unchecked")
     private RuleConfiguration decorateRuleConfiguration(final ShardingSphereDatabase database, final RuleConfiguration ruleConfig) {
         return TypedSPILoader.findService(RuleConfigurationDecorator.class, ruleConfig.getClass()).map(optional -> optional.decorate(database.getName(),
                 database.getResourceMetaData().getStorageUnits().entrySet().stream()
                         .collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().getDataSource(), (oldValue, currentValue) -> oldValue, LinkedHashMap::new)),
-                database.getRuleMetaData().getRules(), ruleConfig)).orElse(ruleConfig);
+                database.getRuleMetaData().getRules(), ruleConfig, contextManager.getMetaDataContexts().getMetaData().getProps())).orElse(ruleConfig);
     }
 }

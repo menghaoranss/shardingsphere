@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.single.distsql.handler.update;
 
 import org.apache.shardingsphere.distsql.handler.engine.update.DistSQLUpdateExecuteEngine;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.exception.kernel.metadata.resource.storageunit.MissingRequiredStorageUnitsException;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.rule.RuleMetaData;
@@ -89,6 +90,9 @@ class SetDefaultSingleTableStorageUnitExecutorTest {
         when(database.getName()).thenReturn("foo_db");
         when(database.getRuleMetaData()).thenReturn(new RuleMetaData(Collections.singleton(rule)));
         when(result.getDatabase("foo_db")).thenReturn(database);
+        // SPEX ADDED: BEGIN
+        when(result.getMetaDataContexts().getMetaData().getProps().getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES)).thenReturn("");
+        // SPEX ADDED: END
         return result;
     }
 }

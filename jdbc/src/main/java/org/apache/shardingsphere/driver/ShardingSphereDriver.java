@@ -17,8 +17,8 @@
 
 package org.apache.shardingsphere.driver;
 
+import com.sphereex.dbplusengine.driver.jdbc.core.driver.ConnectionPropertiesAwareDriverDataSourceCache;
 import org.apache.shardingsphere.driver.exception.DriverRegisterException;
-import org.apache.shardingsphere.driver.jdbc.core.driver.DriverDataSourceCache;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 
 import java.sql.Connection;
@@ -41,7 +41,7 @@ public final class ShardingSphereDriver implements Driver {
     
     private static final int MINOR_DRIVER_VERSION = 5;
     
-    private final DriverDataSourceCache dataSourceCache = new DriverDataSourceCache();
+    private final ConnectionPropertiesAwareDriverDataSourceCache dataSourceCache = new ConnectionPropertiesAwareDriverDataSourceCache();
     
     static {
         try {
@@ -54,7 +54,7 @@ public final class ShardingSphereDriver implements Driver {
     @HighFrequencyInvocation(canBeCached = true)
     @Override
     public Connection connect(final String url, final Properties info) throws SQLException {
-        return acceptsURL(url) ? dataSourceCache.get(url, DRIVER_URL_PREFIX).getConnection() : null;
+        return acceptsURL(url) ? dataSourceCache.get(url, DRIVER_URL_PREFIX, info).getConnection() : null;
     }
     
     @Override

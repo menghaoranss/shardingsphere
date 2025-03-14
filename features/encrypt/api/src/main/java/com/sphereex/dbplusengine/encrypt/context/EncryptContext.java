@@ -17,8 +17,11 @@
 
 package com.sphereex.dbplusengine.encrypt.context;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 
 /**
@@ -31,4 +34,16 @@ public final class EncryptContext {
     private final EncryptColumnDataTypeContext columnDataType;
     
     private final DatabaseType databaseType;
+    
+    @SphereEx
+    @Setter
+    private String aolianColumn;
+    
+    @SphereEx
+    @Setter
+    private String dbid;
+    
+    @SphereEx
+    @Setter
+    private EncryptColumnItemType encryptColumnItemType;
 }

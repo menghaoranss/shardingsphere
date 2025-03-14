@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.metadata.database;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.config.database.DatabaseConfiguration;
@@ -101,7 +102,9 @@ public final class ShardingSphereDatabase {
     public static ShardingSphereDatabase create(final String name, final DatabaseType protocolType, final DatabaseConfiguration databaseConfig,
                                                 final ConfigurationProperties props, final ComputeNodeInstanceContext computeNodeInstanceContext) throws SQLException {
         ResourceMetaData resourceMetaData = new ResourceMetaData(databaseConfig.getDataSources(), databaseConfig.getStorageUnits());
-        Collection<ShardingSphereRule> databaseRules = DatabaseRulesBuilder.build(name, protocolType, databaseConfig, computeNodeInstanceContext, resourceMetaData);
+        // SPEX CHANGED: BEGIN
+        Collection<ShardingSphereRule> databaseRules = DatabaseRulesBuilder.build(name, protocolType, databaseConfig, computeNodeInstanceContext, resourceMetaData, props);
+        // SPEX CHANGED: END
         Map<String, ShardingSphereSchema> schemas = new ConcurrentHashMap<>(GenericSchemaBuilder.build(protocolType,
                 new GenericSchemaBuilderMaterial(resourceMetaData.getStorageUnits(), databaseRules, props, new DatabaseTypeRegistry(protocolType).getDefaultSchemaName(name))));
         SystemSchemaBuilder.build(name, protocolType, props).forEach(schemas::putIfAbsent);
@@ -116,12 +119,16 @@ public final class ShardingSphereDatabase {
      * @param databaseConfig database configuration
      * @param computeNodeInstanceContext compute node instance context
      * @param schemas schemas
+     * @param props configuration properties
      * @return created database
      */
     public static ShardingSphereDatabase create(final String name, final DatabaseType protocolType, final DatabaseConfiguration databaseConfig,
-                                                final ComputeNodeInstanceContext computeNodeInstanceContext, final Collection<ShardingSphereSchema> schemas) {
+                                                final ComputeNodeInstanceContext computeNodeInstanceContext, final Collection<ShardingSphereSchema> schemas,
+                                                @SphereEx final ConfigurationProperties props) {
         ResourceMetaData resourceMetaData = new ResourceMetaData(databaseConfig.getDataSources(), databaseConfig.getStorageUnits());
-        Collection<ShardingSphereRule> rules = DatabaseRulesBuilder.build(name, protocolType, databaseConfig, computeNodeInstanceContext, resourceMetaData);
+        // SPEX CHANGED: BEGIN
+        Collection<ShardingSphereRule> rules = DatabaseRulesBuilder.build(name, protocolType, databaseConfig, computeNodeInstanceContext, resourceMetaData, props);
+        // SPEX CHANGED: END
         return new ShardingSphereDatabase(name, protocolType, resourceMetaData, new RuleMetaData(rules), schemas);
     }
     
@@ -192,8 +199,10 @@ public final class ShardingSphereDatabase {
     
     /**
      * Reload rules.
+     *
+     * @param props configuration properties
      */
-    public synchronized void reloadRules() {
+    public synchronized void reloadRules(@SphereEx final ConfigurationProperties props) {
         Collection<ShardingSphereRule> toBeReloadedRules = ruleMetaData.getRules().stream()
                 .filter(each -> each.getAttributes().findAttribute(MutableDataNodeRuleAttribute.class).isPresent()).collect(Collectors.toList());
         RuleConfiguration ruleConfig = toBeReloadedRules.stream().map(ShardingSphereRule::getConfiguration).findFirst().orElse(null);
@@ -202,7 +211,9 @@ public final class ShardingSphereDatabase {
             rules.removeAll(toBeReloadedRules);
             Map<String, DataSource> dataSources = resourceMetaData.getStorageUnits().entrySet().stream()
                     .collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().getDataSource(), (oldValue, currentValue) -> oldValue, LinkedHashMap::new));
-            rules.add(optional.getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).reloadRule(ruleConfig, name, dataSources, rules));
+            // SPEX CHANGED: BEGIN
+            rules.add(optional.getAttributes().getAttribute(MutableDataNodeRuleAttribute.class).reloadRule(ruleConfig, name, dataSources, rules, props));
+            // SPEX CHANGED: END
         });
         ruleMetaData.getRules().clear();
         ruleMetaData.getRules().addAll(rules);

@@ -22,6 +22,7 @@ import com.sphereex.dbplusengine.SphereEx.Type;
 import org.apache.shardingsphere.encrypt.config.EncryptRuleConfiguration;
 import org.apache.shardingsphere.encrypt.constant.EncryptOrder;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
@@ -38,7 +39,8 @@ public final class EncryptRuleBuilder implements DatabaseRuleBuilder<EncryptRule
     @SphereEx(Type.MODIFY)
     @Override
     public EncryptRule build(final EncryptRuleConfiguration ruleConfig, final String databaseName, final DatabaseType protocolType,
-                             final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
+                             final ResourceMetaData resourceMetaData, final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext,
+                             @SphereEx final ConfigurationProperties props) {
         return new EncryptRule(databaseName, ruleConfig, resourceMetaData.getDataSourceMap(), builtRules);
     }
     

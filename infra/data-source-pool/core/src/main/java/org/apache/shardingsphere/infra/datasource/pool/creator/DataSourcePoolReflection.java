@@ -19,10 +19,10 @@ package org.apache.shardingsphere.infra.datasource.pool.creator;
 
 import com.google.common.base.CaseFormat;
 import lombok.SneakyThrows;
-import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
-import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeFactory;
 import org.apache.shardingsphere.infra.database.core.connector.ConnectionProperties;
 import org.apache.shardingsphere.infra.database.core.connector.ConnectionPropertiesParser;
+import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeFactory;
 import org.apache.shardingsphere.infra.datasource.pool.metadata.DataSourcePoolMetaData;
 import org.apache.shardingsphere.infra.datasource.pool.metadata.DataSourcePoolMetaDataReflection;
 import org.apache.shardingsphere.infra.datasource.pool.metadata.impl.DefaultDataSourcePoolFieldMetaData;
@@ -63,7 +63,10 @@ public final class DataSourcePoolReflection {
     static {
         GENERAL_CLASS_TYPES = new HashSet<>(
                 Arrays.asList(boolean.class, Boolean.class, int.class, Integer.class, long.class, Long.class, String.class, Collection.class, List.class, Properties.class));
-        SKIPPED_PROPERTY_KEYS = new HashSet<>(Collections.singletonList("loginTimeout"));
+        // SPEX CHANGED: BEGIN
+        // SKIPPED_PROPERTY_KEYS = new HashSet<>(Collections.singletonList("loginTimeout"));
+        SKIPPED_PROPERTY_KEYS = new HashSet<>(Collections.singletonList(""));
+        // SPEX CHANGED: END
     }
     
     public DataSourcePoolReflection(final DataSource dataSource) {

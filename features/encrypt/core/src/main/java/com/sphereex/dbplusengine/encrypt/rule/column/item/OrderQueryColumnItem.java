@@ -17,8 +17,9 @@
 
 package com.sphereex.dbplusengine.encrypt.rule.column.item;
 
-import com.sphereex.dbplusengine.encrypt.context.EncryptColumnDataTypeContextBuilder;
 import com.sphereex.dbplusengine.encrypt.context.EncryptContext;
+import com.sphereex.dbplusengine.encrypt.context.EncryptContextBuilder;
+import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -69,7 +70,7 @@ public final class OrderQueryColumnItem {
             return null;
         }
         return encryptor.encrypt(originalValue, new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName),
-                new EncryptContext(EncryptColumnDataTypeContextBuilder.build(encryptColumn), databaseType));
+                EncryptContextBuilder.build(encryptColumn, databaseType, EncryptColumnItemType.ORDER_QUERY));
     }
     
     /**
@@ -84,7 +85,7 @@ public final class OrderQueryColumnItem {
      */
     public List<Object> encrypt(final String databaseName, final String schemaName, final String tableName, final String logicColumnName, final List<Object> originalValues) {
         AlgorithmSQLContext algorithmSQLContext = new AlgorithmSQLContext(databaseName, schemaName, tableName, logicColumnName);
-        EncryptContext encryptContext = new EncryptContext(EncryptColumnDataTypeContextBuilder.build(encryptColumn), databaseType);
+        EncryptContext encryptContext = EncryptContextBuilder.build(encryptColumn, databaseType, EncryptColumnItemType.ORDER_QUERY);
         List<Object> result = new LinkedList<>();
         for (Object each : originalValues) {
             result.add(null == each ? null : encryptor.encrypt(each, algorithmSQLContext, encryptContext));

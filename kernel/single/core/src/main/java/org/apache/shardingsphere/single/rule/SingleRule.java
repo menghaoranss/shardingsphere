@@ -18,11 +18,14 @@
 package org.apache.shardingsphere.single.rule;
 
 import com.cedarsoftware.util.CaseInsensitiveSet;
+import com.google.common.base.Splitter;
 import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.IndexAvailable;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
@@ -74,14 +77,19 @@ public final class SingleRule implements DatabaseRule {
     private final RuleAttributes attributes;
     
     public SingleRule(final SingleRuleConfiguration ruleConfig, final String databaseName,
-                      final DatabaseType protocolType, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> builtRules) {
+                      final DatabaseType protocolType, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> builtRules,
+                      @SphereEx final ConfigurationProperties props) {
         configuration = ruleConfig;
         defaultDataSource = ruleConfig.getDefaultDataSource().orElse(null);
         Map<String, DataSource> aggregatedDataSources = new RuleMetaData(builtRules).findAttribute(AggregatedDataSourceRuleAttribute.class)
                 .map(AggregatedDataSourceRuleAttribute::getAggregatedDataSources).orElseGet(() -> PhysicalDataSourceAggregator.getAggregatedDataSources(dataSources, builtRules));
         dataSourceNames = new CaseInsensitiveSet<>(aggregatedDataSources.keySet());
         this.protocolType = protocolType;
-        singleTableDataNodes = SingleTableDataNodeLoader.load(databaseName, protocolType, aggregatedDataSources, builtRules, configuration.getTables());
+        @SphereEx
+        Collection<String> loadMetadataIgnoreTables = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES));
+        // SPEX CHANGED: BEGIN
+        singleTableDataNodes = SingleTableDataNodeLoader.load(databaseName, protocolType, aggregatedDataSources, builtRules, configuration.getTables(), loadMetadataIgnoreTables);
+        // SPEX CHANGED: END
         SingleTableMapperRuleAttribute tableMapperRuleAttribute = new SingleTableMapperRuleAttribute(singleTableDataNodes.values());
         mutableDataNodeRuleAttribute = new SingleMutableDataNodeRuleAttribute(configuration, dataSourceNames, singleTableDataNodes, protocolType, tableMapperRuleAttribute);
         attributes = new RuleAttributes(new SingleDataNodeRuleAttribute(singleTableDataNodes), tableMapperRuleAttribute,

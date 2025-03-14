@@ -17,8 +17,10 @@
 
 package org.apache.shardingsphere.mode.metadata.persist;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.config.database.DatabaseConfiguration;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.rule.decorator.RuleConfigurationDecorator;
 import org.apache.shardingsphere.infra.datasource.pool.config.DataSourceConfiguration;
@@ -103,24 +105,31 @@ public final class MetaDataPersistService {
      * @param databaseConfig database configuration
      * @param dataSources data sources
      * @param rules rules
+     * @param props properties
      */
-    public void persistConfigurations(final String databaseName, final DatabaseConfiguration databaseConfig, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> rules) {
+    public void persistConfigurations(final String databaseName, final DatabaseConfiguration databaseConfig, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> rules,
+                                      @SphereEx final ConfigurationProperties props) {
         Map<String, DataSourcePoolProperties> propsMap = getDataSourcePoolPropertiesMap(databaseConfig);
         if (propsMap.isEmpty() && databaseConfig.getRuleConfigurations().isEmpty()) {
             databaseMetaDataFacade.getDatabase().add(databaseName);
         } else {
             dataSourceUnitService.persist(databaseName, propsMap);
-            databaseRulePersistService.persist(databaseName, decorateRuleConfigs(databaseName, dataSources, rules));
+            // SPEX CHANGED: BEGIN
+            databaseRulePersistService.persist(databaseName, decorateRuleConfigs(databaseName, dataSources, rules, props));
+            // SPEX CHANGED: END
         }
     }
     
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private Collection<RuleConfiguration> decorateRuleConfigs(final String databaseName, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> rules) {
+    private Collection<RuleConfiguration> decorateRuleConfigs(final String databaseName, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> rules,
+                                                              @SphereEx final ConfigurationProperties props) {
         Collection<RuleConfiguration> result = new LinkedList<>();
         for (ShardingSphereRule each : rules) {
             RuleConfiguration ruleConfig = each.getConfiguration();
             Optional<RuleConfigurationDecorator> decorator = TypedSPILoader.findService(RuleConfigurationDecorator.class, ruleConfig.getClass());
-            result.add(decorator.map(optional -> optional.decorate(databaseName, dataSources, rules, ruleConfig)).orElse(ruleConfig));
+            // SPEX CHANGED: BEGIN
+            result.add(decorator.map(optional -> optional.decorate(databaseName, dataSources, rules, ruleConfig, props)).orElse(ruleConfig));
+            // SPEX CHANGED: END
         }
         return result;
     }

@@ -72,8 +72,11 @@ public final class DatabaseRuleConfigurationManager {
             return;
         }
         rules.removeIf(each -> each.getConfiguration().getClass().isAssignableFrom(ruleConfig.getClass()));
+        // SPEX CHANGED: BEGIN
         rules.addAll(DatabaseRulesBuilder.build(
-                databaseName, database.getProtocolType(), database.getRuleMetaData().getRules(), ruleConfig, computeNodeInstanceContext, database.getResourceMetaData()));
+                databaseName, database.getProtocolType(), database.getRuleMetaData().getRules(), ruleConfig, computeNodeInstanceContext, database.getResourceMetaData(),
+                metaDataContexts.getMetaData().getProps()));
+        // SPEX CHANGED: END
         refreshMetadata(databaseName, getRuleConfigurations(rules));
     }
     
@@ -95,8 +98,11 @@ public final class DatabaseRuleConfigurationManager {
         }
         rules.removeIf(each -> each.getConfiguration().getClass().isAssignableFrom(ruleConfig.getClass()));
         if (!TypedSPILoader.getService(DatabaseRuleConfigurationEmptyChecker.class, ruleConfig.getClass()).isEmpty((DatabaseRuleConfiguration) ruleConfig)) {
+            // SPEX CHANGED: BEGIN
             rules.addAll(DatabaseRulesBuilder.build(
-                    databaseName, database.getProtocolType(), database.getRuleMetaData().getRules(), ruleConfig, computeNodeInstanceContext, database.getResourceMetaData()));
+                    databaseName, database.getProtocolType(), database.getRuleMetaData().getRules(), ruleConfig, computeNodeInstanceContext, database.getResourceMetaData(),
+                    metaDataContexts.getMetaData().getProps()));
+            // SPEX CHANGED: END
         }
         refreshMetadata(databaseName, getRuleConfigurations(rules));
     }

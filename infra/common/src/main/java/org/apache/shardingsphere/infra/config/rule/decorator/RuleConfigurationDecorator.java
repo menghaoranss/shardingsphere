@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.infra.config.rule.decorator;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.rule.RuleConfiguration;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.infra.spi.annotation.SingletonSPI;
@@ -41,9 +43,10 @@ public interface RuleConfigurationDecorator<T extends RuleConfiguration> extends
      * @param dataSources data sources
      * @param builtRules built rules
      * @param ruleConfig rule configuration to be decorated
+     * @param props configuration properties
      * @return decorated rule configuration
      */
-    T decorate(String databaseName, Map<String, DataSource> dataSources, Collection<ShardingSphereRule> builtRules, T ruleConfig);
+    T decorate(String databaseName, Map<String, DataSource> dataSources, Collection<ShardingSphereRule> builtRules, T ruleConfig, @SphereEx ConfigurationProperties props);
     
     @Override
     Class<T> getType();

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.mode.fixture;
 
+import com.sphereex.dbplusengine.SphereEx;
+import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.instance.ComputeNodeInstanceContext;
 import org.apache.shardingsphere.infra.metadata.database.resource.ResourceMetaData;
@@ -29,7 +31,7 @@ public final class ModeRuleBuilderFixture implements DatabaseRuleBuilder<ModeRul
     
     @Override
     public ModeRuleFixture build(final ModeRuleConfigurationFixture ruleConfig, final String databaseName, final DatabaseType databaseType, final ResourceMetaData resourceMetaData,
-                                 final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext) {
+                                 final Collection<ShardingSphereRule> builtRules, final ComputeNodeInstanceContext computeNodeInstanceContext, @SphereEx final ConfigurationProperties props) {
         return new ModeRuleFixture();
     }
     
