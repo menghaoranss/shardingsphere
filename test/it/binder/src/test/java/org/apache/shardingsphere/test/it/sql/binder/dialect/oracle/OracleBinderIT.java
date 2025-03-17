@@ -15,23 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.shardingsphere.encrypt.rewrite.token.pojo;
+package org.apache.shardingsphere.test.it.sql.binder.dialect.oracle;
 
-import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
-import org.junit.jupiter.api.Test;
+import org.apache.shardingsphere.test.it.sql.binder.SQLBinderIT;
+import org.apache.shardingsphere.test.it.sql.binder.SQLBinderITSettings;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-class EncryptParameterAssignmentTokenTest {
-    
-    @Test
-    void assertToString() {
-        // SPEX CHANGED: BEGIN
-        EncryptParameterAssignmentToken actual = new EncryptParameterAssignmentToken(0, 1, QuoteCharacter.NONE, null);
-        // SPEX CHANGED: END
-        actual.addColumnName("c1");
-        actual.addColumnName("c2");
-        assertThat(actual.toString(), is("c1 = ?, c2 = ?"));
-    }
+@SQLBinderITSettings("Oracle")
+class OracleBinderIT extends SQLBinderIT {
 }

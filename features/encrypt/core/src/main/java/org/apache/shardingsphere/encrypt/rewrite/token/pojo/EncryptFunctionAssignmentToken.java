@@ -33,7 +33,9 @@ public final class EncryptFunctionAssignmentToken extends EncryptAssignmentToken
     private final Collection<FunctionAssignment> assignments = new LinkedList<>();
     
     public EncryptFunctionAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter) {
-        super(startIndex, stopIndex, quoteCharacter);
+        // SPEX CHANGED: BEGIN
+        super(startIndex, stopIndex, quoteCharacter, null);
+        // SPEX CHANGED: END
     }
     
     /**

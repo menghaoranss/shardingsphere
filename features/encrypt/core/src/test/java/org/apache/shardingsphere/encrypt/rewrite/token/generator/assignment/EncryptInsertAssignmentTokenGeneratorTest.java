@@ -50,7 +50,9 @@ class EncryptInsertAssignmentTokenGeneratorTest {
     
     @BeforeEach
     void setup() {
-        tokenGenerator = new EncryptInsertAssignmentTokenGenerator(mockEncryptRule(), mock(ShardingSphereDatabase.class));
+        // SPEX CHANGED: BEGIN
+        tokenGenerator = new EncryptInsertAssignmentTokenGenerator(mockEncryptRule(), Collections.emptyMap(), mock(ShardingSphereDatabase.class));
+        // SPEX CHANGED: END
         when(insertStatementContext.getTablesContext().getSimpleTables().iterator().next().getTableName().getIdentifier().getValue()).thenReturn("table");
         ColumnAssignmentSegment assignmentSegment = mock(ColumnAssignmentSegment.class);
         when(setAssignmentSegment.getAssignments()).thenReturn(Collections.singleton(assignmentSegment));

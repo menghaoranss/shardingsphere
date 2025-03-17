@@ -25,6 +25,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignmen
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.SetAssignmentSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,9 +59,14 @@ class EncryptAssignmentTokenGeneratorTest {
     
     @BeforeEach
     void setup() {
-        tokenGenerator = new EncryptAssignmentTokenGenerator(mockEncryptRule(), null, null);
+        // SPEX CHANGED: BEGIN
+        tokenGenerator = new EncryptAssignmentTokenGenerator(mockEncryptRule(), null, null, Collections.emptyMap());
+        // SPEX CHANGED: END
         when(tablesContext.getSimpleTables().iterator().next().getTableName().getIdentifier().getValue()).thenReturn("table");
         when(assignmentSegment.getColumns().get(0).getIdentifier().getValue()).thenReturn("columns");
+        // SPEX ADDED: BEGIN
+        when(assignmentSegment.getColumns().get(0).getOwner()).thenReturn(Optional.of(new OwnerSegment(0, 0, null)));
+        // SPEX ADDED: END
         when(setAssignmentSegment.getAssignments()).thenReturn(Collections.singleton(assignmentSegment));
     }
     

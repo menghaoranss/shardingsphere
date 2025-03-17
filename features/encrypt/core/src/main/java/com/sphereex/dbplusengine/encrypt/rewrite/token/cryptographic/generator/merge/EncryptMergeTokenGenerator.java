@@ -18,6 +18,8 @@
 package com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.merge;
 
 import com.google.common.base.Preconditions;
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.orderby.EncryptOrderByItemTokenGenerator;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptSelectForUpdateTokenGenerator;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptUsingNaturalJoinTokenGenerator;
@@ -393,7 +395,7 @@ public final class EncryptMergeTokenGenerator implements CollectionSQLTokenGener
     
     private SQLToken generateParamterSQLToken(final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment) {
         EncryptParameterAssignmentToken result =
-                new EncryptParameterAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter());
+                new EncryptParameterAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter(), null);
         result.addColumnName(encryptColumn.getCipher().getName());
         encryptColumn.getAssistedQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
         encryptColumn.getLikeQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
@@ -403,8 +405,9 @@ public final class EncryptMergeTokenGenerator implements CollectionSQLTokenGener
     }
     
     private EncryptAssignmentToken generateLiteralSQLToken(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment) {
+        @SphereEx(Type.MODIFY)
         EncryptLiteralAssignmentToken result =
-                new EncryptLiteralAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter());
+                new EncryptLiteralAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter(), null);
         addCipherAssignment(schemaName, tableName, encryptColumn, segment, result);
         addAssistedQueryAssignment(schemaName, tableName, encryptColumn, segment, result);
         addLikeAssignment(schemaName, tableName, encryptColumn, segment, result);

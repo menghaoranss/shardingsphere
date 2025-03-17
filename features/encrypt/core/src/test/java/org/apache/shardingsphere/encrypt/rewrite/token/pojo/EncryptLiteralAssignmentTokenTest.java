@@ -27,7 +27,9 @@ class EncryptLiteralAssignmentTokenTest {
     
     @Test
     void assertToString() {
-        EncryptLiteralAssignmentToken actual = new EncryptLiteralAssignmentToken(0, 1, QuoteCharacter.NONE);
+        // SPEX CHANGED: BEGIN
+        EncryptLiteralAssignmentToken actual = new EncryptLiteralAssignmentToken(0, 1, QuoteCharacter.NONE, null);
+        // SPEX CHANGED: END
         actual.addAssignment("c1", "c1");
         actual.addAssignment("c2", 1);
         assertThat(actual.toString(), is("c1 = 'c1', c2 = 1"));

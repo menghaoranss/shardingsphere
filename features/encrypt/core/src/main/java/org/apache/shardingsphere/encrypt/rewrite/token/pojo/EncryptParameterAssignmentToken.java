@@ -19,6 +19,7 @@ package org.apache.shardingsphere.encrypt.rewrite.token.pojo;
 
 import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
+import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -31,8 +32,10 @@ public final class EncryptParameterAssignmentToken extends EncryptAssignmentToke
     
     private final Collection<String> columnNames = new LinkedList<>();
     
-    public EncryptParameterAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter) {
-        super(startIndex, stopIndex, quoteCharacter);
+    public EncryptParameterAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter, @SphereEx final IdentifierValue owner) {
+        // SPEX CHANGED: BEGIN
+        super(startIndex, stopIndex, quoteCharacter, owner);
+        // SPEX CHANGED: END
     }
     
     /**
@@ -48,7 +51,9 @@ public final class EncryptParameterAssignmentToken extends EncryptAssignmentToke
     public String toString() {
         StringJoiner result = new StringJoiner(", ");
         for (String each : columnNames) {
-            result.add(getQuoteCharacter().wrap(each) + " = ?");
+            // SPEX CHANGED: BEGIN
+            result.add((getOwner().isEmpty() ? "" : getOwner() + ".") + getQuoteCharacter().wrap(each) + " = ?");
+            // SPEX CHANGED: END
         }
         return result.toString();
     }

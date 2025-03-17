@@ -120,7 +120,7 @@ public final class EncryptUpdateTokenGenerator implements CollectionSQLTokenGene
     
     private EncryptAssignmentToken generateLiteralSQLToken(final EncryptColumn encryptColumn, final ColumnAssignmentSegment assignmentSegment) {
         EncryptParameterAssignmentToken result = new EncryptParameterAssignmentToken(assignmentSegment.getColumns().get(0).getStartIndex(), assignmentSegment.getStopIndex(),
-                assignmentSegment.getColumns().get(0).getIdentifier().getQuoteCharacter());
+                assignmentSegment.getColumns().get(0).getIdentifier().getQuoteCharacter(), null);
         result.addColumnName(encryptColumn.getCipher().getName());
         encryptColumn.getAssistedQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
         encryptColumn.getLikeQuery().ifPresent(optional -> result.addColumnName(optional.getName()));

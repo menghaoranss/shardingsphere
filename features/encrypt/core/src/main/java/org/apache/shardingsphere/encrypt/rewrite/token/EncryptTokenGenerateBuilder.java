@@ -96,10 +96,8 @@ public final class EncryptTokenGenerateBuilder implements SQLTokenGeneratorBuild
         // SPEX CHANGED: BEGIN
         addSQLTokenGenerator(result, new EncryptSelectProjectionTokenGenerator(rule, databaseEncryptRules, database, metaData));
         addSQLTokenGenerator(result, new EncryptInsertSelectProjectionTokenGenerator(rule, databaseEncryptRules, database, metaData));
-        // SPEX CHANGED: END
-        addSQLTokenGenerator(result, new EncryptInsertAssignmentTokenGenerator(rule, database));
-        addSQLTokenGenerator(result, new EncryptUpdateAssignmentTokenGenerator(rule, database));
-        // SPEX CHANGED: BEGIN
+        addSQLTokenGenerator(result, new EncryptInsertAssignmentTokenGenerator(rule, databaseEncryptRules, database));
+        addSQLTokenGenerator(result, new EncryptUpdateAssignmentTokenGenerator(rule, databaseEncryptRules, database));
         addSQLTokenGenerator(result, new EncryptPredicateColumnTokenGenerator(rule, databaseEncryptRules, database, metaData));
         addSQLTokenGenerator(result, new EncryptInsertPredicateColumnTokenGenerator(rule, databaseEncryptRules, database, metaData));
         addSQLTokenGenerator(result, new EncryptPredicateValueTokenGenerator(rule, databaseEncryptRules, database));

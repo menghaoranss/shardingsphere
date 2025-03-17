@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.assignment;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -29,6 +30,7 @@ import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.Collec
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Update assignment generator for encrypt.
@@ -40,6 +42,9 @@ public final class EncryptUpdateAssignmentTokenGenerator implements CollectionSQ
     
     private final EncryptRule rule;
     
+    @SphereEx
+    private final Map<String, EncryptRule> databaseEncryptRules;
+    
     private final ShardingSphereDatabase database;
     
     @Override
@@ -50,7 +55,9 @@ public final class EncryptUpdateAssignmentTokenGenerator implements CollectionSQ
     
     @Override
     public Collection<SQLToken> generateSQLTokens(final UpdateStatementContext sqlStatementContext) {
-        return new EncryptAssignmentTokenGenerator(rule, database.getName(), sqlStatementContext.getDatabaseType())
+        // SPEX CHANGED: BEGIN
+        return new EncryptAssignmentTokenGenerator(rule, database.getName(), sqlStatementContext.getDatabaseType(), databaseEncryptRules)
                 .generateSQLTokens(sqlStatementContext.getTablesContext(), sqlStatementContext.getSqlStatement().getSetAssignment());
+        // SPEX CHANGED: END
     }
 }

@@ -18,7 +18,10 @@
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.assignment;
 
 import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.pojo.EncryptColumnAssignmentToken;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.encrypt.rewrite.token.comparator.EncryptorComparator;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptAssignmentToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptFunctionAssignmentToken;
 import org.apache.shardingsphere.encrypt.rewrite.token.pojo.EncryptLiteralAssignmentToken;
@@ -31,16 +34,22 @@ import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContex
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
+import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
+import org.apache.shardingsphere.infra.exception.generic.UnsupportedSQLOperationException;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.ColumnAssignmentSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.SetAssignmentSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,6 +64,9 @@ public final class EncryptAssignmentTokenGenerator {
     private final String databaseName;
     
     private final DatabaseType databaseType;
+    
+    @SphereEx
+    private final Map<String, EncryptRule> databaseEncryptRules;
     
     /**
      * Generate SQL tokens.
@@ -88,13 +100,17 @@ public final class EncryptAssignmentTokenGenerator {
         if (segment.getValue() instanceof FunctionSegment) {
             return Optional.of(generateFunctionSQLToken(encryptColumn, segment));
         }
+        if (segment.getValue() instanceof ColumnSegment) {
+            return Optional.of(generateColumnSQLToken(encryptColumn, segment, (ColumnSegment) segment.getValue()));
+        }
         // SPEX ADDED: END
         return Optional.empty();
     }
     
     private EncryptAssignmentToken generateParameterSQLToken(final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment) {
+        @SphereEx(Type.MODIFY)
         EncryptParameterAssignmentToken result =
-                new EncryptParameterAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter());
+                new EncryptParameterAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter(), getOwner(segment));
         result.addColumnName(encryptColumn.getCipher().getName());
         encryptColumn.getAssistedQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
         encryptColumn.getLikeQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
@@ -105,9 +121,14 @@ public final class EncryptAssignmentTokenGenerator {
         return result;
     }
     
+    @SphereEx
+    private IdentifierValue getOwner(final ColumnAssignmentSegment segment) {
+        return segment.getColumns().get(0).getOwner().map(OwnerSegment::getIdentifier).orElse(null);
+    }
+    
     private EncryptAssignmentToken generateLiteralSQLToken(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment) {
-        EncryptLiteralAssignmentToken result =
-                new EncryptLiteralAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter());
+        @SphereEx(Type.MODIFY)
+        EncryptLiteralAssignmentToken result = new EncryptLiteralAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter(), getOwner(segment));
         addCipherAssignment(schemaName, tableName, encryptColumn, segment, result);
         addAssistedQueryAssignment(schemaName, tableName, encryptColumn, segment, result);
         addLikeAssignment(schemaName, tableName, encryptColumn, segment, result);
@@ -179,5 +200,47 @@ public final class EncryptAssignmentTokenGenerator {
     private void addPlainAssignment(final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment, final EncryptLiteralAssignmentToken token) {
         Object originalValue = ((LiteralExpressionSegment) segment.getValue()).getLiterals();
         encryptColumn.getPlain().ifPresent(optional -> token.addAssignment(optional.getName(), originalValue));
+    }
+    
+    @SphereEx
+    private EncryptAssignmentToken generateColumnSQLToken(final EncryptColumn leftEncryptColumn, final ColumnAssignmentSegment assignmentSegment, final ColumnSegment rightColumn) {
+        ColumnSegment leftColumn = assignmentSegment.getColumns().get(0);
+        Optional<EncryptTable> rightEncryptTable = findEncryptTable(rightColumn);
+        if (rightEncryptTable.isPresent() && rightEncryptTable.get().isEncryptColumn(rightColumn.getIdentifier().getValue())) {
+            ShardingSpherePreconditions.checkState(EncryptorComparator.isSame(rule, leftColumn.getColumnBoundInfo(), rightColumn.getColumnBoundInfo(), databaseEncryptRules),
+                    () -> new UnsupportedSQLOperationException(
+                            "Can not use different encryptor for " + leftColumn.getColumnBoundInfo() + " and " + rightColumn.getColumnBoundInfo() + " in set clause"));
+            return generateColumnSQLToken(assignmentSegment, leftColumn, rightColumn, leftEncryptColumn, rightEncryptTable.get().getEncryptColumn(rightColumn.getIdentifier().getValue()));
+        }
+        throw new UnsupportedSQLOperationException(
+                "Can not use different encryptor for " + leftColumn.getColumnBoundInfo() + " and " + rightColumn.getColumnBoundInfo() + " in set clause");
+    }
+
+    @SphereEx
+    private EncryptAssignmentToken generateColumnSQLToken(final ColumnAssignmentSegment segment, final ColumnSegment leftColumn, final ColumnSegment rightColumn,
+                                                          final EncryptColumn leftEncryptColumn, final EncryptColumn rightEncryptColumn) {
+        EncryptColumnAssignmentToken result =
+                new EncryptColumnAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter());
+        IdentifierValue leftOwner = leftColumn.getOwner().map(OwnerSegment::getIdentifier).orElse(null);
+        IdentifierValue rightOwner = rightColumn.getOwner().map(OwnerSegment::getIdentifier).orElse(null);
+        QuoteCharacter leftQuote = leftColumn.getIdentifier().getQuoteCharacter();
+        QuoteCharacter rightQuote = rightColumn.getIdentifier().getQuoteCharacter();
+        result.addAssignment(leftOwner, new IdentifierValue(leftEncryptColumn.getCipher().getName(), leftQuote), rightOwner,
+                new IdentifierValue(rightEncryptColumn.getCipher().getName(), rightQuote));
+        leftEncryptColumn.getAssistedQuery().ifPresent(optional -> result.addAssignment(leftOwner,
+                new IdentifierValue(optional.getName(), leftQuote), rightOwner, new IdentifierValue(rightEncryptColumn.getAssistedQuery().get().getName(), rightQuote)));
+        leftEncryptColumn.getLikeQuery().ifPresent(optional -> result.addAssignment(leftOwner,
+                new IdentifierValue(optional.getName(), leftQuote), rightOwner, new IdentifierValue(rightEncryptColumn.getLikeQuery().get().getName(), rightQuote)));
+        leftEncryptColumn.getOrderQuery().ifPresent(optional -> result.addAssignment(leftOwner,
+                new IdentifierValue(optional.getName(), leftQuote), rightOwner, new IdentifierValue(rightEncryptColumn.getOrderQuery().get().getName(), rightQuote)));
+        leftEncryptColumn.getPlain().ifPresent(optional -> result.addAssignment(leftOwner,
+                new IdentifierValue(optional.getName(), leftQuote), rightOwner, new IdentifierValue(rightEncryptColumn.getPlain().get().getName(), rightQuote)));
+        return result;
+    }
+
+    @SphereEx
+    private Optional<EncryptTable> findEncryptTable(final ColumnSegment columnSegment) {
+        EncryptRule encryptRule = Optional.ofNullable(databaseEncryptRules.get(columnSegment.getColumnBoundInfo().getOriginalDatabase().getValue())).orElse(rule);
+        return encryptRule.findEncryptTable(columnSegment.getColumnBoundInfo().getOriginalTable().getValue());
     }
 }

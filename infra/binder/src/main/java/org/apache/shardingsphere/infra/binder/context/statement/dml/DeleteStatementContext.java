@@ -27,10 +27,12 @@ import org.apache.shardingsphere.infra.binder.context.type.WithAvailable;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ColumnExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ExpressionExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.TableExtractor;
+import org.apache.shardingsphere.sql.parser.statement.core.extractor.WhereExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.WithSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.DeleteMultiTableSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.DeleteStatement;
 
@@ -60,11 +62,20 @@ public final class DeleteStatementContext extends CommonSQLStatementContext impl
     public DeleteStatementContext(final DeleteStatement sqlStatement) {
         super(sqlStatement);
         tablesContext = new TablesContext(getAllSimpleTableSegments());
-        getSqlStatement().getWhere().ifPresent(whereSegments::add);
+        extractWhereSegments(whereSegments, sqlStatement);
         ColumnExtractor.extractColumnSegments(columnSegments, whereSegments);
         ExpressionExtractor.extractJoinConditions(joinConditions, whereSegments);
         // SPEX ADDED: BEGIN
         sqlStatement.getWhere().ifPresent(optional -> ColumnExtractor.extractFromWhere(columnSegmentsForUDF, optional, true));
+        // SPEX ADDED: END
+    }
+    
+    private void extractWhereSegments(final Collection<WhereSegment> whereSegments, final DeleteStatement deleteStatement) {
+        deleteStatement.getWhere().ifPresent(whereSegments::add);
+        // SPEX ADDED: BEGIN
+        if (deleteStatement.getTable() instanceof DeleteMultiTableSegment) {
+            whereSegments.addAll(WhereExtractor.extractJoinWhereSegments(((DeleteMultiTableSegment) deleteStatement.getTable()).getRelationTable()));
+        }
         // SPEX ADDED: END
     }
     

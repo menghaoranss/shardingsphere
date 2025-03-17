@@ -17,7 +17,6 @@
 
 package org.apache.shardingsphere.infra.binder.context.statement.dml;
 
-import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
 import org.apache.shardingsphere.infra.binder.context.statement.CommonSQLStatementContext;
@@ -27,23 +26,15 @@ import org.apache.shardingsphere.infra.binder.context.type.WithAvailable;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ColumnExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ExpressionExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.TableExtractor;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.ColumnAssignmentSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.SetAssignmentSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.WithSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.UpdateStatement;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -60,22 +51,16 @@ public final class UpdateStatementContext extends CommonSQLStatementContext impl
     
     private final Collection<BinaryOperationExpression> joinConditions = new LinkedList<>();
     
-    @SphereEx
-    private final Collection<ColumnSegment> columnSegmentsForUDF = new LinkedList<>();
-    
-    @SphereEx
-    private final List<ParameterMarkerExpressionSegment> parameterMarkerExpressions = new LinkedList<>();
-    
     public UpdateStatementContext(final UpdateStatement sqlStatement) {
         super(sqlStatement);
         tablesContext = new TablesContext(getAllSimpleTableSegments());
-        getSqlStatement().getWhere().ifPresent(whereSegments::add);
+        extractWhereSegments(whereSegments, sqlStatement);
         ColumnExtractor.extractColumnSegments(columnSegments, whereSegments);
         ExpressionExtractor.extractJoinConditions(joinConditions, whereSegments);
-        // SPEX ADDED: BEGIN
-        sqlStatement.getWhere().ifPresent(optional -> ColumnExtractor.extractFromWhere(columnSegmentsForUDF, optional, true));
-        parameterMarkerExpressions.addAll(ExpressionExtractor.getParameterMarkerExpressions(getAllSetAssignmentExpressions(sqlStatement)));
-        // SPEX ADDED: END
+    }
+    
+    private void extractWhereSegments(final Collection<WhereSegment> whereSegments, final UpdateStatement updateStatement) {
+        updateStatement.getWhere().ifPresent(whereSegments::add);
     }
     
     private Collection<SimpleTableSegment> getAllSimpleTableSegments() {
@@ -102,52 +87,5 @@ public final class UpdateStatementContext extends CommonSQLStatementContext impl
     @Override
     public Optional<WithSegment> getWith() {
         return getSqlStatement().getWithSegment();
-    }
-    
-    /**
-     * Get literal value.
-     *
-     * @param columnName column name
-     * @param params parameters
-     * @return literal value
-     */
-    @SphereEx
-    public Optional<Object> getLiteralValue(final String columnName, final List<Object> params) {
-        for (ColumnAssignmentSegment each : getSqlStatement().getSetAssignment().getAssignments()) {
-            if (!columnName.equalsIgnoreCase(each.getColumns().get(0).getIdentifier().getValue())) {
-                continue;
-            }
-            ExpressionSegment expression = each.getValue();
-            if (expression instanceof FunctionSegment || expression instanceof ParameterMarkerExpressionSegment) {
-                return Optional.ofNullable(params.get(getParameterMarkerIndex(expression)));
-            }
-            if (expression instanceof LiteralExpressionSegment) {
-                return Optional.ofNullable(((LiteralExpressionSegment) expression).getLiterals());
-            }
-        }
-        return Optional.empty();
-    }
-    
-    @SphereEx
-    private int getParameterMarkerIndex(final ExpressionSegment expressionSegment) {
-        if (expressionSegment instanceof ParameterMarkerExpressionSegment) {
-            return parameterMarkerExpressions.indexOf((ParameterMarkerExpressionSegment) expressionSegment);
-        }
-        for (ExpressionSegment each : ((FunctionSegment) expressionSegment).getParameters()) {
-            if (each instanceof ParameterMarkerExpressionSegment) {
-                return parameterMarkerExpressions.indexOf((ParameterMarkerExpressionSegment) each);
-            }
-        }
-        return 0;
-    }
-    
-    @SphereEx
-    private List<ExpressionSegment> getAllSetAssignmentExpressions(final UpdateStatement sqlStatement) {
-        SetAssignmentSegment setAssignment = sqlStatement.getSetAssignment();
-        List<ExpressionSegment> result = new ArrayList<>(setAssignment.getAssignments().size());
-        for (ColumnAssignmentSegment each : setAssignment.getAssignments()) {
-            result.add(each.getValue());
-        }
-        return result;
     }
 }

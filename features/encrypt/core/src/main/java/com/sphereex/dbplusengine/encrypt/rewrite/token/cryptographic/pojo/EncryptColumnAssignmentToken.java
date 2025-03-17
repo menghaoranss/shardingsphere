@@ -35,7 +35,9 @@ public final class EncryptColumnAssignmentToken extends EncryptAssignmentToken {
     private final Collection<ColumnAssignmentSQLToken> assignments = new LinkedList<>();
     
     public EncryptColumnAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter) {
-        super(startIndex, stopIndex, quoteCharacter);
+        // SPEX CHANGED: BEGIN
+        super(startIndex, stopIndex, quoteCharacter, null);
+        // SPEX CHANGED: END
     }
     
     /**
