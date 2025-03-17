@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.route.engine;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.type.CursorAvailable;
 import org.apache.shardingsphere.infra.config.props.ConfigurationProperties;
@@ -63,12 +64,12 @@ public final class ShardingSQLRouter implements EntranceSQLRouter<ShardingRule> 
     private RouteContext createRouteContext0(final QueryContext queryContext, final RuleMetaData globalRuleMetaData, final ShardingSphereDatabase database, final ShardingRule rule,
                                              final Collection<String> tableNames, final ConfigurationProperties props) {
         Collection<String> logicTableNames = rule.getShardingLogicTableNames(tableNames);
+        // SPEX ADDED: BEGIN
         if (logicTableNames.isEmpty()) {
-            // SPEX ADDED: BEGIN
-            queryContext.setDefaultDataSourceName(rule.getDefaultDataSourceName());
-            // SPEX ADDED: END
+            setDefaultDataSourceName(queryContext, rule, tableNames);
             return new RouteContext();
         }
+        // SPEX ADDED: END
         SQLStatement sqlStatement = queryContext.getSqlStatementContext().getSqlStatement();
         ShardingConditions shardingConditions = createShardingConditions(queryContext, globalRuleMetaData, database, rule);
         if (sqlStatement instanceof DMLStatement && shardingConditions.isNeedMerge()) {
@@ -77,6 +78,15 @@ public final class ShardingSQLRouter implements EntranceSQLRouter<ShardingRule> 
         RouteContext result = ShardingRouteEngineFactory.newInstance(rule, database, queryContext, shardingConditions, logicTableNames, props).route(rule);
         checkRouteContext(queryContext, database, rule, props, sqlStatement, shardingConditions, result);
         return result;
+    }
+    
+    @SphereEx
+    private void setDefaultDataSourceName(final QueryContext queryContext, final ShardingRule rule, final Collection<String> tableNames) {
+        // NOTE: 全部为广播表则不使用单表默认数据源
+        if (queryContext.getDistributedTableNames().containsAll(tableNames)) {
+            return;
+        }
+        queryContext.setDefaultDataSourceName(rule.getDefaultDataSourceName());
     }
     
     private ShardingConditions createShardingConditions(final QueryContext queryContext,
