@@ -24,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Cache manager.
+ *
+ * @param <K> type of key
+ * @param <V> type of value
  */
 @RequiredArgsConstructor
 @Getter

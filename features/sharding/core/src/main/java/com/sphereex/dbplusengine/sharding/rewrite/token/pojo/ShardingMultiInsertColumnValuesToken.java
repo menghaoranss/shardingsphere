@@ -18,19 +18,29 @@
 package com.sphereex.dbplusengine.sharding.rewrite.token.pojo;
 
 import com.google.common.base.Joiner;
+import org.apache.shardingsphere.infra.binder.context.statement.dml.InsertStatementContext;
 import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.RouteUnitAware;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.InsertValue;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.InsertValuesToken;
 import org.apache.shardingsphere.infra.route.context.RouteUnit;
+import org.apache.shardingsphere.sharding.rewrite.token.pojo.ShardingTokenUtils;
+import org.apache.shardingsphere.sharding.rule.ShardingRule;
+import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 /**
  * Multi insert column values token for sharding.
  */
 public final class ShardingMultiInsertColumnValuesToken extends InsertValuesToken implements RouteUnitAware {
     
-    public ShardingMultiInsertColumnValuesToken(final int startIndex, final int stopIndex) {
+    private final InsertStatementContext insertStatementContext;
+    
+    private final ShardingRule rule;
+    
+    public ShardingMultiInsertColumnValuesToken(final int startIndex, final int stopIndex, final InsertStatementContext insertStatementContext, final ShardingRule rule) {
         super(startIndex, stopIndex);
+        this.insertStatementContext = insertStatementContext;
+        this.rule = rule;
     }
     
     @Override
@@ -52,7 +62,7 @@ public final class ShardingMultiInsertColumnValuesToken extends InsertValuesToke
             }
             ShardingMultiInsertColumnValue multiInsertColumnValue = (ShardingMultiInsertColumnValue) each;
             if (isAppend(routeUnit, multiInsertColumnValue)) {
-                builder.append(" INTO ").append(multiInsertColumnValue.getTableName().getIdentifier().getValueWithQuoteCharacters()).append(" (")
+                builder.append(" INTO ").append(getActualTableName(routeUnit, multiInsertColumnValue.getTableName().getIdentifier())).append(" (")
                         .append(Joiner.on(", ").join(multiInsertColumnValue.getColumnNames())).append(") VALUES ").append(each);
             }
         }
@@ -68,5 +78,11 @@ public final class ShardingMultiInsertColumnValuesToken extends InsertValuesToke
             }
         }
         return false;
+    }
+    
+    private String getActualTableName(final RouteUnit routeUnit, final IdentifierValue tableName) {
+        String actualTableName = ShardingTokenUtils.getLogicAndActualTableMap(routeUnit, insertStatementContext, rule).get(tableName.getValue());
+        actualTableName = null == actualTableName ? tableName.getValue() : actualTableName;
+        return tableName.getQuoteCharacter().wrap(actualTableName);
     }
 }

@@ -70,14 +70,14 @@ public final class ShardingSphereDataSource extends AbstractDataSourceAdapter im
         warmupSQL();
         // SPEX ADDED: END
     }
-
+    
     @SphereEx
     public ShardingSphereDataSource(final String databaseName, final ModeConfiguration modeConfig, final JDBCConfiguration jdbcConfig) throws SQLException {
         this.databaseName = databaseName;
         contextManager = createContextManager(modeConfig, jdbcConfig);
         warmupSQL();
     }
-
+    
     @SphereEx
     private ContextManager createContextManager(final ModeConfiguration modeConfig, final JDBCConfiguration jdbcConfig) throws SQLException {
         InstanceMetaData instanceMetaData = TypedSPILoader.getService(InstanceMetaDataBuilder.class, "JDBC").build(-1, getDatabaseNames(jdbcConfig));
@@ -96,7 +96,7 @@ public final class ShardingSphereDataSource extends AbstractDataSourceAdapter im
                 new DataSourceProvidedDatabaseConfiguration(dataSourceMap, databaseRuleConfigs)), Collections.emptyMap(), globalRuleConfigs, props, Collections.emptyList(), instanceMetaData);
         return TypedSPILoader.getService(ContextManagerBuilder.class, null == modeConfig ? null : modeConfig.getType()).build(param, new EventBusContext());
     }
-
+    
     @SphereEx
     private String getDatabaseNames(final JDBCConfiguration jdbcConfig) {
         return jdbcConfig.getDatabaseConfigurations().isEmpty() ? "" : String.join(",", jdbcConfig.getDatabaseConfigurations().keySet());
