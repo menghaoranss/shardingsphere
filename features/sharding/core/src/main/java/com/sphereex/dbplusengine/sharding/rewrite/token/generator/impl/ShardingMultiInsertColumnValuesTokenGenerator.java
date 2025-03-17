@@ -19,6 +19,7 @@ package com.sphereex.dbplusengine.sharding.rewrite.token.generator.impl;
 
 import com.sphereex.dbplusengine.sharding.rewrite.token.pojo.ShardingMultiInsertColumnValue;
 import com.sphereex.dbplusengine.sharding.rewrite.token.pojo.ShardingMultiInsertColumnValuesToken;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.annotation.HighFrequencyInvocation;
 import org.apache.shardingsphere.infra.binder.context.segment.insert.keygen.GeneratedKeyContext;
@@ -33,6 +34,7 @@ import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.aware.
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.InsertValuesToken;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
+import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.table.MultiTableInsertIntoSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
@@ -48,8 +50,11 @@ import java.util.List;
  * Multi insert values token generator for sharding.
  */
 @HighFrequencyInvocation
+@RequiredArgsConstructor
 @Setter
 public final class ShardingMultiInsertColumnValuesTokenGenerator implements OptionalSQLTokenGenerator<InsertStatementContext>, RouteContextAware {
+    
+    private final ShardingRule rule;
     
     private RouteContext routeContext;
     
@@ -62,7 +67,7 @@ public final class ShardingMultiInsertColumnValuesTokenGenerator implements Opti
     public SQLToken generateSQLToken(final InsertStatementContext insertStatementContext) {
         MultiTableInsertIntoSegment multiTableInsertIntoSegment =
                 insertStatementContext.getSqlStatement().getMultiTableInsertIntoSegment().orElseThrow(() -> new IllegalStateException("Can not get multi table insert into segment."));
-        InsertValuesToken result = new ShardingMultiInsertColumnValuesToken(multiTableInsertIntoSegment.getStartIndex(), multiTableInsertIntoSegment.getStopIndex());
+        InsertValuesToken result = new ShardingMultiInsertColumnValuesToken(multiTableInsertIntoSegment.getStartIndex(), multiTableInsertIntoSegment.getStopIndex(), insertStatementContext, rule);
         Iterator<Collection<DataNode>> dataNodesIterator = routeContext.getOriginalDataNodes().isEmpty() ? Collections.emptyIterator() : routeContext.getOriginalDataNodes().iterator();
         for (InsertStatementContext each : insertStatementContext.getMultiInsertStatementContexts()) {
             List<ExpressionSegment> expressionSegments = new ArrayList<>(each.getInsertValueContexts().iterator().next().getValueExpressions());

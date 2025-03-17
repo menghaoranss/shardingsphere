@@ -47,7 +47,7 @@
     </test-case>
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT i.*, o.* FROM t_order o JOIN t_order_item i ON o.user_id = i.user_id AND o.order_id = i.order_id ORDER BY item_id" db-types="H2,MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="SELECT i.*, o.* FROM t_order o JOIN t_order_item i ON o.user_id = i.user_id AND o.order_id = i.order_id ORDER BY item_id" db-types="H2,MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     <!-- SPEX CHANGED: END -->
@@ -157,11 +157,11 @@
     </test-case>-->
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '%18'" db-types="MySQL,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator percentage wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator percentage wildcard in select join statement when use encrypt feature.">
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '%18'" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator percentage wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator percentage wildcard in select join statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '_1000018'" db-types="MySQL,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator underscore wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in select join statement when use encrypt feature.">
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '_1000018'" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator underscore wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in select join statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     <!-- SPEX CHANGED: END -->

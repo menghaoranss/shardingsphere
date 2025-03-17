@@ -47,6 +47,12 @@ public final class SQLStatementParserEngine {
         this.parseTreeCacheOption = parseTreeCacheOption;
     }
     
+    /**
+     * Update cache option.
+     *
+     * @param sqlStatementCacheOption SQL statement cache option
+     * @param parseTreeCacheOption parse tree cache option
+     */
     public void updateCacheOption(final CacheOption sqlStatementCacheOption, final CacheOption parseTreeCacheOption) {
         sqlStatementCacheManager.getCache().policy().eviction().ifPresent(eviction -> eviction.setMaximum(sqlStatementCacheOption.getMaximumSize()));
         ((SQLStatementCacheLoader) sqlStatementCacheManager.getCacheLoader()).updateCacheOption(parseTreeCacheOption);

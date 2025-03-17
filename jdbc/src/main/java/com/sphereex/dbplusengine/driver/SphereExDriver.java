@@ -38,7 +38,7 @@ public final class SphereExDriver implements Driver {
     private static final int MAJOR_DRIVER_VERSION = 1;
     
     private static final int MINOR_DRIVER_VERSION = 7;
-
+    
     private final ConnectionPropertiesAwareDriverDataSourceCache dataSourceCache = new ConnectionPropertiesAwareDriverDataSourceCache();
     
     static {

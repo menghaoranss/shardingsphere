@@ -80,7 +80,7 @@ public final class ShardingTokenGenerateBuilder implements SQLTokenGeneratorBuil
         addSQLTokenGenerator(result, new ShardingCursorTokenGenerator(rule));
         addSQLTokenGenerator(result, new ShardingFetchDirectionTokenGenerator());
         // SPEX ADDED: BEGIN
-        addSQLTokenGenerator(result, new ShardingMultiInsertColumnValuesTokenGenerator());
+        addSQLTokenGenerator(result, new ShardingMultiInsertColumnValuesTokenGenerator(rule));
         // SPEX ADDED: END
         return result;
     }

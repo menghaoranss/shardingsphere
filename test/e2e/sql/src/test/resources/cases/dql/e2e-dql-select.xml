@@ -18,7 +18,7 @@
 
 <e2e-test-cases>
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT 1 FROM dual" db-types="MySQL,SQLServer,Oracle,H2,DM" smoke="true" scenario-types="db,dbtbl_with_readwrite_splitting,dbtbl_with_readwrite_splitting_and_encrypt,empty_rules,encrypt,encrypt_and_readwrite_splitting,encrypt_shadow,mask,mask_encrypt,mask_encrypt_sharding,mask_sharding,distsql_rdl,readwrite_splitting,readwrite_splitting_and_shadow,shadow,sharding_and_encrypt,sharding_and_shadow,sharding_encrypt_shadow,tbl" >
+    <test-case sql="SELECT 1 FROM dual" db-types="MySQL,SQLServer,H2,Oracle,DM" smoke="true" scenario-types="db,dbtbl_with_readwrite_splitting,dbtbl_with_readwrite_splitting_and_encrypt,empty_rules,encrypt,encrypt_and_readwrite_splitting,encrypt_shadow,mask,mask_encrypt,mask_encrypt_sharding,mask_sharding,distsql_rdl,readwrite_splitting,readwrite_splitting_and_shadow,shadow,sharding_and_encrypt,sharding_and_shadow,sharding_encrypt_shadow,tbl" >
         <!-- SPEX CHANGED: END -->
         <assertion />
     </test-case>
@@ -33,7 +33,7 @@
     </test-case>
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT t_order.order_id,t_order.user_id,status FROM t_order t_order WHERE t_order.user_id = ? AND order_id = ?" db-types="MySQL,DM,H2" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="SELECT t_order.order_id,t_order.user_id,status FROM t_order t_order WHERE t_order.user_id = ? AND order_id = ?" db-types="MySQL,Oracle,DM,H2" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <!-- SPEX CHANGED: END -->
         <assertion parameters="10:int, 1000:int" expected-data-source-name="read_dataset" />
         <assertion parameters="12:int, 1000:int" expected-data-source-name="read_dataset" />
@@ -49,13 +49,13 @@
     </test-case>
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT * /* this is &#x000D;&#x000A; block comment */ FROM /* this is another &#x000A; block comment */ t_order where status='1'" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="SELECT * /* this is &#x000D;&#x000A; block comment */ FROM /* this is another &#x000A; block comment */ t_order where status='1'" db-types="MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <!-- SPEX CHANGED: END -->
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT * -- this is an line comment &#x000D;&#x000A; FROM -- this is another line comment &#x000A; t_order where status='1'" db-types="MySQL,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="SELECT * -- this is an line comment &#x000D;&#x000A; FROM -- this is another line comment &#x000A; t_order where status='1'" db-types="MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <!-- SPEX CHANGED: END -->
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
@@ -184,12 +184,12 @@
     </test-case>
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT * FROM t_merchant WHERE business_code like '%18'" db-types="MySQL,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code like '%18'" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
                scenario-comments="Test single table's lower case like operator percentage wildcard in simple select statement when use sharding feature.|Test encrypt table's lower case like operator percentage wildcard in simple select statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
 
-    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '_1000018'" db-types="MySQL,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE '_1000018'" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
                scenario-comments="Test single table's LIKE operator underscore wildcard in simple select statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in simple select statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>

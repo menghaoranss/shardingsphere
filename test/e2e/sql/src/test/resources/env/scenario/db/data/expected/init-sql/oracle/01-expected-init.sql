@@ -15,7 +15,7 @@
 -- limitations under the License.
 --
 
--- SPEX CHANGED: BEGIN
+-- SPEX ADDED: BEGIN
 CREATE USER expected_dataset identified by expected_dataset;
 GRANT ALL PRIVILEGES TO expected_dataset;
 ALTER USER expected_dataset QUOTA UNLIMITED ON USERS;
@@ -31,6 +31,4 @@ CREATE TABLE expected_dataset.t_country (country_id SMALLINT PRIMARY KEY, countr
 -- TODO replace these tables with standard tables
 CREATE TABLE expected_dataset.t_single_table (single_id INT NOT NULL, id INT NOT NULL, status VARCHAR(45) NULL, PRIMARY KEY (single_id));
 CREATE TABLE expected_dataset.t_broadcast_table (id INT NOT NULL, status VARCHAR(45) NULL, PRIMARY KEY (id));
-
-CREATE INDEX order_index_t_order ON expected_dataset.t_order (order_id);
--- SPEX CHANGED: END
+-- SPEX ADDED: END
