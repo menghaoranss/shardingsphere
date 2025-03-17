@@ -43,6 +43,14 @@ public final class EncryptMode {
     
     private final String renameTablePrefix;
     
+    private final String derivedCipherSuffix;
+    
+    private final String derivedAssistedQuerySuffix;
+    
+    private final String derivedLikeQuerySuffix;
+    
+    private final String derivedOrderQuerySuffix;
+    
     public EncryptMode(final EncryptModeRuleConfiguration encryptMode) {
         type = null == encryptMode ? EncryptModeType.FRONTEND : encryptMode.getType();
         Properties props = null == encryptMode ? new Properties() : encryptMode.getProps();
@@ -50,6 +58,10 @@ public final class EncryptMode {
         udfRoutineEnabled = EncryptModeType.FRONTEND == type && parseBoolean(props, EncryptModeKey.UDF_ROUTINE_ENABLED_KEY);
         udfViewEnabled = EncryptModeType.FRONTEND == type && parseBoolean(props, EncryptModeKey.UDF_VIEW_ENABLED_KEY);
         useOriginalSQLWhenCipherQueryFailed = EncryptModeType.FRONTEND == type && parseBoolean(props, EncryptModeKey.USE_ORIGINAL_SQL_WHEN_CIPHER_QUERY_FAILED_KEY);
+        derivedCipherSuffix = EncryptModeType.FRONTEND == type ? props.getProperty(EncryptModeKey.DERIVED_CIPHER_SUFFIX_KEY) : null;
+        derivedAssistedQuerySuffix = EncryptModeType.FRONTEND == type ? props.getProperty(EncryptModeKey.DERIVED_ASSISTED_QUERY_SUFFIX_KEY) : null;
+        derivedLikeQuerySuffix = EncryptModeType.FRONTEND == type ? props.getProperty(EncryptModeKey.DERIVED_LIKE_QUERY_SUFFIX_KEY) : null;
+        derivedOrderQuerySuffix = EncryptModeType.FRONTEND == type ? props.getProperty(EncryptModeKey.DERIVED_ORDER_QUERY_SUFFIX_KEY) : null;
         renameTablePrefix = EncryptModeType.BACKEND == type ? props.getProperty(EncryptModeKey.RENAME_TABLE_PREFIX_KEY, "SPEX_") : null;
     }
     

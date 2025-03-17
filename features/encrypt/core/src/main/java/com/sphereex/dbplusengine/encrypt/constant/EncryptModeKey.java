@@ -34,5 +34,16 @@ public final class EncryptModeKey {
     
     public static final String USE_ORIGINAL_SQL_WHEN_CIPHER_QUERY_FAILED_KEY = "use-original-sql-when-cipher-query-failed";
     
+    // TODO BEGIN: remove derived suffix when encrypt support rewrite based ast, and generate derived column accrding to unique column name
+    // https://github.com/SphereEx/dbplus-engine/issues/10925
+    public static final String DERIVED_CIPHER_SUFFIX_KEY = "derived-cipher-suffix";
+    
+    public static final String DERIVED_ASSISTED_QUERY_SUFFIX_KEY = "derived-assisted-query-suffix";
+    
+    public static final String DERIVED_LIKE_QUERY_SUFFIX_KEY = "derived-like-query-suffix";
+    
+    public static final String DERIVED_ORDER_QUERY_SUFFIX_KEY = "derived-order-query-suffix";
+    // TODO END
+    
     public static final String RENAME_TABLE_PREFIX_KEY = "rename-table-prefix";
 }

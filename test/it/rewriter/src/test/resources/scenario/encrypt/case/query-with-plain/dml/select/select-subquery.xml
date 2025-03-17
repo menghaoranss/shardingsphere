@@ -25,27 +25,27 @@
 
     <rewrite-assertion id="select_not_nested_subquery_in_table_segment_for_plain" db-types="MySQL">
         <input sql="SELECT u.amount, u.password, o.certificate_number FROM (SELECT certificate_number FROM t_account) o, t_account u WHERE o.certificate_number=u.certificate_number AND u.password=?" parameters="1" />
-        <output sql="SELECT u.cipher_amount AS amount, u.plain_password AS password, o.certificate_number_PLAIN AS certificate_number FROM (SELECT plain_certificate_number AS certificate_number_PLAIN FROM `encrypt_ds`.t_account) o, `encrypt_ds`.t_account u WHERE o.certificate_number_PLAIN=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
+        <output sql="SELECT u.`cipher_amount` AS amount, u.`plain_password` AS password, o.certificate_number AS certificate_number FROM (SELECT plain_certificate_number AS certificate_number FROM `encrypt_ds`.t_account) o, `encrypt_ds`.t_account u WHERE o.certificate_number=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_not_nested_subquery_in_table_segment_refed_for_plain" db-types="MySQL">
         <input sql="SELECT u.amount, u.password, o.certificate_number FROM (SELECT certificate_number FROM t_account_bak) o, t_account u WHERE o.certificate_number=u.certificate_number AND u.password=?" parameters="1" />
-        <output sql="SELECT u.cipher_amount AS amount, u.plain_password AS password, o.certificate_number_PLAIN AS certificate_number FROM (SELECT plain_certificate_number AS certificate_number_PLAIN FROM `encrypt_ds`.t_account_bak) o, `encrypt_ds`.t_account u WHERE o.certificate_number_PLAIN=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
+        <output sql="SELECT u.`cipher_amount` AS amount, u.`plain_password` AS password, o.certificate_number AS certificate_number FROM (SELECT plain_certificate_number AS certificate_number FROM `encrypt_ds`.t_account_bak) o, `encrypt_ds`.t_account u WHERE o.certificate_number=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_not_nested_subquery_in_table_segment_alias_for_plain" db-types="MySQL">
         <input sql="SELECT o.certificate_number FROM (SELECT a.certificate_number FROM t_account a) o" />
-        <output sql="SELECT o.certificate_number_PLAIN AS certificate_number FROM (SELECT a.plain_certificate_number AS certificate_number_PLAIN FROM `encrypt_ds`.t_account a) o" />
+        <output sql="SELECT o.certificate_number AS certificate_number FROM (SELECT a.plain_certificate_number AS certificate_number FROM `encrypt_ds`.t_account a) o" />
     </rewrite-assertion>
     
     <rewrite-assertion id="select_not_nested_subquery_in_table_segment_with_shorthand_project_alias_for_plain" db-types="MySQL">
         <input sql="SELECT u.amount, u.password, o.certificate_number FROM (SELECT a.* FROM t_account a) o, t_account u WHERE o.certificate_number=u.certificate_number AND u.password=?" parameters="1" />
-        <output sql="SELECT u.cipher_amount AS amount, u.plain_password AS password, o.certificate_number_PLAIN AS certificate_number FROM (SELECT a.`account_id`, a.`plain_certificate_number` AS `certificate_number_PLAIN`, a.`plain_password` AS `password_PLAIN`, a.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account a) o, `encrypt_ds`.t_account u WHERE o.certificate_number_PLAIN=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
+        <output sql="SELECT u.`cipher_amount` AS amount, u.`plain_password` AS password, o.certificate_number AS certificate_number FROM (SELECT a.`account_id`, a.`plain_certificate_number` AS `certificate_number`, a.`plain_password` AS `password`, a.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account a) o, `encrypt_ds`.t_account u WHERE o.certificate_number=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_not_nested_subquery_in_table_segment_with_shorthand_project_for_plain" db-types="MySQL">
         <input sql="SELECT u.amount, u.password, o.certificate_number FROM (SELECT * FROM t_account) o, t_account u WHERE o.certificate_number=u.certificate_number AND u.password=?" parameters="1" />
-        <output sql="SELECT u.cipher_amount AS amount, u.plain_password AS password, o.certificate_number_PLAIN AS certificate_number FROM (SELECT `encrypt_ds`.t_account.`account_id`, `encrypt_ds`.t_account.`plain_certificate_number` AS `certificate_number_PLAIN`, `encrypt_ds`.t_account.`plain_password` AS `password_PLAIN`, `encrypt_ds`.t_account.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account) o, `encrypt_ds`.t_account u WHERE o.certificate_number_PLAIN=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
+        <output sql="SELECT u.`cipher_amount` AS amount, u.`plain_password` AS password, o.certificate_number AS certificate_number FROM (SELECT `encrypt_ds`.t_account.`account_id`, `encrypt_ds`.t_account.`plain_certificate_number` AS `certificate_number`, `encrypt_ds`.t_account.`plain_password` AS `password`, `encrypt_ds`.t_account.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account) o, `encrypt_ds`.t_account u WHERE o.certificate_number=u.`plain_certificate_number` AND u.`plain_password`=?" parameters="1" />
     </rewrite-assertion>
     
     <rewrite-assertion id="select_not_nested_subquery_in_predicate_right_equal_condition_for_plain" db-types="MySQL">
@@ -60,7 +60,7 @@
 
     <rewrite-assertion id="select_not_nested_subquery_in_table_with_alias_for_plain" db-types="MySQL">
         <input sql="SELECT count(*) as cnt FROM (SELECT ab.certificate_number FROM t_account ab) X" />
-        <output sql="SELECT count(*) as cnt FROM (SELECT ab.plain_certificate_number AS certificate_number_PLAIN FROM `encrypt_ds`.t_account ab) X" />
+        <output sql="SELECT count(*) as cnt FROM (SELECT ab.plain_certificate_number AS certificate_number FROM `encrypt_ds`.t_account ab) X" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_not_nested_subquery_in_predicate_left_and_right_equal_condition_for_plain" db-types="MySQL">
@@ -85,7 +85,7 @@
 
     <rewrite-assertion id="select_not_nested_subquery_in_tablesegment_from_alias_for_plain" db-types="MySQL">
         <input sql="SELECT b.certificate_number, b.amount FROM (SELECT a.certificate_number as certificate_number, a.amount FROM t_account a WHERE a.amount = 1373) b" />
-        <output sql="SELECT b.certificate_number_PLAIN AS certificate_number, b.amount_CIPHER AS amount FROM (SELECT a.plain_certificate_number AS certificate_number_PLAIN, a.cipher_amount AS amount_CIPHER FROM `encrypt_ds`.t_account a WHERE a.`cipher_amount` = 'encrypt_1373') b" />
+        <output sql="SELECT b.certificate_number AS certificate_number, b.amount_CIPHER AS amount FROM (SELECT a.plain_certificate_number AS certificate_number, a.`cipher_amount` AS amount_CIPHER FROM `encrypt_ds`.t_account a WHERE a.`cipher_amount` = 'encrypt_1373') b" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_with_exists_sub_query_for_plain" db-types="MySQL">
@@ -100,17 +100,17 @@
 
     <rewrite-assertion id="select_not_nested_subquery_in_tablesegment_ref_shorthand_for_plain" db-types="MySQL">
         <input sql="SELECT b.* FROM (SELECT a.certificate_number as certificate_number, a.amount FROM t_account a WHERE a.amount = 1373) b" />
-        <output sql="SELECT b.certificate_number_PLAIN AS certificate_number, b.amount_CIPHER AS amount  FROM (SELECT a.plain_certificate_number AS certificate_number_PLAIN, a.cipher_amount AS amount_CIPHER FROM `encrypt_ds`.t_account a WHERE a.`cipher_amount` = 'encrypt_1373') b" />
+        <output sql="SELECT b.certificate_number AS certificate_number, b.amount_CIPHER AS amount  FROM (SELECT a.plain_certificate_number AS certificate_number, a.`cipher_amount` AS amount_CIPHER FROM `encrypt_ds`.t_account a WHERE a.`cipher_amount` = 'encrypt_1373') b" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_shorthand_from_sub_query_with_simple_select" db-types="MySQL">
         <input sql="SELECT * FROM (SELECT * FROM t_account a) AS temp" />
-        <output sql="SELECT temp.`account_id`, temp.`certificate_number_PLAIN` AS `certificate_number`, temp.`password_PLAIN` AS `password`, temp.`amount_CIPHER` AS `amount`  FROM (SELECT a.`account_id`, a.`plain_certificate_number` AS `certificate_number_PLAIN`, a.`plain_password` AS `password_PLAIN`, a.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account a) AS temp" />
+        <output sql="SELECT temp.`account_id`, temp.`certificate_number` AS `certificate_number`, temp.`password` AS `password`, temp.`amount_CIPHER` AS `amount`  FROM (SELECT a.`account_id`, a.`plain_certificate_number` AS `certificate_number`, a.`plain_password` AS `password`, a.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account a) AS temp" />
     </rewrite-assertion>
 
     <rewrite-assertion id="select_shorthand_from_sub_query_with_select_join" db-types="MySQL">
         <input sql="SELECT * FROM (SELECT a1.* FROM t_account a1 INNER JOIN t_account a2) AS temp" />
-        <output sql="SELECT temp.`account_id`, temp.`certificate_number_PLAIN` AS `certificate_number`, temp.`password_PLAIN` AS `password`, temp.`amount_CIPHER` AS `amount`  FROM (SELECT a1.`account_id`, a1.`plain_certificate_number` AS `certificate_number_PLAIN`, a1.`plain_password` AS `password_PLAIN`, a1.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account a1 INNER JOIN `encrypt_ds`.t_account a2) AS temp" />
+        <output sql="SELECT temp.`account_id`, temp.`certificate_number` AS `certificate_number`, temp.`password` AS `password`, temp.`amount_CIPHER` AS `amount`  FROM (SELECT a1.`account_id`, a1.`plain_certificate_number` AS `certificate_number`, a1.`plain_password` AS `password`, a1.`cipher_amount` AS `amount_CIPHER`  FROM `encrypt_ds`.t_account a1 INNER JOIN `encrypt_ds`.t_account a2) AS temp" />
     </rewrite-assertion>
 </rewrite-assertions>
 <!-- SPEX ADDED: END -->

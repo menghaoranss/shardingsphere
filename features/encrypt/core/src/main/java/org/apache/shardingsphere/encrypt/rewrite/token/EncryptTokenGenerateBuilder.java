@@ -30,6 +30,7 @@ import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.p
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptCreateAlterViewGroupByItemTokenGenerator;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptCreateAlterViewOrderByItemTokenGenerator;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptSelectForUpdateTokenGenerator;
+import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptSelectValueTokenGenerator;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptUsingNaturalJoinTokenGenerator;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.with.EncryptWithColumnTokenGenerator;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.table.generator.EncryptTableTokenGenerator;
@@ -126,6 +127,7 @@ public final class EncryptTokenGenerateBuilder implements SQLTokenGeneratorBuild
         addSQLTokenGenerator(result, new EncryptMergeTokenGenerator(rule, databaseEncryptRules, database, metaData));
         addSQLTokenGenerator(result, new EncryptTableTokenGenerator(rule, database));
         addSQLTokenGenerator(result, new EncryptInsertSelectValueTokenGenerator(rule, database));
+        addSQLTokenGenerator(result, new EncryptSelectValueTokenGenerator(rule, databaseEncryptRules, database));
         addSQLTokenGenerator(result, new EncryptInsertSelectScalarSubqueryTokenGenerator(rule, databaseEncryptRules, sqlRewriteContext));
         addSQLTokenGenerator(result, new EncryptWithColumnTokenGenerator(rule, databaseEncryptRules, database, metaData));
         addSQLTokenGenerator(result, new EncryptCreateAlterViewSelectProjectionTokenGenerator(rule, databaseEncryptRules, database, metaData));
