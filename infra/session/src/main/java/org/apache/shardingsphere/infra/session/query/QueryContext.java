@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.session.query;
 
+import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.sphereex.dbplusengine.SphereEx;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import org.apache.shardingsphere.infra.exception.dialect.exception.syntax.databa
 import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.rule.attribute.table.TableMapperRuleAttribute;
 import org.apache.shardingsphere.infra.session.connection.ConnectionContext;
 
 import java.util.Collection;
@@ -61,6 +63,9 @@ public final class QueryContext {
     @Setter
     private String defaultDataSourceName;
     
+    @SphereEx
+    private final Collection<String> distributedTableNames = new CaseInsensitiveSet<>();
+    
     public QueryContext(final SQLStatementContext sqlStatementContext, final String sql, final List<Object> params, final HintValueContext hintValueContext, final ConnectionContext connectionContext,
                         final ShardingSphereMetaData metaData) {
         this(sqlStatementContext, sql, params, hintValueContext, connectionContext, metaData, false);
@@ -76,6 +81,18 @@ public final class QueryContext {
         this.metaData = metaData;
         usedDatabaseNames = getUsedDatabaseNames(sqlStatementContext, connectionContext);
         this.useCache = useCache;
+        // SPEX ADDED: BEGIN
+        distributedTableNames.addAll(getDistributedTableNames(getUsedDatabase()));
+        // SPEX ADDED: END
+    }
+    
+    @SphereEx
+    private Collection<String> getDistributedTableNames(final ShardingSphereDatabase database) {
+        Collection<String> result = new CaseInsensitiveSet<>();
+        for (TableMapperRuleAttribute each : database.getRuleMetaData().getAttributes(TableMapperRuleAttribute.class)) {
+            result.addAll(each.getDistributedTableNames());
+        }
+        return result;
     }
     
     private Collection<String> getUsedDatabaseNames(final SQLStatementContext sqlStatementContext, final ConnectionContext connectionContext) {
