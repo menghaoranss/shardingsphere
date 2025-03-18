@@ -47,6 +47,7 @@ import org.apache.shardingsphere.infra.exception.core.ShardingSpherePrecondition
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.CollectionSQLTokenGenerator;
+import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.aware.PreviousSQLTokensAware;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.generic.SubstitutableColumnNameToken;
 import org.apache.shardingsphere.sql.parser.statement.core.enums.TableSourceType;
@@ -64,6 +65,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.Expr
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.AndPredicate;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.HavingSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 import java.util.Arrays;
@@ -71,6 +73,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -80,7 +83,7 @@ import java.util.Optional;
 @HighFrequencyInvocation
 @RequiredArgsConstructor
 @Setter
-public final class EncryptPredicateColumnTokenGenerator implements CollectionSQLTokenGenerator<SQLStatementContext> {
+public final class EncryptPredicateColumnTokenGenerator implements CollectionSQLTokenGenerator<SQLStatementContext>, @SphereEx PreviousSQLTokensAware {
     
     @SphereEx
     private static final Collection<String> GREATER_LESS_COMPARISON_OPERATORS = new HashSet<>(Arrays.asList(">", "<", ">=", "<="));
@@ -98,6 +101,10 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
     
     @SphereEx
     private final ShardingSphereMetaData metaData;
+    
+    @SphereEx
+    @Setter
+    private List<SQLToken> previousSQLTokens;
     
     @Override
     public boolean isGenerateSQLToken(final SQLStatementContext sqlStatementContext) {
@@ -168,9 +175,12 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
     private Collection<SQLToken> buildSubstitutableColumnNameTokens(final EncryptColumn encryptColumn, final ColumnSegment columnSegment,
                                                                     final ExpressionSegment expression, final DatabaseType databaseType,
                                                                     @SphereEx final String tableName, @SphereEx final SQLStatementContext sqlStatementContext) {
-        int startIndex = columnSegment.getOwner().isPresent() ? columnSegment.getOwner().get().getStopIndex() + 2 : columnSegment.getStartIndex();
+        // SPEX CHANGED: BEGIN
+        int startIndex = columnSegment.getStartIndex();
+        // SPEX CHANGED: END
         int stopIndex = columnSegment.getStopIndex();
         // SPEX ADDED: BEGIN
+        Optional.ofNullable(previousSQLTokens).map(sqlTokens -> sqlTokens.removeIf(each -> each.getStartIndex() >= startIndex && each.getStartIndex() <= stopIndex));
         if (encryptColumn.getPlain().isPresent() && getRule(columnSegment).isQueryWithPlain(tableName, encryptColumn.getName())) {
             Collection<Projection> columnProjections = createColumnProjections(encryptColumn.getPlain().get().getName(), columnSegment, null, databaseType, false);
             return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType, database, metaData));
@@ -279,7 +289,10 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
         QuoteCharacter quoteCharacter = TableSourceType.TEMPORARY_TABLE == columnSegment.getColumnBoundInfo().getTableSourceType()
                 ? columnSegment.getIdentifier().getQuoteCharacter()
                 : new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData().getQuoteCharacter();
-        ColumnProjection columnProjection = new ColumnProjection(null, new IdentifierValue(columnName, quoteCharacter), null, databaseType);
+        // SPEX CHANGED: BEGIN
+        ColumnProjection columnProjection =
+                new ColumnProjection(columnSegment.getOwner().map(OwnerSegment::getIdentifier).orElse(null), new IdentifierValue(columnName, quoteCharacter), null, databaseType);
+        // SPEX CHANGED: END
         // SPEX ADDED: BEGIN
         columnProjection.setEncryptColumnContainsInGroupByItem(encryptColumnContainsInGroupByItem);
         // SPEX ADDED: END
