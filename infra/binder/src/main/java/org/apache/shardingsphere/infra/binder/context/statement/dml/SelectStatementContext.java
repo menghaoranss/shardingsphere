@@ -20,6 +20,7 @@ package org.apache.shardingsphere.infra.binder.context.statement.dml;
 import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.google.common.base.Preconditions;
 import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.binder.context.type.FunctionAvailable;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.infra.binder.context.aware.ParameterAware;
@@ -61,6 +62,8 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.Bina
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.subquery.SubquerySegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ShorthandProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.ColumnOrderByItemSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.ExpressionOrderByItemSegment;
@@ -91,7 +94,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
-public final class SelectStatementContext extends CommonSQLStatementContext implements TableAvailable, WhereAvailable, ParameterAware, WithAvailable {
+public final class SelectStatementContext extends CommonSQLStatementContext implements TableAvailable, WhereAvailable, ParameterAware, WithAvailable, @SphereEx FunctionAvailable {
     
     private final TablesContext tablesContext;
     
@@ -132,6 +135,9 @@ public final class SelectStatementContext extends CommonSQLStatementContext impl
     @SphereEx
     private final Collection<String> commonTableExpressionAliases = new CaseInsensitiveSet<>();
     
+    @SphereEx
+    private final Collection<ExpressionSegment> functionSegments = new LinkedList<>();
+    
     public SelectStatementContext(final ShardingSphereMetaData metaData, final List<Object> params, final SelectStatement sqlStatement,
                                   final String currentDatabaseName, final Collection<TableSegment> inheritedTables) {
         super(sqlStatement);
@@ -152,6 +158,7 @@ public final class SelectStatementContext extends CommonSQLStatementContext impl
         ColumnExtractor.extractFromSelectStatementWithoutProjection(columnSegmentsWithoutProjectionForUDF, sqlStatement, false);
         extractShortHandProjectionSegmentsForUDF(shorthandProjectionSegmentsForUDF, sqlStatement);
         extractCommonTableExpressionAliases(sqlStatement);
+        extractFunctionSegments(functionSegments, whereSegments, sqlStatement);
         // SPEX ADDED: END
     }
     
@@ -496,5 +503,16 @@ public final class SelectStatementContext extends CommonSQLStatementContext impl
     @Override
     public Optional<WithSegment> getWith() {
         return getSqlStatement().getWithSegment();
+    }
+    
+    @SphereEx
+    private void extractFunctionSegments(final Collection<ExpressionSegment> functionSegments, final Collection<WhereSegment> whereSegments, final SelectStatement sqlStatement) {
+        for (WhereSegment each : whereSegments) {
+            functionSegments.addAll(
+                    ExpressionExtractor.getFunctionSegments(new ExpressionProjectionSegment(each.getExpr().getStartIndex(), each.getExpr().getStopIndex(), each.getExpr().getText(), each.getExpr())));
+        }
+        for (ProjectionSegment each : sqlStatement.getProjections().getProjections()) {
+            functionSegments.addAll(ExpressionExtractor.getFunctionSegments(each));
+        }
     }
 }

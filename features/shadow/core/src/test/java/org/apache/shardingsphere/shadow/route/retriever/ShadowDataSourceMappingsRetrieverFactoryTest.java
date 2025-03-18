@@ -24,6 +24,7 @@ import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatem
 import org.apache.shardingsphere.infra.binder.context.statement.dml.UpdateStatementContext;
 import org.apache.shardingsphere.infra.hint.HintValueContext;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.session.connection.ConnectionContext;
 import org.apache.shardingsphere.infra.session.query.QueryContext;
 import org.apache.shardingsphere.shadow.route.retriever.dml.ShadowDMLStatementDataSourceMappingsRetriever;
@@ -47,17 +48,24 @@ class ShadowDataSourceMappingsRetrieverFactoryTest {
     @Test
     void assertNewInstance() {
         ShadowDataSourceMappingsRetriever retriever = ShadowDataSourceMappingsRetrieverFactory.newInstance(
-                new QueryContext(createInsertSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mock(ShardingSphereMetaData.class)));
+                new QueryContext(createInsertSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mockMetaData()));
         assertThat(retriever, instanceOf(ShadowDMLStatementDataSourceMappingsRetriever.class));
         ShadowDataSourceMappingsRetriever shadowUpdateRouteEngine = ShadowDataSourceMappingsRetrieverFactory.newInstance(
-                new QueryContext(createUpdateSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mock(ShardingSphereMetaData.class)));
+                new QueryContext(createUpdateSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mockMetaData()));
         assertThat(shadowUpdateRouteEngine, instanceOf(ShadowDMLStatementDataSourceMappingsRetriever.class));
         ShadowDataSourceMappingsRetriever shadowDeleteRouteEngine = ShadowDataSourceMappingsRetrieverFactory.newInstance(
-                new QueryContext(createDeleteSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mock(ShardingSphereMetaData.class)));
+                new QueryContext(createDeleteSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mockMetaData()));
         assertThat(shadowDeleteRouteEngine, instanceOf(ShadowDMLStatementDataSourceMappingsRetriever.class));
         ShadowDataSourceMappingsRetriever shadowSelectRouteEngine = ShadowDataSourceMappingsRetrieverFactory.newInstance(
-                new QueryContext(createSelectSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mock(ShardingSphereMetaData.class)));
+                new QueryContext(createSelectSqlStatementContext(), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mockMetaData()));
         assertThat(shadowSelectRouteEngine, instanceOf(ShadowDMLStatementDataSourceMappingsRetriever.class));
+    }
+    
+    private ShardingSphereMetaData mockMetaData() {
+        ShardingSphereMetaData result = mock(ShardingSphereMetaData.class);
+        when(result.containsDatabase("foo_db")).thenReturn(true);
+        when(result.getDatabase("foo_db")).thenReturn(mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS));
+        return result;
     }
     
     private ConnectionContext mockConnectionContext() {
@@ -70,6 +78,7 @@ class ShadowDataSourceMappingsRetrieverFactoryTest {
         InsertStatementContext result = mock(InsertStatementContext.class, RETURNS_DEEP_STUBS);
         when(result.getSqlStatement()).thenReturn(mock(InsertStatement.class));
         when(result.getTablesContext().getDatabaseName()).thenReturn(Optional.empty());
+        when(result.getTablesContext().getDatabaseNames()).thenReturn(Collections.emptyList());
         return result;
     }
     
@@ -77,6 +86,7 @@ class ShadowDataSourceMappingsRetrieverFactoryTest {
         UpdateStatementContext result = mock(UpdateStatementContext.class, RETURNS_DEEP_STUBS);
         when(result.getSqlStatement()).thenReturn(mock(UpdateStatement.class));
         when(result.getTablesContext().getDatabaseName()).thenReturn(Optional.empty());
+        when(result.getTablesContext().getDatabaseNames()).thenReturn(Collections.emptyList());
         return result;
     }
     
@@ -84,6 +94,7 @@ class ShadowDataSourceMappingsRetrieverFactoryTest {
         DeleteStatementContext result = mock(DeleteStatementContext.class, RETURNS_DEEP_STUBS);
         when(result.getSqlStatement()).thenReturn(mock(DeleteStatement.class));
         when(result.getTablesContext().getDatabaseName()).thenReturn(Optional.empty());
+        when(result.getTablesContext().getDatabaseNames()).thenReturn(Collections.emptyList());
         return result;
     }
     
@@ -91,6 +102,7 @@ class ShadowDataSourceMappingsRetrieverFactoryTest {
         SelectStatementContext result = mock(SelectStatementContext.class, RETURNS_DEEP_STUBS);
         when(result.getSqlStatement()).thenReturn(mock(SelectStatement.class));
         when(result.getTablesContext().getDatabaseName()).thenReturn(Optional.empty());
+        when(result.getTablesContext().getDatabaseNames()).thenReturn(Collections.emptyList());
         return result;
     }
 }

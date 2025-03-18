@@ -110,7 +110,8 @@ public final class EncryptAssignmentTokenGenerator {
     private EncryptAssignmentToken generateParameterSQLToken(final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment) {
         @SphereEx(Type.MODIFY)
         EncryptParameterAssignmentToken result =
-                new EncryptParameterAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter(), getOwner(segment));
+                new EncryptParameterAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter(),
+                        getOwner(segment));
         result.addColumnName(encryptColumn.getCipher().getName());
         encryptColumn.getAssistedQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
         encryptColumn.getLikeQuery().ifPresent(optional -> result.addColumnName(optional.getName()));
@@ -128,7 +129,8 @@ public final class EncryptAssignmentTokenGenerator {
     
     private EncryptAssignmentToken generateLiteralSQLToken(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final ColumnAssignmentSegment segment) {
         @SphereEx(Type.MODIFY)
-        EncryptLiteralAssignmentToken result = new EncryptLiteralAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(), segment.getColumns().get(0).getIdentifier().getQuoteCharacter(), getOwner(segment));
+        EncryptLiteralAssignmentToken result = new EncryptLiteralAssignmentToken(segment.getColumns().get(0).getStartIndex(), segment.getStopIndex(),
+                segment.getColumns().get(0).getIdentifier().getQuoteCharacter(), getOwner(segment));
         addCipherAssignment(schemaName, tableName, encryptColumn, segment, result);
         addAssistedQueryAssignment(schemaName, tableName, encryptColumn, segment, result);
         addLikeAssignment(schemaName, tableName, encryptColumn, segment, result);
@@ -215,7 +217,7 @@ public final class EncryptAssignmentTokenGenerator {
         throw new UnsupportedSQLOperationException(
                 "Can not use different encryptor for " + leftColumn.getColumnBoundInfo() + " and " + rightColumn.getColumnBoundInfo() + " in set clause");
     }
-
+    
     @SphereEx
     private EncryptAssignmentToken generateColumnSQLToken(final ColumnAssignmentSegment segment, final ColumnSegment leftColumn, final ColumnSegment rightColumn,
                                                           final EncryptColumn leftEncryptColumn, final EncryptColumn rightEncryptColumn) {
@@ -237,7 +239,7 @@ public final class EncryptAssignmentTokenGenerator {
                 new IdentifierValue(optional.getName(), leftQuote), rightOwner, new IdentifierValue(rightEncryptColumn.getPlain().get().getName(), rightQuote)));
         return result;
     }
-
+    
     @SphereEx
     private Optional<EncryptTable> findEncryptTable(final ColumnSegment columnSegment) {
         EncryptRule encryptRule = Optional.ofNullable(databaseEncryptRules.get(columnSegment.getColumnBoundInfo().getOriginalDatabase().getValue())).orElse(rule);

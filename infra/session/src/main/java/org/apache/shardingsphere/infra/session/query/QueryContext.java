@@ -82,7 +82,7 @@ public final class QueryContext {
         usedDatabaseNames = getUsedDatabaseNames(sqlStatementContext, connectionContext);
         this.useCache = useCache;
         // SPEX ADDED: BEGIN
-        distributedTableNames.addAll(getDistributedTableNames(getUsedDatabase()));
+        distributedTableNames.addAll(usedDatabaseNames.isEmpty() ? Collections.emptyList() : getDistributedTableNames(getUsedDatabase()));
         // SPEX ADDED: END
     }
     

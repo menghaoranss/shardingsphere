@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.encrypt.rewrite.parameter;
 
 import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptFunctionParameterRewriter;
 import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptInsertSelectParameterRewriter;
 import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptInsertSelectScalarSubqueryParameterRewriter;
 import com.sphereex.dbplusengine.encrypt.rewrite.parameter.rewriter.EncryptMergeParameterRewriter;
@@ -71,7 +72,8 @@ public final class EncryptParameterRewritersRegistry implements ParameterRewrite
                 new EncryptMultiTableInsertValueParameterRewriter(rule, databaseName),
                 new EncryptMergeParameterRewriter(rule, databaseEncryptRules, databaseName, sqlRewriteContext.getDatabase(), hintValueContext),
                 new EncryptInsertSelectParameterRewriter(rule, databaseName),
-                new EncryptInsertSelectScalarSubqueryParameterRewriter(rule, databaseEncryptRules));
+                new EncryptInsertSelectScalarSubqueryParameterRewriter(rule, databaseEncryptRules),
+                new EncryptFunctionParameterRewriter(rule, databaseName, databaseEncryptRules));
         // SPEX ADDED: END
     }
 }

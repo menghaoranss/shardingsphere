@@ -53,7 +53,7 @@ class EncryptParameterRewritersRegistryTest {
         List<ParameterRewriter> actual =
                 new ArrayList<>(new EncryptParameterRewritersRegistry(mock(EncryptRule.class), sqlRewriteContext, Collections.emptyList(), Collections.emptyMap()).getParameterRewriters());
         // SPEX CHANGED: BEGIN
-        assertThat(actual.size(), is(9));
+        assertThat(actual.size(), is(10));
         // SPEX CHANGED: END
         assertThat(actual.get(0), instanceOf(EncryptAssignmentParameterRewriter.class));
         assertThat(actual.get(1), instanceOf(EncryptPredicateParameterRewriter.class));
