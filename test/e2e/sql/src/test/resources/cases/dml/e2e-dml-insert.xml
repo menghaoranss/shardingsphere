@@ -323,4 +323,8 @@
             <destroy-sql sql="DELETE FROM t_single WHERE id = 1" />
         </assertion>
     </test-case>
+
+    <test-case sql="INSERT INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, ?, ?, ?, ?, ?),(?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE user_name = VALUES(user_name), email = '999999@gmail.com'" db-types="MySQL" scenario-types="encrypt">
+        <assertion parameters="11:int, lisi_updated:String, 777777:String, lisi_updated@test.com:String, 12345678911:String, 2025-03-18:Date, 41:int, Jack:String, 888888:String, Jack@gmail.com:String, 12345678905:String, 2025-03-18:Date" expected-data-file="insert_on_duplicate_key_update_encrypt.xml" />
+    </test-case>
 </e2e-test-cases>
