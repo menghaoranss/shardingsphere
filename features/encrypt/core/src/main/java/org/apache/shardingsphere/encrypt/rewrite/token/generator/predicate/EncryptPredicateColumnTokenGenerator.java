@@ -172,7 +172,7 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
         int stopIndex = columnSegment.getStopIndex();
         // SPEX ADDED: BEGIN
         if (encryptColumn.getPlain().isPresent() && getRule(columnSegment).isQueryWithPlain(tableName, encryptColumn.getName())) {
-            Collection<Projection> columnProjections = createColumnProjections(encryptColumn.getPlain().get().getName(), columnSegment, EncryptDerivedColumnSuffix.PLAIN, databaseType, false);
+            Collection<Projection> columnProjections = createColumnProjections(encryptColumn.getPlain().get().getName(), columnSegment, null, databaseType, false);
             return Collections.singleton(new SubstitutableColumnNameToken(startIndex, stopIndex, columnProjections, databaseType, database, metaData));
         }
         // NOTE: 此场景中 columnSegment 由于是统一提取的，会出现 HAVING COUNT(LINK_WAY) > 1 中的列也被提取出来，此时如果该列也在 GROUP BY 中，改写结果 HAVING COUNT(MIN(LINK_WAY_CIPHER)) > 1 会导致语法异常
@@ -272,7 +272,9 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
     private Collection<Projection> createColumnProjections(final String actualColumnName, final ColumnSegment columnSegment, final EncryptDerivedColumnSuffix derivedColumnSuffix,
                                                            final DatabaseType databaseType, @SphereEx final boolean encryptColumnContainsInGroupByItem) {
         String columnName = TableSourceType.TEMPORARY_TABLE == columnSegment.getColumnBoundInfo().getTableSourceType()
-                ? derivedColumnSuffix.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType)
+                // SPEX CHANGED: BEGIN
+                ? getDerivedColumnName(columnSegment, derivedColumnSuffix, databaseType)
+                // SPEX CHANGED: END
                 : actualColumnName;
         QuoteCharacter quoteCharacter = TableSourceType.TEMPORARY_TABLE == columnSegment.getColumnBoundInfo().getTableSourceType()
                 ? columnSegment.getIdentifier().getQuoteCharacter()
@@ -282,5 +284,11 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
         columnProjection.setEncryptColumnContainsInGroupByItem(encryptColumnContainsInGroupByItem);
         // SPEX ADDED: END
         return Collections.singleton(columnProjection);
+    }
+    
+    @SphereEx
+    private String getDerivedColumnName(final ColumnSegment columnSegment, final EncryptDerivedColumnSuffix derivedColumnSuffix, final DatabaseType databaseType) {
+        return null == derivedColumnSuffix ? columnSegment.getIdentifier().getValue()
+                : derivedColumnSuffix.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType, rule.getEncryptMode());
     }
 }

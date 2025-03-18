@@ -17,7 +17,9 @@
 
 package org.apache.shardingsphere.encrypt.enums;
 
+import com.google.common.base.Strings;
 import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.encrypt.rule.mode.EncryptMode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
@@ -30,8 +32,6 @@ import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum EncryptDerivedColumnSuffix {
     
-    @SphereEx
-    PLAIN("_PLAIN"),
     CIPHER("_CIPHER"),
     ASSISTED_QUERY("_ASSISTED"),
     LIKE_QUERY("_LIKE"),
@@ -45,10 +45,30 @@ public enum EncryptDerivedColumnSuffix {
      *
      * @param columnName column name
      * @param databaseType database type
+     * @param encryptMode encrypt mode
      * @return derived column name
      */
-    public String getDerivedColumnName(final String columnName, final DatabaseType databaseType) {
+    public String getDerivedColumnName(final String columnName, final DatabaseType databaseType, @SphereEx final EncryptMode encryptMode) {
         DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
-        return String.format("%s%s", columnName, dialectDatabaseMetaData.formatTableNamePattern(suffix));
+        // SPEX CHANGED: BEGIN
+        return String.format("%s%s", columnName, dialectDatabaseMetaData.formatTableNamePattern(getSuffix(encryptMode)));
+        // SPEX CHANGED: END
+    }
+    
+    @SphereEx
+    private String getSuffix(final EncryptMode encryptMode) {
+        if (CIPHER == this && !Strings.isNullOrEmpty(encryptMode.getDerivedCipherSuffix())) {
+            return encryptMode.getDerivedCipherSuffix();
+        }
+        if (ASSISTED_QUERY == this && !Strings.isNullOrEmpty(encryptMode.getDerivedAssistedQuerySuffix())) {
+            return encryptMode.getDerivedAssistedQuerySuffix();
+        }
+        if (LIKE_QUERY == this && !Strings.isNullOrEmpty(encryptMode.getDerivedLikeQuerySuffix())) {
+            return encryptMode.getDerivedLikeQuerySuffix();
+        }
+        if (ORDER_QUERY == this && !Strings.isNullOrEmpty(encryptMode.getDerivedOrderQuerySuffix())) {
+            return encryptMode.getDerivedOrderQuerySuffix();
+        }
+        return suffix;
     }
 }

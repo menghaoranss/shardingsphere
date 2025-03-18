@@ -17,9 +17,9 @@
 
 package com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.with;
 
-import org.apache.shardingsphere.encrypt.enums.EncryptDerivedColumnSuffix;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.shardingsphere.encrypt.enums.EncryptDerivedColumnSuffix;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
@@ -121,14 +121,15 @@ public final class EncryptWithColumnTokenGenerator implements CollectionSQLToken
         IdentifierValue owner = columnSegment.getOwner().map(OwnerSegment::getIdentifier).orElse(null);
         if (queryWithPlain && encryptColumn.getPlain().isPresent()) {
             IdentifierValue plainColumnName = TableSourceType.TEMPORARY_TABLE == columnSegment.getColumnBoundInfo().getTableSourceType()
-                    ? new IdentifierValue(EncryptDerivedColumnSuffix.PLAIN.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType), quoteCharacter)
+                    ? new IdentifierValue(columnSegment.getIdentifier().getValue(), quoteCharacter)
                     : new IdentifierValue(encryptColumn.getPlain().get().getName(), quoteCharacter);
             result.add(new ColumnProjection(owner, plainColumnName, null, databaseType));
             return result;
         }
         ParenthesesSegment leftParentheses = columnSegment.getLeftParentheses().orElse(null);
         ParenthesesSegment rightParentheses = columnSegment.getRightParentheses().orElse(null);
-        IdentifierValue cipherName = new IdentifierValue(EncryptDerivedColumnSuffix.CIPHER.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType), quoteCharacter);
+        IdentifierValue cipherName =
+                new IdentifierValue(EncryptDerivedColumnSuffix.CIPHER.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType, rule.getEncryptMode()), quoteCharacter);
         result.add(new ColumnProjection(owner, cipherName, null, databaseType));
         encryptColumn.getAssistedQuery().ifPresent(optional -> addAssistedQuery(columnSegment, databaseType, owner, quoteCharacter, leftParentheses, rightParentheses, result));
         encryptColumn.getLikeQuery().ifPresent(optional -> addLikeQuery(columnSegment, databaseType, owner, quoteCharacter, leftParentheses, rightParentheses, result));
@@ -138,19 +139,19 @@ public final class EncryptWithColumnTokenGenerator implements CollectionSQLToken
     
     private void addAssistedQuery(final ColumnSegment columnSegment, final DatabaseType databaseType, final IdentifierValue owner, final QuoteCharacter quoteCharacter,
                                   final ParenthesesSegment leftParentheses, final ParenthesesSegment rightParentheses, final Collection<Projection> result) {
-        String assistedQueryName = EncryptDerivedColumnSuffix.ASSISTED_QUERY.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType);
+        String assistedQueryName = EncryptDerivedColumnSuffix.ASSISTED_QUERY.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType, rule.getEncryptMode());
         result.add(new ColumnProjection(owner, new IdentifierValue(assistedQueryName, quoteCharacter), null, databaseType, leftParentheses, rightParentheses));
     }
     
     private void addLikeQuery(final ColumnSegment columnSegment, final DatabaseType databaseType, final IdentifierValue owner, final QuoteCharacter quoteCharacter,
                               final ParenthesesSegment leftParentheses, final ParenthesesSegment rightParentheses, final Collection<Projection> result) {
-        String likeQueryName = EncryptDerivedColumnSuffix.LIKE_QUERY.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType);
+        String likeQueryName = EncryptDerivedColumnSuffix.LIKE_QUERY.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType, rule.getEncryptMode());
         result.add(new ColumnProjection(owner, new IdentifierValue(likeQueryName, quoteCharacter), null, databaseType, leftParentheses, rightParentheses));
     }
     
-    private static void addOrderQuery(final ColumnSegment columnSegment, final DatabaseType databaseType, final IdentifierValue owner, final QuoteCharacter quoteCharacter,
-                                      final Collection<Projection> result) {
-        String orderQueryName = EncryptDerivedColumnSuffix.ORDER_QUERY.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType);
+    private void addOrderQuery(final ColumnSegment columnSegment, final DatabaseType databaseType, final IdentifierValue owner, final QuoteCharacter quoteCharacter,
+                               final Collection<Projection> result) {
+        String orderQueryName = EncryptDerivedColumnSuffix.ORDER_QUERY.getDerivedColumnName(columnSegment.getIdentifier().getValue(), databaseType, rule.getEncryptMode());
         result.add(new ColumnProjection(owner, new IdentifierValue(orderQueryName, quoteCharacter), null, databaseType));
     }
 }

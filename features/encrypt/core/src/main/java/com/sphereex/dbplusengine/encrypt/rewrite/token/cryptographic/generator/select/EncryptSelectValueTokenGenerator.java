@@ -174,18 +174,17 @@ public final class EncryptSelectValueTokenGenerator implements CollectionSQLToke
     }
     
     private void addPlainColumn(final ProjectionSegment projectionSegment, final EncryptSelectValueToken literalToken, final String columnLabel, final DatabaseType databaseType) {
-        String alias = EncryptDerivedColumnSuffix.PLAIN.getDerivedColumnName(columnLabel, databaseType);
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
-            literalToken.addValue(((LiteralExpressionSegment) expressionSegment).getLiterals(), alias);
+            literalToken.addValue(((LiteralExpressionSegment) expressionSegment).getLiterals(), columnLabel);
         } else {
-            literalToken.addValue(((ParameterMarkerExpressionSegment) projectionSegment).getParameterMarkerType().getMarker(), alias);
+            literalToken.addValue(((ParameterMarkerExpressionSegment) projectionSegment).getParameterMarkerType().getMarker(), columnLabel);
         }
     }
     
     private void addCipherColumn(final String schemaName, final String tableName, final EncryptColumn encryptColumn, final EncryptSelectValueToken literalToken,
                                  final ProjectionSegment projectionSegment, final String columnLabel, final DatabaseType databaseType) {
-        String alias = EncryptDerivedColumnSuffix.CIPHER.getDerivedColumnName(columnLabel, databaseType);
+        String alias = EncryptDerivedColumnSuffix.CIPHER.getDerivedColumnName(columnLabel, databaseType, rule.getEncryptMode());
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
             literalToken.addValue(encryptColumn.getCipher().encrypt(database.getName(), schemaName, tableName, encryptColumn.getName(), ((LiteralExpressionSegment) expressionSegment).getLiterals()),
@@ -197,7 +196,7 @@ public final class EncryptSelectValueTokenGenerator implements CollectionSQLToke
     
     private void addAssistedQueryColumn(final String schemaName, final String tableName, final String columnName, final EncryptSelectValueToken literalToken,
                                         final ProjectionSegment projectionSegment, final AssistedQueryColumnItem assistedQueryColumnItem, final String columnLabel, final DatabaseType databaseType) {
-        String alias = EncryptDerivedColumnSuffix.ASSISTED_QUERY.getDerivedColumnName(columnLabel, databaseType);
+        String alias = EncryptDerivedColumnSuffix.ASSISTED_QUERY.getDerivedColumnName(columnLabel, databaseType, rule.getEncryptMode());
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
             literalToken.addValue(assistedQueryColumnItem.encrypt(database.getName(), schemaName, tableName, columnName, ((LiteralExpressionSegment) expressionSegment).getLiterals()), alias);
@@ -208,7 +207,7 @@ public final class EncryptSelectValueTokenGenerator implements CollectionSQLToke
     
     private void addLikeQueryColumn(final String schemaName, final String tableName, final String columnName, final EncryptSelectValueToken literalToken,
                                     final ProjectionSegment projectionSegment, final LikeQueryColumnItem likeQueryColumnItem, final String columnLabel, final DatabaseType databaseType) {
-        String alias = EncryptDerivedColumnSuffix.LIKE_QUERY.getDerivedColumnName(columnLabel, databaseType);
+        String alias = EncryptDerivedColumnSuffix.LIKE_QUERY.getDerivedColumnName(columnLabel, databaseType, rule.getEncryptMode());
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
             literalToken.addValue(likeQueryColumnItem.encrypt(database.getName(), schemaName, tableName, columnName, ((LiteralExpressionSegment) expressionSegment).getLiterals()), alias);
@@ -219,7 +218,7 @@ public final class EncryptSelectValueTokenGenerator implements CollectionSQLToke
     
     private void addOrderQueryColumn(final String schemaName, final String tableName, final String columnName, final EncryptSelectValueToken literalToken,
                                      final ProjectionSegment projectionSegment, final OrderQueryColumnItem orderQueryColumnItem, final String columnLabel, final DatabaseType databaseType) {
-        String alias = EncryptDerivedColumnSuffix.ORDER_QUERY.getDerivedColumnName(columnLabel, databaseType);
+        String alias = EncryptDerivedColumnSuffix.ORDER_QUERY.getDerivedColumnName(columnLabel, databaseType, rule.getEncryptMode());
         if (projectionSegment instanceof ExpressionProjectionSegment) {
             ExpressionSegment expressionSegment = ((ExpressionProjectionSegment) projectionSegment).getExpr();
             literalToken.addValue(orderQueryColumnItem.encrypt(database.getName(), schemaName, tableName, columnName, ((LiteralExpressionSegment) expressionSegment).getLiterals()), alias);
