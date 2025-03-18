@@ -17,8 +17,10 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.pojo;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
+import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -31,8 +33,10 @@ public final class EncryptLiteralAssignmentToken extends EncryptAssignmentToken 
     
     private final Collection<LiteralAssignment> assignments = new LinkedList<>();
     
-    public EncryptLiteralAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter) {
-        super(startIndex, stopIndex, quoteCharacter);
+    public EncryptLiteralAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter, @SphereEx final IdentifierValue owner) {
+        // SPEX CHANGED: BEGIN
+        super(startIndex, stopIndex, quoteCharacter, owner);
+        // SPEX CHANGED: END
     }
     
     /**
@@ -42,7 +46,9 @@ public final class EncryptLiteralAssignmentToken extends EncryptAssignmentToken 
      * @param value assignment value
      */
     public void addAssignment(final String columnName, final Object value) {
-        assignments.add(new LiteralAssignment(columnName, value, getQuoteCharacter()));
+        // SPEX CHANGED: BEGIN
+        assignments.add(new LiteralAssignment(columnName, value, getQuoteCharacter(), getOwner()));
+        // SPEX CHANGED: END
     }
     
     @Override
@@ -59,9 +65,14 @@ public final class EncryptLiteralAssignmentToken extends EncryptAssignmentToken 
         
         private final QuoteCharacter quoteCharacter;
         
+        @SphereEx
+        private final String owner;
+        
         @Override
         public String toString() {
-            return quoteCharacter.wrap(columnName) + " = " + toString(value);
+            // SPEX CHANGED: BEGIN
+            return (owner.isEmpty() ? "" : owner + ".") + quoteCharacter.wrap(columnName) + " = " + toString(value);
+            // SPEX CHANGED: END
         }
         
         private String toString(final Object value) {

@@ -23,6 +23,7 @@ import com.sphereex.dbplusengine.infra.rewrite.token.pojo.AssignmentToken;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.Substitutable;
+import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 /**
  * Assignment token for encrypt.
@@ -34,9 +35,20 @@ public abstract class EncryptAssignmentToken extends @SphereEx(Type.MODIFY) Assi
     
     private final QuoteCharacter quoteCharacter;
     
-    protected EncryptAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter) {
+    @SphereEx
+    private final IdentifierValue owner;
+    
+    protected EncryptAssignmentToken(final int startIndex, final int stopIndex, final QuoteCharacter quoteCharacter, @SphereEx final IdentifierValue owner) {
         super(startIndex);
         this.stopIndex = stopIndex;
         this.quoteCharacter = quoteCharacter;
+        // SPEX ADDED: BEGIN
+        this.owner = owner;
+        // SPEX ADDED: END
+    }
+    
+    @SphereEx
+    public String getOwner() {
+        return null == owner ? "" : owner.getValueWithQuoteCharacters();
     }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.encrypt.rewrite.token.generator.assignment;
 
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.encrypt.rule.EncryptRule;
@@ -29,6 +30,7 @@ import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.Collec
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Insert assignment generator for encrypt.
@@ -39,6 +41,9 @@ import java.util.Collection;
 public final class EncryptInsertAssignmentTokenGenerator implements CollectionSQLTokenGenerator<InsertStatementContext> {
     
     private final EncryptRule rule;
+    
+    @SphereEx
+    private final Map<String, EncryptRule> databaseEncryptRules;
     
     private final ShardingSphereDatabase database;
     
@@ -51,7 +56,9 @@ public final class EncryptInsertAssignmentTokenGenerator implements CollectionSQ
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
     public Collection<SQLToken> generateSQLTokens(final InsertStatementContext sqlStatementContext) {
-        return new EncryptAssignmentTokenGenerator(rule, database.getName(), sqlStatementContext.getDatabaseType()).generateSQLTokens(
+        // SPEX CHANGED: BEGIN
+        return new EncryptAssignmentTokenGenerator(rule, database.getName(), sqlStatementContext.getDatabaseType(), databaseEncryptRules).generateSQLTokens(
                 sqlStatementContext.getTablesContext(), sqlStatementContext.getSqlStatement().getSetAssignment().get());
+        // SPEX CHANGED: END
     }
 }

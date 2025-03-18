@@ -46,7 +46,9 @@ class EncryptUpdateAssignmentTokenGeneratorTest {
     
     @BeforeEach
     void setup() {
-        tokenGenerator = new EncryptUpdateAssignmentTokenGenerator(mockEncryptRule(), mock(ShardingSphereDatabase.class));
+        // SPEX CHANGED: BEGIN
+        tokenGenerator = new EncryptUpdateAssignmentTokenGenerator(mockEncryptRule(), Collections.emptyMap(), mock(ShardingSphereDatabase.class));
+        // SPEX CHANGED: END
         when(updateStatementContext.getTablesContext().getSimpleTables().iterator().next().getTableName().getIdentifier().getValue()).thenReturn("table");
         ColumnAssignmentSegment assignmentSegment = mock(ColumnAssignmentSegment.class);
         when(updateStatementContext.getSqlStatement().getSetAssignment().getAssignments()).thenReturn(Collections.singleton(assignmentSegment));
