@@ -79,6 +79,8 @@ class SQLRouteEngineTest {
         storageUnits.put("ds_0", mock(StorageUnit.class));
         storageUnits.put("ds_1", mock(StorageUnit.class));
         when(database.getResourceMetaData().getStorageUnits()).thenReturn(storageUnits);
+        when(metaData.containsDatabase("foo_db")).thenReturn(true);
+        when(metaData.getDatabase("foo_db")).thenReturn(database);
         connectionContext.setCurrentDatabaseName("foo_db");
     }
     

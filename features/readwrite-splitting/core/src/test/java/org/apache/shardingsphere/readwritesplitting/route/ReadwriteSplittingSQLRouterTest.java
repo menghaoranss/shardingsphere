@@ -88,7 +88,7 @@ class ReadwriteSplittingSQLRouterTest {
     void assertDecorateRouteContextToPrimaryDataSource() {
         RouteContext actual = mockRouteContext();
         QueryContext queryContext =
-                new QueryContext(mock(SQLStatementContext.class), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mock(ShardingSphereMetaData.class));
+                new QueryContext(mock(SQLStatementContext.class), "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mockMetaData());
         RuleMetaData ruleMetaData = new RuleMetaData(Collections.singleton(staticRule));
         ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db",
                 mock(DatabaseType.class), mock(ResourceMetaData.class, RETURNS_DEEP_STUBS), ruleMetaData, Collections.emptyList());
@@ -105,7 +105,7 @@ class ReadwriteSplittingSQLRouterTest {
         when(selectStatement.getLock()).thenReturn(Optional.empty());
         ConnectionContext connectionContext = mockConnectionContext();
         when(connectionContext.getTransactionContext()).thenReturn(mock(TransactionConnectionContext.class));
-        QueryContext queryContext = new QueryContext(sqlStatementContext, "", Collections.emptyList(), new HintValueContext(), connectionContext, mock(ShardingSphereMetaData.class));
+        QueryContext queryContext = new QueryContext(sqlStatementContext, "", Collections.emptyList(), new HintValueContext(), connectionContext, mockMetaData());
         RuleMetaData ruleMetaData = new RuleMetaData(Collections.singleton(staticRule));
         ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db",
                 mock(DatabaseType.class), mock(ResourceMetaData.class, RETURNS_DEEP_STUBS), ruleMetaData, Collections.emptyList());
@@ -120,7 +120,7 @@ class ReadwriteSplittingSQLRouterTest {
         MySQLSelectStatement selectStatement = mock(MySQLSelectStatement.class);
         when(sqlStatementContext.getSqlStatement()).thenReturn(selectStatement);
         when(selectStatement.getLock()).thenReturn(Optional.of(mock(LockSegment.class)));
-        QueryContext queryContext = new QueryContext(sqlStatementContext, "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mock(ShardingSphereMetaData.class));
+        QueryContext queryContext = new QueryContext(sqlStatementContext, "", Collections.emptyList(), new HintValueContext(), mockConnectionContext(), mockMetaData());
         RuleMetaData ruleMetaData = new RuleMetaData(Collections.singleton(staticRule));
         ShardingSphereDatabase database = new ShardingSphereDatabase("foo_db",
                 mock(DatabaseType.class), mock(ResourceMetaData.class, RETURNS_DEEP_STUBS), ruleMetaData, Collections.emptyList());
@@ -128,6 +128,13 @@ class ReadwriteSplittingSQLRouterTest {
         Iterator<String> routedDataSourceNames = actual.getActualDataSourceNames().iterator();
         assertThat(routedDataSourceNames.next(), is(NONE_READWRITE_SPLITTING_DATASOURCE_NAME));
         assertThat(routedDataSourceNames.next(), is(WRITE_DATASOURCE));
+    }
+    
+    private static ShardingSphereMetaData mockMetaData() {
+        ShardingSphereMetaData result = mock(ShardingSphereMetaData.class);
+        when(result.containsDatabase("foo_db")).thenReturn(true);
+        when(result.getDatabase("foo_db")).thenReturn(mock(ShardingSphereDatabase.class, RETURNS_DEEP_STUBS));
+        return result;
     }
     
     private ConnectionContext mockConnectionContext() {

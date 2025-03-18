@@ -20,6 +20,7 @@ package org.apache.shardingsphere.infra.binder.context.statement.dml;
 import com.cedarsoftware.util.CaseInsensitiveMap;
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.SphereEx.Type;
+import com.sphereex.dbplusengine.infra.binder.context.type.FunctionAvailable;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.aware.ParameterAware;
 import org.apache.shardingsphere.infra.binder.context.segment.insert.keygen.GeneratedKeyContext;
@@ -70,7 +71,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Insert SQL statement context.
  */
-public final class InsertStatementContext extends CommonSQLStatementContext implements TableAvailable, ParameterAware, WhereAvailable, WithAvailable {
+public final class InsertStatementContext extends CommonSQLStatementContext implements TableAvailable, ParameterAware, WhereAvailable, WithAvailable, @SphereEx FunctionAvailable {
     
     private final ShardingSphereMetaData metaData;
     
@@ -428,5 +429,10 @@ public final class InsertStatementContext extends CommonSQLStatementContext impl
     @Override
     public Optional<WithSegment> getWith() {
         return getSqlStatement().getWithSegment();
+    }
+    
+    @Override
+    public Collection<ExpressionSegment> getFunctionSegments() {
+        return null == insertSelectContext ? Collections.emptyList() : insertSelectContext.getSelectStatementContext().getFunctionSegments();
     }
 }

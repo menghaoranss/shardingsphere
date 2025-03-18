@@ -57,7 +57,7 @@ public final class EncryptorComparator {
         EncryptAlgorithm leftColumnEncryptor = leftEncryptRule.findQueryEncryptor(leftColumnInfo.getOriginalTable().getValue(), leftColumnInfo.getOriginalColumn().getValue()).orElse(null);
         @SphereEx(Type.MODIFY)
         EncryptAlgorithm rightColumnEncryptor = rightEncryptRule.findQueryEncryptor(rightColumnInfo.getOriginalTable().getValue(), rightColumnInfo.getOriginalColumn().getValue()).orElse(null);
-        return EncryptorComparator.isSame(leftColumnEncryptor, rightColumnEncryptor);
+        return isSame(leftColumnEncryptor, rightColumnEncryptor);
     }
     
     /**

@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.sql.parser.statement.core.extractor;
 
+import com.cedarsoftware.util.CaseInsensitiveSet;
+import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.sql.parser.statement.core.enums.LogicalOperator;
@@ -40,6 +42,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.subq
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.AggregationProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.IntervalExpressionProjection;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.join.OuterJoinExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.multiset.MultisetExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.AndPredicate;
@@ -58,6 +61,18 @@ import java.util.Optional;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ExpressionExtractor {
+    
+    @SphereEx
+    private static final Collection<String> LOGICAL_OPERATORS = new CaseInsensitiveSet<>();
+    
+    // SPEX ADDED: BEGIN
+    static {
+        LOGICAL_OPERATORS.add("AND");
+        LOGICAL_OPERATORS.add("&&");
+        LOGICAL_OPERATORS.add("OR");
+        LOGICAL_OPERATORS.add("||");
+    }
+    // SPEX ADDED: END
     
     /**
      * Extract and predicates.
@@ -255,6 +270,60 @@ public final class ExpressionExtractor {
             ColumnExtractor.extractFromSelectStatement(result, ((ExistsSubqueryExpression) expression).getSubquery().getSelect(), true);
         }
         // SPEX ADDED: END
+        return result;
+    }
+    
+    /**
+     * Get function segments.
+     *
+     * @param projectionSegment projection segment
+     * @return function segments
+     */
+    @SphereEx
+    public static Collection<ExpressionSegment> getFunctionSegments(final ProjectionSegment projectionSegment) {
+        Collection<ExpressionSegment> result = new LinkedList<>();
+        if (projectionSegment instanceof ExpressionProjectionSegment) {
+            result.addAll(getFunctionSegments(((ExpressionProjectionSegment) projectionSegment).getExpr()));
+        }
+        if (projectionSegment instanceof AggregationProjectionSegment) {
+            AggregationProjectionSegment aggregationProjection = (AggregationProjectionSegment) projectionSegment;
+            result.add(aggregationProjection);
+            aggregationProjection.getParameters().forEach(each -> result.addAll(getFunctionSegments(each)));
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private static Collection<ExpressionSegment> getFunctionSegments(final ExpressionSegment expressionSegment) {
+        Collection<ExpressionSegment> result = new LinkedList<>();
+        if (expressionSegment instanceof FunctionSegment) {
+            result.add(expressionSegment);
+            ((FunctionSegment) expressionSegment).getParameters().forEach(each -> result.addAll(getFunctionSegments(each)));
+            return result;
+        }
+        if (expressionSegment instanceof AggregationProjectionSegment) {
+            result.add(expressionSegment);
+            ((AggregationProjectionSegment) expressionSegment).getParameters().forEach(each -> result.addAll(getFunctionSegments(each)));
+            return result;
+        }
+        if (expressionSegment instanceof CaseWhenExpression) {
+            CaseWhenExpression caseWhenExpression = (CaseWhenExpression) expressionSegment;
+            result.addAll(getFunctionSegments(caseWhenExpression.getCaseExpr()));
+            caseWhenExpression.getWhenExprs().forEach(each -> result.addAll(getFunctionSegments(each)));
+            caseWhenExpression.getThenExprs().forEach(each -> result.addAll(getFunctionSegments(each)));
+            result.addAll(getFunctionSegments(caseWhenExpression.getElseExpr()));
+            return result;
+        }
+        if (expressionSegment instanceof BinaryOperationExpression) {
+            BinaryOperationExpression binaryOperationExpression = (BinaryOperationExpression) expressionSegment;
+            result.addAll(getFunctionSegments(binaryOperationExpression.getLeft()));
+            result.addAll(getFunctionSegments(binaryOperationExpression.getRight()));
+            // TODO support more binary operation support check, and rename this engine @duanzhengqiang
+            if (LOGICAL_OPERATORS.contains(binaryOperationExpression.getOperator())) {
+                result.add(expressionSegment);
+            }
+            return result;
+        }
         return result;
     }
 }

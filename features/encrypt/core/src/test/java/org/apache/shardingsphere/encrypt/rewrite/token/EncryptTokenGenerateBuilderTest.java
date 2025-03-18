@@ -21,6 +21,7 @@ import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.SphereEx.Type;
 import com.sphereex.dbplusengine.encrypt.config.rule.mode.EncryptModeType;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.orderby.EncryptOrderByItemTokenGenerator;
+import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.select.EncryptSelectValueTokenGenerator;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.predicate.EncryptPredicateColumnTokenGenerator;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.predicate.EncryptPredicateValueTokenGenerator;
 import org.apache.shardingsphere.encrypt.rewrite.token.generator.projection.EncryptSelectProjectionTokenGenerator;
@@ -71,7 +72,7 @@ class EncryptTokenGenerateBuilderTest {
                 sqlRewriteContext, new ConfigurationProperties(new Properties()));
         Collection<SQLTokenGenerator> sqlTokenGenerators = encryptTokenGenerateBuilder.getSQLTokenGenerators();
         // SPEX CHANGED: BEGIN
-        assertThat(sqlTokenGenerators.size(), is(4));
+        assertThat(sqlTokenGenerators.size(), is(5));
         // SPEX CHANGED: END
         Iterator<SQLTokenGenerator> iterator = sqlTokenGenerators.iterator();
         SQLTokenGenerator item1 = iterator.next();
@@ -83,6 +84,8 @@ class EncryptTokenGenerateBuilderTest {
         // SPEX ADDED: BEGIN
         SQLTokenGenerator item4 = iterator.next();
         assertThat(item4, instanceOf(EncryptOrderByItemTokenGenerator.class));
+        SQLTokenGenerator item5 = iterator.next();
+        assertThat(item5, instanceOf(EncryptSelectValueTokenGenerator.class));
         // SPEX ADDED: END
     }
 }

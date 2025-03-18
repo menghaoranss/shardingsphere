@@ -17,7 +17,6 @@
 
 package com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.generator.function;
 
-import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.sphereex.dbplusengine.encrypt.rewrite.token.cryptographic.pojo.EncryptColumnSubstitutableToken;
 import com.sphereex.dbplusengine.encrypt.rule.column.item.PlainColumnItem;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +29,11 @@ import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.ColumnExtractor;
+import org.apache.shardingsphere.sql.parser.statement.core.extractor.ExpressionExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.CaseWhenExpression;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.AggregationProjectionSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
@@ -53,8 +50,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public final class EncryptFunctionSQLTokenGeneratorEngine {
     
-    private static final Collection<String> LOGICAL_OPERATORS = new CaseInsensitiveSet<>();
-    
     private final EncryptRule encryptRule;
     
     private final Map<String, EncryptRule> databaseEncryptRules;
@@ -65,13 +60,6 @@ public final class EncryptFunctionSQLTokenGeneratorEngine {
     
     private final DatabaseType databaseType;
     
-    static {
-        LOGICAL_OPERATORS.add("AND");
-        LOGICAL_OPERATORS.add("&&");
-        LOGICAL_OPERATORS.add("OR");
-        LOGICAL_OPERATORS.add("||");
-    }
-    
     /**
      * Generate SQL tokens.
      *
@@ -80,7 +68,7 @@ public final class EncryptFunctionSQLTokenGeneratorEngine {
      */
     public Collection<SQLToken> generateSQLTokens(final ProjectionSegment projectionSegment) {
         Collection<SQLToken> result = new LinkedList<>();
-        for (ExpressionSegment each : getFunctionSegments(projectionSegment)) {
+        for (ExpressionSegment each : ExpressionExtractor.getFunctionSegments(projectionSegment)) {
             Optional<EncryptFunctionSQLTokenGenerator> functionSQLTokenGenerator = findFunctionEncryptSQLTokenGenerator(each, databaseType);
             if (functionSQLTokenGenerator.isPresent() && functionSQLTokenGenerator.get().isGenerateSQLToken(each)) {
                 result.addAll(functionSQLTokenGenerator.get().generateSQLTokens(encryptRule, databaseEncryptRules, database, metaData, each));
@@ -108,52 +96,6 @@ public final class EncryptFunctionSQLTokenGeneratorEngine {
                         new IdentifierValue(plainColumnItem.get().getName(), each.getIdentifier().getQuoteCharacter()), each.getOwner().map(OwnerSegment::getIdentifier).orElse(null)));
             }
             throw new UnsupportedEncryptSQLException(expressionSegment.getText());
-        }
-        return result;
-    }
-    
-    private Collection<ExpressionSegment> getFunctionSegments(final ProjectionSegment projectionSegment) {
-        Collection<ExpressionSegment> result = new LinkedList<>();
-        if (projectionSegment instanceof ExpressionProjectionSegment) {
-            result.addAll(getFunctionSegments(((ExpressionProjectionSegment) projectionSegment).getExpr()));
-        }
-        if (projectionSegment instanceof AggregationProjectionSegment) {
-            AggregationProjectionSegment aggregationProjection = (AggregationProjectionSegment) projectionSegment;
-            result.add(aggregationProjection);
-            aggregationProjection.getParameters().forEach(each -> result.addAll(getFunctionSegments(each)));
-        }
-        return result;
-    }
-    
-    private Collection<ExpressionSegment> getFunctionSegments(final ExpressionSegment expressionSegment) {
-        Collection<ExpressionSegment> result = new LinkedList<>();
-        if (expressionSegment instanceof FunctionSegment) {
-            result.add(expressionSegment);
-            ((FunctionSegment) expressionSegment).getParameters().forEach(each -> result.addAll(getFunctionSegments(each)));
-            return result;
-        }
-        if (expressionSegment instanceof AggregationProjectionSegment) {
-            result.add(expressionSegment);
-            ((AggregationProjectionSegment) expressionSegment).getParameters().forEach(each -> result.addAll(getFunctionSegments(each)));
-            return result;
-        }
-        if (expressionSegment instanceof CaseWhenExpression) {
-            CaseWhenExpression caseWhenExpression = (CaseWhenExpression) expressionSegment;
-            result.addAll(getFunctionSegments(caseWhenExpression.getCaseExpr()));
-            caseWhenExpression.getWhenExprs().forEach(each -> result.addAll(getFunctionSegments(each)));
-            caseWhenExpression.getThenExprs().forEach(each -> result.addAll(getFunctionSegments(each)));
-            result.addAll(getFunctionSegments(caseWhenExpression.getElseExpr()));
-            return result;
-        }
-        if (expressionSegment instanceof BinaryOperationExpression) {
-            BinaryOperationExpression binaryOperationExpression = (BinaryOperationExpression) expressionSegment;
-            result.addAll(getFunctionSegments(binaryOperationExpression.getLeft()));
-            result.addAll(getFunctionSegments(binaryOperationExpression.getRight()));
-            // TODO support more binary operation support check, and rename this engine @duanzhengqiang
-            if (LOGICAL_OPERATORS.contains(binaryOperationExpression.getOperator())) {
-                result.add(expressionSegment);
-            }
-            return result;
         }
         return result;
     }

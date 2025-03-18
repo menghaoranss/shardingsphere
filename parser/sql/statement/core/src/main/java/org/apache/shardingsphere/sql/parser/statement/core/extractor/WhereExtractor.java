@@ -58,7 +58,7 @@ public final class WhereExtractor {
     public static Collection<WhereSegment> extractJoinWhereSegments(final UpdateStatement updateStatement) {
         return extractJoinWhereSegments(updateStatement.getTable());
     }
-
+    
     /**
      * Extract join where segment from table segment.
      *

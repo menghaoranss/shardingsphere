@@ -119,7 +119,8 @@ public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLT
     
     private EncryptAssignmentToken generateParameterSQLToken(final EncryptTable encryptTable, final ColumnAssignmentSegment assignmentSegment) {
         @SphereEx(Type.MODIFY)
-        EncryptParameterAssignmentToken result = new EncryptParameterAssignmentToken(assignmentSegment.getColumns().get(0).getStartIndex(), assignmentSegment.getStopIndex(), assignmentSegment.getColumns().get(0).getIdentifier().getQuoteCharacter(), null);
+        EncryptParameterAssignmentToken result = new EncryptParameterAssignmentToken(assignmentSegment.getColumns().get(0).getStartIndex(), assignmentSegment.getStopIndex(),
+                assignmentSegment.getColumns().get(0).getIdentifier().getQuoteCharacter(), null);
         String columnName = assignmentSegment.getColumns().get(0).getIdentifier().getValue();
         EncryptColumn encryptColumn = encryptTable.getEncryptColumn(columnName);
         result.addColumnName(encryptColumn.getCipher().getName());
@@ -134,7 +135,8 @@ public final class EncryptInsertOnUpdateTokenGenerator implements CollectionSQLT
     
     private EncryptAssignmentToken generateLiteralSQLToken(final String schemaName, final String tableName,
                                                            final EncryptColumn encryptColumn, final ColumnAssignmentSegment assignmentSegment) {
-        EncryptLiteralAssignmentToken result = new EncryptLiteralAssignmentToken(assignmentSegment.getColumns().get(0).getStartIndex(), assignmentSegment.getStopIndex(), assignmentSegment.getColumns().get(0).getIdentifier().getQuoteCharacter(), null);
+        EncryptLiteralAssignmentToken result = new EncryptLiteralAssignmentToken(assignmentSegment.getColumns().get(0).getStartIndex(), assignmentSegment.getStopIndex(),
+                assignmentSegment.getColumns().get(0).getIdentifier().getQuoteCharacter(), null);
         addCipherAssignment(schemaName, tableName, encryptColumn, assignmentSegment, result);
         addAssistedQueryAssignment(schemaName, tableName, encryptColumn, assignmentSegment, result);
         addLikeAssignment(schemaName, tableName, encryptColumn, assignmentSegment, result);

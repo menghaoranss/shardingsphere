@@ -83,6 +83,7 @@ class ShardingSQLAuditorTest {
         when(hintValueContext.getDisableAuditNames()).thenReturn(Collections.singleton("foo_auditor"));
         when(((TableAvailable) sqlStatementContext).getTablesContext().getTableNames()).thenReturn(Collections.singletonList("foo_tbl"));
         when(((TableAvailable) sqlStatementContext).getTablesContext().getDatabaseName()).thenReturn(Optional.empty());
+        when(((TableAvailable) sqlStatementContext).getTablesContext().getDatabaseNames()).thenReturn(Collections.emptyList());
         ShardingTable shardingTable = mock(ShardingTable.class);
         when(rule.findShardingTable("foo_tbl")).thenReturn(Optional.of(shardingTable));
         when(rule.getAuditStrategyConfiguration(shardingTable)).thenReturn(auditStrategy);

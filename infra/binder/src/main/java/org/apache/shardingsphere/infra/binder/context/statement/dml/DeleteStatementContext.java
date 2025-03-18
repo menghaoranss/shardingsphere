@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.infra.binder.context.statement.dml;
 
 import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.infra.binder.context.type.FunctionAvailable;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
 import org.apache.shardingsphere.infra.binder.context.statement.CommonSQLStatementContext;
@@ -30,6 +31,8 @@ import org.apache.shardingsphere.sql.parser.statement.core.extractor.TableExtrac
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.WhereExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.BinaryOperationExpression;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.WithSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.DeleteMultiTableSegment;
@@ -46,7 +49,7 @@ import java.util.Optional;
  * Delete statement context.
  */
 @Getter
-public final class DeleteStatementContext extends CommonSQLStatementContext implements TableAvailable, WhereAvailable, WithAvailable {
+public final class DeleteStatementContext extends CommonSQLStatementContext implements TableAvailable, WhereAvailable, WithAvailable, @SphereEx FunctionAvailable {
     
     private final TablesContext tablesContext;
     
@@ -59,6 +62,9 @@ public final class DeleteStatementContext extends CommonSQLStatementContext impl
     @SphereEx
     private final Collection<ColumnSegment> columnSegmentsForUDF = new LinkedList<>();
     
+    @SphereEx
+    private final Collection<ExpressionSegment> functionSegments = new LinkedList<>();
+    
     public DeleteStatementContext(final DeleteStatement sqlStatement) {
         super(sqlStatement);
         tablesContext = new TablesContext(getAllSimpleTableSegments());
@@ -67,6 +73,7 @@ public final class DeleteStatementContext extends CommonSQLStatementContext impl
         ExpressionExtractor.extractJoinConditions(joinConditions, whereSegments);
         // SPEX ADDED: BEGIN
         sqlStatement.getWhere().ifPresent(optional -> ColumnExtractor.extractFromWhere(columnSegmentsForUDF, optional, true));
+        extractFunctionSegments(functionSegments, whereSegments);
         // SPEX ADDED: END
     }
     
@@ -128,5 +135,13 @@ public final class DeleteStatementContext extends CommonSQLStatementContext impl
     @Override
     public Optional<WithSegment> getWith() {
         return getSqlStatement().getWithSegment();
+    }
+    
+    @SphereEx
+    private void extractFunctionSegments(final Collection<ExpressionSegment> functionSegments, final Collection<WhereSegment> whereSegments) {
+        for (WhereSegment each : whereSegments) {
+            functionSegments.addAll(
+                    ExpressionExtractor.getFunctionSegments(new ExpressionProjectionSegment(each.getExpr().getStartIndex(), each.getExpr().getStopIndex(), each.getExpr().getText(), each.getExpr())));
+        }
     }
 }
