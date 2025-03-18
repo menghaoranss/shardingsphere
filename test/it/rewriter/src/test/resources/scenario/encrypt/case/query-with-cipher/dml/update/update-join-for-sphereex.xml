@@ -20,12 +20,12 @@
 <rewrite-assertions yaml-rule="scenario/encrypt/config/query-with-cipher.yaml">
     <rewrite-assertion id="update_join" db-types="MySQL">
         <input sql="UPDATE t_user a JOIN t_user b ON a.user_id = b.user_id AND a.user_name = b.user_name AND a.user_name=? SET a.user_name=?, `b`.password=? WHERE a.user_name=? AND a.user_name like '%san%'" parameters="zhangsan, zs, 222222, zhangsan" />
-        <output sql="UPDATE `encrypt_ds`.t_user a JOIN `encrypt_ds`.t_user b ON a.user_id = b.user_id AND a.`user_name_cipher` = b.`user_name_cipher` AND a.`user_name_cipher`=? SET a.`user_name_cipher` = ?, a.`user_name_like` = ?, `b`.`password_cipher` = ? WHERE a.`user_name_cipher`=? AND a.`user_name_like` like '%t`m%'" parameters="sVq8Lmm+j6bZE5EKSilJEQ==, BWbsYnYSBMy+qrHA26DUnA==, yt, wuhmEKgdgrWQYt+Ev0hgGA==, sVq8Lmm+j6bZE5EKSilJEQ==" />
+        <output sql="UPDATE `encrypt_ds`.t_user a JOIN `encrypt_ds`.t_user b ON a.user_id = b.user_id AND a.`user_name_cipher` = b.`user_name_cipher` AND a.`user_name_cipher`=? SET a.user_name_cipher = ?, a.user_name_like = ?, `b`.password_cipher = ? WHERE a.`user_name_cipher`=? AND a.`user_name_like` like '%t`m%'" parameters="sVq8Lmm+j6bZE5EKSilJEQ==, BWbsYnYSBMy+qrHA26DUnA==, yt, wuhmEKgdgrWQYt+Ev0hgGA==, sVq8Lmm+j6bZE5EKSilJEQ==" />
     </rewrite-assertion>
 
     <rewrite-assertion id="update_join_quote" db-types="MySQL">
         <input sql="UPDATE t_user a JOIN t_user b ON `a`.user_id = `b`.user_id AND a.user_name = b.user_name AND a.user_name=? SET a.user_name=?, `b`.password=? WHERE a.user_name=? AND a.user_name like '%san%'" parameters="zhangsan, zs, 222222, zhangsan" />
-        <output sql="UPDATE `encrypt_ds`.t_user a JOIN `encrypt_ds`.t_user b ON `a`.user_id = `b`.user_id AND a.`user_name_cipher` = b.`user_name_cipher` AND a.`user_name_cipher`=? SET a.`user_name_cipher` = ?, a.`user_name_like` = ?, `b`.`password_cipher` = ? WHERE a.`user_name_cipher`=? AND a.`user_name_like` like '%t`m%'" parameters="sVq8Lmm+j6bZE5EKSilJEQ==, BWbsYnYSBMy+qrHA26DUnA==, yt, wuhmEKgdgrWQYt+Ev0hgGA==, sVq8Lmm+j6bZE5EKSilJEQ==" />
+        <output sql="UPDATE `encrypt_ds`.t_user a JOIN `encrypt_ds`.t_user b ON `a`.user_id = `b`.user_id AND a.`user_name_cipher` = b.`user_name_cipher` AND a.`user_name_cipher`=? SET a.user_name_cipher = ?, a.user_name_like = ?, `b`.password_cipher = ? WHERE a.`user_name_cipher`=? AND a.`user_name_like` like '%t`m%'" parameters="sVq8Lmm+j6bZE5EKSilJEQ==, BWbsYnYSBMy+qrHA26DUnA==, yt, wuhmEKgdgrWQYt+Ev0hgGA==, sVq8Lmm+j6bZE5EKSilJEQ==" />
     </rewrite-assertion>
 </rewrite-assertions>
 <!-- SPEX ADDED: END -->
