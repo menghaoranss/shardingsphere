@@ -19,6 +19,7 @@ package org.apache.shardingsphere.test.e2e.container.compose.mode;
 
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.test.e2e.env.container.atomic.storage.impl.HeterogeneousContainer;
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.storage.impl.NativeStorageContainer;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.test.e2e.container.compose.ContainerComposer;
 import org.apache.shardingsphere.test.e2e.container.config.ProxyStandaloneContainerConfigurationFactory;
@@ -31,6 +32,8 @@ import org.apache.shardingsphere.test.e2e.env.container.atomic.enums.AdapterType
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.StorageContainer;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.StorageContainerFactory;
 import org.apache.shardingsphere.test.e2e.env.container.atomic.storage.config.impl.StorageContainerConfigurationFactory;
+import org.apache.shardingsphere.test.e2e.env.runtime.E2ETestEnvironment;
+import org.apache.shardingsphere.test.e2e.env.runtime.cluster.ClusterEnvironment;
 import org.apache.shardingsphere.test.e2e.env.runtime.scenario.database.DatabaseEnvironmentManager;
 
 import javax.sql.DataSource;
@@ -50,7 +53,11 @@ public final class StandaloneContainerComposer implements ContainerComposer {
     public StandaloneContainerComposer(final String scenario, final DatabaseType databaseType, final AdapterMode adapterMode, final AdapterType adapterType) {
         containers = new ITContainers(scenario);
         // SPEX CHANGED: BEGIN
-        storageContainer = containers.registerContainer(createStorageContainer(scenario, databaseType));
+        if (ClusterEnvironment.Type.DOCKER == E2ETestEnvironment.getInstance().getClusterEnvironment().getType()) {
+            storageContainer = containers.registerContainer(createStorageContainer(scenario, databaseType));
+        } else {
+            storageContainer = containers.registerContainer(new NativeStorageContainer(databaseType, scenario));
+        }
         // SPEX CHANGED: END
         adapterContainer = containers.registerContainer(AdapterContainerFactory.newInstance(adapterMode, adapterType,
                 databaseType, scenario, ProxyStandaloneContainerConfigurationFactory.newInstance(scenario, databaseType), storageContainer));
