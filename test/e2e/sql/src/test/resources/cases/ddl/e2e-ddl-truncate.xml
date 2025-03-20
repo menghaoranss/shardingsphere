@@ -18,7 +18,7 @@
 
 <e2e-test-cases>
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="TRUNCATE TABLE t_order_details" db-types="H2,MySQL,SQLServer,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="TRUNCATE TABLE t_order_details" db-types="H2,MySQL,SQLServer,Oracle,OceanBase_Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
     <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="unchanged_table.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
@@ -34,7 +34,7 @@
     </test-case>
     
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="TRUNCATE TABLE t_broadcast_table_for_ddl" db-types="H2,MySQL,SQLServer,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="TRUNCATE TABLE t_broadcast_table_for_ddl" db-types="H2,MySQL,SQLServer,Oracle,OceanBase_Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
     <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="unchanged_broadcast_table.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10))" affected-table="t_broadcast_table_for_ddl" />

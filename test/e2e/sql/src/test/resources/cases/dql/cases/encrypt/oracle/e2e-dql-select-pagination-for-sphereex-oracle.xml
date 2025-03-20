@@ -18,10 +18,10 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="SELECT * FROM (SELECT A.*, ROWNUM RN FROM (SELECT * FROM t_user) A WHERE ROWNUM &lt;= ? * ?) WHERE RN &gt; (? - 1) * ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="SELECT * FROM (SELECT A.*, ROWNUM RN FROM (SELECT * FROM t_user) A WHERE ROWNUM &lt;= ? * ?) WHERE RN &gt; (? - 1) * ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="1:int, 50:int, 1:int, 50:int" expected-data-source-name="expected_dataset"/>
     </test-case>
-    <test-case sql="SELECT * FROM (SELECT A.*, ROWNUM RN FROM (SELECT * FROM t_user) A WHERE ROWNUM &lt;= ? * 50) WHERE RN &gt; (? - 1) * 50" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="SELECT * FROM (SELECT A.*, ROWNUM RN FROM (SELECT * FROM t_user) A WHERE ROWNUM &lt;= ? * 50) WHERE RN &gt; (? - 1) * 50" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="1:int, 1:int" expected-data-source-name="expected_dataset"/>
     </test-case>
 </e2e-test-cases>

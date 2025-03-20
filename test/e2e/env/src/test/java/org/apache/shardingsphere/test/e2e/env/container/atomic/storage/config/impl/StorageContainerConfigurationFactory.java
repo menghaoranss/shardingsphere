@@ -54,6 +54,7 @@ public final class StorageContainerConfigurationFactory {
                 return H2ContainerConfigurationFactory.newInstance(scenario);
             // SPEX ADDED: BEGIN
             case "Oracle":
+            case "OceanBase_Oracle":
                 return OracleContainerConfigurationFactory.newInstance(scenario);
             // SPEX ADDED: END
             default:

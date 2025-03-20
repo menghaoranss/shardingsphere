@@ -19,3 +19,4 @@ org.apache.shardingsphere.test.it.rewrite.fixture.encrypt.RewriteNormalEncryptAl
 org.apache.shardingsphere.test.it.rewrite.fixture.encrypt.RewriteQueryAssistedEncryptAlgorithmFixture
 org.apache.shardingsphere.test.it.rewrite.fixture.encrypt.RewriteQueryLikeEncryptAlgorithmFixture
 org.apache.shardingsphere.test.it.rewrite.fixture.encrypt.RewriteEncryptLikeAlgorithmFixture
+com.sphereex.dbplusengine.test.it.rewrite.fixture.encrypt.RewriteQueryOrderEncryptAlgorithmFixture

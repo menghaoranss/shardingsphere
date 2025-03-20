@@ -37,6 +37,8 @@ import org.apache.shardingsphere.test.e2e.cases.dataset.metadata.DataSetMetaData
 import org.apache.shardingsphere.test.e2e.cases.dataset.row.DataSetRow;
 import org.apache.shardingsphere.test.e2e.cases.value.SQLValue;
 import org.apache.shardingsphere.test.e2e.cases.value.SQLValueGroup;
+import org.apache.shardingsphere.test.e2e.env.runtime.E2ETestEnvironment;
+import org.apache.shardingsphere.test.e2e.env.runtime.cluster.ClusterEnvironment;
 
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
@@ -135,7 +137,8 @@ public final class DataSetEnvironmentManager {
             placeholders.add(generateProperPlaceholderExpression(databaseType, each));
         }
         // SPEX ADDED: BEGIN
-        if (DatabaseTypeUtils.isOracleDatabase(databaseType) || databaseType instanceof MySQLDatabaseType) {
+        if (ClusterEnvironment.Type.DOCKER == E2ETestEnvironment.getInstance().getClusterEnvironment().getType()
+                && (DatabaseTypeUtils.isOracleDatabase(databaseType) || databaseType instanceof MySQLDatabaseType)) {
             DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
             List<String> quotedColumnNames = columnNames.stream().map(columnName -> dialectDatabaseMetaData.getQuoteCharacter().wrap(columnName.toUpperCase())).collect(Collectors.toList());
             String quotedTableName = dialectDatabaseMetaData.getQuoteCharacter().wrap(tableName.toUpperCase());

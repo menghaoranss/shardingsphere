@@ -47,7 +47,7 @@
     </test-case>
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT i.*, o.* FROM t_order o JOIN t_order_item i ON o.user_id = i.user_id AND o.order_id = i.order_id ORDER BY item_id" db-types="H2,MySQL,Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="SELECT i.*, o.* FROM t_order o JOIN t_order_item i ON o.user_id = i.user_id AND o.order_id = i.order_id ORDER BY item_id" db-types="H2,MySQL,Oracle,OceanBase_Oracle,DM" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     <!-- SPEX CHANGED: END -->
@@ -135,15 +135,15 @@
     <!-- Test single, broadcast and sharding join end -->
 
     <!-- SPEX CHANGED: BEGIN -->
-    <!-- todo support Oracle,DM  -->
+    <!-- todo support Oracle,OceanBase_Oracle,DM  -->
     <!-- TODO add encrypt,encrypt_and_readwrite_splitting,dbtbl_with_readwrite_splitting_and_encrypt scenario when use standard table -->
-    <test-case sql="SELECT * FROM t_product p INNER JOIN t_product_detail d ON p.product_id = d.product_id" db-types="MySQL,Oracle,DM,SQLServer" scenario-types="sharding_and_encrypt">
+    <test-case sql="SELECT * FROM t_product p INNER JOIN t_product_detail d ON p.product_id = d.product_id" db-types="MySQL,Oracle,OceanBase_Oracle,DM,SQLServer" scenario-types="sharding_and_encrypt">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     <!-- SPEX CHANGED: END -->
 
     <!-- TODO Replace with standard table structure -->
-    <!--<test-case sql="SELECT * FROM t_single_table s INNER JOIN t_order o ON s.id = o.order_id" db-types="MySQL,Oracle,SQLServer" scenario-types="db,tbl,dbtbl_with_readwrite_splitting">
+    <!--<test-case sql="SELECT * FROM t_single_table s INNER JOIN t_order o ON s.id = o.order_id" db-types="MySQL,Oracle,OceanBase_Oracle,SQLServer" scenario-types="db,tbl,dbtbl_with_readwrite_splitting">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>-->
 
@@ -157,11 +157,11 @@
     </test-case>-->
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '%18'" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator percentage wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator percentage wildcard in select join statement when use encrypt feature.">
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '%18'" db-types="MySQL,Oracle,OceanBase_Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator percentage wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator percentage wildcard in select join statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '_1000018'" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator underscore wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in select join statement when use encrypt feature.">
+    <test-case sql="SELECT * FROM t_merchant m1 INNER JOIN t_merchant m2 ON m1.merchant_id = m2.merchant_id WHERE m2.business_code LIKE '_1000018'" db-types="MySQL,Oracle,OceanBase_Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt" scenario-comments="Test single table's LIKE operator underscore wildcard in select join statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in select join statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     <!-- SPEX CHANGED: END -->

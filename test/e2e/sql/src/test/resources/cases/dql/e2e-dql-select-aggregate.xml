@@ -134,7 +134,7 @@
     </test-case>
 
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE CONCAT('%', CONCAT(?, '%'))" db-types="MySQL,PostgreSQL,openGauss,Oracle,DM,Oracle" scenario-types="encrypt">
+    <test-case sql="SELECT * FROM t_merchant WHERE business_code LIKE CONCAT('%', CONCAT(?, '%'))" db-types="MySQL,PostgreSQL,openGauss,Oracle,OceanBase_Oracle,DM,Oracle,OceanBase_Oracle" scenario-types="encrypt">
         <!-- SPEX CHANGED: END -->
         <assertion parameters="abc:String" expected-data-source-name="read_dataset" />
     </test-case>

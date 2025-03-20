@@ -17,7 +17,7 @@
   -->
 
 <e2e-test-cases>
-    <test-case sql="DROP USER default_user" db-types="Oracle,PostgreSQL,SQLServer" />
-    <test-case sql="DROP USER user_dev@localhost" db-types="MySQL,Oracle" />
-    <test-case sql="DROP USER user_dev CASCADE" db-types="Oracle" />
+    <test-case sql="DROP USER default_user" db-types="Oracle,OceanBase_Oracle,PostgreSQL,SQLServer" />
+    <test-case sql="DROP USER user_dev@localhost" db-types="MySQL,Oracle,OceanBase_Oracle" />
+    <test-case sql="DROP USER user_dev CASCADE" db-types="Oracle,OceanBase_Oracle" />
 </e2e-test-cases>

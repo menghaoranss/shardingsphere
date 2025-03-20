@@ -18,7 +18,7 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="SELECT * FROM t_user u WHERE u.user_id = ? FOR UPDATE OF u.telephone, u.user_id" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u WHERE u.user_id = ? FOR UPDATE OF u.telephone, u.user_id" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
 </e2e-test-cases>

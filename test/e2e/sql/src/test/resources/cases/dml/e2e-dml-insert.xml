@@ -24,7 +24,7 @@
         <assertion parameters="4:int, 4:int, insert:String" expected-data-file="insert_for_order_4.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) VALUES (?, ?, ?, 1, 'test', DATE '2017-08-08')" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) VALUES (?, ?, ?, 1, 'test', DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="1:int, 1:int, insert:String" expected-data-file="insert_for_order_1.xml" />
         <assertion parameters="2:int, 2:int, insert:String" expected-data-file="insert_for_order_2.xml" />
         <assertion parameters="3:int, 3:int, insert:String" expected-data-file="insert_for_order_3.xml" />
@@ -76,7 +76,7 @@
         <assertion parameters="2:int, 2:int, insert:String" expected-data-file="insert_for_order_2.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_order VALUES (?, ?, ?, 1, 'test', DATE '2017-08-08')" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="INSERT INTO t_order VALUES (?, ?, ?, 1, 'test', DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="1:int, 1:int, insert:String" expected-data-file="insert_for_order_1.xml" />
         <assertion parameters="2:int, 2:int, insert:String" expected-data-file="insert_for_order_2.xml" />
     </test-case>
@@ -107,7 +107,7 @@
         <assertion parameters="1:int, 1:int, 1:int" expected-data-file="insert_with_generate_key_column.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_order_item(item_id, order_id, user_id, product_id, quantity, creation_date) values (?, ?, ?, '1', '1', DATE '2017-08-08')" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="INSERT INTO t_order_item(item_id, order_id, user_id, product_id, quantity, creation_date) values (?, ?, ?, '1', '1', DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion parameters="1:int, 1:int, 1:int" expected-data-file="insert_with_generate_key_column.xml" />
     </test-case>
     
@@ -133,15 +133,15 @@
         <assertion parameters="999:int, 10:int, insertALL:String" expected-data-file="batch_insert_all_into_order_table.xml" />
     </test-case>
 
-    <test-case sql="INSERT ALL INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) VALUES (?, ?, ?, 1, 'test', DATE '2017-08-08') SELECT 1 FROM DUAL" db-types="Oracle" scenario-types="tbl">
+    <test-case sql="INSERT ALL INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) VALUES (?, ?, ?, 1, 'test', DATE '2017-08-08') SELECT 1 FROM DUAL" db-types="Oracle,OceanBase_Oracle" scenario-types="tbl">
         <assertion parameters="999:int, 10:int, insertALL:String" expected-data-file="batch_insert_all_into_order_table.xml" />
     </test-case>
 
-    <!--<test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL" db-types="Oracle" scenario-types="tbl">
+    <!--<test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL" db-types="Oracle,OceanBase_Oracle" scenario-types="tbl">
         <assertion parameters="999:int, 10:int, insertALL:String" expected-data-file="insert_into_order_table_with_select.xml" />
     </test-case>-->
 
-    <!--<test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) (SELECT ?, ?, ?, 1, 'test', '2017-08-08' UNION ALL SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL)" db-types="Oracle" scenario-types="tbl">
+    <!--<test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) (SELECT ?, ?, ?, 1, 'test', '2017-08-08' UNION ALL SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL)" db-types="Oracle,OceanBase_Oracle" scenario-types="tbl">
         <assertion parameters="999:int, 10:int, insertALL:String, 998:int, 10:int, insertALL:String" expected-data-file="batch_insert_into_order_with_select.xml" />
     </test-case>-->
     
@@ -153,7 +153,7 @@
         <assertion parameters="1:int, 1:int" expected-data-file="insert_without_generate_key_column.xml" expected-generated-key-data-file="insert_without_generate_key_column_generated_key_data.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_order_item VALUES (?, ?, 1, 1, DATE '2017-08-08')" db-types="Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting">
+    <test-case sql="INSERT INTO t_order_item VALUES (?, ?, 1, 1, DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting">
         <assertion parameters="1:int, 1:int" expected-data-file="insert_without_generate_key_column.xml" expected-generated-key-data-file="insert_without_generate_key_column_generated_key_data.xml" />
     </test-case>
     <!-- SPEX ADDED: END -->

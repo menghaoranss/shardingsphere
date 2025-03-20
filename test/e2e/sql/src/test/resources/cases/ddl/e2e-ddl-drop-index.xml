@@ -43,7 +43,7 @@
     </test-case>
     
     <!-- SPEX ADDED: BEGIN -->
-    <test-case sql="DROP INDEX t_broadcast_table_for_ddl_idx" db-types="Oracle,DM" scenario-types="db">
+    <test-case sql="DROP INDEX t_broadcast_table_for_ddl_idx" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="db">
         <assertion expected-data-file="unchanged_broadcast_table.xml">
             <initial-sql sql="CREATE TABLE t_broadcast_table_for_ddl(id int, description varchar(10));CREATE INDEX t_broadcast_table_for_ddl_idx ON t_broadcast_table_for_ddl(description)" affected-table="t_broadcast_table_for_ddl" />
             <destroy-sql sql="DROP TABLE t_broadcast_table_for_ddl" />
@@ -68,7 +68,7 @@
         </assertion>
     </test-case>
     
-    <test-case sql="DROP INDEX t_details_idx" db-types="PostgreSQL,Oracle" scenario-types="db,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="DROP INDEX t_details_idx" db-types="PostgreSQL,Oracle,OceanBase_Oracle" scenario-types="db,dbtbl_with_readwrite_splitting,readwrite_splitting">
         <assertion expected-data-file="unchanged_table.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10));CREATE INDEX t_details_idx ON t_order_details(description)" affected-table="t_order_details" />
             <destroy-sql sql="DROP TABLE t_order_details" />

@@ -18,11 +18,11 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <!--<test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL" db-types="Oracle,DM,MySQL" scenario-types="tbl" ignore-batch-test="true" adapters="jdbc">
+    <!--<test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="tbl" ignore-batch-test="true" adapters="jdbc">
         <assertion parameters="999:int, 10:int, insertALL:String" expected-data-file="insert_into_order_table_with_select_from_dual.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) (SELECT ?, ?, ?, 1, 'test', '2017-08-08' UNION ALL SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL)" db-types="Oracle,DM,MySQL" ignore-batch-test="true" scenario-types="tbl" adapters="jdbc">
+    <test-case sql="INSERT INTO t_order (order_id, user_id, status, merchant_id, remark, creation_date) (SELECT ?, ?, ?, 1, 'test', '2017-08-08' UNION ALL SELECT ?, ?, ?, 1, 'test', '2017-08-08' FROM DUAL)" db-types="Oracle,OceanBase_Oracle,DM,MySQL" ignore-batch-test="true" scenario-types="tbl" adapters="jdbc">
         <assertion parameters="999:int, 10:int, insertALL:String, 998:int, 10:int, insertALL:String" expected-data-file="batch_insert_into_order_with_select_union.xml" />
     </test-case>-->
 </e2e-test-cases>

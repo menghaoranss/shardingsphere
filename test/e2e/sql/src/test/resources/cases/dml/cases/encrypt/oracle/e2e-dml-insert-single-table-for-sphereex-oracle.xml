@@ -18,19 +18,19 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="INSERT INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user (user_id, user_name, password, email, telephone, creation_date) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
     
-    <test-case sql="INSERT INTO t_user VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
     
-    <test-case sql="INSERT INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="INSERT INTO &quot;T_USER&quot; (&quot;USER_ID&quot;, &quot;USER_NAME&quot;, &quot;PASSWORD&quot;, &quot;EMAIL&quot;, &quot;TELEPHONE&quot;, &quot;CREATION_DATE&quot;) VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
     
-    <test-case sql="INSERT INTO &quot;T_USER&quot; VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="INSERT INTO &quot;T_USER&quot; VALUES (?, ?, ?, ?, ?, DATE '2017-08-08')" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
 </e2e-test-cases>
