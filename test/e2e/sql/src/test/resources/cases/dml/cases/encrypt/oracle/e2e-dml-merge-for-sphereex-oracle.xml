@@ -19,15 +19,15 @@
 <!--SPEX ADDED: BEGIN-->
 <e2e-test-cases>
     <!-- todo 达梦 executeBatch 接口这边执行成功但是会返回 0，待达梦修复 -->
-    <test-case sql="merge into t_merchant_detail fi using t_merchant se on (fi.business_code = se.business_code) when matched then update set fi.telephone = se.telephone " db-types="Oracle" scenario-types="encrypt">
+    <test-case sql="merge into t_merchant_detail fi using t_merchant se on (fi.business_code = se.business_code) when matched then update set fi.telephone = se.telephone " db-types="Oracle,OceanBase_Oracle" scenario-types="encrypt">
         <assertion expected-data-file="merge_into_t_merchant_detail_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="merge into t_merchant_detail fi using t_merchant se on (fi.business_code = se.business_code) when matched then update set fi.telephone = se.telephone where fi.status=? " db-types="Oracle" scenario-types="encrypt">
+    <test-case sql="merge into t_merchant_detail fi using t_merchant se on (fi.business_code = se.business_code) when matched then update set fi.telephone = se.telephone where fi.status=? " db-types="Oracle,OceanBase_Oracle" scenario-types="encrypt">
         <assertion parameters="ok:String" expected-data-file="merge_into_t_merchant_detail_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="merge into T_MERCHANT_DETAIL fi using T_MERCHANT se on (fi.BUSINESS_CODE = se.BUSINESS_CODE and se.BUSINESS_CODE = ?) when matched then update set fi.TELEPHONE = se.TELEPHONE when not matched then insert (merchant_id, business_code, telephone, status, address, creation_date) values (?, ?, ?, ?, ?, date '2017-08-08') where se.BUSINESS_CODE = ?" db-types="Oracle" scenario-types="encrypt">
+    <test-case sql="merge into T_MERCHANT_DETAIL fi using T_MERCHANT se on (fi.BUSINESS_CODE = se.BUSINESS_CODE and se.BUSINESS_CODE = ?) when matched then update set fi.TELEPHONE = se.TELEPHONE when not matched then insert (merchant_id, business_code, telephone, status, address, creation_date) values (?, ?, ?, ?, ?, date '2017-08-08') where se.BUSINESS_CODE = ?" db-types="Oracle,OceanBase_Oracle" scenario-types="encrypt">
         <assertion parameters="86000002:String, 50:int, 86000050:String, 86100000050:String, ok:String, shenzheng:String, 86000003:String" expected-data-file="merge_into_t_merchant_detail_with_params_for_sphereex.xml" />
     </test-case>
 </e2e-test-cases>

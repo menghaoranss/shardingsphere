@@ -20,7 +20,7 @@
 <e2e-test-cases>
     <!-- NOTE:
         * PostgreSQL、openGauss、KingbaseES 不支持投影列中包含聚合函数，ORDER BY 中指定非聚合列，因此 Case 中删除了 ORDER BY 主键；
-        * Oracle、DM 数据库不支持投影列中 >, < 和 BETWEEN AND 比较，以及 MAX, MIN 函数叠加 >, <, >=, <=, BETWEEN AND 比较；
+        * Oracle,OceanBase_Oracle、DM 数据库不支持投影列中 >, < 和 BETWEEN AND 比较，以及 MAX, MIN 函数叠加 >, <, >=, <=, BETWEEN AND 比较；
     -->
 
     <!-- OPE 适配 SQL 场景参考：https://u01f1kqxrl.feishu.cn/wiki/VCinwK3y1iwG74kaitBc4ot0n1f -->
@@ -67,12 +67,12 @@
     </test-case>
 
     <!-- 测试字符串类型 MAX, MIN 比较 -->
-    <test-case sql="SELECT MAX(user_name), MIN(user_name) FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,Oracle,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+    <test-case sql="SELECT MAX(user_name), MIN(user_name) FROM t_user" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,Oracle,OceanBase_Oracle,DM,TiDB" scenario-types="sphereex_encrypt_ope">
         <assertion expected-data-source-name="expected_dataset" />
     </test-case>
 
     <!-- 测试数值类型 MAX, MIN 比较 -->
-    <test-case sql="SELECT MAX(quantity), MIN(quantity) FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,Oracle,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+    <test-case sql="SELECT MAX(quantity), MIN(quantity) FROM t_order_item" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,Oracle,OceanBase_Oracle,DM,TiDB" scenario-types="sphereex_encrypt_ope">
         <assertion expected-data-source-name="expected_dataset" />
     </test-case>
 

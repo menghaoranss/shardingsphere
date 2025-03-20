@@ -22,7 +22,7 @@
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
 
-    <test-case sql="SELECT SUBSTR(telephone, 5) FROM t_merchant WHERE merchant_id > ? ORDER BY business_code" scenario-types="sphereex_encrypt_failover" db-types="Oracle,DM" >
+    <test-case sql="SELECT SUBSTR(telephone, 5) FROM t_merchant WHERE merchant_id > ? ORDER BY business_code" scenario-types="sphereex_encrypt_failover" db-types="Oracle,OceanBase_Oracle,DM" >
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
 </e2e-test-cases>

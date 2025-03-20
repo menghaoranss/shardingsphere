@@ -18,35 +18,35 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="DELETE FROM t_user WHERE telephone LIKE ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM t_user WHERE telephone LIKE ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="%45678900%:String" expected-data-file="delete_user_table.xml" />
     </test-case>
     
-    <test-case sql="DELETE FROM t_user WHERE password IN (?)" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM t_user WHERE password IN (?)" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="111111:String" expected-data-file="delete_user_table.xml" />
     </test-case>
     
-    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;TELEPHONE&quot; LIKE ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;TELEPHONE&quot; LIKE ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="%45678900%:String" expected-data-file="delete_user_table.xml" />
     </test-case>
     
-    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;PASSWORD&quot; IN (?)" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;PASSWORD&quot; IN (?)" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="111111:String" expected-data-file="delete_user_table.xml" />
     </test-case>
     
-    <test-case sql="DELETE FROM t_user t WHERE t.password IN (?)" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM t_user t WHERE t.password IN (?)" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="111111:String" expected-data-file="delete_user_table.xml" />
     </test-case>
     
-    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="10:int" expected-data-file="delete_user_table.xml" />
     </test-case>
     
-    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;PASSWORD&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM &quot;T_USER&quot; WHERE &quot;PASSWORD&quot; = ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="111111:String" expected-data-file="delete_user_table.xml" />
     </test-case>
     
-    <test-case sql="DELETE FROM &quot;T_USER&quot; t WHERE t.&quot;PASSWORD&quot; IN (?)" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="DELETE FROM &quot;T_USER&quot; t WHERE t.&quot;PASSWORD&quot; IN (?)" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="111111:String" expected-data-file="delete_user_table.xml" />
     </test-case>
 </e2e-test-cases>

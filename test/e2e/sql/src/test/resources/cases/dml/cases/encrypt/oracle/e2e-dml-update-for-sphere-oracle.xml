@@ -18,19 +18,19 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="UPDATE &quot;T_USER&quot; SET &quot;PASSWORD&quot; = ? WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="UPDATE &quot;T_USER&quot; SET &quot;PASSWORD&quot; = ? WHERE &quot;USER_ID&quot; = ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="222222:String, 10:int" expected-data-file="update_user_table.xml" />
     </test-case>
     
-    <test-case sql="UPDATE &quot;T_USER&quot; SET &quot;TELEPHONE&quot; = ? WHERE &quot;PASSWORD&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="UPDATE &quot;T_USER&quot; SET &quot;TELEPHONE&quot; = ? WHERE &quot;PASSWORD&quot; = ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="12345678901:String, 111111:String" expected-data-file="update_user_table_by_pwd.xml" />
     </test-case>
     
-    <test-case sql="UPDATE &quot;T_USER&quot; &quot;u&quot; SET &quot;u&quot;.&quot;PASSWORD&quot; = ? WHERE &quot;u&quot;.&quot;USER_ID&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="UPDATE &quot;T_USER&quot; &quot;u&quot; SET &quot;u&quot;.&quot;PASSWORD&quot; = ? WHERE &quot;u&quot;.&quot;USER_ID&quot; = ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="222222:String, 10:int" expected-data-file="update_user_table.xml" />
     </test-case>
     
-    <test-case sql="UPDATE &quot;T_USER&quot; &quot;u&quot; SET &quot;u&quot;.&quot;TELEPHONE&quot; = ? WHERE &quot;u&quot;.&quot;PASSWORD&quot; = ?" db-types="Oracle,DM" scenario-types="encrypt">
+    <test-case sql="UPDATE &quot;T_USER&quot; &quot;u&quot; SET &quot;u&quot;.&quot;TELEPHONE&quot; = ? WHERE &quot;u&quot;.&quot;PASSWORD&quot; = ?" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt">
         <assertion parameters="12345678901:String, 111111:String" expected-data-file="update_user_table_by_pwd.xml" />
     </test-case>
 </e2e-test-cases>

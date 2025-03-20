@@ -18,45 +18,45 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <!-- Oracle,DM projection subquery -->
-    <test-case sql="SELECT u.user_id, (SELECT user_name FROM t_user WHERE ROWNUM &lt;= 1) FROM t_user u WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM projection subquery -->
+    <test-case sql="SELECT u.user_id, (SELECT user_name FROM t_user WHERE ROWNUM &lt;= 1) FROM t_user u WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.user_id, (SELECT user_name FROM t_user WHERE ROWNUM &lt;= 1) AS &quot;user_name&quot; FROM t_user u WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.user_id, (SELECT user_name FROM t_user WHERE ROWNUM &lt;= 1) AS &quot;user_name&quot; FROM t_user u WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <!-- Oracle,DM predicate subquery -->
-    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM predicate subquery -->
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = ANY (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = ANY (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name IN (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name IN (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name != ALL (SELECT user_name FROM t_user WHERE user_id = ?) ORDER BY u.user_id" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name != ALL (SELECT user_name FROM t_user WHERE user_id = ?) ORDER BY u.user_id" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.* FROM t_user u WHERE EXISTS (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.* FROM t_user u WHERE EXISTS (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.* FROM t_user u WHERE NOT EXISTS (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.* FROM t_user u WHERE NOT EXISTS (SELECT user_name FROM t_user WHERE user_id = ?)" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = ANY (SELECT user_name FROM t_user u2 WHERE u.user_id = u2.user_id)" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.user_name = ANY (SELECT user_name FROM t_user u2 WHERE u.user_id = u2.user_id)" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM (SELECT * FROM t_user) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM (SELECT * FROM t_user) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
@@ -69,7 +69,7 @@
                                  WHERE (a.ID = b.TargetId OR b.TargetId = -1)
                                    AND b.xType = 'Data'
                                    AND a.xtype NOT IN (?, ?)
-                                   AND b.UserID = 1)" scenario-types="encrypt" db-types="Oracle,DM">
+                                   AND b.UserID = 1)" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="1:int, 2:int, 1:int, 2:int" expected-data-source-name="read_dataset" />
     </test-case>
 </e2e-test-cases>

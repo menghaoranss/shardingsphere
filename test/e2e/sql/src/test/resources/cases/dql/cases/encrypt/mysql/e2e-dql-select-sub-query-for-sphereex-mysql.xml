@@ -32,11 +32,11 @@
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
 
-    <test-case sql="SELECT u.* FROM t_user u WHERE u.telephone = (SELECT DISTINCT telephone FROM t_merchant WHERE telephone = ?)" scenario-types="encrypt" db-types="MySQL,PostgreSQL,openGauss,Oracle,DM">
+    <test-case sql="SELECT u.* FROM t_user u WHERE u.telephone = (SELECT DISTINCT telephone FROM t_merchant WHERE telephone = ?)" scenario-types="encrypt" db-types="MySQL,PostgreSQL,openGauss,Oracle,OceanBase_Oracle,DM">
         <assertion parameters="86100000001:String" expected-data-source-name="read_dataset" />
     </test-case>
 
-    <test-case sql="SELECT * FROM t_user WHERE telephone = (SELECT DISTINCT telephone FROM t_merchant WHERE telephone = ?)" scenario-types="encrypt" db-types="MySQL,PostgreSQL,openGauss,Oracle,DM">
+    <test-case sql="SELECT * FROM t_user WHERE telephone = (SELECT DISTINCT telephone FROM t_merchant WHERE telephone = ?)" scenario-types="encrypt" db-types="MySQL,PostgreSQL,openGauss,Oracle,OceanBase_Oracle,DM">
         <assertion parameters="86100000001:String" expected-data-source-name="read_dataset" />
     </test-case>
     

@@ -52,15 +52,15 @@
     <!-- SPEX CHANGED: END -->
     
     <!-- SPEX CHANGED: BEGIN -->
-    <test-case sql="SELECT COUNT(order_id) AS orders_count, user_id FROM t_order GROUP BY 2 ORDER BY 2" db-types="MySQL,Oracle,DM,Oracle,DM,SQLServer,PostgreSQL" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting" />
+    <test-case sql="SELECT COUNT(order_id) AS orders_count, user_id FROM t_order GROUP BY 2 ORDER BY 2" db-types="MySQL,Oracle,OceanBase_Oracle,DM,Oracle,OceanBase_Oracle,DM,SQLServer,PostgreSQL" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting" />
     <!-- SPEX CHANGED: END -->
     
-    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '%18' GROUP BY country_id" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '%18' GROUP BY country_id" db-types="MySQL,Oracle,OceanBase_Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
                scenario-comments="Test single table's LIKE operator percentage wildcard in select group by statement when use sharding feature.|Test encrypt table's LIKE operator percentage wildcard in select group by statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '_1000018' GROUP BY country_id" db-types="MySQL,Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
+    <test-case sql="SELECT country_id, COUNT(1) FROM t_merchant WHERE business_code LIKE '_1000018' GROUP BY country_id" db-types="MySQL,Oracle,OceanBase_Oracle,DM,PostgreSQL,openGauss" scenario-types="db,encrypt"
                scenario-comments="Test single table's LIKE operator underscore wildcard in select group by statement when use sharding feature.|Test encrypt table's LIKE operator underscore wildcard in select group by statement when use encrypt feature.">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>

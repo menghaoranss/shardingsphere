@@ -18,169 +18,169 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <!-- Oracle,DM inner join -->
-    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM inner join -->
+    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.* FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.* FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id INNER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id INNER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id INNER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u INNER JOIN t_order o ON u.user_id = o.user_id INNER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o USING (user_id) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o USING (user_id) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o USING (user_id) INNER JOIN t_order_item i USING (order_id) WHERE i.user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u INNER JOIN t_order o USING (user_id) INNER JOIN t_order_item i USING (order_id) WHERE i.user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; INNER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; INNER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; INNER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id INNER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; INNER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id INNER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <!-- Oracle,DM cross join -->
-    <test-case sql="SELECT * FROM t_user u CROSS JOIN t_order o WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM cross join -->
+    <test-case sql="SELECT * FROM t_user u CROSS JOIN t_order o WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.* FROM t_user u CROSS JOIN t_order o WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.* FROM t_user u CROSS JOIN t_order o WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u CROSS JOIN t_order o CROSS JOIN t_order_item i WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u CROSS JOIN t_order o CROSS JOIN t_order_item i WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u CROSS JOIN t_order o CROSS JOIN t_order_item i WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u CROSS JOIN t_order o CROSS JOIN t_order_item i WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; CROSS JOIN t_order &quot;o&quot; WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; CROSS JOIN t_order &quot;o&quot; WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; CROSS JOIN t_order &quot;o&quot; CROSS JOIN t_order_item &quot;i&quot; WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; CROSS JOIN t_order &quot;o&quot; CROSS JOIN t_order_item &quot;i&quot; WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <!-- Oracle,DM natural join -->
-    <test-case sql="SELECT * FROM t_user u NATURAL JOIN t_order o WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM natural join -->
+    <test-case sql="SELECT * FROM t_user u NATURAL JOIN t_order o WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u NATURAL JOIN t_order o NATURAL JOIN t_order_item i WHERE user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u NATURAL JOIN t_order o NATURAL JOIN t_order_item i WHERE user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <!-- Oracle,DM full outer join -->
-    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM full outer join -->
+    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.* FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.* FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id FULL OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id FULL OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id FULL OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u FULL OUTER JOIN t_order o ON u.user_id = o.user_id FULL OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o USING (user_id) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o USING (user_id) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o USING (user_id) FULL OUTER JOIN t_order_item i USING (order_id) WHERE i.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u FULL OUTER JOIN t_order o USING (user_id) FULL OUTER JOIN t_order_item i USING (order_id) WHERE i.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; FULL OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; FULL OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; FULL OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id FULL OUTER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; FULL OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id FULL OUTER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <!-- Oracle,DM left outer join -->
-    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM left outer join -->
+    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.* FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.* FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id LEFT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id LEFT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id LEFT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u LEFT OUTER JOIN t_order o ON u.user_id = o.user_id LEFT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o USING (user_id) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o USING (user_id) WHERE user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o USING (user_id) LEFT OUTER JOIN t_order_item i USING (order_id) WHERE i.user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u LEFT OUTER JOIN t_order o USING (user_id) LEFT OUTER JOIN t_order_item i USING (order_id) WHERE i.user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; LEFT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; LEFT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; LEFT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id LEFT OUTER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; LEFT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id LEFT OUTER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <!-- Oracle,DM right outer join -->
-    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <!-- Oracle,OceanBase_Oracle,DM right outer join -->
+    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.* FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.* FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id RIGHT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id RIGHT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id RIGHT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT u.*, o.*, i.* FROM t_user u RIGHT OUTER JOIN t_order o ON u.user_id = o.user_id RIGHT OUTER JOIN t_order_item i ON o.order_id = i.order_id WHERE u.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o USING (user_id) WHERE user_id = ? ORDER BY o.order_id" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o USING (user_id) WHERE user_id = ? ORDER BY o.order_id" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o USING (user_id) RIGHT OUTER JOIN t_order_item i USING (order_id) WHERE i.user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM t_user u RIGHT OUTER JOIN t_order o USING (user_id) RIGHT OUTER JOIN t_order_item i USING (order_id) WHERE i.user_id = ? ORDER BY i.item_id" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; RIGHT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.* FROM t_user &quot;u&quot; RIGHT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; RIGHT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id RIGHT OUTER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT &quot;u&quot;.*, &quot;o&quot;.*, &quot;i&quot;.* FROM t_user &quot;u&quot; RIGHT OUTER JOIN t_order &quot;o&quot; ON &quot;u&quot;.user_id = &quot;o&quot;.user_id RIGHT OUTER JOIN t_order_item &quot;i&quot; ON &quot;o&quot;.order_id = &quot;i&quot;.order_id WHERE &quot;u&quot;.user_id = ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
 </e2e-test-cases>
