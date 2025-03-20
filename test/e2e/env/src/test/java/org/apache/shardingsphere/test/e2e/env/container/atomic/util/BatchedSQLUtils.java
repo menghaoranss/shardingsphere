@@ -17,13 +17,20 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.util;
 
+import com.sphereex.dbplusengine.test.e2e.env.container.atomic.util.ConfigPlaceholderReplacer;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.h2.util.ScriptReader;
-import org.h2.util.StringUtils;
 
 import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -45,7 +52,7 @@ public final class BatchedSQLUtils {
     public static void execute(final DataSource dataSource, final String scriptFilePath) {
         try (
                 Connection connection = dataSource.getConnection();
-                FileReader reader = new FileReader(scriptFilePath)) {
+                Reader reader = getReader(scriptFilePath)) {
             Statement statement = connection.createStatement();
             ScriptReader r = new ScriptReader(reader);
             r.setSkipRemarks(true);
@@ -55,7 +62,7 @@ public final class BatchedSQLUtils {
                 if (null == sql) {
                     break;
                 }
-                if (StringUtils.isWhitespaceOrEmpty(sql)) {
+                if (StringUtils.isBlank(sql)) {
                     continue;
                 }
                 statement.addBatch(sql);
@@ -68,6 +75,15 @@ public final class BatchedSQLUtils {
             if (0 != count % BATCH_SIZE) {
                 statement.executeBatch();
             }
+        }
+    }
+    
+    private static Reader getReader(final String scriptFilePath) throws FileNotFoundException {
+        InputStream resourceAsStream = ConfigPlaceholderReplacer.class.getClassLoader().getResourceAsStream(StringUtils.removeStart(scriptFilePath, "/"));
+        if (resourceAsStream != null) {
+            return new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8));
+        } else {
+            return new FileReader(scriptFilePath);
         }
     }
 }
