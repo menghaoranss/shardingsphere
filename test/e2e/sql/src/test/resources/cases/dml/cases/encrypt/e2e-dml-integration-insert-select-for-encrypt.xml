@@ -18,39 +18,39 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="INSERT INTO t_user (user_id, user_name, password, email, telephone, creation_date) SELECT 40, user_name, password, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,DM,MySQL" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user (user_id, user_name, password, email, telephone, creation_date) SELECT 40, user_name, password, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt">
         <assertion parameters="39:int" expected-data-file="single_insert_into_select_t_user_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user SELECT 40, user_name, password, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,DM,MySQL" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user SELECT 40, user_name, password, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt">
         <assertion parameters="39:int" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user(user_id, user_name, password, email, telephone, creation_date) SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,DM,MySQL" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user(user_id, user_name, password, email, telephone, creation_date) SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, 39:int" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,DM,MySQL" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, 39:int" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user(user_id, user_name, password, email, telephone, creation_date) SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ? UNION ALL SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,DM,MySQL" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user(user_id, user_name, password, email, telephone, creation_date) SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ? UNION ALL SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, 39:int, 41:int, 王勃:String, 567567:String, 39:int" expected-data-file="single_insert_into_t_user_for_sphereex_2.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ? UNION ALL SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,DM,MySQL" scenario-types="encrypt">
+    <test-case sql="INSERT INTO t_user SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ? UNION ALL SELECT ?, ?, ?, email, telephone, creation_date FROM t_user WHERE user_id = ?" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt">
         <assertion parameters="40:int, 王勃:String, 567567:String, 39:int, 41:int, 王勃:String, 567567:String, 39:int" expected-data-file="single_insert_into_t_user_for_sphereex_2.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user (user_id, user_name, password, email, telephone, creation_date) SELECT ?, ?, ?, ?, ?, DATE '2017-08-08' FROM DUAL" db-types="Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
+    <test-case sql="INSERT INTO t_user (user_id, user_name, password, email, telephone, creation_date) SELECT ?, ?, ?, ?, ?, DATE '2017-08-08' FROM DUAL" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
         <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
 
-    <test-case sql="INSERT INTO t_user SELECT ?, ?, ?, ?, ?, DATE '2017-08-08' FROM DUAL" db-types="Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
+    <test-case sql="INSERT INTO t_user SELECT ?, ?, ?, ?, ?, DATE '2017-08-08' FROM DUAL" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
         <assertion parameters="40:int, 王勃:String, 567567:String, wangbo@gmail.com:String, 18012512345:String" expected-data-file="single_insert_into_t_user_for_sphereex.xml" />
     </test-case>
 
-    <!--<test-case sql="INSERT INTO t_user SELECT order_id, 'test_user_name', status, remark, '15161461111', '2024-05-22' FROM t_order WHERE order_id IN(?, ?)" db-types="Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
+    <!--<test-case sql="INSERT INTO t_user SELECT order_id, 'test_user_name', status, remark, '15161461111', '2024-05-22' FROM t_order WHERE order_id IN(?, ?)" db-types="Oracle,OceanBase_Oracle,DM,MySQL" scenario-types="encrypt" ignore-batch-test="true" adapters="jdbc">
         <assertion parameters="1000:int, 1001:int" expected-data-file="single_insert_with_diff_encrypt_algorithm_for_sphereex.xml" />
     </test-case>-->
 

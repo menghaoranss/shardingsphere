@@ -18,27 +18,27 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from &quot;PUBLIC&quot;.ALL_CONS_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,DM" scenario-types="encrypt" adapters="jdbc">
+    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from &quot;PUBLIC&quot;.ALL_CONS_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt" adapters="jdbc">
         <assertion expected-data-file="select_oracle_system_query_all_cons_columns.xml" />
     </test-case>
 
-    <test-case sql="select INDEX_OWNER, TABLE_OWNER, TABLE_NAME, COLUMN_NAME from ALL_IND_COLUMNS where TABLE_NAME='T_USER' and INDEX_OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,DM" scenario-types="encrypt" adapters="jdbc">
+    <test-case sql="select INDEX_OWNER, TABLE_OWNER, TABLE_NAME, COLUMN_NAME from ALL_IND_COLUMNS where TABLE_NAME='T_USER' and INDEX_OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt" adapters="jdbc">
         <assertion expected-data-file="select_oracle_system_query_all_ind_columns.xml" />
     </test-case>
 
-    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from ALL_TAB_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,DM" scenario-types="encrypt" adapters="jdbc">
+    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from ALL_TAB_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt" adapters="jdbc">
         <assertion expected-data-file="select_oracle_system_query_all_tab_columns.xml" />
     </test-case>
 
-    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from USER_CONS_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,DM" scenario-types="encrypt" adapters="jdbc">
+    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from USER_CONS_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt" adapters="jdbc">
         <assertion expected-data-file="select_oracle_system_query_user_cons_columns.xml" />
     </test-case>
 
-    <test-case sql="select INDEX_OWNER, TABLE_NAME, COLUMN_NAME from USER_IND_COLUMNS where TABLE_NAME='T_USER' and INDEX_OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,DM" scenario-types="encrypt" adapters="jdbc">
+    <test-case sql="select INDEX_OWNER, TABLE_NAME, COLUMN_NAME from USER_IND_COLUMNS where TABLE_NAME='T_USER' and INDEX_OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt" adapters="jdbc">
         <assertion expected-data-file="select_oracle_system_query_user_ind_columns.xml" />
     </test-case>
 
-    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from USER_TAB_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,DM" scenario-types="encrypt" adapters="jdbc">
+    <test-case sql="select OWNER, TABLE_NAME, COLUMN_NAME from USER_TAB_COLUMNS where TABLE_NAME='T_USER' and OWNER='ENCRYPT' order by COLUMN_NAME" db-types="Oracle,OceanBase_Oracle,DM" scenario-types="encrypt" adapters="jdbc">
         <assertion expected-data-file="select_oracle_system_query_user_tab_columns.xml" />
     </test-case>
 </e2e-test-cases>

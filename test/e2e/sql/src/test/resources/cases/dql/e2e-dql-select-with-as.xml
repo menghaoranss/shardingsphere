@@ -18,7 +18,7 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="WITH temp AS (SELECT * FROM t_user) SELECT * FROM temp" db-types="MySQL,Oracle,DM"
+    <test-case sql="WITH temp AS (SELECT * FROM t_user) SELECT * FROM temp" db-types="MySQL,Oracle,OceanBase_Oracle,DM"
                scenario-types="encrypt">
         <assertion expected-data-source-name="expected_dataset"/>
     </test-case>

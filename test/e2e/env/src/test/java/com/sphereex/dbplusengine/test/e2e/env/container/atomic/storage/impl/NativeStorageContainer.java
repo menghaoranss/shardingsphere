@@ -134,6 +134,8 @@ public final class NativeStorageContainer implements StorageContainer {
             return 3306;
         } else if (databaseType.getType().equalsIgnoreCase("postgresql")) {
             return 5432;
+        } else if (databaseType.getType().equalsIgnoreCase("OceanBase_Oracle")) {
+            return 2883;
         } else {
             throw new UnsupportedOperationException("Unsupported database type: " + databaseType.getType());
         }

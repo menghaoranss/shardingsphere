@@ -18,43 +18,43 @@
 
 <!-- SPEX ADDED: BEGIN -->
 <e2e-test-cases>
-    <test-case sql="SELECT * FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id), MAX(user_id), MAX(user_id) + 1, (SELECT 1 + 1 FROM DUAL) FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(user_id) AS user_id_count, MAX(user_id) AS user_id_max, MAX(user_id) + 1 AS user_id_expression_max, (SELECT 1 + 1 FROM DUAL) AS subquery_expression FROM t_user WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) FROM t_user u WHERE user_id = ? GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion parameters="10:int" expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS &quot;distinct_count&quot; FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS &quot;distinct_count&quot; FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS &quot;distinct_count&quot; FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS &quot;distinct_count&quot; FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT * FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
-    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,DM">
+    <test-case sql="SELECT temp.* FROM (SELECT COUNT(DISTINCT user_id) AS distinct_count FROM t_user u GROUP BY user_id) temp" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle,DM">
         <assertion expected-data-source-name="read_dataset" />
     </test-case>
     
@@ -73,7 +73,7 @@
                                     , us.REF_USR_BUS_TYP AS REF_REF_USR_BUS_TYP, us.SALT AS REF_SALT, us.PWD_CRT_TM AS REF_PWD_CRT_TM, us.LOCK_STATE AS REF_LOCK_STATE, us.IS_LEAVE AS REF_IS_LEAVE
                                     , us.PER_TYPE_CD AS REF_PER_TYPE_CD, us.MP_STS_CD AS REF_MP_STS_CD
                                 FROM SYS_USR u
-                                    INNER JOIN SYS_USR_SYS_R us ON u.id = us.usr_id 
+                                    INNER JOIN SYS_USR_SYS_R us ON u.id = us.usr_id
                                 WHERE u.IS_DEL = 0
                                     AND us.IS_DEL = 0
                                     AND us.SYS_CD = ?
@@ -85,12 +85,12 @@
                                         FROM SYS_USR_EXT_INFO
                                     ) ext
                                     WHERE ext.row_ord = ?
-                                ) ue ON bsc.id = ue.usr_id 
+                                ) ue ON bsc.id = ue.usr_id
                             ORDER BY bsc.CRT_TM DESC, bsc.&quot;ID&quot;
                         ) tmp_tb
                         WHERE ROWNUM &lt;= ?
                     )
-                    WHERE row_id &gt; ?" scenario-types="encrypt" db-types="Oracle">
+                    WHERE row_id &gt; ?" scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle">
         <assertion parameters="11000:int, 1:int, 20:int, 0:int" expected-data-source-name="read_dataset" />
     </test-case>
     
@@ -110,7 +110,7 @@
                                 FROM SYS_USR_EXT_INFO
                             ) ext
                             WHERE ext.row_ord = ?
-                        ) ue ON bsc.id = ue.usr_id " scenario-types="encrypt" db-types="Oracle">
+                        ) ue ON bsc.id = ue.usr_id " scenario-types="encrypt" db-types="Oracle,OceanBase_Oracle">
         <assertion parameters="0:int, 1:int" expected-data-source-name="read_dataset" />
     </test-case>
 </e2e-test-cases>

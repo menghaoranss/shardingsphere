@@ -46,6 +46,8 @@ public final class DataSourceEnvironment {
             // SPEX ADDED: BEGIN
             case "Oracle":
                 return "oracle.jdbc.driver.OracleDriver";
+            case "OceanBase_Oracle":
+                return "com.oceanbase.jdbc.Driver";
             // SPEX ADDED: END
             default:
                 throw new UnsupportedOperationException(databaseType.getType());
@@ -78,6 +80,10 @@ public final class DataSourceEnvironment {
             // SPEX ADDED: BEGIN
             case "Oracle":
                 return String.format("jdbc:oracle:thin:@%s:%s", host, port);
+            case "OceanBase_Oracle":
+                return String.format(
+                        "jdbc:oceanbase://%s:%s?rewriteBatchedStatements=true&allowMultiQueries=true&useLocalSessionState=true&useUnicode=true&characterEncoding=utf-8&socketTimeout=3000&connectTimeout=60000&sessionVariables=ob_query_timeout=300000000",
+                        host, port);
             // SPEX ADDED: END
             default:
                 throw new UnsupportedOperationException(databaseType.getType());
@@ -113,6 +119,10 @@ public final class DataSourceEnvironment {
             // SPEX ADDED: BEGIN
             case "Oracle":
                 return String.format("jdbc:oracle:thin:@%s:%s:XE", host, port);
+            case "OceanBase_Oracle":
+                return String.format(
+                        "jdbc:oceanbase://%s:%s/%s?rewriteBatchedStatements=true&allowMultiQueries=true&useLocalSessionState=true&useUnicode=true&characterEncoding=utf-8&socketTimeout=3000&connectTimeout=60000&sessionVariables=ob_query_timeout=300000000",
+                        host, port, dataSourceName);
             // SPEX ADDED: END
             default:
                 throw new UnsupportedOperationException(databaseType.getType());

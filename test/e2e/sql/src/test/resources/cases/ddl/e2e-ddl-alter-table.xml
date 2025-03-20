@@ -26,7 +26,7 @@
     
     <!-- SPEX CHANGED: BEGIN -->
     <!-- fixme dm TableExistsException -->
-    <test-case sql="ALTER TABLE t_order_details DROP COLUMN description" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
+    <test-case sql="ALTER TABLE t_order_details DROP COLUMN description" db-types="H2,MySQL,PostgreSQL,SQLServer,Oracle,OceanBase_Oracle" scenario-types="db,tbl,dbtbl_with_readwrite_splitting,readwrite_splitting">
     <!-- SPEX CHANGED: END -->
         <assertion expected-data-file="alter_drop.xml">
             <initial-sql sql="CREATE TABLE t_order_details(id int, description varchar(10))" affected-table="t_order_details" />
