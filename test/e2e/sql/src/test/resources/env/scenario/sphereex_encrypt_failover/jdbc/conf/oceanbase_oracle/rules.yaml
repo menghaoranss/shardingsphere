@@ -1,0 +1,71 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# SPEX ADDED: BEGIN
+schemaName: sphereex_encrypt_failover
+
+dataSources:
+  sphereex_encrypt_failover:
+    url: jdbc:oceanbase://oceanbase_oracle.sphereex_encrypt_failover.host:2883/sphereex_encrypt_failover?rewriteBatchedStatements=true&allowMultiQueries=true&useLocalSessionState=true&useUnicode=true&characterEncoding=utf-8&socketTimeout=3000&connectTimeout=60000&sessionVariables=ob_query_timeout=300000000
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    username: test_user
+    password: Test@123
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 2
+    minPoolSize: 2
+
+rules:
+- !ENCRYPT
+  encryptors:
+    aes_encryptor:
+      type: AES
+      props:
+        aes-key-value: 123456abc
+        digest-algorithm-name: SHA-1
+    like_encryptor:
+      type: SphereEx:CHAR_TRANSFORM_LIKE
+      props:
+        transform-indexes: 1,2,3,5,7,14
+    char_digest_like_encryptor:
+      type: CHAR_DIGEST_LIKE
+  encryptMode:
+    type: FRONTEND
+    props:
+      use-original-sql-when-cipher-query-failed: true
+  tables:
+    T_MERCHANT:
+      columns:
+        BUSINESS_CODE:
+          plainColumn: BUSINESS_CODE
+          cipherColumn: BUSINESS_CODE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: BUSINESS_CODE_LIKE
+          likeQueryEncryptorName: like_encryptor
+        TELEPHONE:
+          plainColumn: TELEPHONE
+          cipherColumn: MERCHANT_TELEPHONE_CIPHER
+          encryptorName: aes_encryptor
+          likeQueryColumn: MERCHANT_TELEPHONE_LIKE
+          likeQueryEncryptorName: like_encryptor
+
+props:
+  sql-show: true
+
+
+# SPEX ADDED: END
