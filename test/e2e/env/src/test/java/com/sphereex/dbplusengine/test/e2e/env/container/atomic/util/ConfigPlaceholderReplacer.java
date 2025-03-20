@@ -92,7 +92,7 @@ public final class ConfigPlaceholderReplacer {
     private static File getReplacedTempFile(final Path tempDirectory, final String configResource, final Map<String, String> placeholderAndReplacementsMap) {
         String content = getContent(configResource);
         content = isRemovePlainColumnEnabled(placeholderAndReplacementsMap) ? removePlainColumn(content, configResource) : replaceContent(content, placeholderAndReplacementsMap);
-        File result = tempDirectory.resolve(Paths.get(configResource).getFileName()).toFile();
+        File result = tempDirectory.resolve(new File(configResource).toPath().getFileName()).toFile();
         result.deleteOnExit();
         try (FileWriter writer = new FileWriter(result)) {
             writer.write(content);
@@ -128,7 +128,7 @@ public final class ConfigPlaceholderReplacer {
         if (resourceAsStream != null) {
             content = IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
         } else {
-            content = IOUtils.toString(Paths.get(configResource).toUri(), StandardCharsets.UTF_8);
+            content = IOUtils.toString(new File(configResource).toURI(), StandardCharsets.UTF_8);
         }
         return content;
     }
