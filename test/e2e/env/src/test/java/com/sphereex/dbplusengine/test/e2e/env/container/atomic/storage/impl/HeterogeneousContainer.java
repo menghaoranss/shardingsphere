@@ -28,6 +28,7 @@ import org.testcontainers.lifecycle.Startable;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -65,5 +66,14 @@ public final class HeterogeneousContainer extends EmbeddedStorageContainer {
     @Override
     public void stop() {
         storageContainers.forEach(Startable::stop);
+    }
+    
+    @Override
+    public Map<String, String> getLinkReplacements() {
+        Map<String, String> result = new HashMap<>();
+        for (StorageContainer each : getStorageContainers()) {
+            result.putAll(each.getLinkReplacements());
+        }
+        return result;
     }
 }
