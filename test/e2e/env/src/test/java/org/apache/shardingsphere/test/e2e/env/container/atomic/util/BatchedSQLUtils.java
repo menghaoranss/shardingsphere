@@ -17,7 +17,6 @@
 
 package org.apache.shardingsphere.test.e2e.env.container.atomic.util;
 
-import com.sphereex.dbplusengine.test.e2e.env.container.atomic.util.ConfigPlaceholderReplacer;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.util.ScriptReader;
@@ -79,7 +78,7 @@ public final class BatchedSQLUtils {
     }
     
     private static Reader getReader(final String scriptFilePath) throws FileNotFoundException {
-        InputStream resourceAsStream = ConfigPlaceholderReplacer.class.getClassLoader().getResourceAsStream(StringUtils.removeStart(scriptFilePath, "/"));
+        InputStream resourceAsStream = BatchedSQLUtils.class.getClassLoader().getResourceAsStream(StringUtils.removeStart(scriptFilePath, "/"));
         if (resourceAsStream != null) {
             return new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8));
         } else {
