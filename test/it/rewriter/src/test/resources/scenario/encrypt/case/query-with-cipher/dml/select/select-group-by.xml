@@ -48,6 +48,17 @@
         <output sql="SELECT account_id FROM `encrypt_ds`.t_account t group by t.cipher_amount having MIN(t.`order_query_amount`) > 'order_query_0'" />
     </rewrite-assertion>
     
+    <rewrite-assertion id="select_with_groupby_with_alias" db-types="MySQL">
+        <input sql="SELECT account_id, a FROM (SELECT account_id, amount AS a FROM t_account) AS t group by t.a" />
+        <output sql="SELECT account_id, a_CIPHER AS a FROM (SELECT account_id, `cipher_amount` AS a_CIPHER, `order_query_amount` AS a_ORDER FROM `encrypt_ds`.t_account) AS t group by t.a_CIPHER" />
+    </rewrite-assertion>
+    
+    <!-- todo Can not find encrypt column 'a' from table 't_account'.
+    <rewrite-assertion id="select_with_groupby_having_with_alias" db-types="MySQL">
+        <input sql="SELECT account_id, a FROM (SELECT account_id, amount AS a FROM t_account) AS t group by t.a having t.a > 0" />
+        <output sql="SELECT account_id, a_CIPHER AS a FROM (SELECT account_id, `cipher_amount` AS a_CIPHER, `order_query_amount` AS a_ORDER FROM `encrypt_ds`.t_account) AS t group by t.cipher_amount" />
+    </rewrite-assertion>-->
+    
     <rewrite-assertion id="select_with_groupby_with_table_owner" db-types="MySQL">
         <input sql="SELECT account_id FROM t_account group by t_account.amount having t_account.amount > 0" />
         <output sql="SELECT account_id FROM `encrypt_ds`.t_account group by `encrypt_ds`.t_account.cipher_amount having MIN(`encrypt_ds`.t_account.`order_query_amount`) > 'order_query_0'" />

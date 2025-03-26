@@ -57,6 +57,9 @@ public enum EncryptDerivedColumnSuffix {
     
     @SphereEx
     private String getSuffix(final EncryptMode encryptMode) {
+        if (null == encryptMode) {
+            return suffix;
+        }
         if (CIPHER == this && !Strings.isNullOrEmpty(encryptMode.getDerivedCipherSuffix())) {
             return encryptMode.getDerivedCipherSuffix();
         }
