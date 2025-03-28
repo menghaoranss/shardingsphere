@@ -104,6 +104,9 @@ public final class EncryptGroupByItemTokenGenerator implements CollectionSQLToke
         int stopIndex = columnSegment.getStopIndex();
         // SPEX ADDED: BEGIN
         if (encryptColumn.getPlain().isPresent() && rule.isQueryWithPlain(columnSegment.getColumnBoundInfo().getOriginalTable().getValue(), columnName)) {
+            if (TableSourceType.TEMPORARY_TABLE == columnSegment.getColumnBoundInfo().getTableSourceType()) {
+                return Optional.empty();
+            }
             return Optional.of(new SubstitutableColumnNameToken(startIndex, stopIndex,
                     createColumnProjections(encryptColumn.getPlain().get().getName(), columnSegment.getIdentifier().getQuoteCharacter(), databaseType), databaseType, database, metaData));
         }
