@@ -97,9 +97,17 @@ public final class EncryptStrcmpFunctionSQLTokenGenerator implements EncryptFunc
         if (plainColumnItem.isPresent() && plainColumnItem.get().isQueryWithPlain()) {
             return Collections.emptyList();
         }
+        ShardingSpherePreconditions.checkState(encryptColumn.getOrderQuery().isPresent() || encryptColumn.getCipher().getEncryptor().getMetaData().isSupportOrder(),
+                () -> new MissingMatchedEncryptQueryAlgorithmException(tableName, columnSegment.getIdentifier().getValue(), "ORDER"));
         String schemaName = columnSegment.getColumnBoundInfo().getOriginalSchema().getValue();
-        return Collections.singleton(new EncryptSimpleSubstitutableToken(literalExpressionSegment.getStartIndex(), literalExpressionSegment.getStopIndex(),
-                encryptColumn.getCipher().encrypt(database.getName(), schemaName, encryptTable.get().getTable(), encryptColumn.getName(), literalExpressionSegment.getLiterals()).toString()));
+        Object ciphertext;
+        if (encryptColumn.getOrderQuery().isPresent()) {
+            ciphertext = encryptColumn.getOrderQuery().get().encrypt(database.getName(), schemaName, encryptTable.get().getTable(), encryptColumn.getName(),
+                    literalExpressionSegment.getLiterals());
+        } else {
+            ciphertext = encryptColumn.getCipher().encrypt(database.getName(), schemaName, encryptTable.get().getTable(), encryptColumn.getName(), literalExpressionSegment.getLiterals());
+        }
+        return Collections.singleton(new EncryptSimpleSubstitutableToken(literalExpressionSegment.getStartIndex(), literalExpressionSegment.getStopIndex(), ciphertext));
     }
     
     private Collection<SQLToken> generateSQLTokens(final EncryptRule encryptRule, final Map<String, EncryptRule> databaseEncryptRules, final ColumnSegment columnSegment) {
@@ -113,7 +121,8 @@ public final class EncryptStrcmpFunctionSQLTokenGenerator implements EncryptFunc
         Optional<PlainColumnItem> plainColumnItem = encryptColumn.getPlain();
         if (plainColumnItem.isPresent() && plainColumnItem.get().isQueryWithPlain()) {
             return Collections.singleton(new EncryptColumnSubstitutableToken(columnSegment.getStartIndex(), columnSegment.getStopIndex(),
-                    new IdentifierValue(plainColumnItem.get().getName(), columnSegment.getIdentifier().getQuoteCharacter()), columnSegment.getOwner().map(OwnerSegment::getIdentifier).orElse(null)));
+                    new IdentifierValue(plainColumnItem.get().getName(), columnSegment.getIdentifier().getQuoteCharacter()),
+                    columnSegment.getOwner().map(OwnerSegment::getIdentifier).orElse(null)));
         }
         ShardingSpherePreconditions.checkState(encryptColumn.getOrderQuery().isPresent() || encryptColumn.getCipher().getEncryptor().getMetaData().isSupportOrder(),
                 () -> new MissingMatchedEncryptQueryAlgorithmException(tableName, columnSegment.getIdentifier().getValue(), "ORDER"));
