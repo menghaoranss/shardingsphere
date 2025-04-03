@@ -31,6 +31,9 @@ dataSources:
     minPoolSize: 2
 
 rules:
+- !SINGLE
+  tables:
+    - "*.*"
 - !ENCRYPT
   encryptors:
     aes_encryptor:
