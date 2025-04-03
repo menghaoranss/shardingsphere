@@ -69,7 +69,7 @@ public final class E2EEnvironmentEngine {
         if (!INITIALIZED_SUITES.contains(cacheKey)) {
             synchronized (INITIALIZED_SUITES) {
                 if (!INITIALIZED_SUITES.contains(cacheKey)) {
-                    BatchedSQLUtils.execute(targetDataSource, logicDatabaseInitSQLFile.get());
+                    BatchedSQLUtils.execute(databaseType, scenario, targetDataSource, logicDatabaseInitSQLFile.get());
                     INITIALIZED_SUITES.add(cacheKey);
                 }
             }

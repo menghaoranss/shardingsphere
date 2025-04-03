@@ -19,6 +19,7 @@ package org.apache.shardingsphere.test.e2e.env.container.atomic.util;
 
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.h2.util.ScriptReader;
 
 import javax.sql.DataSource;
@@ -44,11 +45,21 @@ public final class BatchedSQLUtils {
     /**
      * Execute SQL script.
      *
+     * @param databaseType database type
+     * @param scenario scenario
      * @param dataSource data source
      * @param scriptFilePath script file path
      */
     @SneakyThrows({SQLException.class, IOException.class})
-    public static void execute(final DataSource dataSource, final String scriptFilePath) {
+    public static void execute(final DatabaseType databaseType, final String scenario, final DataSource dataSource, final String scriptFilePath) {
+        if ("Oracle".equalsIgnoreCase(databaseType.getType()) || "OceanBase_Oracle".equalsIgnoreCase(databaseType.getType())) {
+            if (scriptFilePath.contains("actual")) {
+                dropDatabase(dataSource, "DROP USER " + scenario + " CASCADE");
+            }
+            if (scriptFilePath.contains("expected")) {
+                dropDatabase(dataSource, "DROP USER EXPECTED_DATASET CASCADE");
+            }
+        }
         try (
                 Connection connection = dataSource.getConnection();
                 Reader reader = getReader(scriptFilePath)) {
@@ -74,6 +85,15 @@ public final class BatchedSQLUtils {
             if (0 != count % BATCH_SIZE) {
                 statement.executeBatch();
             }
+        }
+    }
+    
+    private static void dropDatabase(final DataSource dataSource, final String sql) {
+        try (
+                Connection connection = dataSource.getConnection();
+                Statement statement = connection.createStatement()) {
+            statement.execute(sql);
+        } catch (SQLException ignored) {
         }
     }
     
