@@ -48,17 +48,17 @@ import java.util.function.Function;
 /**
  * Fast ope encrypt algorithm.
  */
-public final class FastOpeEncryptAlgorithm implements EncryptAlgorithm {
+public class FastOpeEncryptAlgorithm implements EncryptAlgorithm {
     
-    private static final String ALPHA_KEY = "alpha-key";
+    protected static final String ALPHA_KEY = "alpha-key";
     
-    private static final String FACTOR_E_KEY = "factor-e-key";
+    protected static final String FACTOR_E_KEY = "factor-e-key";
     
-    private static final String FACTOR_K_KEY = "factor-k-key";
+    protected static final String FACTOR_K_KEY = "factor-k-key";
     
-    private static final String OFFSET = "offset";
+    protected static final String OFFSET = "offset";
     
-    private static final String PLAIN_TEXT_BYTE_LENGTH = "plain-text-byte-length";
+    protected static final String PLAIN_TEXT_BYTE_LENGTH = "plain-text-byte-length";
     
     private static final String CHARSET_NAME = "charset-name";
     
