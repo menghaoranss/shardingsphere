@@ -93,7 +93,7 @@ public final class BatchedSQLUtils {
                 Connection connection = dataSource.getConnection();
                 Statement statement = connection.createStatement()) {
             statement.execute(sql);
-        } catch (SQLException ignored) {
+        } catch (final SQLException ignored) {
         }
     }
     

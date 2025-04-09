@@ -17,6 +17,7 @@
 
 package com.sphereex.dbplusengine.infra.database.oceanbase.oracle.metadata.data.loader;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype.DataTypeExtractor;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
@@ -62,7 +63,7 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
                     + " DATA_TYPE || '(' || DATA_LENGTH || ')'"
                     + " ELSE DATA_TYPE"
                     + " END AS COLUMN_TYPE"
-                    + " FROM ALL_TAB_COLS WHERE OWNER = ?";
+                    + " FROM ALL_TAB_COLS WHERE OWNER IN (%s)";
     
     private static final String ORDER_BY_COLUMN_ID = " ORDER BY COLUMN_ID";
     
@@ -70,16 +71,16 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
     
     private static final String TABLE_META_DATA_SQL_IN_TABLES = TABLE_META_DATA_SQL_NO_ORDER + " AND TABLE_NAME IN (%s)" + ORDER_BY_COLUMN_ID;
     
-    private static final String VIEW_META_DATA_SQL = "SELECT VIEW_NAME FROM ALL_VIEWS WHERE OWNER = ? AND VIEW_NAME IN (%s)";
+    private static final String VIEW_META_DATA_SQL = "SELECT VIEW_NAME FROM ALL_VIEWS WHERE OWNER IN (%s) AND VIEW_NAME IN (%s)";
     
-    private static final String INDEX_META_DATA_SQL = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, UNIQUENESS FROM ALL_INDEXES WHERE OWNER = ? AND TABLE_NAME IN (%s)";
+    private static final String INDEX_META_DATA_SQL = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, UNIQUENESS FROM ALL_INDEXES WHERE OWNER IN (%s) AND TABLE_NAME IN (%s)";
     
     private static final String PRIMARY_KEY_META_DATA_SQL = "SELECT A.OWNER AS TABLE_SCHEMA, A.TABLE_NAME AS TABLE_NAME, B.COLUMN_NAME AS COLUMN_NAME FROM ALL_CONSTRAINTS A INNER JOIN"
-            + " ALL_CONS_COLUMNS B ON A.CONSTRAINT_NAME = B.CONSTRAINT_NAME WHERE CONSTRAINT_TYPE = 'P' AND A.OWNER = '%s'";
+            + " ALL_CONS_COLUMNS B ON A.CONSTRAINT_NAME = B.CONSTRAINT_NAME WHERE CONSTRAINT_TYPE = 'P' AND A.OWNER IN (%s)";
     
     private static final String PRIMARY_KEY_META_DATA_SQL_IN_TABLES = PRIMARY_KEY_META_DATA_SQL + " AND A.TABLE_NAME IN (%s)";
     
-    private static final String INDEX_COLUMN_META_DATA_SQL = "SELECT COLUMN_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER = ? AND TABLE_NAME = ? AND INDEX_NAME = ?";
+    private static final String INDEX_COLUMN_META_DATA_SQL = "SELECT COLUMN_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER IN (%s) AND TABLE_NAME = ? AND INDEX_NAME = ?";
     
     private static final String USER_SYNONYMS_SQL = "SELECT * FROM USER_SYNONYMS";
     
@@ -102,7 +103,7 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         Collection<TableMetaData> tableMetaDataList = new LinkedList<>();
         try (Connection connection = new MetaDataLoaderConnection(TypedSPILoader.getService(DatabaseType.class, getDatabaseType()), material.getDataSource().getConnection())) {
             tableMetaDataList.addAll(getSchemaTableNameSynonymMaps(material, connection));
-            tableMetaDataList.addAll(getTableMetaDataList(connection, connection.getSchema(), material.getActualTableNames()));
+            tableMetaDataList.addAll(getTableMetaDataList(connection, material, connection.getSchema(), material.getActualTableNames()));
         }
         return Collections.singletonList(new SchemaMetaData(material.getDefaultSchemaName(), tableMetaDataList));
     }
@@ -114,7 +115,7 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         for (Entry<String, Map<String, String>> entry : schemaTableNameSynonymMaps.entrySet()) {
             Collection<String> neededLinkedTableNames = entry.getValue().entrySet().stream().filter(each -> actualTableNames.contains(each.getValue())).map(Entry::getKey)
                     .collect(Collectors.toList());
-            Collection<TableMetaData> linkedTableMetaDataList = getTableMetaDataList(connection, entry.getKey(), neededLinkedTableNames);
+            Collection<TableMetaData> linkedTableMetaDataList = getTableMetaDataList(connection, material, entry.getKey(), neededLinkedTableNames);
             result.addAll(rebuildSynonymMetaDataList(linkedTableMetaDataList, entry.getValue()));
         }
         return result;
@@ -130,14 +131,15 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         return result;
     }
     
-    private Collection<TableMetaData> getTableMetaDataList(final Connection connection, final String schema, final Collection<String> tableNames) throws SQLException {
+    private Collection<TableMetaData> getTableMetaDataList(final Connection connection, final MetaDataLoaderMaterial material,
+                                                           final String schema, final Collection<String> tableNames) throws SQLException {
         Collection<String> viewNames = new LinkedList<>();
         Map<String, Collection<ColumnMetaData>> columnMetaDataMap = new HashMap<>(tableNames.size(), 1F);
         Map<String, Collection<IndexMetaData>> indexMetaDataMap = new HashMap<>(tableNames.size(), 1F);
         for (List<String> each : Lists.partition(new ArrayList<>(tableNames), MAX_EXPRESSION_SIZE)) {
-            viewNames.addAll(loadViewNames(connection, each, schema));
-            columnMetaDataMap.putAll(loadColumnMetaDataMap(connection, each, schema));
-            indexMetaDataMap.putAll(loadIndexMetaData(connection, each, schema));
+            viewNames.addAll(loadViewNames(connection, each, generateOwner(material, schema)));
+            columnMetaDataMap.putAll(loadColumnMetaDataMap(connection, each, generateOwner(material, schema)));
+            indexMetaDataMap.putAll(loadIndexMetaData(connection, each, generateOwner(material, schema)));
         }
         columnMetaDataMap.putAll(loadColumnMetaDataMap(connection, viewNames));
         Collection<TableMetaData> result = new LinkedList<>();
@@ -147,6 +149,22 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
                     viewNames.contains(entry.getKey()) ? TableType.VIEW : TableType.TABLE, null));
         }
         return result;
+    }
+    
+    private String generateOwner(final MetaDataLoaderMaterial material, final String userName) {
+        StringBuilder result = new StringBuilder();
+        result.append("'").append(userName).append("'");
+        if (userName.endsWith("OPR")) {
+            result.append(",'").append(userName.substring(0, userName.length() - 3) + "DATA'");
+        }
+        if (null != material.getProps() && material.getProps().containsKey("load-metadata-schema")) {
+            result.append(",'").append((String) material.getProps().get("load-metadata-schema")).append("'");
+        }
+        Collection<String> schemas = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(result.toString());
+        if (!schemas.contains(material.getDefaultSchemaName().toUpperCase())) {
+            result.append(",'").append(material.getDefaultSchemaName().toUpperCase()).append("'");
+        }
+        return result.toString();
     }
     
     private Map<String, Map<String, String>> loadLinkedTableNameSynonymMapSchemaGroup(final Connection connection) throws SQLException {
@@ -164,8 +182,7 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
     
     private Collection<String> loadViewNames(final Connection connection, final Collection<String> tables, final String schema) throws SQLException {
         Collection<String> result = new LinkedList<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(getViewMetaDataSQL(tables))) {
-            preparedStatement.setString(1, schema);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getViewMetaDataSQL(tables, schema))) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     result.add(resultSet.getString(1));
@@ -175,15 +192,14 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         return result;
     }
     
-    private String getViewMetaDataSQL(final Collection<String> tableNames) {
-        return String.format(VIEW_META_DATA_SQL, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
+    private String getViewMetaDataSQL(final Collection<String> tableNames, final String schema) {
+        return String.format(VIEW_META_DATA_SQL, schema, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
     }
     
     private Map<String, Collection<ColumnMetaData>> loadColumnMetaDataMap(final Connection connection, final Collection<String> tables, final String schema) throws SQLException {
         Map<String, Collection<ColumnMetaData>> result = new HashMap<>(tables.size(), 1F);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(getTableMetaDataSQL(tables, connection.getMetaData()))) {
-            Map<String, Collection<String>> tablePrimaryKeys = loadTablePrimaryKeys(connection, tables);
-            preparedStatement.setString(1, schema);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getTableMetaDataSQL(tables, connection.getMetaData(), schema))) {
+            Map<String, Collection<String>> tablePrimaryKeys = loadTablePrimaryKeys(connection, tables, schema);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 resultSet.setFetchSize(1000);
                 while (resultSet.next()) {
@@ -247,7 +263,7 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         return dataType;
     }
     
-    private String getTableMetaDataSQL(final Collection<String> tables, final DatabaseMetaData databaseMetaData) throws SQLException {
+    private String getTableMetaDataSQL(final Collection<String> tables, final DatabaseMetaData databaseMetaData, final String schema) throws SQLException {
         StringBuilder stringBuilder = new StringBuilder(28);
         if (versionContainsIdentityColumn(databaseMetaData)) {
             stringBuilder.append(", IDENTITY_COLUMN");
@@ -256,8 +272,8 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
             stringBuilder.append(", COLLATION");
         }
         String collation = stringBuilder.toString();
-        return tables.isEmpty() ? String.format(TABLE_META_DATA_SQL, collation)
-                : String.format(TABLE_META_DATA_SQL_IN_TABLES, collation, tables.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
+        return tables.isEmpty() ? String.format(TABLE_META_DATA_SQL, collation, schema)
+                : String.format(TABLE_META_DATA_SQL_IN_TABLES, collation, schema, tables.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
     }
     
     private boolean versionContainsCollation(final DatabaseMetaData databaseMetaData) throws SQLException {
@@ -270,8 +286,7 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
     
     private Map<String, Collection<IndexMetaData>> loadIndexMetaData(final Connection connection, final Collection<String> tableNames, final String schema) throws SQLException {
         Map<String, Collection<IndexMetaData>> result = new HashMap<>(tableNames.size(), 1F);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(getIndexMetaDataSQL(tableNames))) {
-            preparedStatement.setString(1, schema);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getIndexMetaDataSQL(tableNames, schema))) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     String indexName = resultSet.getString("INDEX_NAME");
@@ -280,7 +295,7 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
                     if (!result.containsKey(tableName)) {
                         result.put(tableName, new LinkedList<>());
                     }
-                    IndexMetaData indexMetaData = new IndexMetaData(indexName, loadIndexColumnNames(connection, tableName, indexName));
+                    IndexMetaData indexMetaData = new IndexMetaData(indexName, loadIndexColumnNames(connection, tableName, indexName, schema));
                     indexMetaData.setUnique(isUnique);
                     result.get(tableName).add(indexMetaData);
                 }
@@ -289,11 +304,10 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         return result;
     }
     
-    private List<String> loadIndexColumnNames(final Connection connection, final String tableName, final String indexName) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(INDEX_COLUMN_META_DATA_SQL)) {
-            preparedStatement.setString(1, connection.getSchema());
-            preparedStatement.setString(2, tableName);
-            preparedStatement.setString(3, indexName);
+    private List<String> loadIndexColumnNames(final Connection connection, final String tableName, final String indexName, final String schema) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL, schema))) {
+            preparedStatement.setString(1, tableName);
+            preparedStatement.setString(2, indexName);
             List<String> result = new LinkedList<>();
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -303,14 +317,14 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         }
     }
     
-    private String getIndexMetaDataSQL(final Collection<String> tableNames) {
+    private String getIndexMetaDataSQL(final Collection<String> tableNames, final String schema) {
         // TODO The table name needs to be in uppercase, otherwise the index cannot be found.
-        return String.format(INDEX_META_DATA_SQL, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
+        return String.format(INDEX_META_DATA_SQL, schema, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
     }
     
-    private Map<String, Collection<String>> loadTablePrimaryKeys(final Connection connection, final Collection<String> tableNames) throws SQLException {
+    private Map<String, Collection<String>> loadTablePrimaryKeys(final Connection connection, final Collection<String> tableNames, final String schema) throws SQLException {
         Map<String, Collection<String>> result = new HashMap<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(getPrimaryKeyMetaDataSQL(connection.getSchema(), tableNames))) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getPrimaryKeyMetaDataSQL(tableNames, schema))) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     String columnName = resultSet.getString("COLUMN_NAME");
@@ -322,9 +336,9 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         return result;
     }
     
-    private String getPrimaryKeyMetaDataSQL(final String schemaName, final Collection<String> tables) {
-        return tables.isEmpty() ? String.format(PRIMARY_KEY_META_DATA_SQL, schemaName)
-                : String.format(PRIMARY_KEY_META_DATA_SQL_IN_TABLES, schemaName, tables.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
+    private String getPrimaryKeyMetaDataSQL(final Collection<String> tables, final String schema) {
+        return tables.isEmpty() ? String.format(PRIMARY_KEY_META_DATA_SQL, schema)
+                : String.format(PRIMARY_KEY_META_DATA_SQL_IN_TABLES, schema, tables.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
     }
     
     @Override

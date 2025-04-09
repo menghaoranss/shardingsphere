@@ -80,7 +80,8 @@ class OpenGaussSchemaMetaDataLoaderTest {
     @SphereEx(Type.MODIFY)
     @Test
     void assertLoadSchemaTableNames() throws SQLException {
-        assertThat(SchemaMetaDataLoader.loadSchemaTableNames("foo_db", TypedSPILoader.getService(DatabaseType.class, "openGauss"), dataSource, Collections.emptyList(), Collections.emptyList()),
+        assertThat(SchemaMetaDataLoader.loadSchemaTableNames("foo_db", TypedSPILoader.getService(DatabaseType.class, "openGauss"), dataSource,
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
                 is(createSchemaTableNames()));
     }
     

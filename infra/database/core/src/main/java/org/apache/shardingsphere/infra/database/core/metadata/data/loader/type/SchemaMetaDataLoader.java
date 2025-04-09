@@ -72,14 +72,22 @@ public final class SchemaMetaDataLoader {
      * @param databaseType database type
      * @param dataSource data source
      * @param includedTables included tables
+     * @param loadMetaDataSchemas load metadata schemas
      * @param excludedTables excluded tables
      * @return loaded schema table names
      * @throws SQLException SQL exception
      */
     public static Map<String, Collection<String>> loadSchemaTableNames(final String databaseName, final DatabaseType databaseType, final DataSource dataSource,
-                                                                       @SphereEx final Collection<String> includedTables, final Collection<String> excludedTables) throws SQLException {
+                                                                       @SphereEx final Collection<String> includedTables, @SphereEx final Collection<String> loadMetaDataSchemas,
+                                                                       final Collection<String> excludedTables) throws SQLException {
         try (MetaDataLoaderConnection connection = new MetaDataLoaderConnection(databaseType, dataSource.getConnection())) {
             Collection<String> schemaNames = loadSchemaNames(connection, databaseType);
+            if (!loadMetaDataSchemas.isEmpty()) {
+                schemaNames.addAll(loadMetaDataSchemas);
+            }
+            if (!schemaNames.contains(databaseName)) {
+                schemaNames.add(databaseName);
+            }
             DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
             Map<String, Collection<String>> result = new CaseInsensitiveMap<>(schemaNames.size(), 1F);
             for (String each : schemaNames) {
@@ -105,7 +113,9 @@ public final class SchemaMetaDataLoader {
         // SPEX CHANGED: BEGIN
         if (!dialectDatabaseMetaData.getDefaultSchema().isPresent() || isHiveOrPrestoDatabase(databaseType)) {
             // SPEX CHANGED: END
-            return Collections.singletonList(connection.getSchema());
+            Collection<String> result = new LinkedList<>();
+            result.add(connection.getSchema());
+            return result;
         }
         Collection<String> result = new LinkedList<>();
         SystemDatabase systemDatabase = new SystemDatabase(databaseType);
@@ -137,7 +147,7 @@ public final class SchemaMetaDataLoader {
     
     @SphereEx
     private static boolean isOracleDatabase(final DatabaseType databaseType) {
-        return "Oracle".equals(databaseType.getType());
+        return "Oracle".equals(databaseType.getType()) || "Oceanbase_Oracle".equals(databaseType.getType());
     }
     
     @SphereEx

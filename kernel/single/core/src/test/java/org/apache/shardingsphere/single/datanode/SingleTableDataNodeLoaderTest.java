@@ -102,7 +102,7 @@ class SingleTableDataNodeLoaderTest {
         when(builtRule.getAttributes()).thenReturn(new RuleAttributes(ruleAttribute));
         @SphereEx(Type.MODIFY)
         Map<String, Collection<DataNode>> actual = SingleTableDataNodeLoader.load(
-                "foo_db", databaseType, dataSourceMap, Collections.singleton(builtRule), Collections.singleton("*.*"), Collections.emptyList());
+                "foo_db", databaseType, dataSourceMap, Collections.singleton(builtRule), Collections.singleton("*.*"), Collections.emptyList(), Collections.emptyList());
         assertFalse(actual.containsKey("employee"));
         assertFalse(actual.containsKey("salary"));
         assertFalse(actual.containsKey("student"));
@@ -118,7 +118,8 @@ class SingleTableDataNodeLoaderTest {
     void assertLoadWithConflictTables() {
         @SphereEx(Type.MODIFY)
         Map<String, Collection<DataNode>> actual =
-                SingleTableDataNodeLoader.load("foo_db", databaseType, dataSourceMap, Collections.emptyList(), Collections.singleton("*.*.*"), Collections.emptyList());
+                SingleTableDataNodeLoader.load("foo_db", databaseType, dataSourceMap,
+                        Collections.emptyList(), Collections.emptyList(), Collections.singleton("*.*.*"), Collections.emptyList());
         assertTrue(actual.containsKey("employee"));
         assertTrue(actual.containsKey("salary"));
         assertTrue(actual.containsKey("student"));
@@ -141,7 +142,8 @@ class SingleTableDataNodeLoaderTest {
         when(builtRule.getAttributes()).thenReturn(new RuleAttributes(ruleAttribute));
         @SphereEx(Type.MODIFY)
         Map<String, Collection<DataNode>> actual =
-                SingleTableDataNodeLoader.load("foo_db", databaseType, dataSourceMap, Collections.singleton(builtRule), Collections.emptyList(), Collections.emptyList());
+                SingleTableDataNodeLoader.load("foo_db", databaseType, dataSourceMap,
+                        Collections.singleton(builtRule), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         assertTrue(actual.isEmpty());
     }
 }

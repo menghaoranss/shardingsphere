@@ -141,7 +141,7 @@ class LoadSingleTableExecutorTest {
         StorageUnit storageUnit = mock(StorageUnit.class);
         when(storageUnit.getDataSource()).thenReturn(new MockedDataSource());
         when(database.getResourceMetaData().getStorageUnits()).thenReturn(Collections.singletonMap("foo_ds", storageUnit));
-        when(SingleTableDataNodeLoader.load(eq("foo_db"), any(), any())).thenReturn(Collections.singletonMap("foo_tbl", Collections.singleton(new DataNode("foo_ds.foo_tbl"))));
+        when(SingleTableDataNodeLoader.load(eq("foo_db"), any(), any(), any())).thenReturn(Collections.singletonMap("foo_tbl", Collections.singleton(new DataNode("foo_ds.foo_tbl"))));
         when(SingleTableLoadUtils.convertToDataNodes(eq("foo_db"), any(), any())).thenReturn(Collections.singleton(new DataNode("foo_ds.foo_tbl")));
         SingleRuleConfiguration currentConfig = new SingleRuleConfiguration(currentTables, null);
         LoadSingleTableStatement sqlStatement = new LoadSingleTableStatement(Collections.singleton(new SingleTableSegment("*", "bar_tbl")));
@@ -160,7 +160,7 @@ class LoadSingleTableExecutorTest {
         StorageUnit storageUnit = mock(StorageUnit.class);
         when(storageUnit.getDataSource()).thenReturn(new MockedDataSource());
         when(database.getResourceMetaData().getStorageUnits()).thenReturn(Collections.singletonMap("foo_ds", storageUnit));
-        when(SingleTableDataNodeLoader.load(eq("foo_db"), any(), any())).thenReturn(Collections.singletonMap("foo_tbl", Collections.singleton(new DataNode("foo_ds.foo_tbl"))));
+        when(SingleTableDataNodeLoader.load(eq("foo_db"), any(), any(), any())).thenReturn(Collections.singletonMap("foo_tbl", Collections.singleton(new DataNode("foo_ds.foo_tbl"))));
         when(SingleTableLoadUtils.convertToDataNodes(eq("foo_db"), any(), any())).thenReturn(Collections.singleton(new DataNode("foo_ds.foo_tbl")));
         SingleRuleConfiguration currentConfig = new SingleRuleConfiguration(currentTables, null);
         LoadSingleTableStatement sqlStatement = new LoadSingleTableStatement(Collections.singleton(new SingleTableSegment("*", "bar_tbl")));

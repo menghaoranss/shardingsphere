@@ -153,7 +153,13 @@ public enum ConfigurationPropertyKey implements TypedPropertyKey {
      * Load metadata ignore tables.
      */
     @SphereEx
-    LOAD_METADATA_IGNORE_TABLES("load-metadata-ignore-tables", "", String.class, true);
+    LOAD_METADATA_IGNORE_TABLES("load-metadata-ignore-tables", "", String.class, true),
+    
+    /**
+     * Load metadata schema.
+     */
+    @SphereEx
+    LOAD_METADATA_SCHEMA("load-metadata-schema", "", String.class, true);
     
     private final String key;
     

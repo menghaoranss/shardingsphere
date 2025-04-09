@@ -81,7 +81,7 @@ class PostgreSQLSchemaMetaDataLoaderTest {
     @Test
     void assertLoadSchemaTableNames() throws SQLException {
         assertThat(SchemaMetaDataLoader.loadSchemaTableNames("foo_db",
-                TypedSPILoader.getService(DatabaseType.class, "PostgreSQL"), dataSource, Collections.emptyList(), Collections.emptyList()), is(createSchemaTableNames()));
+                TypedSPILoader.getService(DatabaseType.class, "PostgreSQL"), dataSource, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), is(createSchemaTableNames()));
     }
     
     private Map<String, Collection<String>> createSchemaTableNames() {

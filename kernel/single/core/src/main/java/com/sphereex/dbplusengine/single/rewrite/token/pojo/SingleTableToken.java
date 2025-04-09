@@ -19,7 +19,9 @@ package com.sphereex.dbplusengine.single.rewrite.token.pojo;
 
 import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import lombok.Getter;
+import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 import org.apache.shardingsphere.infra.database.oracle.type.OracleDatabaseType;
@@ -40,6 +42,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +64,8 @@ public final class SingleTableToken extends SQLToken implements Substitutable, R
     
     private final ShardingSphereMetaData metaData;
     
+    private final Collection<String> loadMetaDataSchema;
+    
     public SingleTableToken(final int startIndex, final int stopIndex, final IdentifierValue tableName, final ShardingSphereDatabase database, final ShardingSphereMetaData metaData) {
         super(startIndex);
         this.stopIndex = stopIndex;
@@ -70,6 +75,16 @@ public final class SingleTableToken extends SQLToken implements Substitutable, R
         dataNodes = new DataNodes(database.getRuleMetaData().getRules()).getDataNodes(tableName.getValue());
         dataSourceNames = new CaseInsensitiveSet<>(dataNodes.size(), 1F);
         dataNodes.forEach(each -> dataSourceNames.add(each.getDataSourceName()));
+        loadMetaDataSchema = getSchemas(database);
+    }
+    
+    private Collection<String> getSchemas(final ShardingSphereDatabase database) {
+        Collection<String> result = new LinkedList<>();
+        Collection<String> schemas = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(metaData.getProps().getValue(ConfigurationPropertyKey.LOAD_METADATA_SCHEMA));
+        if (!schemas.contains(database.getName())) {
+            result.add(database.getName());
+        }
+        return result;
     }
     
     @Override
@@ -109,6 +124,11 @@ public final class SingleTableToken extends SQLToken implements Substitutable, R
         String schema = Optional.ofNullable(storageUnit.getConnectionProperties().getSchema()).orElseGet(() -> storageUnit.getConnectionProperties().getCatalog());
         String caseConvertedSchema = storageUnit.getStorageType() instanceof OracleDatabaseType ? schema.toUpperCase() : schema;
         String warpedSchema = dialectDatabaseMetaData.getQuoteCharacter().wrap(caseConvertedSchema);
-        return warpedSchema + "." + tableName.getValueWithQuoteCharacters();
+        if (loadMetaDataSchema.isEmpty()) {
+            return warpedSchema + "." + tableName.getValueWithQuoteCharacters();
+        }
+        String dataNodeSchema = dataNodes.iterator().next().getSchemaName();
+        String result = loadMetaDataSchema.contains(dataNodeSchema) ? dataNodeSchema : warpedSchema;
+        return result + "." + tableName.getValueWithQuoteCharacters();
     }
 }
