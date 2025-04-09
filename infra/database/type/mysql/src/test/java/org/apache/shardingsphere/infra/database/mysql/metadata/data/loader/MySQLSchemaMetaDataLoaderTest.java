@@ -78,7 +78,8 @@ class MySQLSchemaMetaDataLoaderTest {
     void assertLoadSchemaTableNames() throws SQLException {
         Map<String, Collection<String>> schemaTableNames = Collections.singletonMap("foo_db", Arrays.asList("tbl", "partitioned_tbl"));
         // SPEX CHANGE: BEGIN
-        assertThat(SchemaMetaDataLoader.loadSchemaTableNames("foo_db", TypedSPILoader.getService(DatabaseType.class, "MySQL"), dataSource, Collections.emptyList(), Collections.emptyList()),
+        assertThat(SchemaMetaDataLoader.loadSchemaTableNames("foo_db", TypedSPILoader.getService(DatabaseType.class, "MySQL"), dataSource,
+                        Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
                 is(schemaTableNames));
         // SPEX CHANGE: END
     }

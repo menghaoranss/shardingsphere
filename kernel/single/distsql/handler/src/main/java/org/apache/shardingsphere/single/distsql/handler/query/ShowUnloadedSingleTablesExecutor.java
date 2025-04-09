@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -79,7 +80,7 @@ public final class ShowUnloadedSingleTablesExecutor implements DistSQLQueryExecu
                         .collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().getDataSource(), (oldValue, currentValue) -> oldValue, LinkedHashMap::new)),
                 database.getRuleMetaData().getRules());
         Collection<String> excludedTables = SingleTableLoadUtils.getExcludedTables(database.getRuleMetaData().getRules());
-        return SingleTableDataNodeLoader.load(database.getName(), aggregateDataSourceMap, excludedTables);
+        return SingleTableDataNodeLoader.load(database.getName(), aggregateDataSourceMap, Collections.emptyList(), excludedTables);
     }
     
     @Override

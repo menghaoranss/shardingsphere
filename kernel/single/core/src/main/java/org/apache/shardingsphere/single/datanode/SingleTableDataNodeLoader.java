@@ -55,12 +55,13 @@ public final class SingleTableDataNodeLoader {
      * @param dataSourceMap data source map
      * @param builtRules built rules
      * @param configuredTables configured tables
+     * @param loadMetadataSchemas load metadata scchemas
      * @param loadMetadataIgnoreTables load metadata ignore tables
      * @return single table data node map
      */
     public static Map<String, Collection<DataNode>> load(final String databaseName, final DatabaseType protocolType, final Map<String, DataSource> dataSourceMap,
                                                          final Collection<ShardingSphereRule> builtRules, final Collection<String> configuredTables,
-                                                         @SphereEx final Collection<String> loadMetadataIgnoreTables) {
+                                                         @SphereEx final Collection<String> loadMetadataSchemas, @SphereEx final Collection<String> loadMetadataIgnoreTables) {
         Collection<String> featureRequiredSingleTables = SingleTableLoadUtils.getFeatureRequiredSingleTables(builtRules);
         if (configuredTables.isEmpty() && featureRequiredSingleTables.isEmpty()) {
             return new LinkedHashMap<>();
@@ -69,7 +70,7 @@ public final class SingleTableDataNodeLoader {
         // SPEX ADDED: BEGIN
         excludedTables.addAll(loadMetadataIgnoreTables);
         // SPEX ADDED: END
-        Map<String, Collection<DataNode>> actualDataNodes = load(databaseName, dataSourceMap, excludedTables);
+        Map<String, Collection<DataNode>> actualDataNodes = load(databaseName, dataSourceMap, loadMetadataSchemas, excludedTables);
         Collection<String> splitTables = SingleTableLoadUtils.splitTableLines(configuredTables);
         if (splitTables.contains(SingleTableConstants.ALL_TABLES) || splitTables.contains(SingleTableConstants.ALL_SCHEMA_TABLES)) {
             return actualDataNodes;
@@ -83,13 +84,16 @@ public final class SingleTableDataNodeLoader {
      *
      * @param databaseName database name
      * @param dataSourceMap data source map
+     * @param loadMetadataSchemas load metadata schemas
      * @param excludedTables excluded tables
      * @return single table data node map
      */
-    public static Map<String, Collection<DataNode>> load(final String databaseName, final Map<String, DataSource> dataSourceMap, final Collection<String> excludedTables) {
+    public static Map<String, Collection<DataNode>> load(final String databaseName, final Map<String, DataSource> dataSourceMap,
+                                                         @SphereEx final Collection<String> loadMetadataSchemas, final Collection<String> excludedTables) {
         Map<String, Collection<DataNode>> result = new ConcurrentHashMap<>();
         for (Entry<String, DataSource> entry : dataSourceMap.entrySet()) {
-            Map<String, Collection<DataNode>> dataNodeMap = load(databaseName, DatabaseTypeEngine.getStorageType(entry.getValue()), entry.getKey(), entry.getValue(), excludedTables);
+            Map<String, Collection<DataNode>> dataNodeMap = load(databaseName, DatabaseTypeEngine.getStorageType(entry.getValue()),
+                    entry.getKey(), entry.getValue(), loadMetadataSchemas, excludedTables);
             for (Entry<String, Collection<DataNode>> each : dataNodeMap.entrySet()) {
                 Collection<DataNode> addedDataNodes = each.getValue();
                 Collection<DataNode> existDataNodes = result.getOrDefault(each.getKey().toLowerCase(), new LinkedHashSet<>(addedDataNodes.size(), 1F));
@@ -101,8 +105,8 @@ public final class SingleTableDataNodeLoader {
     }
     
     private static Map<String, Collection<DataNode>> load(final String databaseName, final DatabaseType storageType, final String dataSourceName,
-                                                          final DataSource dataSource, final Collection<String> excludedTables) {
-        Map<String, Collection<String>> schemaTableNames = loadSchemaTableNames(databaseName, storageType, dataSource, dataSourceName, excludedTables);
+                                                          final DataSource dataSource, @SphereEx final Collection<String> loadMetadataSchemas, final Collection<String> excludedTables) {
+        Map<String, Collection<String>> schemaTableNames = loadSchemaTableNames(databaseName, storageType, dataSource, dataSourceName, loadMetadataSchemas, excludedTables);
         Map<String, Collection<DataNode>> result = new CaseInsensitiveMap<>();
         for (Entry<String, Collection<String>> entry : schemaTableNames.entrySet()) {
             for (String each : entry.getValue()) {
@@ -181,14 +185,16 @@ public final class SingleTableDataNodeLoader {
      * @param storageType storage type
      * @param dataSource data source
      * @param dataSourceName data source name
+     * @param loadMetadataSchemas load metadata schemas
      * @param excludedTables excluded tables
      * @return schema table names
      * @throws SingleTablesLoadingException Single tables loading exception
      */
     public static Map<String, Collection<String>> loadSchemaTableNames(final String databaseName, final DatabaseType storageType,
-                                                                       final DataSource dataSource, final String dataSourceName, final Collection<String> excludedTables) {
+                                                                       final DataSource dataSource, final String dataSourceName,
+                                                                       @SphereEx final Collection<String> loadMetadataSchemas, final Collection<String> excludedTables) {
         try {
-            return SchemaMetaDataLoader.loadSchemaTableNames(databaseName, storageType, dataSource, Collections.emptyList(), excludedTables);
+            return SchemaMetaDataLoader.loadSchemaTableNames(databaseName, storageType, dataSource, Collections.emptyList(), loadMetadataSchemas, excludedTables);
         } catch (final SQLException ex) {
             throw new SingleTablesLoadingException(databaseName, dataSourceName, ex);
         }

@@ -133,7 +133,8 @@ public final class LoadSingleTableExecutor implements DatabaseRuleCreateExecutor
         for (String each : storageUnitNames) {
             DataSource dataSource = aggregatedDataSourceMap.get(each);
             Map<String, Collection<String>> schemaTableNames =
-                    SingleTableDataNodeLoader.loadSchemaTableNames(database.getName(), DatabaseTypeEngine.getStorageType(dataSource), dataSource, each, Collections.emptyList());
+                    SingleTableDataNodeLoader.loadSchemaTableNames(database.getName(), DatabaseTypeEngine.getStorageType(dataSource),
+                            dataSource, each, Collections.emptyList(), Collections.emptyList());
             if (!schemaTableNames.isEmpty()) {
                 result.put(each, schemaTableNames);
             }

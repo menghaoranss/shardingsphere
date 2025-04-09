@@ -56,13 +56,15 @@ public final class SingleRuleConfigurationDecorator implements RuleConfiguration
     public SingleRuleConfiguration decorate(final String databaseName, final Map<String, DataSource> dataSources,
                                             final Collection<ShardingSphereRule> builtRules, final SingleRuleConfiguration ruleConfig, @SphereEx final ConfigurationProperties props) {
         @SphereEx
+        Collection<String> loadMetadataSchemas = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_SCHEMA));
+        @SphereEx
         Collection<String> loadMetadataIgnoreTables = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES));
-        return new SingleRuleConfiguration(decorateTables(databaseName, dataSources, new LinkedList<>(builtRules), ruleConfig.getTables(), loadMetadataIgnoreTables),
+        return new SingleRuleConfiguration(decorateTables(databaseName, dataSources, new LinkedList<>(builtRules), ruleConfig.getTables(), loadMetadataSchemas, loadMetadataIgnoreTables),
                 ruleConfig.getDefaultDataSource().orElse(null));
     }
     
     private Collection<String> decorateTables(final String databaseName, final Map<String, DataSource> dataSources, final Collection<ShardingSphereRule> builtRules, final Collection<String> tables,
-                                              @SphereEx final Collection<String> loadMetadataIgnoreTables) {
+                                              @SphereEx final Collection<String> loadMetadataSchemas, @SphereEx final Collection<String> loadMetadataIgnoreTables) {
         builtRules.removeIf(SingleRule.class::isInstance);
         if (tables.isEmpty() && builtRules.isEmpty()) {
             return Collections.emptyList();
@@ -79,7 +81,7 @@ public final class SingleRuleConfigurationDecorator implements RuleConfiguration
         // SPEX CHANGED: BEGIN
         excludedTables.addAll(loadMetadataIgnoreTables);
         // SPEX CHANGED: END
-        Map<String, Collection<DataNode>> actualDataNodes = SingleTableDataNodeLoader.load(databaseName, aggregatedDataSources, excludedTables);
+        Map<String, Collection<DataNode>> actualDataNodes = SingleTableDataNodeLoader.load(databaseName, aggregatedDataSources, loadMetadataSchemas, excludedTables);
         boolean isSchemaSupportedDatabaseType = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData().getDefaultSchema().isPresent();
         if (splitTables.contains(SingleTableConstants.ALL_TABLES) || splitTables.contains(SingleTableConstants.ALL_SCHEMA_TABLES)) {
             return loadAllTables(isSchemaSupportedDatabaseType, actualDataNodes);

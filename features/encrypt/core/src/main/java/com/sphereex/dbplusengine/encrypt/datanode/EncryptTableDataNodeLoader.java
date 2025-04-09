@@ -64,7 +64,8 @@ public final class EncryptTableDataNodeLoader {
     @SneakyThrows
     private static Map<String, Collection<DataNode>> load(final String databaseName, final DatabaseType storageType, final String dataSourceName,
                                                           final DataSource dataSource, final Collection<String> includedTables) {
-        Map<String, Collection<String>> schemaTableNames = SchemaMetaDataLoader.loadSchemaTableNames(databaseName, storageType, dataSource, includedTables, Collections.emptyList());
+        Map<String, Collection<String>> schemaTableNames = SchemaMetaDataLoader.loadSchemaTableNames(databaseName, storageType,
+                dataSource, includedTables, Collections.emptyList(), Collections.emptyList());
         Map<String, Collection<DataNode>> result = new CaseInsensitiveMap<>();
         for (Entry<String, Collection<String>> entry : schemaTableNames.entrySet()) {
             for (String each : entry.getValue()) {

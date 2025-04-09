@@ -18,16 +18,15 @@
 package org.apache.shardingsphere.infra.database.core.metadata.data.loader;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.Properties;
 
 /**
  * Meta data loader material.
  */
-@RequiredArgsConstructor
 @Getter
 public final class MetaDataLoaderMaterial {
     
@@ -40,4 +39,26 @@ public final class MetaDataLoaderMaterial {
     private final DatabaseType storageType;
     
     private final String defaultSchemaName;
+    
+    private final Properties props;
+    
+    public MetaDataLoaderMaterial(final Collection<String> actualTableNames, final String storageUnitName, final DataSource dataSource,
+                                  final DatabaseType storageType, final String defaultSchemaName) {
+        this.actualTableNames = actualTableNames;
+        this.storageUnitName = storageUnitName;
+        this.dataSource = dataSource;
+        this.storageType = storageType;
+        this.defaultSchemaName = defaultSchemaName;
+        props = new Properties();
+    }
+    
+    public MetaDataLoaderMaterial(final Collection<String> actualTableNames, final String storageUnitName, final DataSource dataSource,
+                                  final DatabaseType storageType, final String defaultSchemaName, final Properties props) {
+        this.actualTableNames = actualTableNames;
+        this.storageUnitName = storageUnitName;
+        this.dataSource = dataSource;
+        this.storageType = storageType;
+        this.defaultSchemaName = defaultSchemaName;
+        this.props = props;
+    }
 }

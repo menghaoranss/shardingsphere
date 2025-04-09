@@ -86,9 +86,11 @@ public final class SingleRule implements DatabaseRule {
         dataSourceNames = new CaseInsensitiveSet<>(aggregatedDataSources.keySet());
         this.protocolType = protocolType;
         @SphereEx
+        Collection<String> loadMetadataSchemas = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_SCHEMA));
+        @SphereEx
         Collection<String> loadMetadataIgnoreTables = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(props.getValue(ConfigurationPropertyKey.LOAD_METADATA_IGNORE_TABLES));
         // SPEX CHANGED: BEGIN
-        singleTableDataNodes = SingleTableDataNodeLoader.load(databaseName, protocolType, aggregatedDataSources, builtRules, configuration.getTables(), loadMetadataIgnoreTables);
+        singleTableDataNodes = SingleTableDataNodeLoader.load(databaseName, protocolType, aggregatedDataSources, builtRules, configuration.getTables(), loadMetadataSchemas, loadMetadataIgnoreTables);
         // SPEX CHANGED: END
         SingleTableMapperRuleAttribute tableMapperRuleAttribute = new SingleTableMapperRuleAttribute(singleTableDataNodes.values());
         mutableDataNodeRuleAttribute = new SingleMutableDataNodeRuleAttribute(configuration, dataSourceNames, singleTableDataNodes, protocolType, tableMapperRuleAttribute);
