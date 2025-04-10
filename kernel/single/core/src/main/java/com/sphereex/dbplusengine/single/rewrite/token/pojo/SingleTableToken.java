@@ -42,7 +42,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 /**
@@ -75,16 +74,7 @@ public final class SingleTableToken extends SQLToken implements Substitutable, R
         dataNodes = new DataNodes(database.getRuleMetaData().getRules()).getDataNodes(tableName.getValue());
         dataSourceNames = new CaseInsensitiveSet<>(dataNodes.size(), 1F);
         dataNodes.forEach(each -> dataSourceNames.add(each.getDataSourceName()));
-        loadMetaDataSchema = getSchemas(database);
-    }
-    
-    private Collection<String> getSchemas(final ShardingSphereDatabase database) {
-        Collection<String> result = new LinkedList<>();
-        Collection<String> schemas = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(metaData.getProps().getValue(ConfigurationPropertyKey.LOAD_METADATA_SCHEMA));
-        if (!schemas.contains(database.getName())) {
-            result.add(database.getName());
-        }
-        return result;
+        loadMetaDataSchema = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(metaData.getProps().getValue(ConfigurationPropertyKey.LOAD_METADATA_SCHEMA));
     }
     
     @Override
@@ -128,7 +118,7 @@ public final class SingleTableToken extends SQLToken implements Substitutable, R
             return warpedSchema + "." + tableName.getValueWithQuoteCharacters();
         }
         String dataNodeSchema = dataNodes.iterator().next().getSchemaName();
-        String result = loadMetaDataSchema.contains(dataNodeSchema) ? dataNodeSchema : warpedSchema;
+        String result = loadMetaDataSchema.contains(dataNodeSchema) ? dataNodeSchema : dialectDatabaseMetaData.getDefaultSchema().isPresent() ? warpedSchema : loadMetaDataSchema.iterator().next();
         return result + "." + tableName.getValueWithQuoteCharacters();
     }
 }

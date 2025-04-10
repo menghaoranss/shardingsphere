@@ -70,7 +70,7 @@ public final class ColumnReviseEngine<T extends ShardingSphereRule> {
             }
             String name = nameReviser.isPresent() ? nameReviser.get().revise(each.getName()) : each.getName();
             // SPEX ADDED: BEGIN
-            checkRevisePrimaryKey(result, tableName, name);
+            // checkRevisePrimaryKey(result, tableName, name);
             int dataType = dataTypeReviser.map(optional -> optional.revise(each.getName(), databaseType, dataSource).orElseGet(each::getDataType)).orElseGet(each::getDataType);
             // SPEX ADDED: END
             boolean generated = generatedReviser.map(optional -> optional.revise(each)).orElseGet(each::isGenerated);

@@ -17,7 +17,6 @@
 
 package com.sphereex.dbplusengine.infra.database.oceanbase.oracle.metadata.data.loader;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype.DataTypeExtractor;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
@@ -159,10 +158,6 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         }
         if (null != material.getProps() && material.getProps().containsKey("load-metadata-schema")) {
             result.append(",'").append((String) material.getProps().get("load-metadata-schema")).append("'");
-        }
-        Collection<String> schemas = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(result.toString());
-        if (!schemas.contains(material.getDefaultSchemaName().toUpperCase())) {
-            result.append(",'").append(material.getDefaultSchemaName().toUpperCase()).append("'");
         }
         return result.toString();
     }

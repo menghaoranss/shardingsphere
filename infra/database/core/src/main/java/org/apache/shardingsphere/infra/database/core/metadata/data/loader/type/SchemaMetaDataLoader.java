@@ -21,6 +21,7 @@ import com.cedarsoftware.util.CaseInsensitiveMap;
 import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderConnection;
 import org.apache.shardingsphere.infra.database.core.metadata.database.DialectDatabaseMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.database.system.SystemDatabase;
@@ -37,11 +38,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
  * Schema meta data loader.
  */
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SchemaMetaDataLoader {
     
@@ -85,9 +88,7 @@ public final class SchemaMetaDataLoader {
             if (!loadMetaDataSchemas.isEmpty()) {
                 schemaNames.addAll(loadMetaDataSchemas);
             }
-            if (!schemaNames.contains(databaseName)) {
-                schemaNames.add(databaseName);
-            }
+            schemaNames = replaceSchemaName(schemaNames, databaseType);
             DialectDatabaseMetaData dialectDatabaseMetaData = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData();
             Map<String, Collection<String>> result = new CaseInsensitiveMap<>(schemaNames.size(), 1F);
             for (String each : schemaNames) {
@@ -96,8 +97,43 @@ public final class SchemaMetaDataLoader {
                 result.put(schemaName, loadValidTableNames(connection, each, includedTables, excludedTables, databaseType));
                 // SPEX CHANGED: END
             }
+            if (!containsTableMetaData(result)) {
+                log.warn("Not found table metadata, please check your schema.");
+            }
             return result;
         }
+    }
+    
+    private static Collection<String> replaceSchemaName(final Collection<String> schemaNames, final DatabaseType databaseType) {
+        Collection<String> result = new LinkedList<>();
+        for (String each :schemaNames) {
+            result.add(each);
+            String replaceSchemaName = replaceSchemaName(each, databaseType);
+            if (!result.contains(replaceSchemaName)) {
+                result.add(replaceSchemaName);
+            }
+        }
+        return result;
+    }
+    
+    private static String replaceSchemaName(final String schemaName, final DatabaseType databaseType) {
+        if (!"Oracle".equalsIgnoreCase(databaseType.getType()) && !"Oceanbase_Oracle".equalsIgnoreCase(databaseType.getType())) {
+            return schemaName;
+        }
+        if (schemaName.endsWith("OPR")) {
+            return schemaName.substring(0, schemaName.length() - 3) + "DATA";
+        }
+        return schemaName;
+    }
+    
+    private static boolean containsTableMetaData(final Map<String, Collection<String>> schemaTableNames) {
+        boolean result = false;
+        for (Entry<String, Collection<String>> entry : schemaTableNames.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                result = true;
+            }
+        }
+        return result;
     }
     
     /**
