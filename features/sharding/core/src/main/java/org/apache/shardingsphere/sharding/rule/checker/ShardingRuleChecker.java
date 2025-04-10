@@ -173,7 +173,7 @@ public class ShardingRuleChecker {
             } catch (final Exception ignored) {
                 // CHECKSTYLE:ON
             }
-            ShardingSpherePreconditions.checkState(null == result || result.startsWith(dataNodeInfo.getPrefix()),
+            ShardingSpherePreconditions.checkState(null == result || result.toLowerCase().startsWith(dataNodeInfo.getPrefix().toLowerCase()),
                     () -> new AlgorithmInitializationException(shardingAlgorithm, "`%s` sharding algorithm configuration of `%s` does not match the actual data nodes",
                             shardingStrategy.getShardingAlgorithmName(), shardingTable.getLogicTable()));
         }
