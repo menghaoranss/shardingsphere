@@ -118,7 +118,7 @@ public final class SingleTableToken extends SQLToken implements Substitutable, R
             return warpedSchema + "." + tableName.getValueWithQuoteCharacters();
         }
         String dataNodeSchema = dataNodes.iterator().next().getSchemaName();
-        String result = loadMetaDataSchema.contains(dataNodeSchema) ? dataNodeSchema : warpedSchema;
+        String result = loadMetaDataSchema.contains(dataNodeSchema) ? dataNodeSchema : dialectDatabaseMetaData.getDefaultSchema().isPresent() ? warpedSchema : loadMetaDataSchema.iterator().next();
         return result + "." + tableName.getValueWithQuoteCharacters();
     }
 }
