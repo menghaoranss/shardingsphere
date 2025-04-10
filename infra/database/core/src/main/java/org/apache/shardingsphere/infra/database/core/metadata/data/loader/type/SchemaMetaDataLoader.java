@@ -98,7 +98,7 @@ public final class SchemaMetaDataLoader {
                 // SPEX CHANGED: END
             }
             if (!containsTableMetaData(result)) {
-                log.warn("Not found table metadata, please check your schema.");
+                log.warn(String.format("Not found table metadata in schema (%s), please check your schema or config load-metadata-schema", schemaNames));
             }
             return result;
         }

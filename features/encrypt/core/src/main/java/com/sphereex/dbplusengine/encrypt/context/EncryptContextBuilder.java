@@ -41,7 +41,11 @@ public final class EncryptContextBuilder {
     public static EncryptContext build(final EncryptColumn column, @SphereEx final DatabaseType databaseType, @SphereEx final EncryptColumnItemType encryptColumnItemType) {
         EncryptContext result = new EncryptContext(EncryptColumnDataTypeContextBuilder.build(column), databaseType);
         // SPEX ADDED: BEGIN
-        column.getAolianColumn().ifPresent(result::setAolianColumn);
+        if (column.getAolianColumn().isPresent()) {
+            result.setAolianColumn(column.getAolianColumn().get());
+        } else {
+            result.setAolianColumn(column.getName());
+        }
         column.getDbid().ifPresent(result::setDbid);
         result.setEncryptColumnItemType(encryptColumnItemType);
         // SPEX ADDED: END
