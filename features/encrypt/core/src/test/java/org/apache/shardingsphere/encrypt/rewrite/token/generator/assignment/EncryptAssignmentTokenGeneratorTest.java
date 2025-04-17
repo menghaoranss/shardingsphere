@@ -21,11 +21,20 @@ import org.apache.shardingsphere.encrypt.rule.EncryptRule;
 import org.apache.shardingsphere.encrypt.rule.column.EncryptColumn;
 import org.apache.shardingsphere.encrypt.rule.table.EncryptTable;
 import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
+import org.apache.shardingsphere.infra.database.core.metadata.database.metadata.DialectDatabaseMetaData;
+import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
+import org.apache.shardingsphere.sql.parser.statement.core.enums.TableSourceType;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.ColumnAssignmentSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.assignment.SetAssignmentSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.TableSegmentBoundInfo;
+import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,10 +71,14 @@ class EncryptAssignmentTokenGeneratorTest {
         // SPEX CHANGED: BEGIN
         tokenGenerator = new EncryptAssignmentTokenGenerator(mockEncryptRule(), null, null, Collections.emptyMap());
         // SPEX CHANGED: END
-        when(tablesContext.getSimpleTables().iterator().next().getTableName().getIdentifier().getValue()).thenReturn("table");
+        // SPEX DELETED: BEGIN
+        // when(tablesContext.getSimpleTables().iterator().next().getTableName().getIdentifier().getValue()).thenReturn("table");
+        // SPEX DELETED: END
         when(assignmentSegment.getColumns().get(0).getIdentifier().getValue()).thenReturn("columns");
         // SPEX ADDED: BEGIN
         when(assignmentSegment.getColumns().get(0).getOwner()).thenReturn(Optional.of(new OwnerSegment(0, 0, null)));
+        when(assignmentSegment.getColumns().get(0).getColumnBoundInfo()).thenReturn(new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("table"), new IdentifierValue("columns"),
+                TableSourceType.PHYSICAL_TABLE));
         // SPEX ADDED: END
         when(setAssignmentSegment.getAssignments()).thenReturn(Collections.singleton(assignmentSegment));
     }
@@ -76,6 +89,7 @@ class EncryptAssignmentTokenGeneratorTest {
         when(encryptTable.isEncryptColumn("columns")).thenReturn(true);
         when(encryptTable.getEncryptColumn("columns")).thenReturn(mock(EncryptColumn.class, RETURNS_DEEP_STUBS));
         when(result.getEncryptTable("table")).thenReturn(encryptTable);
+        when(result.findEncryptTable("table")).thenReturn(Optional.of(encryptTable));
         return result;
     }
     
