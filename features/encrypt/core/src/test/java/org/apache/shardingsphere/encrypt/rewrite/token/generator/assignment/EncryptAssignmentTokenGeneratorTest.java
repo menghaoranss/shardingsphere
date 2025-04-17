@@ -89,7 +89,9 @@ class EncryptAssignmentTokenGeneratorTest {
         when(encryptTable.isEncryptColumn("columns")).thenReturn(true);
         when(encryptTable.getEncryptColumn("columns")).thenReturn(mock(EncryptColumn.class, RETURNS_DEEP_STUBS));
         when(result.getEncryptTable("table")).thenReturn(encryptTable);
+        // SPEX ADDED: BEGIN
         when(result.findEncryptTable("table")).thenReturn(Optional.of(encryptTable));
+        // SPEX ADDED: END
         return result;
     }
     
