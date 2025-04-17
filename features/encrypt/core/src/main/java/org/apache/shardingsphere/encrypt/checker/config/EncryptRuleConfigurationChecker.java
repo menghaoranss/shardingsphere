@@ -46,6 +46,7 @@ import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
 import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,7 +109,9 @@ public final class EncryptRuleConfigurationChecker implements RuleConfigurationC
                 () -> new MissingRequiredEncryptColumnException(itemType, new SQLExceptionIdentifier(databaseName, tableName, logicColumnName)));
         ShardingSpherePreconditions.checkNotEmpty(columnItem.getEncryptorName(),
                 () -> new MissingRequiredAlgorithmException(itemType + " encrypt", new SQLExceptionIdentifier(databaseName, tableName, logicColumnName)));
-        ShardingSpherePreconditions.checkContainsKey(encryptors, columnItem.getEncryptorName(),
+        Map<String, AlgorithmConfiguration> newEncryptors = new HashMap<>(encryptors.size(), 1);
+        encryptors.forEach((key, value) -> newEncryptors.put(key.toLowerCase(), value));
+        ShardingSpherePreconditions.checkContainsKey(newEncryptors, columnItem.getEncryptorName().toLowerCase(),
                 () -> new UnregisteredAlgorithmException(itemType + " encrypt", columnItem.getEncryptorName(), new SQLExceptionIdentifier(databaseName, tableName, logicColumnName)));
     }
     
