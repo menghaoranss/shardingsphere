@@ -27,5 +27,10 @@
         <input sql="UPDATE t_user a JOIN t_user b ON `a`.user_id = `b`.user_id AND a.user_name = b.user_name AND a.user_name=? SET a.user_name=?, `b`.password=? WHERE a.user_name=? AND a.user_name like '%san%'" parameters="zhangsan, zs, 222222, zhangsan" />
         <output sql="UPDATE `encrypt_ds`.t_user a JOIN `encrypt_ds`.t_user b ON `a`.user_id = `b`.user_id AND a.`user_name_cipher` = b.`user_name_cipher` AND a.`user_name_cipher`=? SET a.user_name_cipher = ?, a.user_name_like = ?, `b`.password_cipher = ? WHERE a.`user_name_cipher`=? AND a.`user_name_like` like '%t`m%'" parameters="sVq8Lmm+j6bZE5EKSilJEQ==, BWbsYnYSBMy+qrHA26DUnA==, yt, wuhmEKgdgrWQYt+Ev0hgGA==, sVq8Lmm+j6bZE5EKSilJEQ==" />
     </rewrite-assertion>
+    
+    <rewrite-assertion id="update_more_tables" db-types="MySQL">
+        <input sql="UPDATE t_account a, t_account_bak b SET a.certificate_number=?, `b`.certificate_number=? WHERE `a`.password = `b`.password" parameters="cert1, cert2" />
+        <output sql="UPDATE `encrypt_ds`.t_account a, `encrypt_ds`.t_account_bak b SET a.`cipher_certificate_number` = ?, a.`assisted_query_certificate_number` = ?, a.`like_query_certificate_number` = ?, `b`.`cipher_certificate_number` = ?, `b`.`assisted_query_certificate_number` = ?, `b`.`like_query_certificate_number` = ?, `b`.`plain_certificate_number` = ? WHERE `a`.`assisted_query_password` = `b`.`assisted_query_password`" parameters="encrypt_cert1, assisted_query_cert1, like_query_cert1, encrypt_cert2, assisted_query_cert2, like_query_cert2" />
+    </rewrite-assertion>
 </rewrite-assertions>
 <!-- SPEX ADDED: END -->

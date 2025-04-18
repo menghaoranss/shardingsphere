@@ -76,11 +76,21 @@ public final class EncryptAssignmentTokenGenerator {
      * @return generated SQL tokens
      */
     public Collection<SQLToken> generateSQLTokens(final TablesContext tablesContext, final SetAssignmentSegment setAssignmentSegment) {
-        String tableName = tablesContext.getSimpleTables().iterator().next().getTableName().getIdentifier().getValue();
-        EncryptTable encryptTable = rule.getEncryptTable(tableName);
+        // SPEX DELETED: BEGIN
+        // String tableName = tablesContext.getSimpleTables().iterator().next().getTableName().getIdentifier().getValue();
+        // EncryptTable encryptTable = rule.getEncryptTable(tableName);
+        // SPEX DELETED: END
         Collection<SQLToken> result = new LinkedList<>();
         String schemaName = tablesContext.getSchemaName().orElseGet(() -> new DatabaseTypeRegistry(databaseType).getDefaultSchemaName(databaseName));
         for (ColumnAssignmentSegment each : setAssignmentSegment.getAssignments()) {
+            // SPEX ADDED: BEGIN
+            ColumnSegment columnSegment = each.getColumns().get(0);
+            Optional<EncryptTable> encryptTableOptional = findEncryptTable(columnSegment);
+            if (!encryptTableOptional.isPresent()) {
+                continue;
+            }
+            EncryptTable encryptTable = encryptTableOptional.get();
+            // SPEX ADDED: END
             String columnName = each.getColumns().get(0).getIdentifier().getValue();
             if (encryptTable.isEncryptColumn(columnName)) {
                 generateSQLToken(schemaName, encryptTable.getTable(), encryptTable.getEncryptColumn(columnName), each).ifPresent(result::add);
