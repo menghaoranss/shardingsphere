@@ -44,7 +44,7 @@ tableWild
     ;
 
 insertSelectClause
-    : valueReference? (LP_ fields? RP_)? select
+    : valueReference? (LP_ fields? RP_)? (LP_ select RP_ | select)
     ;
 
 onDuplicateKeyClause
@@ -88,7 +88,7 @@ assignment
     ;
 
 setAssignmentsClause
-    : valueReference? SET assignment (COMMA_ assignment)*
+    : SET assignment (COMMA_ assignment)*
     ;
 
 assignmentValues
@@ -105,7 +105,7 @@ blobValue
     ;
 
 delete
-    : DELETE deleteSpecification (singleTableClause | multipleTablesClause) whereClause? orderByClause? limitClause? returningClause?
+    : withClause? DELETE deleteSpecification (singleTableClause | multipleTablesClause) whereClause? orderByClause? limitClause? returningClause?
     ;
 
 deleteSpecification
@@ -159,7 +159,7 @@ queryPrimary
     ;
 
 querySpecification
-    : SELECT selectSpecification* projections selectIntoExpression? fromClause? whereClause? groupByClause? havingClause? windowClause?
+    : SELECT selectSpecification* projections selectIntoExpression? fromClause? whereClause? groupByClause? havingClause? windowClause? lockClauseList?
     ;
 
 call
@@ -202,7 +202,7 @@ loadStatement
 
 loadDataStatement
     : LOAD DATA
-      (LOW_PRIORITY | CONCURRENT)? LOCAL? 
+      (LOW_PRIORITY | CONCURRENT)? LOCAL?
       INFILE string_
       (REPLACE | IGNORE)?
       INTO TABLE tableName partitionNames?
@@ -216,7 +216,7 @@ loadDataStatement
 
 loadXmlStatement
     : LOAD XML
-      (LOW_PRIORITY | CONCURRENT)? LOCAL? 
+      (LOW_PRIORITY | CONCURRENT)? LOCAL?
       INFILE string_
       (REPLACE | IGNORE)?
       INTO TABLE tableName
@@ -288,8 +288,10 @@ tableReference
     ;
 
 tableFactor
-    : tableName partitionNames? (AS? alias)? indexHintList?
+    : tableName
+    | tableName partitionNames? (AS? alias)? indexHintList?
     | subquery AS? alias (LP_ columnNames RP_)?
+    | expr
     | expr (AS? alias)?
     | LATERAL subquery AS? alias (LP_ columnNames RP_)?
     | LP_ tableReferences RP_
