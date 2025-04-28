@@ -48,7 +48,8 @@ conditionalInsertElsePart
     ;
 
 insertIntoClause
-    : INTO dmlTableExprClause alias? columnNames?
+    : INTO dmlTableExprClause
+    | INTO dmlTableExprClause alias? columnNames?
     ;
 
 insertValuesClause
@@ -447,7 +448,8 @@ fromClauseOption
     ;
 
 selectTableReference
-    : (queryTableExprClause | containersClause | shardsClause) alias?
+    : queryTableExprClause | containersClause | shardsClause
+    | (queryTableExprClause | containersClause | shardsClause) alias?
     ;
 
 queryTableExprClause
@@ -666,7 +668,10 @@ modelIterateClause
     ;
 
 cellAssignment
-    : measureColumn LBT_ (((condition | expr | singleColumnForLoop) (COMMA_ (condition | expr | singleColumnForLoop))*) | multiColumnForLoop) RBT_
+    : measureColumn LBT_ (
+        multiColumnForLoop
+        | ((condition | expr | singleColumnForLoop) (COMMA_ (condition | expr | singleColumnForLoop))*)
+    ) RBT_
     ;
 
 singleColumnForLoop
