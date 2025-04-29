@@ -22,15 +22,21 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * OPE encoder.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OpeEncoder {
+    
+    private static final Map<Integer, BigInteger> OFFSET_VALUE_CACHE = new ConcurrentHashMap<>();
     
     /**
      * Encode boolean.
@@ -189,12 +195,12 @@ public final class OpeEncoder {
         ByteBuffer result = ByteBuffer.allocate(4);
         result.put(value);
         result.position(0);
-        if ((value[0] & 0x80) != 0) {
-            result.put((byte) (value[0] & 0x7f));
-        } else {
+        if ((value[0] & 0x80) == 0) {
             for (byte each : value) {
                 result.put((byte) ~each);
             }
+        } else {
+            result.put((byte) (value[0] & 0x7f));
         }
         result.position(0);
         return result.getFloat();
@@ -210,8 +216,8 @@ public final class OpeEncoder {
         ByteBuffer byteBuffer = ByteBuffer.allocate(8);
         byteBuffer.putDouble(value);
         byte[] result = byteBuffer.array();
-        if ((result[0] & 0x80) != 0) {
-            result[0] &= 0x7f;
+        if ((result[0] & 0x80) == 0) {
+            result[0] |= (byte) 0x80;
         } else {
             for (int i = 0; i < result.length; i++) {
                 result[i] = (byte) ~result[i];
@@ -232,11 +238,11 @@ public final class OpeEncoder {
         result.put(value);
         result.position(0);
         if ((value[0] & 0x80) == 0) {
-            result.put((byte) (value[0] | 0x80));
-        } else {
             for (byte each : value) {
                 result.put((byte) ~each);
             }
+        } else {
+            result.put((byte) (value[0] & 0x7f));
         }
         result.position(0);
         return result.getDouble();
@@ -294,6 +300,79 @@ public final class OpeEncoder {
         } else {
             return new String(value, charset);
         }
+    }
+    
+    /**
+     * Encode BigDecimal.
+     *
+     * @param value value
+     * @param precision precision
+     * @param scale scale
+     * @param roundingMode rounding mode
+     * @return encoded value
+     * @throws OpeAlgorithmException if precision and scale are required for decimal encryption
+     * @throws OpeAlgorithmException if value is too large
+     */
+    public static byte[] encodeBigDecimal(final BigDecimal value, final Integer precision, final Integer scale, final RoundingMode roundingMode) {
+        if (null == value) {
+            return null;
+        }
+        if (null == precision || null == scale) {
+            throw new OpeAlgorithmException("Precision and scale are required for decimal encryption");
+        }
+        BigDecimal rescaledValue = value.setScale(scale, roundingMode);
+        if (rescaledValue.precision() > precision) {
+            throw new OpeAlgorithmException("Value is too large");
+        }
+        int bitLength = getBitLength(precision);
+        byte[] valueByteArray = rescaledValue.unscaledValue().add(getOffsetValue(bitLength)).toByteArray();
+        byte[] result = new byte[(bitLength + 7) >> 3];
+        if (0 == valueByteArray[0]) {
+            System.arraycopy(valueByteArray, 1, result, result.length - valueByteArray.length + 1, valueByteArray.length - 1);
+        } else {
+            System.arraycopy(valueByteArray, 0, result, result.length - valueByteArray.length, valueByteArray.length);
+        }
+        return result;
+    }
+    
+    /**
+     * Decode BigDecimal.
+     *
+     * @param value value
+     * @param precision precision
+     * @param scale scale
+     * @return decoded value
+     * @throws OpeAlgorithmException if precision and scale are required for decimal encryption
+     */
+    public static BigDecimal decodeBigDecimal(final byte[] value, final Integer precision, final Integer scale) {
+        if (null == precision || null == scale) {
+            throw new OpeAlgorithmException("Precision and scale are required for decimal encryption");
+        }
+        int bitLength = getBitLength(precision);
+        int byteLength = (bitLength + 7) >> 3;
+        checkLength(value, byteLength);
+        byte[] valueByteArray = value;
+        if (0 != (value[0] & 0x80)) {
+            byte[] temp = new byte[byteLength + 1];
+            System.arraycopy(value, 0, temp, 1, value.length);
+            valueByteArray = temp;
+        }
+        BigInteger bigInteger = new BigInteger(valueByteArray).subtract(getOffsetValue(bitLength));
+        return new BigDecimal(bigInteger, scale);
+    }
+    
+    private static BigInteger getOffsetValue(final int bitLength) {
+        BigInteger result;
+        if (null == (result = OFFSET_VALUE_CACHE.get(bitLength))) {
+            result = OFFSET_VALUE_CACHE.computeIfAbsent(bitLength, key -> BigInteger.ONE.shiftLeft(bitLength - 1));
+        }
+        return result;
+    }
+    
+    private static int getBitLength(final Integer precision) {
+        // NOTE : 运算转为常量提升性能
+        // 3.3219280948873626 = Math.log(10) / Math.log(2)
+        return (int) (precision * 3.3219280948873626 + 2);
     }
     
     private static void checkLength(final byte[] value, final int expectedLength) {

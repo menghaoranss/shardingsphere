@@ -18,6 +18,7 @@
 package com.sphereex.dbplusengine.infra.database.oracle.metadata.database.datatype;
 
 import com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype.DialectDataTypeExtractor;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -28,57 +29,83 @@ import java.util.regex.Pattern;
  */
 public final class OracleDataTypeExtractor implements DialectDataTypeExtractor {
     
-    private final Pattern intervalYear = Pattern.compile("interval\\syear[()0-9\\w\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NUMBER_WITH_SCALE_PATTERN = Pattern.compile("NUMBER\\((\\d+),(\\d+)\\)", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern intervalDay = Pattern.compile("interval\\sday[()0-9\\w\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NUMBER_WITHOUT_SCALE_PATTERN = Pattern.compile("NUMBER\\((\\d+)\\)", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern characterVarying = Pattern.compile("character\\s*(varying)?[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INT_PATTERN = Pattern.compile("(INT|INTEGER|SMALLINT|TINYINT|NUMBER)", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern charPattern = Pattern.compile("char\\s+varying[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INTERVAL_YEAR = Pattern.compile("interval\\syear[()0-9\\w\\s]+", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern ncharPattern = Pattern.compile("nchar\\s+varying[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INTERVAL_DAY = Pattern.compile("interval\\sday[()0-9\\w\\s]+", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern varcharPattern = Pattern.compile("varchar[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern CHARACTER_VARYING = Pattern.compile("character\\s*(varying)?[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern nationalCharacter = Pattern.compile("national\\s+character\\s*(varying)?[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern CHAR_PATTERN = Pattern.compile("char\\s+varying[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern nationalChar = Pattern.compile("national\\s+char\\s*(varying)?[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NCHAR_PATTERN = Pattern.compile("nchar\\s+varying[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern doublePrecision = Pattern.compile("double\\s+precision", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VARCHAR_PATTERN = Pattern.compile("varchar[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern longRaw = Pattern.compile("long\\s+raw", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NATIONAL_CHARACTER = Pattern.compile("national\\s+character\\s*(varying)?[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
     
-    private final Pattern sysDotType = Pattern.compile("sys\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NATIONAL_CHAR = Pattern.compile("national\\s+char\\s*(varying)?[0-9()\\s]+", Pattern.CASE_INSENSITIVE);
+    
+    private static final Pattern DOUBLE_PRECISION = Pattern.compile("double\\s+precision", Pattern.CASE_INSENSITIVE);
+    
+    private static final Pattern LONG_RAW = Pattern.compile("long\\s+raw", Pattern.CASE_INSENSITIVE);
+    
+    private static final Pattern SYS_DOT_TYPE = Pattern.compile("sys\\.(\\w+)", Pattern.CASE_INSENSITIVE);
     
     @Override
     public Optional<String> extract(final String dataTypeDefinition) {
-        if (intervalYear.matcher(dataTypeDefinition).matches()) {
+        if (INTERVAL_YEAR.matcher(dataTypeDefinition).matches()) {
             return Optional.of("INTERVAL YEAR");
         }
-        if (intervalDay.matcher(dataTypeDefinition).matches()) {
+        if (INTERVAL_DAY.matcher(dataTypeDefinition).matches()) {
             return Optional.of("INTERVAL DAY");
         }
-        if (characterVarying.matcher(dataTypeDefinition).matches() || charPattern.matcher(dataTypeDefinition).matches() || varcharPattern.matcher(dataTypeDefinition).matches()) {
+        if (CHARACTER_VARYING.matcher(dataTypeDefinition).matches() || CHAR_PATTERN.matcher(dataTypeDefinition).matches() || VARCHAR_PATTERN.matcher(dataTypeDefinition).matches()) {
             return Optional.of("VARCHAR2");
         }
-        if (ncharPattern.matcher(dataTypeDefinition).matches() || nationalChar.matcher(dataTypeDefinition).matches()) {
+        if (NCHAR_PATTERN.matcher(dataTypeDefinition).matches() || NATIONAL_CHAR.matcher(dataTypeDefinition).matches()) {
             return Optional.of("NVARCHAR2");
         }
-        if (nationalCharacter.matcher(dataTypeDefinition).matches()) {
+        if (NATIONAL_CHARACTER.matcher(dataTypeDefinition).matches()) {
             return Optional.of("NCHAR");
         }
         if (dataTypeDefinition.toLowerCase().startsWith("numeric") || dataTypeDefinition.toLowerCase().startsWith("dec")) {
             return Optional.of("NUMBER");
         }
-        if (doublePrecision.matcher(dataTypeDefinition).matches() || "real".equalsIgnoreCase(dataTypeDefinition)) {
+        if (DOUBLE_PRECISION.matcher(dataTypeDefinition).matches() || "real".equalsIgnoreCase(dataTypeDefinition)) {
             return Optional.of("FLOAT");
         }
-        if (longRaw.matcher(dataTypeDefinition).matches()) {
+        if (LONG_RAW.matcher(dataTypeDefinition).matches()) {
             return Optional.of("LONG RAW");
         }
-        Matcher matcher = sysDotType.matcher(dataTypeDefinition);
+        Matcher matcher = SYS_DOT_TYPE.matcher(dataTypeDefinition);
         if (matcher.matches()) {
             return Optional.of(matcher.group(1));
+        }
+        return Optional.empty();
+    }
+    
+    @Override
+    public Optional<Pair<Integer, Integer>> extractPrecisionAndScale(final String dataTypeDefinition) {
+        Matcher matcher = NUMBER_WITH_SCALE_PATTERN.matcher(dataTypeDefinition);
+        if (matcher.find()) {
+            int precision = Integer.parseInt(matcher.group(1));
+            int scale = Integer.parseInt(matcher.group(2));
+            return Optional.of(Pair.of(precision, scale));
+        }
+        matcher = NUMBER_WITHOUT_SCALE_PATTERN.matcher(dataTypeDefinition);
+        if (matcher.find()) {
+            int precision = Integer.parseInt(matcher.group(1));
+            return Optional.of(Pair.of(precision, 0));
+        }
+        matcher = INT_PATTERN.matcher(dataTypeDefinition);
+        if (matcher.find()) {
+            return Optional.of(Pair.of(38, 0));
         }
         return Optional.empty();
     }

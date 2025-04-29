@@ -17,11 +17,14 @@
 
 package com.sphereex.dbplusengine.encrypt.algorithm.ope.cipher;
 
+import com.sphereex.dbplusengine.encrypt.algorithm.ope.context.OpeContext;
 import com.sphereex.dbplusengine.encrypt.algorithm.ope.util.OpeEncoder;
+import com.sphereex.dbplusengine.encrypt.exception.algorithm.OpeAlgorithmException;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Ope cipher.
@@ -40,36 +43,39 @@ public interface OpeCipher {
      * Get supported encrypt function.
      *
      * @param clazz class
-     * @param charset charset
      * @return supported function
+     * @throws OpeAlgorithmException if precision and scale are required for decimal encryption
      */
-    default Optional<Function<Object, byte[]>> getSupportedEncryptFunction(final Class<?> clazz, final Charset charset) {
+    default Optional<BiFunction<Object, OpeContext, byte[]>> getSupportedEncryptFunction(final Class<?> clazz) {
         if (clazz == boolean.class || clazz == Boolean.class) {
-            return Optional.of(optional -> encryptBoolean((boolean) optional));
+            return Optional.of((value, opeContext) -> encryptBoolean((boolean) value));
         }
         if (clazz == byte.class || clazz == Byte.class) {
-            return Optional.of(optional -> encryptByte((byte) optional));
+            return Optional.of((value, opeContext) -> encryptByte((byte) value));
         }
         if (clazz == short.class || clazz == Short.class) {
-            return Optional.of(optional -> encryptShort((short) optional));
+            return Optional.of((value, opeContext) -> encryptShort((short) value));
         }
         if (clazz == int.class || clazz == Integer.class) {
-            return Optional.of(optional -> encryptInt((int) optional));
+            return Optional.of((value, opeContext) -> encryptInt((int) value));
         }
         if (clazz == long.class || clazz == Long.class) {
-            return Optional.of(optional -> encryptLong((long) optional));
+            return Optional.of((value, opeContext) -> encryptLong((long) value));
         }
         if (clazz == float.class || clazz == Float.class) {
-            return Optional.of(optional -> encryptFloat((float) optional));
+            return Optional.of((value, opeContext) -> encryptFloat((float) value));
         }
         if (clazz == double.class || clazz == Double.class) {
-            return Optional.of(optional -> encryptDouble((double) optional));
+            return Optional.of((value, opeContext) -> encryptDouble((double) value));
         }
         if (clazz == char.class || clazz == Character.class) {
-            return Optional.of(optional -> encryptChar((char) optional));
+            return Optional.of((value, opeContext) -> encryptChar((char) value));
         }
         if (clazz == String.class) {
-            return Optional.of(optional -> encryptString((String) optional, charset));
+            return Optional.of((value, opeContext) -> encryptString((String) value, opeContext.getCharset()));
+        }
+        if (clazz == BigDecimal.class) {
+            return Optional.of((value, opeContext) -> encrypt(OpeEncoder.encodeBigDecimal((BigDecimal) value, opeContext.getPrecision(), opeContext.getScale(), opeContext.getRoundingMode())));
         }
         return Optional.empty();
     }
@@ -78,36 +84,38 @@ public interface OpeCipher {
      * Get supported decrypt function.
      *
      * @param clazz class
-     * @param charset charset
      * @return supported function
      */
-    default Optional<Function<byte[], Object>> getSupportedDecryptFunction(final Class<?> clazz, final Charset charset) {
+    default Optional<BiFunction<byte[], OpeContext, Object>> getSupportedDecryptFunction(final Class<?> clazz) {
         if (clazz == boolean.class || clazz == Boolean.class) {
-            return Optional.of(this::decryptBoolean);
+            return Optional.of((value, opeContext) -> decryptBoolean(value));
         }
         if (clazz == byte.class || clazz == Byte.class) {
-            return Optional.of(this::decryptByte);
+            return Optional.of((value, opeContext) -> decryptByte(value));
         }
         if (clazz == short.class || clazz == Short.class) {
-            return Optional.of(this::decryptShort);
+            return Optional.of((value, opeContext) -> decryptShort(value));
         }
         if (clazz == int.class || clazz == Integer.class) {
-            return Optional.of(this::decryptInt);
+            return Optional.of((value, opeContext) -> decryptInt(value));
         }
         if (clazz == long.class || clazz == Long.class) {
-            return Optional.of(this::decryptLong);
+            return Optional.of((value, opeContext) -> decryptLong(value));
         }
         if (clazz == float.class || clazz == Float.class) {
-            return Optional.of(this::decryptFloat);
+            return Optional.of((value, opeContext) -> decryptFloat(value));
         }
         if (clazz == double.class || clazz == Double.class) {
-            return Optional.of(this::decryptDouble);
+            return Optional.of((value, opeContext) -> decryptDouble(value));
         }
         if (clazz == char.class || clazz == Character.class) {
-            return Optional.of(this::decryptChar);
+            return Optional.of((value, opeContext) -> decryptChar(value));
         }
         if (clazz == String.class) {
-            return Optional.of(optional -> decryptString(optional, charset));
+            return Optional.of((value, opeContext) -> decryptString(value, opeContext.getCharset()));
+        }
+        if (clazz == BigDecimal.class) {
+            return Optional.of((value, opeContext) -> OpeEncoder.decodeBigDecimal(decrypt(value), opeContext.getPrecision(), opeContext.getScale()));
         }
         return Optional.empty();
     }
