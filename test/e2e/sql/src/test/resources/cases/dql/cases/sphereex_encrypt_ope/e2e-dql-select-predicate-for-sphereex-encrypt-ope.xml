@@ -23,6 +23,10 @@
     <test-case sql="SELECT * FROM t_user WHERE user_name > ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,OceanBase_Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="zhuqi:String" expected-data-source-name="expected_dataset" />
     </test-case>
+    
+    <test-case sql="SELECT * FROM t_product WHERE price > ?" db-types="MySQL,Oracle" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000:double" expected-data-source-name="expected_dataset" />
+    </test-case>
 
     <test-case sql="SELECT * FROM t_user WHERE ? &lt; user_name" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,OceanBase_Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="zhuqi:String" expected-data-source-name="expected_dataset" />
@@ -39,30 +43,33 @@
     <test-case sql="SELECT * FROM t_user WHERE user_name BETWEEN ? AND ?" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,Oracle,OceanBase_Oracle,TiDB" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="zhuqi:String, 张翼:String" expected-data-source-name="expected_dataset" />
     </test-case>
-
+    
+    <test-case sql="SELECT * FROM t_product WHERE price BETWEEN ? AND ?" db-types="MySQL,Oracle" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000:double, 2000:double" expected-data-source-name="expected_dataset" />
+    </test-case>
+    
     <!-- 测试数值类型查询条件 >=, <= 和 BETWEEN AND 比较 -->
-    <!-- TODO add Oracle,OceanBase_Oracle db-type when support oracle numeric ope handle -->
-    <test-case sql="SELECT * FROM t_order_item WHERE quantity >= ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+    <test-case sql="SELECT * FROM t_order_item WHERE quantity >= ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB,Oracle,OceanBase_Oracle" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
     </test-case>
 
-    <!-- TODO add Oracle,OceanBase_Oracle db-type when support oracle numeric ope handle -->
-    <test-case sql="SELECT * FROM t_order_item WHERE ? &lt;= quantity ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+    <test-case sql="SELECT * FROM t_order_item WHERE ? &lt;= quantity ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB,Oracle,OceanBase_Oracle" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
     </test-case>
 
-    <!-- TODO add Oracle,OceanBase_Oracle db-type when support oracle numeric ope handle -->
-    <test-case sql="SELECT * FROM t_order_item WHERE quantity &lt;= ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+    <test-case sql="SELECT * FROM t_order_item WHERE quantity &lt;= ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB,Oracle,OceanBase_Oracle" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
     </test-case>
 
-    <!-- TODO add Oracle,OceanBase_Oracle db-type when support oracle numeric ope handle -->
-    <test-case sql="SELECT * FROM t_order_item WHERE ? > quantity ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+    <test-case sql="SELECT * FROM t_order_item WHERE ? > quantity ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB,Oracle,OceanBase_Oracle" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="100:int" expected-data-source-name="expected_dataset" />
     </test-case>
+    
+    <test-case sql="SELECT * FROM t_product WHERE price > ? ORDER BY price" db-types="MySQL,Oracle" scenario-types="sphereex_encrypt_ope">
+        <assertion parameters="1000:double" expected-data-source-name="expected_dataset" />
+    </test-case>
 
-    <!-- TODO add Oracle,OceanBase_Oracle db-type when support oracle numeric ope handle -->
-    <test-case sql="SELECT * FROM t_order_item WHERE quantity BETWEEN ? AND ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB" scenario-types="sphereex_encrypt_ope">
+    <test-case sql="SELECT * FROM t_order_item WHERE quantity BETWEEN ? AND ? ORDER BY item_id" db-types="MySQL,PostgreSQL,openGauss,KingbaseES,DM,TiDB,Oracle,OceanBase_Oracle" scenario-types="sphereex_encrypt_ope">
         <assertion parameters="50:int, 80:int" expected-data-source-name="expected_dataset" />
     </test-case>
 </e2e-test-cases>

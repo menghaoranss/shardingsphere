@@ -17,6 +17,7 @@
 
 package com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPI;
 import org.apache.shardingsphere.infra.spi.annotation.SingletonSPI;
 
@@ -35,4 +36,14 @@ public interface DialectDataTypeExtractor extends DatabaseTypedSPI {
      * @return data type
      */
     Optional<String> extract(String dataTypeDefinition);
+    
+    /**
+     * Extract precision and scale.
+     *
+     * @param dataTypeDefinition data type definition
+     * @return precision and scale
+     */
+    default Optional<Pair<Integer, Integer>> extractPrecisionAndScale(String dataTypeDefinition) {
+        return Optional.empty();
+    }
 }

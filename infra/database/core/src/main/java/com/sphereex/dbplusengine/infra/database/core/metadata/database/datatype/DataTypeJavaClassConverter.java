@@ -54,6 +54,7 @@ public final class DataTypeJavaClassConverter {
         DATE_TYPE_JAVA_CLASSES.put(Types.DATE, Date.class);
         DATE_TYPE_JAVA_CLASSES.put(Types.TIME, Time.class);
         DATE_TYPE_JAVA_CLASSES.put(Types.DECIMAL, BigDecimal.class);
+        DATE_TYPE_JAVA_CLASSES.put(Types.NUMERIC, BigDecimal.class);
     }
     
     /**

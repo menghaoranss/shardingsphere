@@ -24,6 +24,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
 import org.apache.shardingsphere.infra.database.core.metadata.database.datatype.DataTypeRegistry;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.database.oracle.type.OracleDatabaseType;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
@@ -38,11 +39,14 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.sql.Types;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -53,6 +57,8 @@ import static org.mockito.Mockito.when;
 @StaticMockSettings(DataTypeRegistry.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class FastOpeEncryptAlgorithmTest {
+    
+    private final DatabaseType databaseType = TypedSPILoader.getService(DatabaseType.class, "FIXTURE");
     
     private EncryptAlgorithm encryptAlgorithm;
     
@@ -98,6 +104,45 @@ class FastOpeEncryptAlgorithmTest {
                 randomPropsEncryptAlgorithm.encrypt(0, algorithmSQLContext, encryptContext)) > 0);
         assertTrue(((Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(100, algorithmSQLContext, encryptContext)).compareTo(
                 randomPropsEncryptAlgorithm.encrypt(20, algorithmSQLContext, encryptContext)) > 0);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    void assertEncryptDoubleOrder() {
+        EncryptContext encryptContext = mock(EncryptContext.class);
+        when(encryptContext.getDatabaseType()).thenReturn(databaseType);
+        when(encryptContext.getColumnDataType()).thenReturn(new EncryptColumnDataTypeContext("DOUBLE", "VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR"));
+        when(DataTypeRegistry.getDataType(databaseType.getType(), "DOUBLE")).thenReturn(Optional.of(Types.DOUBLE));
+        AlgorithmSQLContext algorithmSQLContext = mock(AlgorithmSQLContext.class);
+        assertTrue(((Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(200000, algorithmSQLContext, encryptContext)).compareTo(
+                randomPropsEncryptAlgorithm.encrypt(100000, algorithmSQLContext, encryptContext)) > 0);
+        assertTrue(((Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(1, algorithmSQLContext, encryptContext)).compareTo(
+                randomPropsEncryptAlgorithm.encrypt(0, algorithmSQLContext, encryptContext)) > 0);
+        assertTrue(((Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(100, algorithmSQLContext, encryptContext)).compareTo(
+                randomPropsEncryptAlgorithm.encrypt(20, algorithmSQLContext, encryptContext)) > 0);
+        assertTrue(((Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(2.33, algorithmSQLContext, encryptContext)).compareTo(
+                randomPropsEncryptAlgorithm.encrypt(-2.34, algorithmSQLContext, encryptContext)) > 0);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    void assertEncryptDecimalOrder() {
+        EncryptContext encryptContext = mock(EncryptContext.class);
+        when(encryptContext.getDatabaseType()).thenReturn(databaseType);
+        when(encryptContext.getColumnDataType()).thenReturn(new EncryptColumnDataTypeContext("DECIMAL(10,2)", "VARCHAR", "VARCHAR", "VARCHAR", "VARCHAR"));
+        when(DataTypeRegistry.getDataType(databaseType.getType(), "DECIMAL")).thenReturn(Optional.of(Types.DECIMAL));
+        AlgorithmSQLContext algorithmSQLContext = mock(AlgorithmSQLContext.class);
+        Comparable<Object> encryptedValue0 = (Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(-23, algorithmSQLContext, encryptContext);
+        Comparable<Object> encryptedValue1 = (Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(-0.01, algorithmSQLContext, encryptContext);
+        Comparable<Object> encryptedValue2 = (Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(0, algorithmSQLContext, encryptContext);
+        Comparable<Object> encryptedValue3 = (Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(0.01, algorithmSQLContext, encryptContext);
+        Comparable<Object> encryptedValue4 = (Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(2, algorithmSQLContext, encryptContext);
+        Comparable<Object> encryptedValue5 = (Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(10, algorithmSQLContext, encryptContext);
+        Comparable<Object> encryptedValue6 = (Comparable<Object>) randomPropsEncryptAlgorithm.encrypt(99999999.99, algorithmSQLContext, encryptContext);
+        List<Comparable<Object>> expected = Arrays.asList(encryptedValue0, encryptedValue1, encryptedValue2, encryptedValue3, encryptedValue4, encryptedValue5, encryptedValue6);
+        List<Comparable<Object>> actual = Arrays.asList(encryptedValue0, encryptedValue1, encryptedValue2, encryptedValue3, encryptedValue4, encryptedValue5, encryptedValue6);
+        actual.sort(Comparable::compareTo);
+        assertIterableEquals(expected, actual);
     }
     
     @SuppressWarnings("unchecked")

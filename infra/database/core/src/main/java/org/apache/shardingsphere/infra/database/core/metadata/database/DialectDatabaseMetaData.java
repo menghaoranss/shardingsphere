@@ -17,11 +17,13 @@
 
 package org.apache.shardingsphere.infra.database.core.metadata.database;
 
+import com.sphereex.dbplusengine.SphereEx;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.NullsOrderType;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPI;
 import org.apache.shardingsphere.infra.spi.annotation.SingletonSPI;
 
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -146,5 +148,15 @@ public interface DialectDatabaseMetaData extends DatabaseTypedSPI {
      */
     default boolean isDDLNeedImplicitCommit() {
         return false;
+    }
+    
+    /**
+     * Get default rounding mode.
+     *
+     * @return default rounding mode
+     */
+    @SphereEx
+    default RoundingMode getDefaultRoundingMode() {
+        return RoundingMode.HALF_UP;
     }
 }

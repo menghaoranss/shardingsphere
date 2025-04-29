@@ -18,6 +18,7 @@
 package com.sphereex.dbplusengine.encrypt.algorithm.ope;
 
 import com.sphereex.dbplusengine.encrypt.algorithm.ope.cipher.OpeCipher;
+import com.sphereex.dbplusengine.encrypt.algorithm.ope.context.OpeContext;
 import com.sphereex.dbplusengine.encrypt.algorithm.ope.generator.FastOpeCipherGenerator;
 import com.sphereex.dbplusengine.encrypt.algorithm.ope.generator.MopeCipherGenerator;
 import com.sphereex.dbplusengine.encrypt.context.EncryptColumnDataTypeContext;
@@ -26,14 +27,17 @@ import com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype.
 import com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype.DataTypeJavaClassConverter;
 import lombok.Getter;
 import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithm;
 import org.apache.shardingsphere.encrypt.spi.EncryptAlgorithmMetaData;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
 import org.apache.shardingsphere.infra.algorithm.core.context.AlgorithmSQLContext;
 import org.apache.shardingsphere.infra.algorithm.core.exception.AlgorithmInitializationException;
+import org.apache.shardingsphere.infra.database.core.type.DatabaseTypeRegistry;
 import org.apache.shardingsphere.infra.exception.core.ShardingSpherePreconditions;
 import org.apache.shardingsphere.infra.executor.sql.execute.result.query.impl.driver.jdbc.type.util.ResultSetUtils;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -43,7 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Fast ope encrypt algorithm.
@@ -177,21 +181,30 @@ public class FastOpeEncryptAlgorithm implements EncryptAlgorithm {
         }
         Optional<Class<?>> plaintextJavaType = getConfiguredConvertClass(encryptContext);
         if (plaintextJavaType.isPresent()) {
-            return encrypt(plainValue, plaintextJavaType.get());
+            return encrypt(plainValue, plaintextJavaType.get(), encryptContext);
         }
         return BASE32.encodeAsString(cipher.encryptString(plainValue.toString(), charset));
     }
     
-    private Object encrypt(final Object plainValue, final Class<?> plaintextJavaType) {
-        Optional<Function<Object, byte[]>> encryptFunction = cipher.getSupportedEncryptFunction(plaintextJavaType, charset);
+    private Object encrypt(final Object plainValue, final Class<?> plaintextJavaType, final EncryptContext encryptContext) {
+        Optional<BiFunction<Object, OpeContext, byte[]>> encryptFunction = cipher.getSupportedEncryptFunction(plaintextJavaType);
         if (encryptFunction.isPresent()) {
             try {
                 Object convertedValue = ResultSetUtils.convertValue(plainValue, plaintextJavaType);
-                return BASE32.encodeAsString(encryptFunction.get().apply(convertedValue));
+                return BASE32.encodeAsString(encryptFunction.get().apply(convertedValue, getOpeContext(plaintextJavaType, encryptContext)));
             } catch (final SQLFeatureNotSupportedException ignored) {
             }
         }
         return BASE32.encodeAsString(cipher.encryptString(plainValue.toString(), charset));
+    }
+    
+    private OpeContext getOpeContext(final Class<?> plaintextJavaType, final EncryptContext encryptContext) {
+        if (BigDecimal.class.equals(plaintextJavaType)) {
+            Optional<Pair<Integer, Integer>> precisionAndScale = DataTypeExtractor.extractPrecisionAndScale(encryptContext.getColumnDataType().getLogicDataType(), encryptContext.getDatabaseType());
+            return new OpeContext(charset, precisionAndScale.map(Pair::getLeft).orElse(null), precisionAndScale.map(Pair::getRight).orElse(null),
+                    new DatabaseTypeRegistry(encryptContext.getDatabaseType()).getDialectDatabaseMetaData().getDefaultRoundingMode());
+        }
+        return new OpeContext(charset, null, null, null);
     }
     
     @Override
@@ -202,8 +215,8 @@ public class FastOpeEncryptAlgorithm implements EncryptAlgorithm {
         byte[] bytes = BASE32.decode(cipherValue.toString());
         Optional<Class<?>> plaintextJavaType = getConfiguredConvertClass(encryptContext);
         if (plaintextJavaType.isPresent()) {
-            Optional<Function<byte[], Object>> decryptFunction = cipher.getSupportedDecryptFunction(plaintextJavaType.get(), charset);
-            return decryptFunction.map(optional -> optional.apply(bytes)).orElseGet(() -> cipher.decryptString(bytes, charset));
+            Optional<BiFunction<byte[], OpeContext, Object>> decryptFunction = cipher.getSupportedDecryptFunction(plaintextJavaType.get());
+            return decryptFunction.map(optional -> optional.apply(bytes, getOpeContext(plaintextJavaType.get(), encryptContext))).orElseGet(() -> cipher.decryptString(bytes, charset));
         }
         return cipher.decryptString(bytes, charset);
     }

@@ -33,6 +33,14 @@
         <column name="QUANTITY" type="numeric" />
         <column name="CREATION_DATE" type="datetime" />
     </metadata>
+    <metadata data-nodes="expected_dataset.T_PRODUCT">
+        <column name="PRODUCT_ID" type="numeric" />
+        <column name="PRODUCT_NAME" type="varchar" />
+        <column name="CATEGORY_ID" type="numeric" />
+        <column name="PRICE" type="decimal" />
+        <column name="STATUS" type="varchar" />
+        <column name="CREATION_DATE" type="datetime" />
+    </metadata>
     <metadata data-nodes="expected_dataset.T_PRODUCT_EXTEND">
         <column name="EXTEND_ID" type="numeric" />
         <column name="PRODUCT_ID" type="numeric" />
@@ -148,6 +156,26 @@
     <row data-node="expected_dataset.T_ORDER_ITEM" values="290002, 2900, 29, 19, 58, 2017-08-08" />
     <row data-node="expected_dataset.T_ORDER_ITEM" values="290101, 2901, 29, 20, 57, 2017-08-08" />
     <row data-node="expected_dataset.T_ORDER_ITEM" values="290102, 2901, 29, 20, 56, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="1, qq coins, 2, 200, off sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="2, haier washing machine, 4, 3120.5, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="3, huawei mobile phones, 6, 6666, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="4, alibaba cloud cards, 2, 500, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="5, lenovo mobile phones, 6, 3200, off sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="6, moutai liquor, 8, 3200, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="7, baidu cloud cards, 2, 700, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="8, xiaomi mobile phones, 6, 2799, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="9, vivo mobile phones, 6, 2899, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="10, oppo mobile phones, 6, 2299, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="11, google mobile phones, 6, 3399, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="12, walmart wine, 8, 1000, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="13, amazon cloud cards, 2, 1000, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="14, apple mobile phones, 6, 8200, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="15, microsoft x-box, 9, 5000, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="16, dell xps, 10, 9000, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="17, johnson shampoo, 12, 30, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="18, intel cpu, 10, 1600, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="19, hp computer, 10, 4600, on sale, 2017-08-08" />
+    <row data-node="expected_dataset.T_PRODUCT" values="20, tesla model 3, 14, 324600, on sale, 2017-08-08" />
     <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="1, 1, 1000001" />
     <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="2, 1, 1000003" />
     <row data-node="expected_dataset.T_PRODUCT_EXTEND" values="3, 1, 1000005" />
