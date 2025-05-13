@@ -28,6 +28,7 @@ import org.apache.shardingsphere.infra.database.core.metadata.data.model.IndexMe
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.SchemaMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.TableMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.database.datatype.DataTypeRegistry;
+import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
@@ -48,6 +49,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -80,7 +82,7 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
     
     private static final String PRIMARY_KEY_META_DATA_SQL_IN_TABLES = PRIMARY_KEY_META_DATA_SQL + " AND A.TABLE_NAME IN (%s)";
     
-    private static final String INDEX_COLUMN_META_DATA_SQL = "SELECT COLUMN_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER IN (%s) AND TABLE_NAME = ? AND INDEX_NAME = ?";
+    private static final String INDEX_COLUMN_META_DATA_SQL = "SELECT INDEX_NAME, COLUMN_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER = ? AND INDEX_NAME IN (%s)";
     
     @SphereEx
     private static final String USER_SYNONYMS_SQL = "SELECT * FROM USER_SYNONYMS";
@@ -285,25 +287,31 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
                     if (!result.containsKey(tableName)) {
                         result.put(tableName, new LinkedList<>());
                     }
-                    IndexMetaData indexMetaData = new IndexMetaData(indexName, loadIndexColumnNames(connection, tableName, indexName, schema));
+                    IndexMetaData indexMetaData = new IndexMetaData(indexName);
                     indexMetaData.setUnique(isUnique);
                     result.get(tableName).add(indexMetaData);
                 }
             }
         }
+        loadIndexColumnNames(connection, schema, result);
         return result;
     }
     
-    private List<String> loadIndexColumnNames(final Connection connection, final String tableName, final String indexName, final String schema) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL, schema))) {
-            preparedStatement.setString(1, tableName);
-            preparedStatement.setString(2, indexName);
-            List<String> result = new LinkedList<>();
+    private void loadIndexColumnNames(final Connection connection, final String schema, final Map<String, Collection<IndexMetaData>> tableIndexMetaDataMap) throws SQLException {
+        Map<String, Collection<String>> indexColumnsMap = new HashMap<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL,
+                tableIndexMetaDataMap.values().stream().flatMap(Collection::stream).map(IndexMetaData::getName).map(QuoteCharacter.SINGLE_QUOTE::wrap).collect(Collectors.joining(","))))) {
+            preparedStatement.setString(1, schema);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                result.add(resultSet.getString("COLUMN_NAME"));
+                Collection<String> columns = indexColumnsMap.computeIfAbsent(resultSet.getString("INDEX_NAME"), key -> new LinkedList<>());
+                columns.add(resultSet.getString("COLUMN_NAME"));
             }
-            return result;
+        }
+        for (Entry<String, Collection<IndexMetaData>> entry : tableIndexMetaDataMap.entrySet()) {
+            for (IndexMetaData each : entry.getValue()) {
+                Optional.ofNullable(indexColumnsMap.get(each.getName())).ifPresent(each::setColumns);
+            }
         }
     }
     

@@ -153,7 +153,9 @@ public final class ShardingTableRuleStatementChecker {
         checkDataSources(databaseName, rules, database);
         checkKeyGenerators(rules);
         checkAuditors(rules);
-        checkAutoTableRule(rules.stream().filter(AutoTableRuleSegment.class::isInstance).map(AutoTableRuleSegment.class::cast).collect(Collectors.toList()));
+        // SPEX CHANGED: BEGIN
+        // checkAutoTableRule(rules.stream().filter(AutoTableRuleSegment.class::isInstance).map(AutoTableRuleSegment.class::cast).collect(Collectors.toList()));
+        // SPEX CHANGED: END
         checkTableRule(rules.stream().filter(TableRuleSegment.class::isInstance).map(TableRuleSegment.class::cast).collect(Collectors.toList()));
         if (!isCreated) {
             checkBindingTableRules(rules, currentRuleConfig);
