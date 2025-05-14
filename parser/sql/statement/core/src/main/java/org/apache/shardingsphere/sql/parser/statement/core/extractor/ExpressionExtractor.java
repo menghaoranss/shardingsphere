@@ -139,8 +139,13 @@ public final class ExpressionExtractor {
             ExpressionSegment expressionSegment = stack.pop();
             if (expressionSegment instanceof BinaryOperationExpression) {
                 BinaryOperationExpression binaryExpression = (BinaryOperationExpression) expressionSegment;
-                stack.push(binaryExpression.getRight());
-                stack.push(binaryExpression.getLeft());
+                Optional<LogicalOperator> logicalOperator = LogicalOperator.valueFrom(binaryExpression.getOperator());
+                if (logicalOperator.isPresent() && (LogicalOperator.OR == logicalOperator.get() || LogicalOperator.AND == logicalOperator.get())) {
+                    stack.push(binaryExpression.getRight());
+                    stack.push(binaryExpression.getLeft());
+                } else {
+                    result.add(expressionSegment);    
+                }
             } else {
                 result.add(expressionSegment);
             }
