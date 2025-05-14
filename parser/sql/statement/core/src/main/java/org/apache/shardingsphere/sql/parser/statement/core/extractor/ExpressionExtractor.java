@@ -121,7 +121,7 @@ public final class ExpressionExtractor {
         result.getPredicates().add(expression);
         return result;
     }
-
+    
     /**
      * Extract all expressions.
      *
@@ -144,7 +144,7 @@ public final class ExpressionExtractor {
                     stack.push(binaryExpression.getRight());
                     stack.push(binaryExpression.getLeft());
                 } else {
-                    result.add(expressionSegment);    
+                    result.add(expressionSegment);
                 }
             } else {
                 result.add(expressionSegment);
