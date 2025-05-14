@@ -58,15 +58,23 @@ rules:
       columns:
         QUANTITY:
           dataType: INT
-#          TODO remove this comment and support oracle numeric ope handle
-#          plainColumn: QUANTITY_PLAIN
-#          queryWithCipherColumn: ${query_with_cipher}
+          plainColumn: QUANTITY_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
           cipherColumn: QUANTITY_CIPHER
           cipherDataType: VARCHAR(100)
           encryptorName: aes_encryptor
           orderQueryColumn: QUANTITY_ORDER
           orderQueryDataType: VARCHAR(100)
           orderQueryEncryptorName: ope_encryptor
+    T_PRODUCT:
+      columns:
+        PRICE:
+          dataType: VARCHAR(50)
+          plainColumn: PRICE_PLAIN
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: PRICE_CIPHER
+          cipherDataType: VARCHAR(400)
+          encryptorName: ope_encryptor
     T_PRODUCT_EXTEND:
       columns:
         PRODUCT_DESC:

@@ -140,7 +140,7 @@ class OracleMetaDataLoaderTest {
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
         // SPEX CHANGED: BEGIN
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.NUMERIC, false, true, true, true, false, false, null));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
         // SPEX CHANGED: END
     }
@@ -163,7 +163,7 @@ class OracleMetaDataLoaderTest {
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
         // SPEX CHANGED: BEGIN
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, true, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.NUMERIC, false, true, false, true, false, false, null));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
         // SPEX CHANGED: END
     }
@@ -186,7 +186,7 @@ class OracleMetaDataLoaderTest {
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
         // SPEX CHANGED: BEGIN
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, false, false, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.NUMERIC, false, false, false, true, false, false, null));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
         // SPEX CHANGED: END
     }
@@ -212,7 +212,7 @@ class OracleMetaDataLoaderTest {
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
         // SPEX CHANGED: BEGIN
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.NUMERIC, true, true, true, true, false, false, null));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
         // SPEX CHANGED: END
     }
@@ -238,7 +238,7 @@ class OracleMetaDataLoaderTest {
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
         // SPEX CHANGED: BEGIN
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.NUMERIC, true, true, false, true, false, false, null));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
         // SPEX CHANGED: END
     }
@@ -264,7 +264,7 @@ class OracleMetaDataLoaderTest {
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
         // SPEX CHANGED: BEGIN
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, false, false, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.NUMERIC, true, false, false, true, false, false, null));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
         // SPEX CHANGED: END
     }
@@ -290,7 +290,7 @@ class OracleMetaDataLoaderTest {
         TableMetaData actualTableMetaData = actual.iterator().next().getTables().iterator().next();
         Iterator<ColumnMetaData> columnsIterator = actualTableMetaData.getColumns().iterator();
         // SPEX CHANGED: BEGIN
-        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.INTEGER, true, true, true, true, false, false, null));
+        assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("id", Types.NUMERIC, true, true, true, true, false, false, null));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("name", Types.VARCHAR, false, false, false, false, false, true, "varchar2(32)"));
         assertColumnMetaData(columnsIterator.next(), new ColumnMetaData("address", Types.VARCHAR, false, false, false, false, false, true, "varchar2(64)"));
         // SPEX CHANGED: END
@@ -307,7 +307,7 @@ class OracleMetaDataLoaderTest {
         ResultSet result = mock(ResultSet.class);
         when(result.next()).thenReturn(true, true, true, false);
         when(result.getString("TYPE_NAME")).thenReturn("int", "varchar", "TIMESTAMP");
-        when(result.getInt("DATA_TYPE")).thenReturn(Types.INTEGER, Types.VARCHAR, Types.TIMESTAMP);
+        when(result.getInt("DATA_TYPE")).thenReturn(Types.NUMERIC, Types.VARCHAR, Types.TIMESTAMP);
         return result;
     }
     

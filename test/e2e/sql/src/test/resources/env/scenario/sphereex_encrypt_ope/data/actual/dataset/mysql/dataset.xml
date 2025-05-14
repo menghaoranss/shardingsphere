@@ -36,6 +36,15 @@
         <column name="quantity_order" type="varchar" />
         <column name="creation_date" type="datetime" />
     </metadata>
+    <metadata data-nodes="sphereex_encrypt_ope.t_product">
+        <column name="product_id" type="numeric" />
+        <column name="product_name" type="varchar" />
+        <column name="category_id" type="numeric" />
+        <column name="price_plain" type="decimal" />
+        <column name="price_cipher" type="varchar" />
+        <column name="status" type="varchar" />
+        <column name="creation_date" type="datetime" />
+    </metadata>
     <metadata data-nodes="sphereex_encrypt_ope.t_product_extend">
         <column name="extend_id" type="numeric" />
         <column name="product_id" type="numeric" />
@@ -153,6 +162,26 @@
     <row data-node="sphereex_encrypt_ope.t_order_item" values="290002, 2900, 29, 19, 58, r/vDYZlkclNbJfVxJ9patg==, A7KHHHGOOOKC400=, 2017-08-08" />
     <row data-node="sphereex_encrypt_ope.t_order_item" values="290101, 2901, 29, 20, 57, L2oUdewC+GvMvbnRRkbTaw==, A7KHHHGOOOK9C00=, 2017-08-08" />
     <row data-node="sphereex_encrypt_ope.t_order_item" values="290102, 2901, 29, 20, 56, jFgR4jQ3Pg8kFTS14PuqTw==, A7KHHHGOOOK7G00=, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="1, qq coins, 2, 200, 35OHHHGOOOCCCQ7J00======, off sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="2, haier washing machine, 4, 3120.5, 35OHHHGOOODF89OK00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="3, huawei mobile phones, 6, 6666, 35OHHHGOOOFD66KG00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="4, alibaba cloud cards, 2, 500, 35OHHHGOOOCE8THG00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="5, lenovo mobile phones, 6, 3200, 35OHHHGOOODF8KF900======, off sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="6, moutai liquor, 8, 3200, 35OHHHGOOODF8KF900======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="7, baidu cloud cards, 2, 700, 35OHHHGOOOCGOOGI00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="8, xiaomi mobile phones, 6, 2799, 35OHHHGOOOD90T1V00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="9, vivo mobile phones, 6, 2899, 35OHHHGOOODAQCUO00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="10, oppo mobile phones, 6, 2299, 35OHHHGOOOD4OTSH00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="11, google mobile phones, 6, 3399, 35OHHHGOOODGQC5T00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="12, walmart wine, 8, 1000, 35OHHHGOOOCIISPK00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="13, amazon cloud cards, 2, 1000, 35OHHHGOOOCIISPK00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="14, apple mobile phones, 6, 8200, 35OHHHGOOOHHI6IC00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="15, microsoft x-box, 9, 5000, 35OHHHGOOOEJQKRD00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="16, dell xps, 10, 9000, 35OHHHGOOOHNG96K00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="17, johnson shampoo, 12, 30, 35OHHHGOOOCCC7RP00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="18, intel cpu, 10, 1600, 35OHHHGOOOCR2BTM00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="19, hp computer, 10, 4600, 35OHHHGOOOEFETPH00======, on sale, 2017-08-08" />
+    <row data-node="sphereex_encrypt_ope.t_product" values="20, tesla model 3, 14, 324600, 35OHHHGPE5QU6TPH00======, on sale, 2017-08-08" />
     <row data-node="sphereex_encrypt_ope.t_product_extend" values="1, 1, 1000001, +G4Gp0TdplRdWT8pVO+1hQ==, 4SA2DT96UKJFA9NL4RQIE500" />
     <row data-node="sphereex_encrypt_ope.t_product_extend" values="2, 1, 1000003, +gbY0tT+NCbcNto7Adl/ew==, 4SA2DT96UKJFA9NL4RQIEL80" />
     <row data-node="sphereex_encrypt_ope.t_product_extend" values="3, 1, 1000005, 8ouK85P5WmFooZRBkOGrTA==, 4SA2DT96UKJFA9NL4RQIFHO0" />

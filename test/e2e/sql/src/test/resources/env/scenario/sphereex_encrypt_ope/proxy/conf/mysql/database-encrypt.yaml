@@ -65,6 +65,15 @@ rules:
           orderQueryColumn: quantity_order
           orderQueryDataType: VARCHAR(100)
           orderQueryEncryptorName: ope_encryptor
+    t_product:
+      columns:
+        price:
+          dataType: VARCHAR(50)
+          plainColumn: price_plain
+          queryWithCipherColumn: ${query_with_cipher}
+          cipherColumn: price_cipher
+          cipherDataType: VARCHAR(400)
+          encryptorName: ope_encryptor
     t_product_extend:
       columns:
         product_desc:

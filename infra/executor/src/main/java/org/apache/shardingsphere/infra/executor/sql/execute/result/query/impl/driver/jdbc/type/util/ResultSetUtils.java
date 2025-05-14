@@ -85,6 +85,11 @@ public final class ResultSetUtils {
         if (String.class.equals(convertType)) {
             return value.toString();
         }
+        // SPEX ADDED: BEGIN
+        if (BigDecimal.class.equals(convertType)) {
+            return new BigDecimal(value.toString());
+        }
+        // SPEX ADDED: END
         try {
             return convertType.cast(value);
         } catch (final ClassCastException ignored) {
