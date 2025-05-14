@@ -42,7 +42,6 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.Ord
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.ColumnOrderByItemSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.ExpressionOrderByItemSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.order.item.OrderByItemSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.AndPredicate;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.HavingSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.CollectionTableSegment;
@@ -52,6 +51,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table
 import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 
 /**
@@ -67,6 +67,9 @@ public final class ColumnExtractor {
      * @return column segments
      */
     public static Collection<ColumnSegment> extract(final ExpressionSegment expression) {
+        if (expression instanceof ColumnSegment) {
+            return Collections.singletonList((ColumnSegment) expression);
+        }
         Collection<ColumnSegment> result = new LinkedList<>();
         if (expression instanceof BinaryOperationExpression) {
             extractColumnsInBinaryOperationExpression((BinaryOperationExpression) expression, result);
@@ -219,15 +222,9 @@ public final class ColumnExtractor {
      */
     public static void extractColumnSegments(final Collection<ColumnSegment> columnSegments, final Collection<WhereSegment> whereSegments) {
         for (WhereSegment each : whereSegments) {
-            for (AndPredicate andPredicate : ExpressionExtractor.extractAndPredicates(each.getExpr())) {
-                extractColumnSegments(columnSegments, andPredicate);
+            for (ExpressionSegment expression : ExpressionExtractor.extractAllExpressions(each.getExpr())) {
+                columnSegments.addAll(extract(expression));
             }
-        }
-    }
-    
-    private static void extractColumnSegments(final Collection<ColumnSegment> columnSegments, final AndPredicate andPredicate) {
-        for (ExpressionSegment each : andPredicate.getPredicates()) {
-            columnSegments.addAll(extract(each));
         }
     }
     
