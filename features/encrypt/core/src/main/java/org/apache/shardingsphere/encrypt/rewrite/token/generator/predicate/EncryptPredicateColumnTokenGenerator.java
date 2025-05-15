@@ -62,7 +62,6 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simp
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.AggregationProjectionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.item.ExpressionProjectionSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.AndPredicate;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.HavingSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
@@ -121,21 +120,19 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
                 EncryptTokenGeneratorUtils.getProjectionCompareOperatorWhereSegments((WhereAvailable) sqlStatementContext, allSubqueryContexts);
         whereSegments.addAll(projectionCompareOperatorWhereSegments);
         // SPEX ADDED: END
-        Collection<AndPredicate> andPredicates = getAndPredicates(whereSegments);
-        return generateSQLTokens(andPredicates, sqlStatementContext);
+        Collection<ExpressionSegment> expressions = getAllExpressions(whereSegments);
+        return generateSQLTokens(expressions, sqlStatementContext);
     }
     
-    private Collection<SQLToken> generateSQLTokens(final Collection<AndPredicate> andPredicates, final SQLStatementContext sqlStatementContext) {
+    private Collection<SQLToken> generateSQLTokens(final Collection<ExpressionSegment> expressions, final SQLStatementContext sqlStatementContext) {
         Collection<SQLToken> result = new LinkedList<>();
         @SphereEx
         boolean needRewriteUsingNaturalJoin = sqlStatementContext instanceof SelectStatementContext
                 && EncryptTokenGeneratorUtils.isNeedRewriteUsingNaturalJoin((SelectStatementContext) sqlStatementContext, rule, databaseEncryptRules);
-        for (AndPredicate each : andPredicates) {
-            for (ExpressionSegment expression : each.getPredicates()) {
-                // SPEX CHANGED: BEGIN
-                result.addAll(generateSQLTokens(sqlStatementContext, expression, needRewriteUsingNaturalJoin));
-                // SPEX CHANGED: END
-            }
+        for (ExpressionSegment each : expressions) {
+            // SPEX CHANGED: BEGIN
+            result.addAll(generateSQLTokens(sqlStatementContext, each, needRewriteUsingNaturalJoin));
+            // SPEX CHANGED: END
         }
         return result;
     }
@@ -159,10 +156,14 @@ public final class EncryptPredicateColumnTokenGenerator implements CollectionSQL
         return result;
     }
     
-    private Collection<AndPredicate> getAndPredicates(final Collection<WhereSegment> whereSegments) {
-        Collection<AndPredicate> result = new LinkedList<>();
+    private Collection<ExpressionSegment> getAllExpressions(final Collection<WhereSegment> whereSegments) {
+        if (1 == whereSegments.size()) {
+            return ExpressionExtractor.extractAllExpressions(whereSegments.iterator().next().getExpr());
+        }
+        Collection<ExpressionSegment> result = new LinkedList<>();
         for (WhereSegment each : whereSegments) {
-            result.addAll(ExpressionExtractor.extractAndPredicates(each.getExpr()));
+            Collection<ExpressionSegment> expressions = ExpressionExtractor.extractAllExpressions(each.getExpr());
+            result.addAll(expressions);
         }
         return result;
     }

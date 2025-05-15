@@ -86,7 +86,6 @@ import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.Expr
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.FunctionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.AndPredicate;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.ColumnSegmentBoundInfo;
@@ -284,18 +283,16 @@ public final class EncryptMergeTokenGenerator implements CollectionSQLTokenGener
     
     private boolean includesLike(final Collection<ExpressionSegment> expressionSegments, final ColumnSegment targetColumnSegment) {
         for (ExpressionSegment each : expressionSegments) {
-            Collection<AndPredicate> andPredicates = ExpressionExtractor.extractAndPredicates(each);
-            for (AndPredicate andPredicate : andPredicates) {
-                if (isLikeColumnSegment(andPredicate, targetColumnSegment)) {
-                    return true;
-                }
+            Collection<ExpressionSegment> expressions = ExpressionExtractor.extractAllExpressions(each);
+            if (isLikeColumnSegment(expressions, targetColumnSegment)) {
+                return true;
             }
         }
         return false;
     }
     
-    private boolean isLikeColumnSegment(final AndPredicate andPredicate, final ColumnSegment targetColumnSegment) {
-        for (ExpressionSegment each : andPredicate.getPredicates()) {
+    private boolean isLikeColumnSegment(final Collection<ExpressionSegment> expressions, final ColumnSegment targetColumnSegment) {
+        for (ExpressionSegment each : expressions) {
             if (each instanceof BinaryOperationExpression
                     && "LIKE".equalsIgnoreCase(((BinaryOperationExpression) each).getOperator()) && isSameColumnSegment(((BinaryOperationExpression) each).getLeft(), targetColumnSegment)) {
                 return true;
