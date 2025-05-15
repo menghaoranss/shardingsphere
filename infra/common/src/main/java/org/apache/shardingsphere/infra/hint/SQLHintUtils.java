@@ -22,6 +22,7 @@ import com.google.common.base.Splitter;
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.infra.hint.EncryptColumnItemType;
 import com.sphereex.dbplusengine.infra.hint.NoneUniqueKeyScenario;
+import com.sphereex.dbplusengine.infra.hint.SphereExSQLHintTokenType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -59,7 +60,9 @@ public final class SQLHintUtils {
      * @return hint value context
      */
     public static HintValueContext extractHint(final String sql) {
-        if (!containsSQLHint(sql)) {
+        // SPEX CHANGED: BEGIN
+        if (!containsSQLHint(sql) && !containsSphereExSQLHint(sql)) {
+            // SPEX CHANGED: END
             return new HintValueContext();
         }
         HintValueContext result = new HintValueContext();
@@ -114,11 +117,21 @@ public final class SQLHintUtils {
     private static int getHintKeyValueBeginIndex(final String sql) {
         int tokenBeginIndex = sql.contains(SQLHintTokenType.SQL_START_HINT_TOKEN.getKey()) ? sql.indexOf(SQLHintTokenType.SQL_START_HINT_TOKEN.getKey())
                 : sql.indexOf(SQLHintTokenType.SQL_START_HINT_TOKEN.getAlias());
+        if (tokenBeginIndex < 0) {
+            tokenBeginIndex = sql.contains(SphereExSQLHintTokenType.SQL_START_HINT_TOKEN.getKey()) ? sql.indexOf(SphereExSQLHintTokenType.SQL_START_HINT_TOKEN.getKey())
+                    : sql.indexOf(SphereExSQLHintTokenType.SQL_START_HINT_TOKEN.getAlias());
+        }
         return sql.indexOf(":", tokenBeginIndex) + 1;
     }
     
     private static boolean containsSQLHint(final String sql) {
         return (sql.contains(SQLHintTokenType.SQL_START_HINT_TOKEN.getKey()) || sql.contains(SQLHintTokenType.SQL_START_HINT_TOKEN.getAlias()))
+                && sql.contains(SQL_COMMENT_PREFIX) && sql.contains(SQL_COMMENT_SUFFIX);
+    }
+    
+    @SphereEx
+    private static boolean containsSphereExSQLHint(final String sql) {
+        return (sql.contains(SphereExSQLHintTokenType.SQL_START_HINT_TOKEN.getKey()) || sql.contains(SphereExSQLHintTokenType.SQL_START_HINT_TOKEN.getAlias()))
                 && sql.contains(SQL_COMMENT_PREFIX) && sql.contains(SQL_COMMENT_SUFFIX);
     }
     
@@ -166,7 +179,9 @@ public final class SQLHintUtils {
      * @return SQL after remove hint
      */
     public static String removeHint(final String sql) {
-        if (containsSQLHint(sql)) {
+        // SPEX CHANGED: BEGIN
+        if (containsSQLHint(sql) || containsSphereExSQLHint(sql)) {
+            // SPEX CHANGED: END
             int hintKeyValueBeginIndex = getHintKeyValueBeginIndex(sql);
             int sqlHintBeginIndex = sql.substring(0, hintKeyValueBeginIndex).lastIndexOf(SQL_COMMENT_PREFIX, hintKeyValueBeginIndex);
             int sqlHintEndIndex = sql.indexOf(SQL_COMMENT_SUFFIX, hintKeyValueBeginIndex) + SQL_COMMENT_SUFFIX.length();
