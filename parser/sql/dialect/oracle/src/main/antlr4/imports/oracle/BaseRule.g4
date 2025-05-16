@@ -410,12 +410,25 @@ exprList
 
 // TODO comb expr
 expr
-    : expr andOperator expr
-    | expr orOperator expr
-    | notOperator expr
-    | LP_ expr RP_
+    : orExpr
+    ;
+
+orExpr
+    : andExpr (orOperator andExpr)*
+    ;
+
+andExpr
+    : notExpr (andOperator notExpr)*
+    ;
+
+notExpr
+    : notOperator notExpr
+    | primaryExpr datetimeExpr?
+    ;
+
+primaryExpr
+    : LP_ expr RP_
     | booleanPrimary
-    | expr datetimeExpr
     | multisetExpr
     | builtinFunctionsExpr
     | dataManipulationLanguageExpr
