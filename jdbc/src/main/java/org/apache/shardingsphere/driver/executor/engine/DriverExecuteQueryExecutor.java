@@ -17,11 +17,16 @@
 
 package org.apache.shardingsphere.driver.executor.engine;
 
+import com.sphereex.dbplusengine.SphereEx;
+import com.sphereex.dbplusengine.driver.executor.physical.PhysicalExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.executor.callback.add.StatementAddCallback;
 import org.apache.shardingsphere.driver.executor.callback.replay.StatementReplayCallback;
 import org.apache.shardingsphere.driver.executor.engine.pushdown.jdbc.DriverJDBCPushDownExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.executor.engine.pushdown.raw.DriverRawPushDownExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.jdbc.core.connection.ShardingSphereConnection;
+import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
+import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
+import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutor;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.raw.RawExecutor;
@@ -50,11 +55,17 @@ public final class DriverExecuteQueryExecutor {
     
     private final DriverRawPushDownExecuteQueryExecutor driverRawPushDownExecutor;
     
+    @SphereEx
+    private final PhysicalExecuteQueryExecutor physicalQueryExecutor;
+    
     public DriverExecuteQueryExecutor(final ShardingSphereConnection connection, final ShardingSphereMetaData metaData, final JDBCExecutor jdbcExecutor, final RawExecutor rawExecutor) {
         this.connection = connection;
         this.metaData = metaData;
         driverJDBCPushDownExecutor = new DriverJDBCPushDownExecuteQueryExecutor(connection, metaData, jdbcExecutor);
         driverRawPushDownExecutor = new DriverRawPushDownExecuteQueryExecutor(connection, metaData, rawExecutor);
+        // SPEX ADDED: BEGIN
+        physicalQueryExecutor = new PhysicalExecuteQueryExecutor(connection.getCurrentDatabaseName(), connection.getDatabaseConnectionManager());
+        // SPEX ADDED: END
     }
     
     /**
@@ -74,8 +85,31 @@ public final class DriverExecuteQueryExecutor {
     public ResultSet executeQuery(final ShardingSphereDatabase database, final QueryContext queryContext,
                                   final DriverExecutionPrepareEngine<JDBCExecutionUnit, Connection> prepareEngine, final Statement statement, final Map<String, Integer> columnLabelAndIndexMap,
                                   final StatementAddCallback addCallback, final StatementReplayCallback replayCallback) throws SQLException {
+        // SPEX ADDED: BEGIN
+        if (isQuerySystemSchema(queryContext)) {
+            String dataSourceName = database.getResourceMetaData().getStorageUnits().keySet().iterator().next();
+            physicalQueryExecutor.executeQuery(queryContext, dataSourceName);
+            return physicalQueryExecutor.getResultSet();
+        }
+        // SPEX ADDED: END
         return database.getRuleMetaData().getAttributes(RawExecutionRuleAttribute.class).isEmpty()
                 ? driverJDBCPushDownExecutor.executeQuery(database, queryContext, prepareEngine, statement, columnLabelAndIndexMap, addCallback, replayCallback)
                 : driverRawPushDownExecutor.executeQuery(database, queryContext, statement, columnLabelAndIndexMap);
+    }
+    
+    @SphereEx
+    private boolean isQuerySystemSchema(final QueryContext queryContext) {
+        SQLStatementContext sqlStatementContext = queryContext.getSqlStatementContext();
+        if (!(sqlStatementContext instanceof SelectStatementContext)) {
+            return false;
+        }
+        SelectStatementContext selectStatementContext = (SelectStatementContext) sqlStatementContext;
+        TablesContext tablesContext = selectStatementContext.getTablesContext();
+        return null != tablesContext && tablesContext.getTableNames().stream().anyMatch(this::isSystemTable);
+    }
+    
+    @SphereEx
+    private boolean isSystemTable(final String table) {
+        return table.contains("$") || table.contains("/") || table.contains("##");
     }
 }
