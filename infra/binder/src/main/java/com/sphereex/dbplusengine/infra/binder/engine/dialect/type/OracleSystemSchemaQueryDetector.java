@@ -42,7 +42,11 @@ public final class OracleSystemSchemaQueryDetector implements SystemSchemaQueryD
             if (each.getOwner().map(OwnerSegment::getIdentifier).map(IdentifierValue::getValue).map("PUBLIC"::equalsIgnoreCase).orElse(false)) {
                 return true;
             }
-            if (SystemSchemaManager.isSystemTable("oracle", "public", each.getTableName().getIdentifier().getValue())) {
+            String tableName = each.getTableName().getIdentifier().getValue();
+            if (SystemSchemaManager.isSystemTable("oracle", "public", tableName)) {
+                return true;
+            }
+            if (tableName.contains("$") || tableName.contains("/") || tableName.contains("##")) {
                 return true;
             }
         }
