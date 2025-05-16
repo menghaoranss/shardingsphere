@@ -25,6 +25,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.NullsOrderType;
 import org.apache.shardingsphere.sql.parser.api.ASTNode;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementBaseVisitor;
+import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.AggregationFunctionContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.AnalyticFunctionContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.ApproxRankContext;
@@ -63,6 +64,7 @@ import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.Interv
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.JsonObjectFunctionContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.JsonObjectKeyValueContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.LiteralsContext;
+import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.NotExprContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.NullValueLiteralsContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.NumberLiteralsContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.OrderByClauseContext;
@@ -72,6 +74,7 @@ import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.Packag
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.ParameterMarkerContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.PredicateContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.PredictionCostFunctionContext;
+import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.PrimaryExprContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.PrivateExprOfDbContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.RegularFunctionContext;
 import org.apache.shardingsphere.sql.parser.autogen.OracleStatementParser.SchemaNameContext;
@@ -425,28 +428,63 @@ public abstract class OracleStatementVisitor extends OracleStatementBaseVisitor<
     
     @Override
     public final ASTNode visitExpr(final ExprContext ctx) {
-        if (null != ctx.booleanPrimary()) {
-            return visit(ctx.booleanPrimary());
+        return visit(ctx.orExpr());
+    }
+    
+    @Override
+    public ASTNode visitOrExpr(final OracleStatementParser.OrExprContext ctx) {
+        ExpressionSegment expressionSegment = (ExpressionSegment) visit(ctx.andExpr(0));
+        for (int i = 1; i < ctx.andExpr().size(); i++) {
+            ExpressionSegment right = (ExpressionSegment) visit(ctx.andExpr(i));
+            String text = ctx.start.getInputStream().getText(new Interval(ctx.start.getStartIndex(), ctx.andExpr(i).stop.getStopIndex()));
+            BinaryOperationExpression binaryOperationExpression =
+                    new BinaryOperationExpression(ctx.start.getStartIndex(), ctx.andExpr(i).stop.getStopIndex(), right, ctx.orOperator(i - 1).getText(), text);
+            binaryOperationExpression.setLeft(expressionSegment);
+            expressionSegment = binaryOperationExpression;
         }
-        if (null != ctx.LP_()) {
-            return visit(ctx.expr(0));
+        return expressionSegment;
+    }
+    
+    @Override
+    public ASTNode visitAndExpr(final OracleStatementParser.AndExprContext ctx) {
+        ExpressionSegment expressionSegment = (ExpressionSegment) visit(ctx.notExpr(0));
+        for (int i = 1; i < ctx.notExpr().size(); i++) {
+            ExpressionSegment right = (ExpressionSegment) visit(ctx.notExpr(i));
+            String text = ctx.start.getInputStream().getText(new Interval(ctx.start.getStartIndex(), ctx.notExpr(i).stop.getStopIndex()));
+            BinaryOperationExpression binaryOperationExpression =
+                    new BinaryOperationExpression(ctx.start.getStartIndex(), ctx.notExpr(i).stop.getStopIndex(), right, ctx.andOperator(i - 1).getText(), text);
+            binaryOperationExpression.setLeft(expressionSegment);
+            expressionSegment = binaryOperationExpression;
         }
-        if (null != ctx.andOperator()) {
-            return createBinaryOperationExpression(ctx, ctx.andOperator().getText());
-        }
-        if (null != ctx.orOperator()) {
-            return createBinaryOperationExpression(ctx, ctx.orOperator().getText());
+        return expressionSegment;
+    }
+    
+    @Override
+    public ASTNode visitNotExpr(final NotExprContext ctx) {
+        if (null != ctx.notOperator()) {
+            return new NotExpression(ctx.start.getStartIndex(), ctx.stop.getStopIndex(), (ExpressionSegment) visit(ctx.notExpr()), false);
         }
         if (null != ctx.datetimeExpr()) {
             return createDatetimeExpression(ctx, ctx.datetimeExpr());
         }
+        return visit(ctx.primaryExpr());
+    }
+    
+    @Override
+    public ASTNode visitPrimaryExpr(final PrimaryExprContext ctx) {
+        if (null != ctx.booleanPrimary()) {
+            return visit(ctx.booleanPrimary());
+        }
+        if (null != ctx.LP_()) {
+            return visit(ctx.expr());
+        }
         if (null != ctx.multisetExpr()) {
             return createMultisetExpression(ctx);
         }
-        return new NotExpression(ctx.start.getStartIndex(), ctx.stop.getStopIndex(), (ExpressionSegment) visit(ctx.expr(0)), false);
+        throw new UnsupportedOperationException("Unsupported primary expression: " + ctx.getText());
     }
     
-    private ASTNode createMultisetExpression(final ExprContext ctx) {
+    private ASTNode createMultisetExpression(final PrimaryExprContext ctx) {
         ExpressionSegment left = (ColumnSegment) visitColumnName(ctx.multisetExpr().columnName(0));
         ExpressionSegment right = (ColumnSegment) visitColumnName(ctx.multisetExpr().columnName(1));
         String text = ctx.start.getInputStream().getText(new Interval(ctx.start.getStartIndex(), ctx.stop.getStopIndex()));
@@ -454,8 +492,8 @@ public abstract class OracleStatementVisitor extends OracleStatementBaseVisitor<
         return new MultisetExpression(ctx.start.getStartIndex(), ctx.stop.getStopIndex(), left, right, ctx.multisetExpr().multisetOperator().getText(), keyWord, text);
     }
     
-    private ASTNode createDatetimeExpression(final ExprContext ctx, final DatetimeExprContext datetimeExpr) {
-        ExpressionSegment left = (ExpressionSegment) visit(ctx.expr(0));
+    private ASTNode createDatetimeExpression(final NotExprContext ctx, final DatetimeExprContext datetimeExpr) {
+        ExpressionSegment left = (ExpressionSegment) visit(ctx.primaryExpr());
         String text = ctx.start.getInputStream().getText(new Interval(ctx.start.getStartIndex(), ctx.stop.getStopIndex()));
         if (null == datetimeExpr.expr()) {
             return new DatetimeExpression(ctx.start.getStartIndex(), ctx.stop.getStopIndex(), left, text);
@@ -463,13 +501,6 @@ public abstract class OracleStatementVisitor extends OracleStatementBaseVisitor<
         ExpressionSegment right = new ExpressionProjectionSegment(datetimeExpr.getStart().getStartIndex(),
                 datetimeExpr.getStop().getStopIndex(), datetimeExpr.getText(), (ExpressionSegment) visit(datetimeExpr.expr()));
         return new DatetimeExpression(ctx.start.getStartIndex(), ctx.stop.getStopIndex(), left, right, text);
-    }
-    
-    private ASTNode createBinaryOperationExpression(final ExprContext ctx, final String operator) {
-        ExpressionSegment left = (ExpressionSegment) visit(ctx.expr(0));
-        ExpressionSegment right = (ExpressionSegment) visit(ctx.expr(1));
-        String text = ctx.start.getInputStream().getText(new Interval(ctx.start.getStartIndex(), ctx.stop.getStopIndex()));
-        return new BinaryOperationExpression(ctx.start.getStartIndex(), ctx.stop.getStopIndex(), left, right, operator, text);
     }
     
     @Override

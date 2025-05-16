@@ -33,11 +33,20 @@ public final class BinaryOperationExpression implements ExpressionSegment {
     
     private final int stopIndex;
     
-    private final ExpressionSegment left;
+    private ExpressionSegment left;
     
     private final ExpressionSegment right;
     
     private final String operator;
     
     private final String text;
+    
+    public BinaryOperationExpression(final int startIndex, final int stopIndex, final ExpressionSegment left, final ExpressionSegment right, final String operator, final String text) {
+        this.startIndex = startIndex;
+        this.stopIndex = stopIndex;
+        this.left = left;
+        this.right = right;
+        this.operator = operator;
+        this.text = text;
+    }
 }
