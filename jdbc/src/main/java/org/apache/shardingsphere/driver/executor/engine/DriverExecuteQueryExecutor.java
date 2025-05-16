@@ -63,7 +63,9 @@ public final class DriverExecuteQueryExecutor {
         this.metaData = metaData;
         driverJDBCPushDownExecutor = new DriverJDBCPushDownExecuteQueryExecutor(connection, metaData, jdbcExecutor);
         driverRawPushDownExecutor = new DriverRawPushDownExecuteQueryExecutor(connection, metaData, rawExecutor);
+        // SPEX ADDED: BEGIN
         physicalQueryExecutor = new PhysicalExecuteQueryExecutor(connection.getCurrentDatabaseName(), connection.getDatabaseConnectionManager());
+        // SPEX ADDED: END
     }
     
     /**
