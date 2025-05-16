@@ -19,14 +19,13 @@ package org.apache.shardingsphere.driver.executor.engine;
 
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.driver.executor.physical.PhysicalExecuteQueryExecutor;
+import com.sphereex.dbplusengine.infra.binder.engine.dialect.SystemSchemaQueryDetector;
 import org.apache.shardingsphere.driver.executor.callback.add.StatementAddCallback;
 import org.apache.shardingsphere.driver.executor.callback.replay.StatementReplayCallback;
 import org.apache.shardingsphere.driver.executor.engine.pushdown.jdbc.DriverJDBCPushDownExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.executor.engine.pushdown.raw.DriverRawPushDownExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.jdbc.core.connection.ShardingSphereConnection;
-import org.apache.shardingsphere.infra.binder.context.segment.table.TablesContext;
-import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
-import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
+import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutor;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.raw.RawExecutor;
@@ -99,17 +98,7 @@ public final class DriverExecuteQueryExecutor {
     
     @SphereEx
     private boolean isQuerySystemSchema(final QueryContext queryContext) {
-        SQLStatementContext sqlStatementContext = queryContext.getSqlStatementContext();
-        if (!(sqlStatementContext instanceof SelectStatementContext)) {
-            return false;
-        }
-        SelectStatementContext selectStatementContext = (SelectStatementContext) sqlStatementContext;
-        TablesContext tablesContext = selectStatementContext.getTablesContext();
-        return null != tablesContext && tablesContext.getTableNames().stream().anyMatch(this::isSystemTable);
-    }
-    
-    @SphereEx
-    private boolean isSystemTable(final String table) {
-        return table.contains("$") || table.contains("/") || table.contains("##");
+        return !DatabaseTypedSPILoader.findService(SystemSchemaQueryDetector.class, queryContext.getSqlStatementContext().getDatabaseType())
+                .map(optional -> optional.isSystemSchemaQuery(queryContext.getSqlStatementContext().getSqlStatement())).orElse(false);
     }
 }
