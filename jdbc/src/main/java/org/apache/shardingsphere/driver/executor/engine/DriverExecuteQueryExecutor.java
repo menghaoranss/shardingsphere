@@ -26,20 +26,29 @@ import org.apache.shardingsphere.driver.executor.engine.pushdown.jdbc.DriverJDBC
 import org.apache.shardingsphere.driver.executor.engine.pushdown.raw.DriverRawPushDownExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.jdbc.core.connection.ShardingSphereConnection;
 import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
+import org.apache.shardingsphere.infra.exception.kernel.metadata.resource.storageunit.EmptyStorageUnitException;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutor;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.raw.RawExecutor;
 import org.apache.shardingsphere.infra.executor.sql.prepare.driver.DriverExecutionPrepareEngine;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
+import org.apache.shardingsphere.infra.metadata.database.schema.manager.SystemSchemaManager;
 import org.apache.shardingsphere.infra.rule.attribute.raw.RawExecutionRuleAttribute;
 import org.apache.shardingsphere.infra.session.query.QueryContext;
+import org.apache.shardingsphere.sql.parser.statement.core.extractor.TableExtractor;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
+import org.apache.shardingsphere.sql.parser.statement.core.statement.SQLStatement;
+import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
+import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Driver execute query executor.
@@ -54,17 +63,11 @@ public final class DriverExecuteQueryExecutor {
     
     private final DriverRawPushDownExecuteQueryExecutor driverRawPushDownExecutor;
     
-    @SphereEx
-    private final PhysicalExecuteQueryExecutor physicalQueryExecutor;
-    
     public DriverExecuteQueryExecutor(final ShardingSphereConnection connection, final ShardingSphereMetaData metaData, final JDBCExecutor jdbcExecutor, final RawExecutor rawExecutor) {
         this.connection = connection;
         this.metaData = metaData;
         driverJDBCPushDownExecutor = new DriverJDBCPushDownExecuteQueryExecutor(connection, metaData, jdbcExecutor);
         driverRawPushDownExecutor = new DriverRawPushDownExecuteQueryExecutor(connection, metaData, rawExecutor);
-        // SPEX ADDED: BEGIN
-        physicalQueryExecutor = new PhysicalExecuteQueryExecutor(connection.getCurrentDatabaseName(), connection.getDatabaseConnectionManager());
-        // SPEX ADDED: END
     }
     
     /**
@@ -86,9 +89,19 @@ public final class DriverExecuteQueryExecutor {
                                   final StatementAddCallback addCallback, final StatementReplayCallback replayCallback) throws SQLException {
         // SPEX ADDED: BEGIN
         if (isQuerySystemSchema(queryContext)) {
-            String dataSourceName = database.getResourceMetaData().getStorageUnits().keySet().iterator().next();
-            physicalQueryExecutor.executeQuery(queryContext, dataSourceName);
-            return physicalQueryExecutor.getResultSet();
+            ShardingSphereDatabase queryDatabase = null;
+            for (ShardingSphereDatabase each : metaData.getAllDatabases()) {
+                if (!each.getResourceMetaData().getStorageUnits().keySet().isEmpty()) {
+                    queryDatabase = each;
+                    break;
+                }
+            }
+            if (null != queryDatabase) {
+                PhysicalExecuteQueryExecutor physicalQueryExecutor = new PhysicalExecuteQueryExecutor(queryDatabase.getName(), connection.getDatabaseConnectionManager());
+                physicalQueryExecutor.executeQuery(queryContext, queryDatabase.getResourceMetaData().getStorageUnits().keySet().iterator().next());
+                return physicalQueryExecutor.getResultSet();
+            }
+            throw new EmptyStorageUnitException();
         }
         // SPEX ADDED: END
         return database.getRuleMetaData().getAttributes(RawExecutionRuleAttribute.class).isEmpty()
@@ -98,7 +111,25 @@ public final class DriverExecuteQueryExecutor {
     
     @SphereEx
     private boolean isQuerySystemSchema(final QueryContext queryContext) {
-        return !DatabaseTypedSPILoader.findService(SystemSchemaQueryDetector.class, queryContext.getSqlStatementContext().getDatabaseType())
-                .map(optional -> optional.isSystemSchemaQuery(queryContext.getSqlStatementContext().getSqlStatement())).orElse(false);
+        Optional<SystemSchemaQueryDetector> systemSchemaQueryDetector = DatabaseTypedSPILoader.findService(SystemSchemaQueryDetector.class, queryContext.getSqlStatementContext().getDatabaseType());
+        if (systemSchemaQueryDetector.isPresent()) {
+            return systemSchemaQueryDetector.get().isSystemSchemaQuery(queryContext.getSqlStatementContext().getSqlStatement());
+        }
+        SQLStatement statement =  queryContext.getSqlStatementContext().getSqlStatement();
+        if (!(statement instanceof SelectStatement) || !((SelectStatement) statement).getFrom().isPresent()) {
+            return false;
+        }
+        TableExtractor tableExtractor = new TableExtractor();
+        tableExtractor.extractTablesFromSQLStatement(statement);
+        for (SimpleTableSegment each : tableExtractor.getRewriteTables()) {
+            String owner = each.getOwner().map(OwnerSegment::getIdentifier).map(IdentifierValue::getValue).orElseGet(() -> null);
+            if (null != owner) {
+                String tableName = each.getTableName().getIdentifier().getValue();
+                if (SystemSchemaManager.isSystemTable(queryContext.getSqlStatementContext().getDatabaseType().getType(), owner, tableName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
