@@ -18,6 +18,8 @@
 package com.sphereex.dbplusengine.infra.binder.engine.dialect.type;
 
 import com.sphereex.dbplusengine.infra.binder.engine.dialect.SystemSchemaQueryDetector;
+import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
+import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.metadata.database.schema.manager.SystemSchemaManager;
 import org.apache.shardingsphere.sql.parser.statement.core.extractor.TableExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
@@ -39,6 +41,26 @@ public final class OracleSystemSchemaQueryDetector implements SystemSchemaQueryD
         TableExtractor tableExtractor = new TableExtractor();
         tableExtractor.extractTablesFromSQLStatement(statement);
         for (SimpleTableSegment each : tableExtractor.getRewriteTables()) {
+            if (each.getOwner().map(OwnerSegment::getIdentifier).map(IdentifierValue::getValue).map("PUBLIC"::equalsIgnoreCase).orElse(false)) {
+                return true;
+            }
+            String tableName = each.getTableName().getIdentifier().getValue();
+            if (SystemSchemaManager.isSystemTable("oracle", "public", tableName)) {
+                return true;
+            }
+            if (tableName.contains("$") || tableName.contains("/") || tableName.contains("##")) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public boolean isSystemSchemaQuery(final SQLStatementContext sqlStatementContext) {
+        if (!(sqlStatementContext instanceof SelectStatementContext)) {
+            return false;
+        }
+        for (SimpleTableSegment each : ((SelectStatementContext) sqlStatementContext).getTablesContext().getSimpleTables()) {
             if (each.getOwner().map(OwnerSegment::getIdentifier).map(IdentifierValue::getValue).map("PUBLIC"::equalsIgnoreCase).orElse(false)) {
                 return true;
             }
