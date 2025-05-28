@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.driver.executor.engine;
 
+import com.google.common.base.Strings;
 import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.driver.executor.physical.PhysicalExecuteQueryExecutor;
 import com.sphereex.dbplusengine.infra.binder.engine.dialect.SystemSchemaQueryDetector;
@@ -25,6 +26,7 @@ import org.apache.shardingsphere.driver.executor.callback.replay.StatementReplay
 import org.apache.shardingsphere.driver.executor.engine.pushdown.jdbc.DriverJDBCPushDownExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.executor.engine.pushdown.raw.DriverRawPushDownExecuteQueryExecutor;
 import org.apache.shardingsphere.driver.jdbc.core.connection.ShardingSphereConnection;
+import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPILoader;
 import org.apache.shardingsphere.infra.exception.kernel.metadata.resource.storageunit.EmptyStorageUnitException;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
@@ -36,11 +38,8 @@ import org.apache.shardingsphere.infra.metadata.database.ShardingSphereDatabase;
 import org.apache.shardingsphere.infra.metadata.database.schema.manager.SystemSchemaManager;
 import org.apache.shardingsphere.infra.rule.attribute.raw.RawExecutionRuleAttribute;
 import org.apache.shardingsphere.infra.session.query.QueryContext;
-import org.apache.shardingsphere.sql.parser.statement.core.extractor.TableExtractor;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.OwnerSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
-import org.apache.shardingsphere.sql.parser.statement.core.statement.SQLStatement;
-import org.apache.shardingsphere.sql.parser.statement.core.statement.dml.SelectStatement;
 import org.apache.shardingsphere.sql.parser.statement.core.value.identifier.IdentifierValue;
 
 import java.sql.Connection;
@@ -89,19 +88,13 @@ public final class DriverExecuteQueryExecutor {
                                   final StatementAddCallback addCallback, final StatementReplayCallback replayCallback) throws SQLException {
         // SPEX ADDED: BEGIN
         if (isQuerySystemSchema(queryContext)) {
-            ShardingSphereDatabase queryDatabase = null;
-            for (ShardingSphereDatabase each : metaData.getAllDatabases()) {
-                if (!each.getResourceMetaData().getStorageUnits().keySet().isEmpty()) {
-                    queryDatabase = each;
-                    break;
-                }
+            ShardingSphereDatabase queryDatabase = database.getResourceMetaData().getStorageUnits().isEmpty() ? findHasStorageUnitsDatabase().orElse(null) : database;
+            if (null == queryDatabase) {
+                throw new EmptyStorageUnitException();
             }
-            if (null != queryDatabase) {
-                PhysicalExecuteQueryExecutor physicalQueryExecutor = new PhysicalExecuteQueryExecutor(queryDatabase.getName(), connection.getDatabaseConnectionManager());
-                physicalQueryExecutor.executeQuery(queryContext, queryDatabase.getResourceMetaData().getStorageUnits().keySet().iterator().next());
-                return physicalQueryExecutor.getResultSet();
-            }
-            throw new EmptyStorageUnitException();
+            PhysicalExecuteQueryExecutor physicalQueryExecutor = new PhysicalExecuteQueryExecutor(queryDatabase.getName(), connection.getDatabaseConnectionManager());
+            physicalQueryExecutor.executeQuery(queryContext, queryDatabase.getResourceMetaData().getStorageUnits().keySet().iterator().next());
+            return physicalQueryExecutor.getResultSet();
         }
         // SPEX ADDED: END
         return database.getRuleMetaData().getAttributes(RawExecutionRuleAttribute.class).isEmpty()
@@ -113,23 +106,28 @@ public final class DriverExecuteQueryExecutor {
     private boolean isQuerySystemSchema(final QueryContext queryContext) {
         Optional<SystemSchemaQueryDetector> systemSchemaQueryDetector = DatabaseTypedSPILoader.findService(SystemSchemaQueryDetector.class, queryContext.getSqlStatementContext().getDatabaseType());
         if (systemSchemaQueryDetector.isPresent()) {
-            return systemSchemaQueryDetector.get().isSystemSchemaQuery(queryContext.getSqlStatementContext().getSqlStatement());
+            return systemSchemaQueryDetector.get().isSystemSchemaQuery(queryContext.getSqlStatementContext());
         }
-        SQLStatement statement =  queryContext.getSqlStatementContext().getSqlStatement();
-        if (!(statement instanceof SelectStatement) || !((SelectStatement) statement).getFrom().isPresent()) {
+        if (!(queryContext.getSqlStatementContext() instanceof SelectStatementContext)) {
             return false;
         }
-        TableExtractor tableExtractor = new TableExtractor();
-        tableExtractor.extractTablesFromSQLStatement(statement);
-        for (SimpleTableSegment each : tableExtractor.getRewriteTables()) {
-            String owner = each.getOwner().map(OwnerSegment::getIdentifier).map(IdentifierValue::getValue).orElseGet(() -> null);
-            if (null != owner) {
-                String tableName = each.getTableName().getIdentifier().getValue();
-                if (SystemSchemaManager.isSystemTable(queryContext.getSqlStatementContext().getDatabaseType().getType(), owner, tableName)) {
-                    return true;
-                }
+        for (SimpleTableSegment each : ((SelectStatementContext) queryContext.getSqlStatementContext()).getTablesContext().getSimpleTables()) {
+            String owner = each.getOwner().map(OwnerSegment::getIdentifier).map(IdentifierValue::getValue).orElse(null);
+            String tableName = each.getTableName().getIdentifier().getValue();
+            if (!Strings.isNullOrEmpty(owner) && SystemSchemaManager.isSystemTable(queryContext.getSqlStatementContext().getDatabaseType().getType(), owner, tableName)) {
+                return true;
             }
         }
         return false;
+    }
+    
+    @SphereEx
+    private Optional<ShardingSphereDatabase> findHasStorageUnitsDatabase() {
+        for (ShardingSphereDatabase each : metaData.getAllDatabases()) {
+            if (!each.getResourceMetaData().getStorageUnits().keySet().isEmpty()) {
+                return Optional.of(each);
+            }
+        }
+        return Optional.empty();
     }
 }

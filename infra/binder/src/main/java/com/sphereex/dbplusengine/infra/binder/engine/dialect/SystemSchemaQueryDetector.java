@@ -17,6 +17,7 @@
 
 package com.sphereex.dbplusengine.infra.binder.engine.dialect;
 
+import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.database.core.spi.DatabaseTypedSPI;
 import org.apache.shardingsphere.infra.spi.annotation.SingletonSPI;
 import org.apache.shardingsphere.sql.parser.statement.core.statement.SQLStatement;
@@ -34,4 +35,14 @@ public interface SystemSchemaQueryDetector extends DatabaseTypedSPI {
      * @return system schema query or not
      */
     boolean isSystemSchemaQuery(SQLStatement statement);
+    
+    /**
+     * Is system schema query.
+     *
+     * @param sqlStatementContext SQL statement context
+     * @return system schema query or not
+     */
+    default boolean isSystemSchemaQuery(SQLStatementContext sqlStatementContext) {
+        return false;
+    }
 }
