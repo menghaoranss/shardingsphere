@@ -17,7 +17,10 @@
 
 package com.sphereex.dbplusengine.infra.database.oceanbase.oracle.metadata.data.loader;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.sphereex.dbplusengine.SphereEx;
 import com.sphereex.dbplusengine.infra.database.core.metadata.database.datatype.DataTypeExtractor;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.DialectMetaDataLoader;
 import org.apache.shardingsphere.infra.database.core.metadata.data.loader.MetaDataLoaderConnection;
@@ -83,6 +86,10 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
     
     private static final String USER_SYNONYMS_SQL = "SELECT * FROM USER_SYNONYMS";
     
+    @SphereEx
+    private static final String PUBLIC_SYNONYMS_SQL = "SELECT * FROM ALL_SYNONYMS WHERE OWNER = 'PUBLIC' AND TABLE_OWNER NOT IN "
+            + "('MDSYS','OWBSYS','OLAPSYS','CTXSYS','FLOWS_FILES','APEX_030200','EXFSYS','SYSTEM','DBSNMP','ORDSYS','SYSMAN','XDB','ORDDATA','APPQOSSYS','SYS','WMSYS')";
+    
     private static final int COLLATION_START_MAJOR_VERSION = 12;
     
     private static final int COLLATION_START_MINOR_VERSION = 2;
@@ -91,11 +98,20 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
     
     private static final int MAX_EXPRESSION_SIZE = 1000;
     
+    private static final int USER_SYNONYMS_SYNONYM_NAME = 1;
+    
     private static final int USER_SYNONYMS_TABLE_OWNER = 2;
     
     private static final int USER_SYNONYMS_TABLE_NAME = 3;
     
-    private static final int USER_SYNONYMS_SYNONYM_NAME = 1;
+    @SphereEx
+    private static final int PUBLIC_SYNONYMS_SYNONYM_NAME = 2;
+    
+    @SphereEx
+    private static final int PUBLIC_SYNONYMS_TABLE_OWNER = 3;
+    
+    @SphereEx
+    private static final int PUBLIC_SYNONYMS_TABLE_NAME = 4;
     
     @Override
     public Collection<SchemaMetaData> load(final MetaDataLoaderMaterial material) throws SQLException {
@@ -107,25 +123,40 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         return Collections.singletonList(new SchemaMetaData(material.getDefaultSchemaName(), tableMetaDataList));
     }
     
+    @SphereEx
     private Collection<TableMetaData> getSchemaTableNameSynonymMaps(final MetaDataLoaderMaterial material, final Connection connection) throws SQLException {
+        Map<String, Multimap<String, String>> schemaTableNameUserSynonymMaps = getSchemaTableNameUserSynonymMaps(connection);
+        Collection<TableMetaData> result = new LinkedList<>(getSchemaTableNameSynonymMaps(material, connection, schemaTableNameUserSynonymMaps, false));
+        Map<String, Multimap<String, String>> schemaTableNamePublicSynonymMaps = getSchemaTableNamePublicSynonymMaps(connection);
+        result.addAll(getSchemaTableNameSynonymMaps(material, connection, schemaTableNamePublicSynonymMaps, true));
+        return result;
+    }
+    
+    @SphereEx
+    private Collection<TableMetaData> getSchemaTableNameSynonymMaps(final MetaDataLoaderMaterial material, final Connection connection,
+                                                                    final Map<String, Multimap<String, String>> schemaTableNameSynonymMaps, final boolean publicSynonym) throws SQLException {
         Collection<TableMetaData> result = new LinkedList<>();
-        Map<String, Map<String, String>> schemaTableNameSynonymMaps = loadLinkedTableNameSynonymMapSchemaGroup(connection);
         Collection<String> actualTableNames = new HashSet<>(material.getActualTableNames());
-        for (Entry<String, Map<String, String>> entry : schemaTableNameSynonymMaps.entrySet()) {
-            Collection<String> neededLinkedTableNames = entry.getValue().entrySet().stream().filter(each -> actualTableNames.contains(each.getValue())).map(Entry::getKey)
+        for (Entry<String, Multimap<String, String>> entry : schemaTableNameSynonymMaps.entrySet()) {
+            Collection<String> neededLinkedTableNames = entry.getValue().entries().stream().filter(each -> actualTableNames.contains(each.getValue())).map(Entry::getKey)
                     .collect(Collectors.toList());
             Collection<TableMetaData> linkedTableMetaDataList = getTableMetaDataList(connection, material, entry.getKey(), neededLinkedTableNames);
-            result.addAll(rebuildSynonymMetaDataList(linkedTableMetaDataList, entry.getValue()));
+            result.addAll(rebuildSynonymMetaDataList(linkedTableMetaDataList, entry.getValue(), publicSynonym));
         }
         return result;
     }
     
-    private Collection<TableMetaData> rebuildSynonymMetaDataList(final Collection<TableMetaData> linkedTableMetaDataList, final Map<String, String> linkedTableNameSynonymMap) {
+    @SphereEx
+    private Collection<TableMetaData> rebuildSynonymMetaDataList(final Collection<TableMetaData> linkedTableMetaDataList, final Multimap<String, String> linkedTableNameSynonymMap,
+                                                                 final boolean publicSynonym) {
         Collection<TableMetaData> result = new LinkedList<>();
         for (TableMetaData each : linkedTableMetaDataList) {
-            TableMetaData tableMetaData = new TableMetaData(linkedTableNameSynonymMap.get(each.getName()), each.getColumns(), each.getIndexes(), each.getConstraints(), each.getType(),
-                    each.getCharacterSetName());
-            result.add(tableMetaData);
+            TableType tableType = publicSynonym ? TableType.PUBLIC_SYNONYMS_TABLE : each.getType();
+            for (String synonymName : linkedTableNameSynonymMap.get(each.getName())) {
+                TableMetaData tableMetaData =
+                        new TableMetaData(synonymName, each.getColumns(), each.getIndexes(), each.getConstraints(), tableType, each.getCharacterSetName());
+                result.add(tableMetaData);
+            }
         }
         return result;
     }
@@ -162,13 +193,30 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
         return result.toString();
     }
     
-    private Map<String, Map<String, String>> loadLinkedTableNameSynonymMapSchemaGroup(final Connection connection) throws SQLException {
-        Map<String, Map<String, String>> result = new HashMap<>();
+    @SphereEx
+    private Map<String, Multimap<String, String>> getSchemaTableNameUserSynonymMaps(final Connection connection) throws SQLException {
+        Map<String, Multimap<String, String>> result = new HashMap<>();
         try (Statement statement = connection.createStatement()) {
             try (ResultSet resultSet = statement.executeQuery(USER_SYNONYMS_SQL)) {
+                resultSet.setFetchSize(1000);
                 while (resultSet.next()) {
-                    Map<String, String> linkedTableNameSynonymMap = result.computeIfAbsent(resultSet.getString(USER_SYNONYMS_TABLE_OWNER), unused -> new HashMap<>());
+                    Multimap<String, String> linkedTableNameSynonymMap = result.computeIfAbsent(resultSet.getString(USER_SYNONYMS_TABLE_OWNER), unused -> HashMultimap.create());
                     linkedTableNameSynonymMap.put(resultSet.getString(USER_SYNONYMS_TABLE_NAME), resultSet.getString(USER_SYNONYMS_SYNONYM_NAME));
+                }
+            }
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private Map<String, Multimap<String, String>> getSchemaTableNamePublicSynonymMaps(final Connection connection) throws SQLException {
+        Map<String, Multimap<String, String>> result = new HashMap<>();
+        try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery(PUBLIC_SYNONYMS_SQL)) {
+                resultSet.setFetchSize(1000);
+                while (resultSet.next()) {
+                    Multimap<String, String> linkedTableNameSynonymMap = result.computeIfAbsent(resultSet.getString(PUBLIC_SYNONYMS_TABLE_OWNER), unused -> HashMultimap.create());
+                    linkedTableNameSynonymMap.put(resultSet.getString(PUBLIC_SYNONYMS_TABLE_NAME), resultSet.getString(PUBLIC_SYNONYMS_SYNONYM_NAME));
                 }
             }
         }

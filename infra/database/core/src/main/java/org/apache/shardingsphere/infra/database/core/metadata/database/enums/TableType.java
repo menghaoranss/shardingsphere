@@ -17,10 +17,13 @@
 
 package org.apache.shardingsphere.infra.database.core.metadata.database.enums;
 
+import com.sphereex.dbplusengine.SphereEx;
+
 /**
  * Table type.
  */
 public enum TableType {
     
-    TABLE, VIEW
+    TABLE, VIEW, @SphereEx
+    PUBLIC_SYNONYMS_TABLE
 }

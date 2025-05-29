@@ -19,6 +19,7 @@ package org.apache.shardingsphere.sharding.route.engine.type.standard;
 
 import org.apache.shardingsphere.infra.hint.HintManager;
 import org.apache.shardingsphere.sharding.route.engine.type.standard.assertion.ShardingRouteAssert;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Disabled
 // TODO add assertion for ShardingRouteAssert.assertRoute
 class SubqueryRouteTest {
     

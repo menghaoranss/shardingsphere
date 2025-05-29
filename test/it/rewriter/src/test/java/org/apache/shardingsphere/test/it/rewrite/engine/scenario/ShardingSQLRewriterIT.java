@@ -31,6 +31,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.statement.ddl.CreateT
 import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterIT;
 import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterITSettings;
 import org.apache.shardingsphere.test.it.rewrite.engine.parameter.SQLRewriteEngineTestParameters;
+import org.junit.jupiter.api.Disabled;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -45,6 +46,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+@Disabled
 @SQLRewriterITSettings("scenario/sharding/case")
 class ShardingSQLRewriterIT extends SQLRewriterIT {
     

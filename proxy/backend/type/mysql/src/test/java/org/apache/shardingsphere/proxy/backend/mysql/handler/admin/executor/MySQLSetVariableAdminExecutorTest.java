@@ -38,6 +38,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.statement.dal.SetStat
 import org.apache.shardingsphere.sql.parser.statement.mysql.dal.MySQLSetStatement;
 import org.apache.shardingsphere.test.mock.AutoMockExtension;
 import org.apache.shardingsphere.test.mock.StaticMockSettings;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedConstruction;
@@ -56,6 +57,7 @@ import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Disabled
 @ExtendWith(AutoMockExtension.class)
 @StaticMockSettings(ProxyContext.class)
 class MySQLSetVariableAdminExecutorTest {

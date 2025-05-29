@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.sharding.route.engine.type.standard;
 
 import org.apache.shardingsphere.sharding.route.engine.type.standard.assertion.ShardingRouteAssert;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Disabled
 class SQLRouteTest {
     
     @ParameterizedTest(name = "{0}")

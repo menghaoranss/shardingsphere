@@ -81,6 +81,7 @@ public final class DriverExecuteQueryExecutor {
      * @param replayCallback statement replay callback
      * @return result set
      * @throws SQLException SQL exception
+     * @throws EmptyStorageUnitException empty storage unit exception
      */
     @SuppressWarnings("rawtypes")
     public ResultSet executeQuery(final ShardingSphereDatabase database, final QueryContext queryContext,

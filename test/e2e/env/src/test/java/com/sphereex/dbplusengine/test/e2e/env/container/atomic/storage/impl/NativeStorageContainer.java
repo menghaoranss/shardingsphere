@@ -92,7 +92,7 @@ public final class NativeStorageContainer implements StorageContainer {
         Map<String, DataSource> result = new HashMap<>();
         for (String databaseName : databaseNames) {
             DataSource dataSource = StorageContainerUtils.generateDataSource(DataSourceEnvironment.getURL(databaseType, E2ETestEnvironment.getInstance().getNativeHost(),
-                            Integer.parseInt(E2ETestEnvironment.getInstance().getNativePort()), databaseName),
+                    Integer.parseInt(E2ETestEnvironment.getInstance().getNativePort()), databaseName),
                     E2ETestEnvironment.getInstance().getNativeUsername(), E2ETestEnvironment.getInstance().getNativePassword());
             initDialectDataSource(databaseName, dataSource);
             result.put(databaseName, dataSource);

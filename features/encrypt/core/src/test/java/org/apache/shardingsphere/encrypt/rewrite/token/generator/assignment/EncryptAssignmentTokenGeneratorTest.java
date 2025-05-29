@@ -72,8 +72,9 @@ class EncryptAssignmentTokenGeneratorTest {
         when(assignmentSegment.getColumns().get(0).getIdentifier().getValue()).thenReturn("columns");
         // SPEX ADDED: BEGIN
         when(assignmentSegment.getColumns().get(0).getOwner()).thenReturn(Optional.of(new OwnerSegment(0, 0, null)));
-        when(assignmentSegment.getColumns().get(0).getColumnBoundInfo()).thenReturn(new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("table"), new IdentifierValue("columns"),
-                TableSourceType.PHYSICAL_TABLE));
+        when(assignmentSegment.getColumns().get(0).getColumnBoundInfo())
+                .thenReturn(new ColumnSegmentBoundInfo(new TableSegmentBoundInfo(new IdentifierValue(""), new IdentifierValue("")), new IdentifierValue("table"), new IdentifierValue("columns"),
+                        TableSourceType.PHYSICAL_TABLE));
         // SPEX ADDED: END
         when(setAssignmentSegment.getAssignments()).thenReturn(Collections.singleton(assignmentSegment));
     }

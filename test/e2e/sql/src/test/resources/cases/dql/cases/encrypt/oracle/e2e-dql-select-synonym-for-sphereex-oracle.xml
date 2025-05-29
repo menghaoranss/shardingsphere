@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- SPEX ADDED: BEGIN -->
+<e2e-test-cases>
+    <!-- NOTE: 测试公共同义词 -->
+    <test-case sql="SELECT * FROM t_public_synonym" db-types="Oracle" scenario-types="encrypt">
+        <assertion expected-data-source-name="expected_dataset"/>
+    </test-case>
+
+    <!-- NOTE: 测试指向相同表的公共同义词 -->
+    <test-case sql="SELECT * FROM t_public_synonym_duplicate" db-types="Oracle" scenario-types="encrypt">
+        <assertion expected-data-source-name="expected_dataset"/>
+    </test-case>
+
+    <!-- NOTE: 测试用户同义词 -->
+    <test-case sql="SELECT * FROM t_user_synonym" db-types="Oracle" scenario-types="encrypt">
+        <assertion expected-data-source-name="expected_dataset"/>
+    </test-case>
+
+    <!-- NOTE: 测试指向相同表的用户同义词 -->
+    <test-case sql="SELECT * FROM t_user_synonym_duplicate" db-types="Oracle" scenario-types="encrypt">
+        <assertion expected-data-source-name="expected_dataset"/>
+    </test-case>
+</e2e-test-cases>
+<!-- SPEX ADDED: END -->
