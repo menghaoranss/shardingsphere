@@ -26,6 +26,7 @@ import org.apache.shardingsphere.infra.binder.context.aware.CursorAware;
 import org.apache.shardingsphere.infra.binder.context.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.context.statement.dml.SelectStatementContext;
 import org.apache.shardingsphere.infra.binder.context.type.TableAvailable;
+import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
 import org.apache.shardingsphere.infra.database.mysql.type.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.database.oracle.type.OracleDatabaseType;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
@@ -36,6 +37,7 @@ import org.apache.shardingsphere.infra.rewrite.sql.token.common.generator.aware.
 import org.apache.shardingsphere.infra.rewrite.sql.token.common.pojo.SQLToken;
 import org.apache.shardingsphere.infra.session.connection.ConnectionContext;
 import org.apache.shardingsphere.single.rule.SingleRule;
+import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.bound.TableSegmentBoundInfo;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.SimpleTableSegment;
 import org.apache.shardingsphere.sql.parser.statement.core.segment.generic.table.TableNameSegment;
 
@@ -85,12 +87,23 @@ public final class SingleTableTokenGenerator implements CollectionSQLTokenGenera
         Collection<SQLToken> result = new LinkedList<>();
         Map<String, QualifiedTable> currentDatabaseSingleTables = getSingleTables(sqlStatementContext, currentDatabase, currentSingleRule);
         for (SimpleTableSegment each : allTables) {
-            if (isUsedCTETable(sqlStatementContext, each)) {
+            if (isUsedCTETable(sqlStatementContext, each) || isPublicSynonymsTable(each)) {
                 continue;
             }
             getSingleTableToken(sqlStatementContext, each, currentDatabaseSingleTables).ifPresent(result::add);
         }
         return result;
+    }
+    
+    private boolean isPublicSynonymsTable(final SimpleTableSegment tableSegment) {
+        Optional<TableSegmentBoundInfo> tableBoundInfo = tableSegment.getTableName().getTableBoundInfo();
+        if (tableBoundInfo.isPresent() && metaData.containsDatabase(tableBoundInfo.get().getOriginalDatabase().getValue())) {
+            ShardingSphereDatabase database = metaData.getDatabase(tableBoundInfo.get().getOriginalDatabase().getValue());
+            return Optional.ofNullable(database.getSchema(tableBoundInfo.get().getOriginalSchema().getValue()))
+                    .flatMap(optional -> Optional.ofNullable(optional.getTable(tableSegment.getTableName().getIdentifier().getValue())))
+                    .map(optional -> TableType.PUBLIC_SYNONYMS_TABLE == optional.getType()).orElse(false);
+        }
+        return false;
     }
     
     private boolean isUsedCTETable(final SQLStatementContext sqlStatementContext, final SimpleTableSegment simpleTableSegment) {

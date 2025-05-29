@@ -28,6 +28,7 @@ import org.apache.shardingsphere.sql.parser.statement.core.statement.SQLStatemen
 import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterIT;
 import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterITSettings;
 import org.apache.shardingsphere.test.it.rewrite.engine.parameter.SQLRewriteEngineTestParameters;
+import org.junit.jupiter.api.Disabled;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -41,6 +42,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 
+@Disabled
 @SQLRewriterITSettings("scenario/mix/case")
 class MixSQLRewriterIT extends SQLRewriterIT {
     

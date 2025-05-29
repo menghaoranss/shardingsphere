@@ -82,7 +82,8 @@ public final class DataSourceEnvironment {
                 return String.format("jdbc:oracle:thin:@%s:%s", host, port);
             case "OceanBase_Oracle":
                 return String.format(
-                        "jdbc:oceanbase://%s:%s?rewriteBatchedStatements=true&allowMultiQueries=true&useLocalSessionState=true&useUnicode=true&characterEncoding=utf-8&socketTimeout=3000&connectTimeout=60000&sessionVariables=ob_query_timeout=300000000",
+                        "jdbc:oceanbase://%s:%s?rewriteBatchedStatements=true&allowMultiQueries=true&useLocalSessionState=true"
+                                + "&useUnicode=true&characterEncoding=utf-8&socketTimeout=3000&connectTimeout=60000&sessionVariables=ob_query_timeout=300000000",
                         host, port);
             // SPEX ADDED: END
             default:
@@ -121,7 +122,8 @@ public final class DataSourceEnvironment {
                 return String.format("jdbc:oracle:thin:@%s:%s:XE", host, port);
             case "OceanBase_Oracle":
                 return String.format(
-                        "jdbc:oceanbase://%s:%s/%s?rewriteBatchedStatements=true&allowMultiQueries=true&useLocalSessionState=true&useUnicode=true&characterEncoding=utf-8&socketTimeout=3000&connectTimeout=60000&sessionVariables=ob_query_timeout=300000000",
+                        "jdbc:oceanbase://%s:%s/%s?rewriteBatchedStatements=true&allowMultiQueries=true&useLocalSessionState=true"
+                                + "&useUnicode=true&characterEncoding=utf-8&socketTimeout=3000&connectTimeout=60000&sessionVariables=ob_query_timeout=300000000",
                         host, port, dataSourceName);
             // SPEX ADDED: END
             default:

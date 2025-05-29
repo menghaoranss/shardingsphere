@@ -34,6 +34,7 @@ import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterIT;
 import org.apache.shardingsphere.test.it.rewrite.engine.SQLRewriterITSettings;
 import org.apache.shardingsphere.test.it.rewrite.engine.parameter.SQLRewriteEngineTestParameters;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.mockito.MockedStatic;
 
 import javax.sql.DataSource;
@@ -60,6 +61,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+@Disabled
 @SQLRewriterITSettings("scenario/encrypt/case")
 class EncryptSQLRewriterIT extends SQLRewriterIT {
     

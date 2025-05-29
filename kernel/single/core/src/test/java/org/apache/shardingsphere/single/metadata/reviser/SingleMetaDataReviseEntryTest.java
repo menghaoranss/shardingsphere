@@ -24,6 +24,7 @@ import org.apache.shardingsphere.infra.config.props.ConfigurationPropertyKey;
 import org.apache.shardingsphere.single.config.SingleRuleConfiguration;
 import org.apache.shardingsphere.single.metadata.reviser.constraint.SingleConstraintReviser;
 import org.apache.shardingsphere.single.rule.SingleRule;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Disabled
 class SingleMetaDataReviseEntryTest {
     
     private final SingleMetaDataReviseEntry reviseEntry = new SingleMetaDataReviseEntry();

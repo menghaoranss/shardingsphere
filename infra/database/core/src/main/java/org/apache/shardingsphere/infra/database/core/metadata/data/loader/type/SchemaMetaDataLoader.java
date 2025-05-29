@@ -18,6 +18,7 @@
 package org.apache.shardingsphere.infra.database.core.metadata.data.loader.type;
 
 import com.cedarsoftware.util.CaseInsensitiveMap;
+import com.cedarsoftware.util.CaseInsensitiveSet;
 import com.sphereex.dbplusengine.SphereEx;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -68,6 +69,10 @@ public final class SchemaMetaDataLoader {
     @SphereEx
     private static final String QUERY_INVALID_VIEW_SQL = "SELECT OBJECT_NAME as VIEW_NAME FROM ALL_OBJECTS where OWNER='%s' and STATUS='INVALID' and OBJECT_TYPE='VIEW'";
     
+    @SphereEx
+    private static final String PUBLIC_SYNONYMS_TABLE_SQL = "SELECT SYNONYM_NAME FROM ALL_SYNONYMS WHERE OWNER = 'PUBLIC' AND TABLE_OWNER NOT IN "
+            + "('MDSYS','OWBSYS','OLAPSYS','CTXSYS','FLOWS_FILES','APEX_030200','EXFSYS','SYSTEM','DBSNMP','ORDSYS','SYSMAN','XDB','ORDDATA','APPQOSSYS','SYS','WMSYS')";
+    
     /**
      * Load schema table names.
      *
@@ -106,7 +111,7 @@ public final class SchemaMetaDataLoader {
     
     private static Collection<String> replaceSchemaName(final Collection<String> schemaNames, final DatabaseType databaseType) {
         Collection<String> result = new LinkedList<>();
-        for (String each :schemaNames) {
+        for (String each : schemaNames) {
             result.add(each);
             String replaceSchemaName = replaceSchemaName(each, databaseType);
             if (!result.contains(replaceSchemaName)) {
@@ -175,8 +180,30 @@ public final class SchemaMetaDataLoader {
     private static Collection<String> loadValidTableNames(final Connection connection, final String schemaName, final Collection<String> includedTables,
                                                           final Collection<String> excludedTables, final DatabaseType databaseType) throws SQLException {
         Collection<String> result = loadTableNames(connection, schemaName, includedTables, excludedTables, databaseType);
+        if ("Oracle".equals(databaseType.getType()) || "OceanBase_Oracle".equals(databaseType.getType())) {
+            result.addAll(loadPublicSynonyms(connection, includedTables, excludedTables));
+        }
         if (isOracleDatabase(databaseType)) {
             result = filterOracleInvalidView(connection, result);
+        }
+        return result;
+    }
+    
+    @SphereEx
+    private static Collection<String> loadPublicSynonyms(final Connection connection, final Collection<String> includedTables, final Collection<String> excludedTables) throws SQLException {
+        Collection<String> result = new CaseInsensitiveSet<>();
+        try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery(PUBLIC_SYNONYMS_TABLE_SQL)) {
+                while (resultSet.next()) {
+                    String table = resultSet.getString(1);
+                    if (!includedTables.isEmpty() && !includedTables.contains(table)) {
+                        continue;
+                    }
+                    if (!isSystemTable(table) && !excludedTables.contains(table)) {
+                        result.add(table);
+                    }
+                }
+            }
         }
         return result;
     }

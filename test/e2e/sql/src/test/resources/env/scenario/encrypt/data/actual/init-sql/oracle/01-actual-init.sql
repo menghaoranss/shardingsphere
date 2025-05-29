@@ -17,8 +17,11 @@
 
 -- SPEX ADDED: BEGIN
 CREATE USER encrypt identified by encrypt;
+CREATE USER encrypt_synonym identified by encrypt_synonym;
 GRANT ALL PRIVILEGES TO encrypt;
+GRANT ALL PRIVILEGES TO encrypt_synonym;
 ALTER USER encrypt QUOTA UNLIMITED ON USERS;
+ALTER USER encrypt_synonym QUOTA UNLIMITED ON USERS;
 
 CREATE TABLE encrypt.t_order (order_id INT PRIMARY KEY, user_id INT NOT NULL, status VARCHAR(50) NOT NULL, merchant_id INT, remark VARCHAR(50) NOT NULL, creation_date DATE NOT NULL);
 CREATE TABLE encrypt.t_order_item (item_id INT PRIMARY KEY, order_id INT NOT NULL, user_id INT NOT NULL, product_id INT NOT NULL, quantity INT NOT NULL, creation_date DATE NOT NULL);
@@ -41,5 +44,11 @@ CREATE TABLE encrypt.MC_PERMISSIONSCOPE (ID NUMBER(10), USERID NUMBER, XTYPE VAR
 
 CREATE INDEX user_index_t_user ON encrypt.t_user (user_id);
 
-CREATE INDEX user_index_t_user ON encrypt.t_user (user_id);
+CREATE TABLE encrypt_synonym.t_public_synonym (id INT PRIMARY KEY, creation_date DATE, update_date TIMESTAMP);
+CREATE TABLE encrypt_synonym.t_user_synonym (id INT PRIMARY KEY, creation_date DATE, update_date TIMESTAMP);
+
+CREATE PUBLIC SYNONYM t_public_synonym FOR encrypt_synonym.t_public_synonym;
+CREATE PUBLIC SYNONYM t_public_synonym_duplicate FOR encrypt_synonym.t_public_synonym;
+CREATE SYNONYM encrypt.t_user_synonym FOR encrypt_synonym.t_user_synonym;
+CREATE SYNONYM encrypt.t_user_synonym_duplicate FOR encrypt_synonym.t_user_synonym;
 -- SPEX ADDED: END
