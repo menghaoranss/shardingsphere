@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.database.oracle.metadata.data.loader;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -77,7 +78,7 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
     
     private static final String VIEW_META_DATA_SQL = "SELECT VIEW_NAME FROM ALL_VIEWS WHERE OWNER IN (%s) AND VIEW_NAME IN (%s)";
     
-    private static final String INDEX_META_DATA_SQL = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, UNIQUENESS FROM ALL_INDEXES WHERE OWNER IN (%s) AND TABLE_NAME IN (%s)";
+    private static final String INDEX_META_DATA_SQL = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, UNIQUENESS FROM ALL_INDEXES WHERE OWNER = ? AND TABLE_NAME IN (%s)";
     
     private static final String PRIMARY_KEY_META_DATA_SQL = "SELECT A.OWNER AS TABLE_SCHEMA, A.TABLE_NAME AS TABLE_NAME, B.COLUMN_NAME AS COLUMN_NAME FROM ALL_CONSTRAINTS A INNER JOIN"
             + " ALL_CONS_COLUMNS B ON A.CONSTRAINT_NAME = B.CONSTRAINT_NAME WHERE CONSTRAINT_TYPE = 'P' AND A.OWNER IN (%s)";
@@ -322,7 +323,8 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
     
     private Map<String, Collection<IndexMetaData>> loadIndexMetaData(final Connection connection, final Collection<String> tableNames, final String schema) throws SQLException {
         Map<String, Collection<IndexMetaData>> result = new HashMap<>(tableNames.size(), 1F);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(getIndexMetaDataSQL(tableNames, schema))) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getIndexMetaDataSQL(tableNames))) {
+            preparedStatement.setString(1, schema);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     String indexName = resultSet.getString("INDEX_NAME");
@@ -343,16 +345,24 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
         return result;
     }
     
-    private void loadIndexColumnNames(final Connection connection, final String schema, final Map<String, Collection<IndexMetaData>> tableIndexMetaDataMap) throws SQLException {
+    private void loadIndexColumnNames(final Connection connection, final Map<String, Collection<IndexMetaData>> tableIndexMetaDataMap) throws SQLException {
+        List<String> quotedIndexNames =
+                tableIndexMetaDataMap.values().stream().flatMap(Collection::stream).map(IndexMetaData::getName).map(QuoteCharacter.SINGLE_QUOTE::wrap).collect(Collectors.toList());
+        if (!quotedIndexNames.isEmpty()) {
+            return;
+        }
         Map<String, Collection<String>> indexColumnsMap = new HashMap<>();
-        try (
-                PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL,
-                        tableIndexMetaDataMap.values().stream().flatMap(Collection::stream).map(IndexMetaData::getName).map(QuoteCharacter.SINGLE_QUOTE::wrap).collect(Collectors.joining(","))))) {
-            preparedStatement.setString(1, schema);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                Collection<String> columns = indexColumnsMap.computeIfAbsent(resultSet.getString("INDEX_NAME"), key -> new LinkedList<>());
-                columns.add(resultSet.getString("COLUMN_NAME"));
+        for (List<String> each : Lists.partition(quotedIndexNames, 1000)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL, Joiner.on(",").join(each)))) {
+                preparedStatement.setString(1, connection.getSchema());
+                ResultSet resultSet = preparedStatement.executeQuery();
+                // SPEX ADDED: BEGIN
+                resultSet.setFetchSize(1000);
+                // SPEX ADDED: END
+                while (resultSet.next()) {
+                    Collection<String> columns = indexColumnsMap.computeIfAbsent(resultSet.getString("INDEX_NAME"), key -> new LinkedList<>());
+                    columns.add(resultSet.getString("COLUMN_NAME"));
+                }
             }
         }
         for (Entry<String, Collection<IndexMetaData>> entry : tableIndexMetaDataMap.entrySet()) {
@@ -362,9 +372,9 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
         }
     }
     
-    private String getIndexMetaDataSQL(final Collection<String> tableNames, final String schema) {
+    private String getIndexMetaDataSQL(final Collection<String> tableNames) {
         // TODO The table name needs to be in uppercase, otherwise the index cannot be found.
-        return String.format(INDEX_META_DATA_SQL, schema, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
+        return String.format(INDEX_META_DATA_SQL, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
     }
     
     private Map<String, Collection<String>> loadTablePrimaryKeys(final Connection connection, final Collection<String> tableNames, final String schema) throws SQLException {
