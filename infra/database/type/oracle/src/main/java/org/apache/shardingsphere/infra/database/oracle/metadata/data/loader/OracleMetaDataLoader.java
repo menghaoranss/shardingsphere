@@ -345,7 +345,7 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
         return result;
     }
     
-    private void loadIndexColumnNames(final Connection connection, final Map<String, Collection<IndexMetaData>> tableIndexMetaDataMap) throws SQLException {
+    private void loadIndexColumnNames(final Connection connection, final String schema, final Map<String, Collection<IndexMetaData>> tableIndexMetaDataMap) throws SQLException {
         List<String> quotedIndexNames =
                 tableIndexMetaDataMap.values().stream().flatMap(Collection::stream).map(IndexMetaData::getName).map(QuoteCharacter.SINGLE_QUOTE::wrap).collect(Collectors.toList());
         if (!quotedIndexNames.isEmpty()) {
@@ -354,7 +354,7 @@ public final class OracleMetaDataLoader implements DialectMetaDataLoader {
         Map<String, Collection<String>> indexColumnsMap = new HashMap<>();
         for (List<String> each : Lists.partition(quotedIndexNames, 1000)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL, Joiner.on(",").join(each)))) {
-                preparedStatement.setString(1, connection.getSchema());
+                preparedStatement.setString(1, schema);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 // SPEX ADDED: BEGIN
                 resultSet.setFetchSize(1000);

@@ -17,6 +17,7 @@
 
 package com.sphereex.dbplusengine.infra.database.oceanbase.oracle.metadata.data.loader;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -30,6 +31,7 @@ import org.apache.shardingsphere.infra.database.core.metadata.data.model.IndexMe
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.SchemaMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.data.model.TableMetaData;
 import org.apache.shardingsphere.infra.database.core.metadata.database.datatype.DataTypeRegistry;
+import org.apache.shardingsphere.infra.database.core.metadata.database.enums.QuoteCharacter;
 import org.apache.shardingsphere.infra.database.core.metadata.database.enums.TableType;
 import org.apache.shardingsphere.infra.database.core.type.DatabaseType;
 import org.apache.shardingsphere.infra.spi.type.typed.TypedSPILoader;
@@ -50,6 +52,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -75,14 +78,14 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
     
     private static final String VIEW_META_DATA_SQL = "SELECT VIEW_NAME FROM ALL_VIEWS WHERE OWNER IN (%s) AND VIEW_NAME IN (%s)";
     
-    private static final String INDEX_META_DATA_SQL = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, UNIQUENESS FROM ALL_INDEXES WHERE OWNER IN (%s) AND TABLE_NAME IN (%s)";
+    private static final String INDEX_META_DATA_SQL = "SELECT OWNER AS TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, UNIQUENESS FROM ALL_INDEXES WHERE OWNER = ? AND TABLE_NAME IN (%s)";
     
     private static final String PRIMARY_KEY_META_DATA_SQL = "SELECT A.OWNER AS TABLE_SCHEMA, A.TABLE_NAME AS TABLE_NAME, B.COLUMN_NAME AS COLUMN_NAME FROM ALL_CONSTRAINTS A INNER JOIN"
             + " ALL_CONS_COLUMNS B ON A.CONSTRAINT_NAME = B.CONSTRAINT_NAME WHERE CONSTRAINT_TYPE = 'P' AND A.OWNER IN (%s)";
     
     private static final String PRIMARY_KEY_META_DATA_SQL_IN_TABLES = PRIMARY_KEY_META_DATA_SQL + " AND A.TABLE_NAME IN (%s)";
     
-    private static final String INDEX_COLUMN_META_DATA_SQL = "SELECT COLUMN_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER IN (%s) AND TABLE_NAME = ? AND INDEX_NAME = ?";
+    private static final String INDEX_COLUMN_META_DATA_SQL = "SELECT INDEX_NAME, COLUMN_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER = ? AND INDEX_NAME IN (%s)";
     
     private static final String USER_SYNONYMS_SQL = "SELECT * FROM USER_SYNONYMS";
     
@@ -329,7 +332,8 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
     
     private Map<String, Collection<IndexMetaData>> loadIndexMetaData(final Connection connection, final Collection<String> tableNames, final String schema) throws SQLException {
         Map<String, Collection<IndexMetaData>> result = new HashMap<>(tableNames.size(), 1F);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(getIndexMetaDataSQL(tableNames, schema))) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getIndexMetaDataSQL(tableNames))) {
+            preparedStatement.setString(1, schema);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     String indexName = resultSet.getString("INDEX_NAME");
@@ -338,31 +342,46 @@ public final class OceanbaseOracleModeMetaDataLoader implements DialectMetaDataL
                     if (!result.containsKey(tableName)) {
                         result.put(tableName, new LinkedList<>());
                     }
-                    IndexMetaData indexMetaData = new IndexMetaData(indexName, loadIndexColumnNames(connection, tableName, indexName, schema));
+                    IndexMetaData indexMetaData = new IndexMetaData(indexName);
                     indexMetaData.setUnique(isUnique);
                     result.get(tableName).add(indexMetaData);
                 }
             }
         }
+        if (!result.isEmpty()) {
+            loadIndexColumnNames(connection, schema, result);
+        }
         return result;
     }
     
-    private List<String> loadIndexColumnNames(final Connection connection, final String tableName, final String indexName, final String schema) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL, schema))) {
-            preparedStatement.setString(1, tableName);
-            preparedStatement.setString(2, indexName);
-            List<String> result = new LinkedList<>();
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                result.add(resultSet.getString("COLUMN_NAME"));
+    private void loadIndexColumnNames(final Connection connection, final String schema, final Map<String, Collection<IndexMetaData>> tableIndexMetaDataMap) throws SQLException {
+        List<String> quotedIndexNames =
+                tableIndexMetaDataMap.values().stream().flatMap(Collection::stream).map(IndexMetaData::getName).map(QuoteCharacter.SINGLE_QUOTE::wrap).collect(Collectors.toList());
+        if (!quotedIndexNames.isEmpty()) {
+            return;
+        }
+        Map<String, Collection<String>> indexColumnsMap = new HashMap<>();
+        for (List<String> each : Lists.partition(quotedIndexNames, 1000)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(INDEX_COLUMN_META_DATA_SQL, Joiner.on(",").join(each)))) {
+                preparedStatement.setString(1, schema);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                resultSet.setFetchSize(1000);
+                while (resultSet.next()) {
+                    Collection<String> columns = indexColumnsMap.computeIfAbsent(resultSet.getString("INDEX_NAME"), key -> new LinkedList<>());
+                    columns.add(resultSet.getString("COLUMN_NAME"));
+                }
             }
-            return result;
+        }
+        for (Entry<String, Collection<IndexMetaData>> entry : tableIndexMetaDataMap.entrySet()) {
+            for (IndexMetaData each : entry.getValue()) {
+                Optional.ofNullable(indexColumnsMap.get(each.getName())).ifPresent(each::setColumns);
+            }
         }
     }
     
-    private String getIndexMetaDataSQL(final Collection<String> tableNames, final String schema) {
+    private String getIndexMetaDataSQL(final Collection<String> tableNames) {
         // TODO The table name needs to be in uppercase, otherwise the index cannot be found.
-        return String.format(INDEX_META_DATA_SQL, schema, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
+        return String.format(INDEX_META_DATA_SQL, tableNames.stream().map(each -> String.format("'%s'", each)).collect(Collectors.joining(",")));
     }
     
     private Map<String, Collection<String>> loadTablePrimaryKeys(final Connection connection, final Collection<String> tableNames, final String schema) throws SQLException {
