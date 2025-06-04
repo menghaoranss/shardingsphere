@@ -474,7 +474,14 @@ public final class OracleDMLStatementVisitor extends OracleStatementVisitor impl
     
     @Override
     public ASTNode visitPivotClause(final PivotClauseContext ctx) {
-        ColumnSegment pivotForColumn = (ColumnSegment) visitColumnName(ctx.pivotForClause().columnName());
+        Collection<ColumnSegment> pivotForColumn;
+        if (null != ctx.pivotForClause().columnName()) {
+            pivotForColumn = Collections.singleton((ColumnSegment) visitColumnName(ctx.pivotForClause().columnName()));
+        } else if (null != ctx.pivotForClause().columnNames()) {
+            pivotForColumn = ((CollectionValue<ColumnSegment>) visit(ctx.pivotForClause().columnNames())).getValue();
+        } else {
+            throw new IllegalArgumentException("Pivot clause must have a column name.");
+        }
         Collection<ColumnSegment> pivotInColumns = new LinkedList<>();
         if (null != ctx.pivotInClause()) {
             ctx.pivotInClause().pivotInClauseExpr().forEach(each -> {
@@ -489,11 +496,33 @@ public final class OracleDMLStatementVisitor extends OracleStatementVisitor impl
     
     @Override
     public ASTNode visitUnpivotClause(final UnpivotClauseContext ctx) {
-        ColumnSegment unpivotColumn = (ColumnSegment) visitColumnName(ctx.columnName());
-        ColumnSegment unpivotForColumn = (ColumnSegment) visitColumnName(ctx.pivotForClause().columnName());
+        Collection<ColumnSegment> unpivotColumn;
+        if (null != ctx.columnName()) {
+            unpivotColumn = Collections.singleton((ColumnSegment) visitColumnName(ctx.columnName()));
+        } else if (null != ctx.columnNames()) {
+            unpivotColumn = ((CollectionValue<ColumnSegment>) visit(ctx.columnNames())).getValue();
+        } else {
+            throw new IllegalArgumentException("Pivot clause must have a column name.");
+        }
+        Collection<ColumnSegment> unpivotForColumn;
+        if (null != ctx.pivotForClause().columnName()) {
+            unpivotForColumn = Collections.singleton((ColumnSegment) visitColumnName(ctx.pivotForClause().columnName()));
+        } else if (null != ctx.pivotForClause().columnNames()) {
+            unpivotForColumn = ((CollectionValue<ColumnSegment>) visit(ctx.pivotForClause().columnNames())).getValue();
+        } else {
+            throw new IllegalArgumentException("Pivot clause must have a column name.");
+        }
         Collection<ColumnSegment> unpivotInColumns = new LinkedList<>();
         if (null != ctx.unpivotInClause()) {
-            ctx.unpivotInClause().unpivotInClauseExpr().forEach(each -> unpivotInColumns.add((ColumnSegment) visit(each.columnName())));
+            ctx.unpivotInClause().unpivotInClauseExpr().forEach(each -> {
+                if (null != each.columnName()) {
+                    unpivotInColumns.add((ColumnSegment) visitColumnName(each.columnName()));
+                } else if (null != each.columnNames()) {
+                    unpivotInColumns.addAll(((CollectionValue<ColumnSegment>) visit(each.columnNames())).getValue());
+                } else {
+                    throw new IllegalArgumentException("Pivot clause must have a column name.");
+                }
+            });
         }
         PivotSegment result = new PivotSegment(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex(), unpivotForColumn, unpivotInColumns, true);
         result.setUnpivotColumn(unpivotColumn);

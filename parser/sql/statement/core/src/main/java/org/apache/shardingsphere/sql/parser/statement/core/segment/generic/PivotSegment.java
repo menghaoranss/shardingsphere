@@ -37,16 +37,16 @@ public final class PivotSegment implements SQLSegment {
     
     private final int stopIndex;
     
-    private final ColumnSegment pivotForColumn;
+    private final Collection<ColumnSegment> pivotForColumn;
     
     private final Collection<ColumnSegment> pivotInColumns;
     
     private final boolean isUnPivot;
     
     @Setter
-    private ColumnSegment unpivotColumn;
+    private Collection<ColumnSegment> unpivotColumn;
     
-    public PivotSegment(final int startIndex, final int stopIndex, final ColumnSegment pivotForColumn, final Collection<ColumnSegment> pivotInColumns) {
+    public PivotSegment(final int startIndex, final int stopIndex, final Collection<ColumnSegment> pivotForColumn, final Collection<ColumnSegment> pivotInColumns) {
         this.startIndex = startIndex;
         this.stopIndex = stopIndex;
         this.pivotForColumn = pivotForColumn;
@@ -61,9 +61,9 @@ public final class PivotSegment implements SQLSegment {
      */
     public Collection<ColumnSegment> getPivotColumns() {
         Collection<ColumnSegment> result = new HashSet<>(pivotInColumns);
-        result.add(pivotForColumn);
+        result.addAll(pivotForColumn);
         if (null != unpivotColumn) {
-            result.add(unpivotColumn);
+            result.addAll(unpivotColumn);
         }
         return result;
     }
