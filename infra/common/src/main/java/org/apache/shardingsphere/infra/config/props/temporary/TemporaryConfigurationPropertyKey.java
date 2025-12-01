@@ -45,7 +45,42 @@ public enum TemporaryConfigurationPropertyKey implements TypedPropertyKey {
     /**
      * Proxy meta data collector cron.
      */
-    PROXY_META_DATA_COLLECTOR_CRON("proxy-meta-data-collector-cron", "0 0/1 * * * ?", String.class, false);
+    PROXY_META_DATA_COLLECTOR_CRON("proxy-meta-data-collector-cron", "0 0/1 * * * ?", String.class, false),
+
+    /**
+     * Table cache enabled.
+     */
+    TABLE_CACHE_ENABLED("table-cache-enabled", String.valueOf(Boolean.FALSE), boolean.class, false),
+
+    /**
+     * Table cache initial capacity.
+     */
+    TABLE_CACHE_INITIAL_CAPACITY("table-cache-initial-capacity", "128", int.class, false),
+
+    /**
+     * Table cache maximum size.
+     */
+    TABLE_CACHE_MAXIMUM_SIZE("table-cache-maximum-size", "1024", int.class, false),
+
+    /**
+     * Table cache expire after write in milliseconds.
+     */
+    TABLE_CACHE_EXPIRE_AFTER_WRITE("table-cache-expire-after-write", "300000", long.class, false),
+
+    /**
+     * Table cache expire after access in milliseconds.
+     */
+    TABLE_CACHE_EXPIRE_AFTER_ACCESS("table-cache-expire-after-access", "600000", long.class, false),
+
+    /**
+     * Table cache enable metrics.
+     */
+    TABLE_CACHE_ENABLE_METRICS("table-cache-enable-metrics", String.valueOf(Boolean.FALSE), boolean.class, false),
+
+    /**
+     * Table cache enable soft values.
+     */
+    TABLE_CACHE_ENABLE_SOFT_VALUES("table-cache-enable-soft-values", String.valueOf(Boolean.TRUE), boolean.class, false);
     
     private final String key;
     
